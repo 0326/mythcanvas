@@ -11,10 +11,22 @@ const primarySymbol = character.symbols[0] ?? '✦';
 
 <article class="character-card surface">
   <a href={`/character/${character.slug}/`}>
-    <div class="portrait" aria-hidden="true">
-      <div class="moon-ring"></div>
-      <span>{primarySymbol}</span>
-    </div>
+    {character.portrait ? (
+      <div class="portrait portrait-image">
+        <img
+          src={character.portrait.src}
+          alt=""
+          width={character.portrait.width}
+          height={character.portrait.height}
+          loading="lazy"
+        />
+      </div>
+    ) : (
+      <div class="portrait" aria-hidden="true">
+        <div class="moon-ring"></div>
+        <span>{primarySymbol}</span>
+      </div>
+    )}
     <div class="copy">
       <span class="role">{character.role}</span>
       <h3>{character.name}</h3>
@@ -82,6 +94,21 @@ const primarySymbol = character.symbols[0] ?? '✦';
     font-family: var(--font-serif);
     font-size: 1rem;
     font-weight: 700;
+  }
+
+  .portrait-image {
+    background: var(--surface-muted);
+  }
+
+  .portrait-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .character-card:hover .portrait-image img {
+    transform: scale(1.045);
   }
 
   .moon-ring {

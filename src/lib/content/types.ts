@@ -60,6 +60,8 @@ export type Character = {
   summary: string;
   symbols: readonly string[];
   canonicalDesign: CanonicalDesign;
+  /** Canonical Design 肖像视觉,缺失时 UI 回退到符号意象占位 */
+  portrait?: ImageAsset;
 };
 
 export type Artwork = {

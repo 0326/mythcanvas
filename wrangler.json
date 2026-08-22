@@ -10,6 +10,26 @@
 	"vars": {
 		"AI_GENERATION_MODE": "mock"
 	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "mythcanvas-db",
+			"database_id": "b6e7fe36-755c-4ec7-a768-855af0a583d7",
+			"migrations_dir": "migrations"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "ARTWORKS",
+			"bucket_name": "mythcanvas-artworks"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "SESSION",
+			"id": "493f439abeef47b6827f479061d20f6f"
+		}
+	],
 	"observability": {
 		"enabled": true
 	},

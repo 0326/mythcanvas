@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="页面未找到" description="这个页面不存在，可能已被移动到别的天境。">
+  <section class="not-found">
+    <div class="container-wide not-found-inner">
+      <div class="visual" aria-hidden="true">
+        <div class="moon"></div>
+        <div class="orbit orbit-a"></div>
+        <div class="orbit orbit-b"></div>
+      </div>
+      <span class="eyebrow">404</span>
+      <h1>迷失在云海之外</h1>
+      <p>这个页面不存在，可能已被移动到别的天境。</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/">回到首页</a>
+        <a class="btn btn-secondary" href="/explore/">去探索神话</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: calc(100vh - var(--header-height) - 12rem);
+    display: grid;
+    place-items: center;
+    padding-block: clamp(4rem, 10vw, 8rem);
+    background: radial-gradient(circle at 50% 24%, var(--hero-ambient), transparent 36%);
+  }
+
+  .not-found-inner {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .visual {
+    position: relative;
+    display: grid;
+    width: min(300px, 60vw);
+    aspect-ratio: 1;
+    margin-bottom: var(--space-8);
+    place-items: center;
+  }
+
+  .moon {
+    width: 62%;
+    aspect-ratio: 1;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    box-shadow: 0 0 80px var(--hero-ambient), inset 0 0 50px color-mix(in srgb, var(--moon-white) 36%, transparent);
+  }
+
+  .orbit {
+    position: absolute;
+    width: 88%;
+    height: 44%;
+    border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+    border-radius: 50%;
+  }
+
+  .orbit-a { transform: rotate(24deg); }
+  .orbit-b { transform: rotate(-24deg); }
+
+  h1 {
+    margin: 0;
+  }
+
+  p {
+    max-width: 30rem;
+    margin: var(--space-5) 0 0;
+    color: var(--text-secondary);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+  }
+</style>
