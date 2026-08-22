@@ -1,0 +1,52 @@
+html {
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+h1,
+h2,
+h3,
+h4,
+.display-serif,
+.brand-serif {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(2.7rem, 6vw, 5.7rem);
+  line-height: 1.04;
+}
+
+h2 {
+  font-size: clamp(2rem, 3.6vw, 3.5rem);
+  line-height: 1.12;
+}
+
+h3 {
+  font-size: clamp(1.3rem, 2vw, 1.85rem);
+  line-height: 1.25;
+}
+
+.small-caps {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
