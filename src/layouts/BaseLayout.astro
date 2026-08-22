@@ -1,0 +1,43 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  fullBleed?: boolean;
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  image,
+  fullBleed = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title} · ${SITE_TITLE}` : SITE_TITLE;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={pageTitle} description={description} image={image} />
+    <slot name="head" />
+  </head>
+  <body>
+    <Header />
+    <main class:list={{ 'page-main': true, 'page-main--contained': !fullBleed }}>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .page-main--contained {
+    width: 100%;
+  }
+</style>
