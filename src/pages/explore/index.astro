@@ -1,0 +1,173 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
+import { artworks, mythologies, styles } from '../../data/seed';
+import { getMythologyById, getRealmById } from '../../lib/content/queries';
+
+const approvedArtworks = artworks.filter((item) => item.reviewStatus === 'approved');
+const contentTypes = [
+  { id: 'all', name: '全部' },
+  { id: 'realm', name: '神域' },
+  { id: 'character', name: '角色' },
+  { id: 'scene', name: '场景' },
+  { id: 'creature', name: '神兽' },
+];
+---
+
+<BaseLayout
+  title="探索"
+  description="探索 MythCanvas 的神话视觉作品，按文明、内容类型和画风发现神域、角色与场景。"
+>
+  <section class="explore-hero">
+    <div class="container-wide">
+      <span class="eyebrow">Explore MythCanvas</span>
+      <div class="explore-title-row">
+        <div>
+          <h1>探索神话世界</h1>
+          <p>文化决定“是谁”，画风决定“怎么画”。在统一的 MythCanvas 体验中发现不同文明的 Visual DNA。</p>
+        </div>
+        <div class="explore-seal" aria-hidden="true"><span>神</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="explore-content section-compact">
+    <div class="container-wide">
+      <div class="filter-panel surface" data-explore-filters>
+        <div class="filter-row">
+          <span class="filter-label">文明</span>
+          <div class="filter-scroll" role="group" aria-label="按神话文明筛选">
+            <button class="chip is-active" type="button" data-filter="mythology" data-value="all" aria-pressed="true">全部</button>
+            {mythologies.map((mythology) => (
+              <button class="chip" type="button" data-filter="mythology" data-value={mythology.id} aria-pressed="false">{mythology.name}</button>
+            ))}
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">内容</span>
+          <div class="filter-scroll" role="group" aria-label="按内容类型筛选">
+            {contentTypes.map((type, index) => (
+              <button class:list={{ chip: true, 'is-active': index === 0 }} type="button" data-filter="type" data-value={type.id} aria-pressed={index === 0 ? 'true' : 'false'}>{type.name}</button>
+            ))}
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">画风</span>
+          <div class="filter-scroll" role="group" aria-label="按视觉风格筛选">
+            <button class="chip is-active" type="button" data-filter="style" data-value="all" aria-pressed="true">全部</button>
+            {styles.map((style) => (
+              <button class="chip" type="button" data-filter="style" data-value={style.id} aria-pressed="false">{style.name}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="results-head">
+        <div>
+          <span class="small-caps">Curated Visuals</span>
+          <h2>精选作品</h2>
+        </div>
+        <p><strong data-result-count>{approvedArtworks.length}</strong> 件作品</p>
+      </div>
+
+      <div class="artwork-grid" data-artwork-grid>
+        {approvedArtworks.map((artwork) => {
+          const mythology = getMythologyById(artwork.mythologyId);
+          const realm = artwork.realmId ? getRealmById(artwork.realmId) : undefined;
+          return <ArtworkCard artwork={artwork} mythologyName={mythology?.name} realmName={realm?.name} />;
+        })}
+      </div>
+
+      <div class="empty-state surface" data-empty-state hidden>
+        <span aria-hidden="true">☾</span>
+        <h3>这个神境还没有作品</h3>
+        <p>换一个文明、内容类型或画风继续探索。</p>
+        <button class="btn btn-secondary" type="button" data-reset-filters>重置筛选</button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-explore-filters]');
+    const grid = document.querySelector('[data-artwork-grid]');
+    if (!root || !grid) return;
+
+    const state = { mythology: 'all', type: 'all', style: 'all' };
+    const cards = Array.from(grid.querySelectorAll('[data-artwork-card]'));
+    const count = document.querySelector('[data-result-count]');
+    const empty = document.querySelector('[data-empty-state]');
+
+    const apply = () => {
+      let visible = 0;
+      cards.forEach((card) => {
+        const matches =
+          (state.mythology === 'all' || card.dataset.mythology === state.mythology) &&
+          (state.type === 'all' || card.dataset.type === state.type) &&
+          (state.style === 'all' || card.dataset.style === state.style);
+        card.hidden = !matches;
+        if (matches) visible += 1;
+      });
+      if (count) count.textContent = String(visible);
+      if (empty) empty.hidden = visible !== 0;
+    };
+
+    root.querySelectorAll('[data-filter]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const key = button.dataset.filter;
+        const value = button.dataset.value;
+        if (!key || !value || !(key in state)) return;
+        state[key] = value;
+        root.querySelectorAll(`[data-filter="${key}"]`).forEach((item) => {
+          const active = item === button;
+          item.classList.toggle('is-active', active);
+          item.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        apply();
+      });
+    });
+
+    document.querySelector('[data-reset-filters]')?.addEventListener('click', () => {
+      Object.keys(state).forEach((key) => {
+        state[key] = 'all';
+        root.querySelectorAll(`[data-filter="${key}"]`).forEach((item) => {
+          const active = item.dataset.value === 'all';
+          item.classList.toggle('is-active', active);
+          item.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+      });
+      apply();
+    });
+  })();
+</script>
+
+<style>
+  .explore-hero { position: relative; overflow: hidden; padding-block: clamp(4.5rem, 8vw, 8rem) clamp(3rem, 5vw, 5rem); border-bottom: 1px solid var(--border); }
+  .explore-hero::after { content: ''; position: absolute; width: min(720px, 72vw); aspect-ratio: 1; right: -18%; top: -72%; border: 1px solid var(--border); border-radius: 50%; box-shadow: 0 0 0 70px color-mix(in srgb, var(--accent) 4%, transparent), 0 0 0 140px color-mix(in srgb, var(--jade) 3%, transparent); pointer-events: none; }
+  .explore-title-row { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: var(--space-10); }
+  .explore-title-row > div:first-child { max-width: 760px; }
+  h1 { margin: 0; font-size: clamp(3rem, 6vw, 5rem); }
+  .explore-title-row p { max-width: 42rem; margin: var(--space-5) 0 0; color: var(--text-secondary); }
+  .explore-seal { display: grid; width: 98px; height: 98px; place-items: center; flex: 0 0 auto; border: 1px solid var(--border-strong); border-radius: 50%; color: var(--accent-strong); background: var(--surface); box-shadow: inset 0 0 0 14px color-mix(in srgb, var(--accent) 5%, transparent); font-family: var(--font-serif); font-size: 2rem; }
+  .filter-panel { display: grid; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-lg); }
+  .filter-row { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: var(--space-4); align-items: center; }
+  .filter-label { color: var(--text-muted); font-size: 0.78rem; font-weight: 700; }
+  .filter-scroll { display: flex; gap: var(--space-2); min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .filter-scroll::-webkit-scrollbar { display: none; }
+  button.chip { cursor: pointer; }
+  .results-head { display: flex; align-items: end; justify-content: space-between; margin: clamp(3rem, 6vw, 5rem) 0 var(--space-6); }
+  .results-head h2 { margin: var(--space-1) 0 0; font-size: clamp(2rem, 3vw, 2.8rem); }
+  .results-head p { margin: 0; color: var(--text-muted); font-size: 0.82rem; }
+  .results-head strong { color: var(--accent-strong); font-size: 1rem; }
+  .artwork-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5) var(--space-4); }
+  .empty-state { margin-top: var(--space-8); padding: var(--space-16) var(--space-6); border-radius: var(--radius-lg); text-align: center; }
+  .empty-state > span { display: block; margin-bottom: var(--space-3); color: var(--accent); font-size: 2.4rem; }
+  .empty-state h3 { margin-bottom: var(--space-2); }
+  .empty-state p { color: var(--text-secondary); }
+  @media (max-width: 980px) { .artwork-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 720px) { .explore-title-row { align-items: start; } .explore-seal { width: 72px; height: 72px; font-size: 1.5rem; } .filter-row { grid-template-columns: 1fr; gap: var(--space-2); } .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 480px) { .explore-seal { display: none; } }
+</style>
