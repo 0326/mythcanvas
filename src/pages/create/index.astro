@@ -1,0 +1,291 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { characters, realms, styles } from '../../data/seed';
+
+const creatorCharacters = characters.slice(0, 5);
+const creatorRealms = realms.slice(0, 5);
+const scenes = ['云海', '月夜', '星空', '神殿', '山海', '遗迹', '深渊'];
+const compositions = [
+  { id: 'phone-lock', name: '手机锁屏', ratio: '9:16' },
+  { id: 'phone-home', name: '手机桌面', ratio: '9:16' },
+  { id: 'desktop', name: '桌面壁纸', ratio: '16:9' },
+  { id: 'epic', name: '史诗远景', ratio: '16:9' },
+];
+---
+
+<BaseLayout
+  title="AI 绘神"
+  description="MythCanvas AI 绘神：从神话角色或神域开始，选择画风、场景与构图，生成属于你的神话视觉。"
+>
+  <section class="creator-hero">
+    <div class="container-wide">
+      <span class="eyebrow">AI Creator</span>
+      <h1>绘神 · 创造你的神话世界</h1>
+      <p>不是从空白 Prompt 开始。先选择“谁”或“哪里”，MythCanvas 自动带入文明 Visual DNA 与 Canonical Design。</p>
+    </div>
+  </section>
+
+  <section class="creator-section section-compact">
+    <div class="container-wide creator-grid" data-creator>
+      <form class="creator-panel surface" onsubmit="return false;">
+        <div class="step-block">
+          <div class="step-head"><span>01</span><div><h2>我要绘制</h2><p>选择角色或神域作为创作起点</p></div></div>
+          <div class="segmented" role="group" aria-label="创作对象类型">
+            <button class="is-active" type="button" data-entity-tab="character" aria-pressed="true">角色</button>
+            <button type="button" data-entity-tab="realm" aria-pressed="false">神域</button>
+          </div>
+          <div class="entity-options" data-entity-group="character">
+            {creatorCharacters.map((character, index) => {
+              const realm = realms.find((item) => character.realmIds.includes(item.id));
+              return (
+                <button
+                  class:list={{ 'entity-option': true, 'is-active': index === 0 }}
+                  type="button"
+                  data-entity
+                  data-entity-type="character"
+                  data-name={character.name}
+                  data-image={realm?.heroImage.src ?? '/art/chinese-celestial.svg'}
+                  aria-pressed={index === 0 ? 'true' : 'false'}
+                >
+                  <span class="entity-glyph">{character.symbols[0]}</span>
+                  <span><strong>{character.name}</strong><small>{character.role}</small></span>
+                </button>
+              );
+            })}
+          </div>
+          <div class="entity-options" data-entity-group="realm" hidden>
+            {creatorRealms.map((realm) => (
+              <button class="entity-option" type="button" data-entity data-entity-type="realm" data-name={realm.name} data-image={realm.heroImage.src} aria-pressed="false">
+                <span class="entity-glyph">◇</span>
+                <span><strong>{realm.name}</strong><small>{realm.nameEn}</small></span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="step-block">
+          <div class="step-head"><span>02</span><div><h2>选择画风</h2><p>画风只改变表达方式，不改变角色和世界身份</p></div></div>
+          <div class="style-options">
+            {styles.map((style, index) => (
+              <button class:list={{ 'style-option': true, 'is-active': index === 0 }} type="button" data-style={style.name} aria-pressed={index === 0 ? 'true' : 'false'}>
+                <span class:list={{ 'style-swatch': true, [`tone-${(index % 4) + 1}`]: true }} aria-hidden="true"></span>
+                {style.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="step-block">
+          <div class="step-head"><span>03</span><div><h2>场景氛围</h2><p>选择一个主场景，可以继续叠加自由描述</p></div></div>
+          <div class="chip-options">
+            {scenes.map((scene, index) => <button class:list={{ chip: true, 'is-active': index === 0 }} type="button" data-scene={scene} aria-pressed={index === 0 ? 'true' : 'false'}>{scene}</button>)}
+          </div>
+          <label class="advanced-input">
+            <span>补充描述 <small>可选</small></span>
+            <textarea rows="3" maxlength="180" placeholder="例如：远处有巨大的月轮，云海被金色晨光照亮……" data-description></textarea>
+          </label>
+        </div>
+
+        <div class="step-block">
+          <div class="step-head"><span>04</span><div><h2>构图与设备</h2><p>让生成结果从一开始就是可用壁纸</p></div></div>
+          <div class="composition-options">
+            {compositions.map((composition, index) => (
+              <button class:list={{ 'composition-option': true, 'is-active': index === 0 }} type="button" data-composition={composition.name} data-ratio={composition.ratio} aria-pressed={index === 0 ? 'true' : 'false'}>
+                <span class="ratio-box" style={`--ratio: ${composition.ratio.replace(':', '/')}`}></span>
+                <span><strong>{composition.name}</strong><small>{composition.ratio}</small></span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button class="btn btn-primary generate-button" type="button" data-generate>开始绘神 <span aria-hidden="true">✦</span></button>
+      </form>
+
+      <aside class="preview-column">
+        <div class="preview-card surface">
+          <div class="preview-frame" data-preview-frame>
+            <img src="/art/chinese-celestial.svg" alt="AI 绘神预览" width="1600" height="900" data-preview-image />
+            <div class="preview-overlay"></div>
+            <div class="preview-status" data-preview-status>
+              <span class="small-caps">Creation Preview</span>
+              <strong data-preview-title>嫦娥 · 经典神话</strong>
+              <p data-preview-subtitle>云海 · 手机锁屏 · 9:16</p>
+            </div>
+          </div>
+          <div class="preview-summary">
+            <div><span>对象</span><strong data-summary-entity>嫦娥</strong></div>
+            <div><span>画风</span><strong data-summary-style>经典神话</strong></div>
+            <div><span>场景</span><strong data-summary-scene>云海</strong></div>
+            <div><span>构图</span><strong data-summary-composition>手机锁屏</strong></div>
+          </div>
+        </div>
+
+        <div class="prototype-note surface">
+          <span aria-hidden="true">◎</span>
+          <div><strong>MVP 交互原型</strong><p>当前完成 guided creation UX 与状态反馈；下一阶段接 Workers AI orchestration、内容审核和 R2 结果持久化。</p></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-creator]');
+    if (!root) return;
+
+    const state = {
+      entityType: 'character',
+      entity: '嫦娥',
+      image: '/art/chinese-celestial.svg',
+      style: '经典神话',
+      scene: '云海',
+      composition: '手机锁屏',
+      ratio: '9:16',
+    };
+
+    const setPressed = (selector, active) => {
+      root.querySelectorAll(selector).forEach((item) => {
+        const selected = item === active;
+        item.classList.toggle('is-active', selected);
+        item.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      });
+    };
+
+    const refresh = () => {
+      const image = root.querySelector('[data-preview-image]');
+      if (image && image.getAttribute('src') !== state.image) image.setAttribute('src', state.image);
+      root.querySelector('[data-preview-title]').textContent = `${state.entity} · ${state.style}`;
+      root.querySelector('[data-preview-subtitle]').textContent = `${state.scene} · ${state.composition} · ${state.ratio}`;
+      root.querySelector('[data-summary-entity]').textContent = state.entity;
+      root.querySelector('[data-summary-style]').textContent = state.style;
+      root.querySelector('[data-summary-scene]').textContent = state.scene;
+      root.querySelector('[data-summary-composition]').textContent = state.composition;
+    };
+
+    root.querySelectorAll('[data-entity-tab]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const type = button.dataset.entityTab;
+        if (!type) return;
+        state.entityType = type;
+        setPressed('[data-entity-tab]', button);
+        root.querySelectorAll('[data-entity-group]').forEach((group) => { group.hidden = group.dataset.entityGroup !== type; });
+        const first = root.querySelector(`[data-entity-group="${type}"] [data-entity]`);
+        if (first) first.click();
+      });
+    });
+
+    root.querySelectorAll('[data-entity]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state.entity = button.dataset.name || state.entity;
+        state.image = button.dataset.image || state.image;
+        setPressed(`[data-entity-type="${button.dataset.entityType}"]`, button);
+        refresh();
+      });
+    });
+
+    root.querySelectorAll('[data-style]').forEach((button) => {
+      button.addEventListener('click', () => { state.style = button.dataset.style || state.style; setPressed('[data-style]', button); refresh(); });
+    });
+
+    root.querySelectorAll('[data-scene]').forEach((button) => {
+      button.addEventListener('click', () => { state.scene = button.dataset.scene || state.scene; setPressed('[data-scene]', button); refresh(); });
+    });
+
+    root.querySelectorAll('[data-composition]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state.composition = button.dataset.composition || state.composition;
+        state.ratio = button.dataset.ratio || state.ratio;
+        setPressed('[data-composition]', button);
+        refresh();
+      });
+    });
+
+    root.querySelector('[data-generate]')?.addEventListener('click', () => {
+      const status = root.querySelector('[data-preview-status]');
+      const button = root.querySelector('[data-generate]');
+      if (!status || !button) return;
+      button.disabled = true;
+      button.textContent = '正在绘神…';
+      status.classList.add('is-generating');
+      status.querySelector('strong').textContent = `正在构筑 ${state.scene}`;
+      status.querySelector('p').textContent = `正在重现 ${state.entity} 的 ${state.style} 视觉…`;
+      window.setTimeout(() => {
+        status.classList.remove('is-generating');
+        status.querySelector('strong').textContent = `${state.entity} · ${state.style}`;
+        status.querySelector('p').textContent = '原型已完成 · 接入生成服务后这里展示真实结果';
+        button.disabled = false;
+        button.textContent = '再绘一次 ✦';
+      }, 1200);
+    });
+
+    refresh();
+  })();
+</script>
+
+<style>
+  .creator-hero { padding-block: clamp(4rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem); border-bottom: 1px solid var(--border); }
+  .creator-hero h1 { max-width: 860px; margin: 0; font-size: clamp(2.8rem, 5vw, 5rem); }
+  .creator-hero p { max-width: 720px; margin: var(--space-5) 0 0; color: var(--text-secondary); }
+  .creator-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .78fr); gap: var(--space-6); align-items: start; }
+  .creator-panel { display: grid; gap: var(--space-8); padding: clamp(1.25rem, 3vw, 2.25rem); border-radius: var(--radius-xl); }
+  .step-block + .step-block { padding-top: var(--space-7, 1.75rem); border-top: 1px solid var(--border); }
+  .step-head { display: flex; gap: var(--space-4); align-items: start; margin-bottom: var(--space-5); }
+  .step-head > span { color: var(--accent); font-family: Georgia, serif; font-size: .75rem; }
+  .step-head h2 { margin: 0; font-family: var(--font-sans); font-size: 1.1rem; }
+  .step-head p { margin: .2rem 0 0; color: var(--text-muted); font-size: .78rem; }
+  .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-muted); }
+  .segmented button { min-height: 38px; border: 0; border-radius: 9px; color: var(--text-secondary); background: transparent; cursor: pointer; }
+  .segmented button.is-active { color: var(--text-primary); background: var(--surface-strong); box-shadow: var(--shadow-sm); }
+  .entity-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .entity-option { display: flex; align-items: center; gap: var(--space-3); min-height: 70px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); text-align: left; background: var(--surface); cursor: pointer; }
+  .entity-option.is-active { border-color: var(--border-strong); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent); background: var(--surface-strong); }
+  .entity-glyph { display: grid; width: 42px; height: 42px; place-items: center; flex: 0 0 auto; border-radius: 50%; color: var(--accent-strong); background: var(--surface-muted); font-family: var(--font-serif); font-size: .72rem; }
+  .entity-option > span:last-child { display: grid; min-width: 0; }
+  .entity-option strong { font-size: .85rem; }
+  .entity-option small { margin-top: 2px; overflow: hidden; color: var(--text-muted); font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+  .style-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+  .style-option { display: grid; gap: var(--space-2); justify-items: start; min-height: 82px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); background: var(--surface); cursor: pointer; font-size: .76rem; }
+  .style-option.is-active { color: var(--text-primary); border-color: var(--border-strong); background: var(--surface-strong); }
+  .style-swatch { width: 100%; height: 28px; border-radius: var(--radius-sm); }
+  .tone-1 { background: linear-gradient(90deg, var(--cloud-blue), var(--accent)); }
+  .tone-2 { background: linear-gradient(90deg, var(--jade), #e6c382); }
+  .tone-3 { background: linear-gradient(90deg, #304b68, #9e8154); }
+  .tone-4 { background: linear-gradient(90deg, #5c4e69, #91acd0); }
+  .chip-options { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  button.chip { cursor: pointer; }
+  .advanced-input { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  .advanced-input > span { color: var(--text-secondary); font-size: .76rem; font-weight: 700; }
+  .advanced-input small { color: var(--text-muted); font-weight: 400; }
+  textarea { resize: vertical; min-height: 86px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); }
+  .composition-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .composition-option { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); background: var(--surface); text-align: left; cursor: pointer; }
+  .composition-option.is-active { color: var(--text-primary); border-color: var(--border-strong); background: var(--surface-strong); }
+  .ratio-box { display: block; width: 28px; height: 36px; flex: 0 0 auto; border: 1px solid var(--accent); border-radius: 4px; background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .composition-option:nth-child(n+3) .ratio-box { width: 42px; height: 27px; }
+  .composition-option > span:last-child { display: grid; }
+  .composition-option strong { font-size: .78rem; }
+  .composition-option small { color: var(--text-muted); font-size: .68rem; }
+  .generate-button { width: 100%; min-height: 52px; }
+  .generate-button:disabled { cursor: wait; opacity: .7; }
+  .preview-column { position: sticky; top: calc(var(--header-height) + var(--space-6)); display: grid; gap: var(--space-4); }
+  .preview-card { overflow: hidden; padding: var(--space-3); border-radius: var(--radius-xl); }
+  .preview-frame { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: calc(var(--radius-xl) - 8px); background: var(--surface-muted); }
+  .preview-frame img { width: 100%; height: 100%; object-fit: cover; }
+  .preview-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(6,14,23,.68), transparent 55%); }
+  .preview-status { position: absolute; right: var(--space-5); bottom: var(--space-5); left: var(--space-5); display: grid; gap: var(--space-1); color: white; }
+  .preview-status strong { font-family: var(--font-serif); font-size: 1.65rem; }
+  .preview-status p { margin: 0; color: rgba(255,255,255,.78); font-size: .8rem; }
+  .preview-status.is-generating::before { content: ''; position: absolute; top: -14px; left: 0; width: 54px; height: 1px; background: #f2d28e; animation: pulse 1.2s ease-in-out infinite alternate; }
+  .preview-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); padding: var(--space-4) var(--space-2) var(--space-2); }
+  .preview-summary div { display: grid; gap: 2px; }
+  .preview-summary span { color: var(--text-muted); font-size: .66rem; }
+  .preview-summary strong { font-size: .78rem; }
+  .prototype-note { display: flex; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); }
+  .prototype-note > span { color: var(--accent); }
+  .prototype-note strong { font-size: .82rem; }
+  .prototype-note p { margin: var(--space-1) 0 0; color: var(--text-muted); font-size: .72rem; }
+  @keyframes pulse { from { width: 36px; opacity: .45; } to { width: 120px; opacity: 1; } }
+  @media (max-width: 980px) { .creator-grid { grid-template-columns: 1fr; } .preview-column { position: static; grid-row: 1; } .preview-card { max-width: 640px; margin-inline: auto; } .preview-frame { aspect-ratio: 16 / 10; } }
+  @media (max-width: 620px) { .entity-options, .style-options, .composition-options { grid-template-columns: 1fr; } .preview-frame { aspect-ratio: 4 / 5; } }
+</style>

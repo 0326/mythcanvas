@@ -1,50 +1,477 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MythologyCard from '../components/mythology/MythologyCard.astro';
+import RealmCard from '../components/realm/RealmCard.astro';
+import CharacterCard from '../components/character/CharacterCard.astro';
+import ArtworkCard from '../components/artwork/ArtworkCard.astro';
+import { artworks, characters, mythologies, realms } from '../data/seed';
+import { getMythologyById, getRealmById } from '../lib/content/queries';
+
+const featuredRealms = realms.slice(0, 3);
+const featuredCharacters = characters.slice(0, 4);
+const featuredMythologies = mythologies;
+const featuredArtworks = artworks.slice(0, 6);
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<BaseLayout
+  fullBleed
+  description="绘神宇宙 MythCanvas：用 AI 重现神话世界。探索中国、希腊、北欧、日本与埃及神话中的神域、角色与视觉作品。"
+  image="/art/chinese-celestial.svg"
+>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-art" aria-hidden="true">
+      <img class="hero-art-light" src="/art/chinese-celestial.svg" alt="" width="1600" height="900" fetchpriority="high" />
+      <img class="hero-art-dark" src="/art/chinese-celestial-night.svg" alt="" width="1600" height="900" fetchpriority="high" />
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="container-wide hero-content">
+      <div class="hero-copy">
+        <span class="eyebrow">Visual Mythology</span>
+        <h1 id="hero-title">
+          <span>绘神宇宙</span>
+          <em>MythCanvas</em>
+        </h1>
+        <p class="hero-slogan">用 AI 重现神话世界</p>
+        <p class="hero-intro">从云海天宫到奥林匹斯，从诸神到神兽。探索传说中的世界，并重新绘制属于你的版本。</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/explore/">探索神境 <span aria-hidden="true">→</span></a>
+          <a class="btn btn-secondary" href="#create">开始绘神</a>
+        </div>
+        <div class="hero-mythologies" aria-label="首发神话文明">
+          {featuredMythologies.map((mythology) => (
+            <a href={`/mythology/${mythology.slug}/`}>{mythology.name}</a>
+          ))}
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll" aria-hidden="true"><span></span>向下探索</div>
+  </section>
+
+  <section class="section" id="realms">
+    <div class="container-wide">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Today's Realms</span>
+          <h2>今日神境</h2>
+          <p>不只是看一张图。进入一个神域，沿着地标、角色与不同视觉形态继续探索。</p>
+        </div>
+        <a class="btn btn-secondary" href="/explore/">探索全部</a>
+      </div>
+      <div class="realm-grid">
+        {featuredRealms.map((realm, index) => (
+          <div class:list={{ 'realm-feature': index === 0 }}>
+            <RealmCard realm={realm} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-tint" id="characters">
+    <div class="container-wide">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Canonical Characters</span>
+          <h2>诸神有形</h2>
+          <p>每个核心角色拥有稳定的 Canonical Design，也可以在电影感、动漫、神圣、赛博等画风中重新演绎。</p>
+        </div>
+      </div>
+      <div class="character-grid">
+        {featuredCharacters.map((character) => <CharacterCard character={character} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="mythologies">
+    <div class="container-wide">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Civilization Visual DNA</span>
+          <h2>探索神话文明</h2>
+          <p>全站保持统一的 MythCanvas 主题，每个文明则通过自己的建筑、材质、纹样与光线建立独特 Visual DNA。</p>
+        </div>
+      </div>
+      <div class="mythology-grid">
+        {featuredMythologies.map((mythology) => <MythologyCard mythology={mythology} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-tint">
+    <div class="container-wide">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Selected Artworks</span>
+          <h2>精选神话视觉</h2>
+          <p>场景优先、角色并行。避免把神话世界退化成一组随机 AI 人像。</p>
+        </div>
+        <a class="btn btn-secondary" href="/explore/">查看全部壁纸</a>
+      </div>
+      <div class="artwork-grid">
+        {featuredArtworks.map((artwork) => {
+          const mythology = getMythologyById(artwork.mythologyId);
+          const realm = artwork.realmId ? getRealmById(artwork.realmId) : undefined;
+          return (
+            <ArtworkCard
+              artwork={artwork}
+              mythologyName={mythology?.name}
+              realmName={realm?.name}
+            />
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <section class="section create-section" id="create">
+    <div class="container-wide">
+      <div class="create-panel surface">
+        <div class="create-orbit" aria-hidden="true"><span>✦</span></div>
+        <div class="create-copy">
+          <span class="eyebrow">AI Creation</span>
+          <h2>不是写 Prompt，<br />是重新绘制一个神话世界。</h2>
+          <p>选择神祇或神域，再选择画风、场景和构图。复杂的文化设定与视觉约束交给 MythCanvas。</p>
+          <div class="create-examples" aria-label="示例创作方向">
+            <span class="chip">嫦娥 · 月宫清辉</span>
+            <span class="chip">Athena · Cyber Myth</span>
+            <span class="chip">Olympus · Fallen</span>
+          </div>
+          <a class="btn btn-primary" href="/explore/">从一个神话开始</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: min(820px, calc(100svh - 20px));
+    display: grid;
+    align-items: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-art,
+  .hero-art img,
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-art img {
+    object-fit: cover;
+    object-position: center;
+    transition: opacity var(--transition-base), transform 12s ease;
+  }
+
+  .hero:hover .hero-art img {
+    transform: scale(1.02);
+  }
+
+  .hero-art-dark {
+    opacity: 0;
+  }
+
+  :global([data-theme='dark']) .hero-art-light {
+    opacity: 0;
+  }
+
+  :global([data-theme='dark']) .hero-art-dark {
+    opacity: 1;
+  }
+
+  .hero-overlay {
+    z-index: 1;
+    background:
+      var(--hero-overlay),
+      linear-gradient(to top, var(--bg-primary) 0%, transparent 24%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding-block: clamp(5rem, 10vw, 9rem);
+  }
+
+  .hero-copy {
+    max-width: 670px;
+  }
+
+  .hero h1 {
+    display: grid;
+    margin: 0;
+  }
+
+  .hero h1 > span {
+    color: var(--text-primary);
+  }
+
+  .hero h1 em {
+    margin-top: 0.12em;
+    color: var(--accent-strong);
+    font-family: Georgia, serif;
+    font-size: 0.42em;
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+  }
+
+  .hero-slogan {
+    margin: var(--space-6) 0 0;
+    color: var(--text-primary);
+    font-family: var(--font-serif);
+    font-size: clamp(1.35rem, 2.4vw, 2rem);
+    letter-spacing: 0.06em;
+  }
+
+  .hero-intro {
+    max-width: 34rem;
+    margin: var(--space-4) 0 0;
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+  }
+
+  .hero-mythologies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+  }
+
+  .hero-mythologies a {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 650;
+  }
+
+  .hero-mythologies a + a::before {
+    content: '·';
+    margin-right: var(--space-4);
+    color: var(--accent);
+  }
+
+  .hero-scroll {
+    position: absolute;
+    z-index: 2;
+    right: clamp(1.5rem, 4vw, 4rem);
+    bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+  }
+
+  .hero-scroll span {
+    width: 42px;
+    height: 1px;
+    background: var(--border-strong);
+  }
+
+  .section-tint {
+    border-block: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg-secondary) 66%, transparent);
+  }
+
+  .realm-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr 1fr;
+    gap: var(--space-5);
+  }
+
+  .realm-feature :global(.realm-image-wrap) {
+    aspect-ratio: 16 / 9;
+  }
+
+  .character-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .mythology-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .mythology-grid :global(.copy) {
+    padding: var(--space-4);
+  }
+
+  .mythology-grid :global(.copy p) {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .artwork-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .artwork-grid > :global(*:nth-child(2n)) :global(.image-wrap) {
+    aspect-ratio: 4 / 6;
+  }
+
+  .create-section {
+    padding-top: clamp(4rem, 7vw, 7rem);
+  }
+
+  .create-panel {
+    position: relative;
+    min-height: 420px;
+    display: grid;
+    grid-template-columns: minmax(240px, 0.75fr) minmax(0, 1.25fr);
+    align-items: center;
+    overflow: hidden;
+    padding: clamp(2rem, 6vw, 5rem);
+    border-radius: var(--radius-xl);
+  }
+
+  .create-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 18% 50%, var(--hero-ambient), transparent 30%),
+      linear-gradient(120deg, transparent 42%, color-mix(in srgb, var(--accent) 7%, transparent));
+  }
+
+  .create-orbit {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: min(250px, 72%);
+    aspect-ratio: 1;
+    place-items: center;
+    margin-inline: auto;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 38px color-mix(in srgb, var(--accent) 5%, transparent),
+      0 0 0 76px color-mix(in srgb, var(--jade) 4%, transparent);
+  }
+
+  .create-orbit::before,
+  .create-orbit::after {
+    content: '';
+    position: absolute;
+    inset: 18%;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+  }
+
+  .create-orbit::after {
+    inset: 34%;
+  }
+
+  .create-orbit span {
+    color: var(--accent);
+    font-size: 2.2rem;
+  }
+
+  .create-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 660px;
+  }
+
+  .create-copy h2 {
+    margin-bottom: var(--space-5);
+  }
+
+  .create-copy > p {
+    max-width: 38rem;
+    color: var(--text-secondary);
+  }
+
+  .create-examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-6) 0;
+  }
+
+  @media (max-width: 1100px) {
+    .mythology-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .artwork-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 850px) {
+    .hero {
+      min-height: 720px;
+      align-items: end;
+    }
+
+    .hero-overlay {
+      background:
+        linear-gradient(to top, var(--bg-primary) 2%, color-mix(in srgb, var(--bg-primary) 82%, transparent) 42%, transparent 75%),
+        linear-gradient(to right, color-mix(in srgb, var(--bg-primary) 38%, transparent), transparent);
+    }
+
+    .hero-content {
+      padding-bottom: 6rem;
+    }
+
+    .realm-grid,
+    .character-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .create-panel {
+      grid-template-columns: 1fr;
+      gap: var(--space-16);
+    }
+
+    .create-orbit {
+      width: 180px;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .hero {
+      min-height: 680px;
+    }
+
+    .hero-art img {
+      object-position: 62% center;
+    }
+
+    .hero-scroll {
+      display: none;
+    }
+
+    .mythology-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .artwork-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .create-panel {
+      padding: var(--space-8) var(--space-5);
+    }
+  }
+</style>

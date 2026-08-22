@@ -38,18 +38,38 @@ MythCanvas 全站只维护一套结构与组件体系：
 
 ## 当前工程状态
 
-仓库当前基于 Cloudflare 的 Astro Starter 初始化，仍处于产品工程化起点：
+第一阶段产品前台骨架已经落地：
 
-- Astro 5 + TypeScript
-- `@astrojs/cloudflare`
-- Cloudflare Workers 部署
-- Sitemap / RSS / MDX 基础能力
-- 当前页面和 Header/Footer 仍保留 Starter Blog 示例结构
-- 尚未建立 MythCanvas 的领域模型、页面路由、主题 Token、D1/R2 数据层和 AI 生成链路
+- ✅ Astro 5 + TypeScript + Cloudflare Workers
+- ✅ Semantic Design Token
+- ✅ Light「天宫鎏金」/ Dark「月渺仙阙」双主题
+- ✅ 首屏 no-flash Theme bootstrap + 用户主题记忆
+- ✅ MythCanvas Header / Footer / BaseLayout
+- ✅ Home 首页
+- ✅ Explore 可组合文明 / 类型 / 画风筛选
+- ✅ Mythology / Realm / Character / Artwork 类型模型
+- ✅ 5 个首发文明的 MVP seed data + Civilization Visual DNA
+- ✅ Mythology / Realm / Character / Wallpaper 静态实体详情路由
+- ✅ Canonical Design / Style Variant 产品表达
+- ✅ AI「绘神」Guided Creator 交互原型
+- ✅ 手机壁纸 Device Preview 原型
+- ✅ CI Astro build verification
+- ✅ 移除 Astro Starter 的 About / Blog / RSS 路由
 
-因此下一阶段重点不是继续堆 Starter 页面，而是按产品对象模型重构。
+当前仍属于 **前端产品原型 + typed seed data** 阶段。下一阶段重点是把原型资产和交互接入真实数据与 AI 服务。
 
-## 推荐目标结构
+尚未完成：
+
+- D1 元数据持久化
+- R2 高清图 / 缩略图 / 多尺寸派生图
+- Workers AI generation orchestration
+- 内容审核
+- 用户登录、收藏与“我的宇宙”
+- Search / Recommendation service
+- 正式神话视觉资产替换 prototype placeholder
+- Image Sitemap / JSON-LD / GEO 完整化
+
+## 当前结构
 
 ```text
 mythcanvas/
@@ -64,32 +84,34 @@ mythcanvas/
 │   ├── mythcanvas-content-model/SKILL.md
 │   └── mythcanvas-seo-geo/SKILL.md
 ├── public/
+│   └── art/
+│       ├── chinese-celestial.svg
+│       └── chinese-celestial-night.svg
 ├── src/
 │   ├── components/
-│   │   ├── ui/
-│   │   ├── artwork/
-│   │   ├── character/
-│   │   ├── realm/
-│   │   └── create/
-│   ├── content/
-│   ├── data/
-│   ├── layouts/
-│   ├── lib/
-│   │   ├── cloudflare/
-│   │   ├── content/
-│   │   ├── seo/
-│   │   └── theme/
+│   │   ├── ui/ThemeToggle.astro
+│   │   ├── artwork/ArtworkCard.astro
+│   │   ├── character/CharacterCard.astro
+│   │   ├── mythology/MythologyCard.astro
+│   │   └── realm/RealmCard.astro
+│   ├── data/seed.ts
+│   ├── layouts/BaseLayout.astro
+│   ├── lib/content/
+│   │   ├── types.ts
+│   │   └── queries.ts
 │   ├── pages/
-│   │   ├── explore/
+│   │   ├── index.astro
+│   │   ├── explore/index.astro
 │   │   ├── mythology/[slug].astro
 │   │   ├── realm/[slug].astro
 │   │   ├── character/[slug].astro
 │   │   ├── wallpaper/[slug].astro
-│   │   └── create/
+│   │   └── create/index.astro
 │   └── styles/
 │       ├── tokens.css
 │       ├── theme-light.css
 │       ├── theme-dark.css
+│       ├── typography.css
 │       └── global.css
 └── wrangler.json
 ```
@@ -111,11 +133,11 @@ mythcanvas/
 
 - **Frontend**: Astro 5, TypeScript
 - **Runtime**: Cloudflare Workers
-- **Content**: Astro Content Collections / structured data
-- **Storage (planned)**: Cloudflare R2
-- **Database (planned)**: Cloudflare D1
-- **Cache/config (planned)**: Cloudflare KV
-- **Interactive islands (planned)**: React only where justified
+- **Content now**: typed MVP seed data
+- **Content later**: D1 + editorial Content Collections
+- **Storage planned**: Cloudflare R2
+- **Cache/config planned**: Cloudflare KV
+- **Interactive islands**: vanilla JS first; React only where interaction complexity justifies it
 
 ## Commands
 
@@ -132,18 +154,24 @@ Node.js >= 22。
 
 ## Development Priorities
 
-P0 推荐按以下顺序推进：
+已完成：
 
-1. Semantic Design Token + Light/Dark Theme
-2. Header / Footer / Layout 重构
-3. Home + Explore
-4. Mythology / Realm / Character 领域模型与详情页
-5. Artwork / Wallpaper 详情与下载体验
-6. Search / Related Content
-7. AI「绘神」Creator
-8. 收藏 / 我的宇宙
-9. D1 / R2 / AI API 接入
-10. SEO / GEO / Sitemap / Image Sitemap 完整化
+1. ✅ Semantic Design Token + Light/Dark Theme
+2. ✅ Header / Footer / BaseLayout
+3. ✅ Home + Explore
+4. ✅ Mythology / Realm / Character 领域模型与详情页
+5. ✅ Artwork / Wallpaper 详情与 Device Preview 原型
+6. ✅ AI「绘神」Guided Creator UX 原型
+
+下一阶段：
+
+7. **P0** 正式视觉资产体系 + R2 Image Pipeline
+8. **P0** D1 schema + seed migration
+9. **P0** Workers AI generation orchestration + moderation
+10. **P1** Search / Related Content / Recommendation
+11. **P1** 收藏 / 我的宇宙 / Auth
+12. **P1** SEO / GEO / JSON-LD / Image Sitemap
+13. **P2** 动态壁纸、分享卡、创作者投稿
 
 ## License & Content Policy
 

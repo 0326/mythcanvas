@@ -1,0 +1,118 @@
+---
+import type { Realm } from '../../lib/content/types';
+
+interface Props {
+  realm: Realm;
+  href?: string;
+}
+
+const { realm, href = `/realm/${realm.slug}/` } = Astro.props;
+---
+
+<article class="realm-card surface">
+  <a href={href} class="realm-link">
+    <div class="realm-image-wrap">
+      <img
+        src={realm.heroImage.src}
+        alt={realm.heroImage.alt}
+        width={realm.heroImage.width}
+        height={realm.heroImage.height}
+        loading="lazy"
+      />
+      <span class="realm-glyph" aria-hidden="true">◇</span>
+    </div>
+    <div class="realm-copy">
+      <span class="small-caps">Realm</span>
+      <h3>{realm.name}</h3>
+      <p>{realm.nameEn}</p>
+      <span class="realm-action">进入神域 <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</article>
+
+<style>
+  .realm-card {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-fast);
+  }
+
+  .realm-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .realm-link {
+    display: grid;
+    height: 100%;
+    color: inherit;
+  }
+
+  .realm-image-wrap {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--surface-muted);
+  }
+
+  .realm-image-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, color-mix(in srgb, var(--bg-primary) 36%, transparent), transparent 58%);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .realm-card:hover img {
+    transform: scale(1.035);
+  }
+
+  .realm-glyph {
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    z-index: 1;
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    color: white;
+    background: rgba(20, 30, 36, 0.24);
+    backdrop-filter: blur(10px);
+  }
+
+  .realm-copy {
+    padding: var(--space-5);
+  }
+
+  .small-caps {
+    color: var(--accent-strong);
+  }
+
+  h3 {
+    margin: var(--space-2) 0 0;
+    font-size: 1.45rem;
+  }
+
+  p {
+    margin: 0.15rem 0 var(--space-4);
+    color: var(--text-muted);
+    font-family: Georgia, serif;
+    font-size: 0.82rem;
+  }
+
+  .realm-action {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+</style>
