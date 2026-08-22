@@ -1,8 +1,8 @@
 {
 	"name": "mythcanvas",
-	"description": "Build a personal website, blog, or portfolio with Astro.",
+	"description": "MythCanvas (绘神宇宙) — 用 AI 重现神话世界的视觉探索与创作平台。",
 	"cloudflare": {
-		"label": "Astro Framework Starter",
+		"label": "MythCanvas",
 		"products": [
 			"Workers"
 		],
