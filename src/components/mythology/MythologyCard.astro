@@ -1,0 +1,99 @@
+---
+import type { Mythology } from '../../lib/content/types';
+
+interface Props {
+  mythology: Mythology;
+}
+
+const { mythology } = Astro.props;
+---
+
+<article class="myth-card surface">
+  <a href={`/mythology/${mythology.slug}/`}>
+    <div class="image-wrap">
+      <img
+        src={mythology.heroImage.src}
+        alt={mythology.heroImage.alt}
+        width={mythology.heroImage.width}
+        height={mythology.heroImage.height}
+        loading="lazy"
+      />
+    </div>
+    <div class="copy">
+      <span class="small-caps">Mythology</span>
+      <h3>{mythology.name}</h3>
+      <p>{mythology.summary}</p>
+      <div class="dna" aria-label="文明视觉 DNA">
+        {mythology.visualDna.motifs.slice(0, 3).map((motif) => <span>{motif}</span>)}
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .myth-card {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-fast);
+  }
+
+  .myth-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .image-wrap {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--surface-muted);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .myth-card:hover img {
+    transform: scale(1.035);
+  }
+
+  .copy {
+    padding: var(--space-5);
+  }
+
+  .small-caps {
+    color: var(--accent-strong);
+  }
+
+  h3 {
+    margin: var(--space-2) 0;
+    font-size: 1.4rem;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+  }
+
+  .dna {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .dna span {
+    color: var(--text-muted);
+    font-size: 0.76rem;
+  }
+
+  .dna span + span::before {
+    content: "·";
+    margin-right: var(--space-2);
+    color: var(--accent);
+  }
+</style>
