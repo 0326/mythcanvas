@@ -38,36 +38,33 @@ MythCanvas 全站只维护一套结构与组件体系：
 
 ## 当前工程状态
 
-第一阶段产品前台骨架已经落地：
+产品前台与第一版后端边界已经落地：
 
 - ✅ Astro 5 + TypeScript + Cloudflare Workers
 - ✅ Semantic Design Token
 - ✅ Light「天宫鎏金」/ Dark「月渺仙阙」双主题
 - ✅ 首屏 no-flash Theme bootstrap + 用户主题记忆
 - ✅ MythCanvas Header / Footer / BaseLayout
-- ✅ Home 首页
-- ✅ Explore 可组合文明 / 类型 / 画风筛选
+- ✅ Home + Explore
 - ✅ Mythology / Realm / Character / Artwork 类型模型
 - ✅ 5 个首发文明的 MVP seed data + Civilization Visual DNA
-- ✅ Mythology / Realm / Character / Wallpaper 静态实体详情路由
+- ✅ Mythology / Realm / Character / Wallpaper 实体详情路由
 - ✅ Canonical Design / Style Variant 产品表达
-- ✅ AI「绘神」Guided Creator 交互原型
-- ✅ 手机壁纸 Device Preview 原型
+- ✅ AI「绘神」Guided Creator
+- ✅ Device Preview
+- ✅ D1 schema + core seed migrations
+- ✅ `/api/generate` Workers orchestration
+- ✅ Provider-neutral Image Provider adapter
+- ✅ Mock Provider，用于零成本端到端开发和 CI
+- ✅ 可选 HTTP Image Provider
+- ✅ R2 generated artwork persistence adapter
+- ✅ `/media/*` R2 delivery route
+- ✅ generation job D1 persistence / status API
 - ✅ CI Astro build verification
-- ✅ 移除 Astro Starter 的 About / Blog / RSS 路由
 
-当前仍属于 **前端产品原型 + typed seed data** 阶段。下一阶段重点是把原型资产和交互接入真实数据与 AI 服务。
+当前默认仍使用 **Mock Provider + typed seed content**，因此不需要 D1/R2/模型服务也能运行完整 Creator 流程。配置正式 Cloudflare binding 与图片模型 Provider 后，同一套链路会自动切换为持久化真实生成结果。
 
-尚未完成：
-
-- D1 元数据持久化
-- R2 高清图 / 缩略图 / 多尺寸派生图
-- Workers AI generation orchestration
-- 内容审核
-- 用户登录、收藏与“我的宇宙”
-- Search / Recommendation service
-- 正式神话视觉资产替换 prototype placeholder
-- Image Sitemap / JSON-LD / GEO 完整化
+Cloudflare 接入见 [`docs/CLOUDFLARE_SETUP.md`](./docs/CLOUDFLARE_SETUP.md)。
 
 ## 当前结构
 
@@ -75,9 +72,13 @@ MythCanvas 全站只维护一套结构与组件体系：
 mythcanvas/
 ├── AGENTS.md
 ├── agent.md
+├── migrations/
+│   ├── 0001_initial.sql
+│   └── 0002_seed_core.sql
 ├── docs/
 │   ├── PRODUCT.md
-│   └── ARCHITECTURE.md
+│   ├── ARCHITECTURE.md
+│   └── CLOUDFLARE_SETUP.md
 ├── .agents/skills/
 │   ├── mythcanvas-product-ux/SKILL.md
 │   ├── mythcanvas-astro-cloudflare/SKILL.md
@@ -85,38 +86,57 @@ mythcanvas/
 │   └── mythcanvas-seo-geo/SKILL.md
 ├── public/
 │   └── art/
-│       ├── chinese-celestial.svg
-│       └── chinese-celestial-night.svg
 ├── src/
 │   ├── components/
-│   │   ├── ui/ThemeToggle.astro
-│   │   ├── artwork/ArtworkCard.astro
-│   │   ├── character/CharacterCard.astro
-│   │   ├── mythology/MythologyCard.astro
-│   │   └── realm/RealmCard.astro
 │   ├── data/seed.ts
 │   ├── layouts/BaseLayout.astro
-│   ├── lib/content/
-│   │   ├── types.ts
-│   │   └── queries.ts
+│   ├── lib/
+│   │   ├── content/
+│   │   ├── cloudflare/
+│   │   │   ├── assets.ts
+│   │   │   └── generation-repository.ts
+│   │   └── generation/
+│   │       ├── types.ts
+│   │       ├── validation.ts
+│   │       ├── prompt.ts
+│   │       ├── provider.ts
+│   │       └── service.ts
 │   ├── pages/
-│   │   ├── index.astro
-│   │   ├── explore/index.astro
-│   │   ├── mythology/[slug].astro
-│   │   ├── realm/[slug].astro
-│   │   ├── character/[slug].astro
-│   │   ├── wallpaper/[slug].astro
-│   │   └── create/index.astro
+│   │   ├── api/
+│   │   ├── media/
+│   │   ├── create/
+│   │   ├── explore/
+│   │   ├── mythology/
+│   │   ├── realm/
+│   │   ├── character/
+│   │   └── wallpaper/
 │   └── styles/
-│       ├── tokens.css
-│       ├── theme-light.css
-│       ├── theme-dark.css
-│       ├── typography.css
-│       └── global.css
 └── wrangler.json
 ```
 
 详细工程分层与迁移顺序见 [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)。
+
+## AI「绘神」生成链路
+
+```text
+Creator UI
+  → POST /api/generate
+  → validate guided request
+  → resolve Civilization Visual DNA
+  → resolve Character / Realm Canonical Design
+  → compose provider-neutral prompt
+  → Image Provider adapter
+  → persist image to R2 when available
+  → persist generation job to D1 when available
+  → return normalized result
+```
+
+浏览器永远不直接持有模型服务密钥。
+
+当前 Provider 模式：
+
+- `mock`：默认，输出 MythCanvas SVG 预览，完整走 API / D1 / R2 边界；
+- `http`：连接任意符合 MythCanvas HTTP Image Provider contract 的模型网关。
 
 ## AI 开发约定
 
@@ -128,14 +148,16 @@ mythcanvas/
 4. 核心页面优先 Astro SSR/SSG；仅在交互复杂时引入 Island。
 5. 核心 SEO 内容必须存在于服务端输出 HTML，不依赖客户端渲染。
 6. 不直接复刻现代动漫、游戏或影视 IP 的具体角色设计。
+7. 浏览器不得直接调用需要 Secret 的 AI Provider。
 
 ## Tech Stack
 
 - **Frontend**: Astro 5, TypeScript
 - **Runtime**: Cloudflare Workers
 - **Content now**: typed MVP seed data
-- **Content later**: D1 + editorial Content Collections
-- **Storage planned**: Cloudflare R2
+- **Database**: Cloudflare D1 schema ready, binding optional
+- **Storage**: Cloudflare R2 adapter ready, binding optional
+- **Generation**: provider-neutral Worker orchestration
 - **Cache/config planned**: Cloudflare KV
 - **Interactive islands**: vanilla JS first; React only where interaction complexity justifies it
 
@@ -160,18 +182,21 @@ Node.js >= 22。
 2. ✅ Header / Footer / BaseLayout
 3. ✅ Home + Explore
 4. ✅ Mythology / Realm / Character 领域模型与详情页
-5. ✅ Artwork / Wallpaper 详情与 Device Preview 原型
-6. ✅ AI「绘神」Guided Creator UX 原型
+5. ✅ Artwork / Wallpaper 详情与 Device Preview
+6. ✅ AI「绘神」Guided Creator
+7. ✅ D1 schema + seed migration
+8. ✅ R2 generated artwork boundary
+9. ✅ Workers generation orchestration + mock/http provider adapter
 
 下一阶段：
 
-7. **P0** 正式视觉资产体系 + R2 Image Pipeline
-8. **P0** D1 schema + seed migration
-9. **P0** Workers AI generation orchestration + moderation
-10. **P1** Search / Related Content / Recommendation
-11. **P1** 收藏 / 我的宇宙 / Auth
-12. **P1** SEO / GEO / JSON-LD / Image Sitemap
-13. **P2** 动态壁纸、分享卡、创作者投稿
+10. **P0** 创建真实 D1/R2 资源并完成生产 binding
+11. **P0** 接入正式图片生成 Provider + moderation / quota / rate limit
+12. **P0** 将正式 Artwork 内容读取从 seed 迁移到 D1/R2
+13. **P1** Search / Related Content / Recommendation
+14. **P1** 收藏 / 我的宇宙 / Auth
+15. **P1** SEO / GEO / JSON-LD / Image Sitemap
+16. **P2** 动态壁纸、分享卡、创作者投稿
 
 ## License & Content Policy
 
@@ -182,4 +207,5 @@ MythCanvas 平台内容原则：
 - 使用神话原型，重新设计视觉表达；
 - 不直接搬运影视截图、游戏卡图、动漫截图或未知版权壁纸；
 - 为 Artwork 保留来源、创作者、AI 模型、Prompt metadata、License 与审核状态；
-- Canonical Design 应形成 MythCanvas 自有视觉资产。
+- Canonical Design 应形成 MythCanvas 自有视觉资产；
+- Provider Prompt 会明确要求避免复刻现代商业 IP 的具体视觉设计。

@@ -7,6 +7,9 @@
 		"directory": "./dist",
 		"binding": "ASSETS"
 	},
+	"vars": {
+		"AI_GENERATION_MODE": "mock"
+	},
 	"observability": {
 		"enabled": true
 	},

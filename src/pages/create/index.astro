@@ -42,6 +42,7 @@ const compositions = [
                   class:list={{ 'entity-option': true, 'is-active': index === 0 }}
                   type="button"
                   data-entity
+                  data-entity-id={character.id}
                   data-entity-type="character"
                   data-name={character.name}
                   data-image={realm?.heroImage.src ?? '/art/chinese-celestial.svg'}
@@ -55,7 +56,16 @@ const compositions = [
           </div>
           <div class="entity-options" data-entity-group="realm" hidden>
             {creatorRealms.map((realm) => (
-              <button class="entity-option" type="button" data-entity data-entity-type="realm" data-name={realm.name} data-image={realm.heroImage.src} aria-pressed="false">
+              <button
+                class="entity-option"
+                type="button"
+                data-entity
+                data-entity-id={realm.id}
+                data-entity-type="realm"
+                data-name={realm.name}
+                data-image={realm.heroImage.src}
+                aria-pressed="false"
+              >
                 <span class="entity-glyph">◇</span>
                 <span><strong>{realm.name}</strong><small>{realm.nameEn}</small></span>
               </button>
@@ -67,7 +77,13 @@ const compositions = [
           <div class="step-head"><span>02</span><div><h2>选择画风</h2><p>画风只改变表达方式，不改变角色和世界身份</p></div></div>
           <div class="style-options">
             {styles.map((style, index) => (
-              <button class:list={{ 'style-option': true, 'is-active': index === 0 }} type="button" data-style={style.name} aria-pressed={index === 0 ? 'true' : 'false'}>
+              <button
+                class:list={{ 'style-option': true, 'is-active': index === 0 }}
+                type="button"
+                data-style-id={style.id}
+                data-style-name={style.name}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
                 <span class:list={{ 'style-swatch': true, [`tone-${(index % 4) + 1}`]: true }} aria-hidden="true"></span>
                 {style.name}
               </button>
@@ -120,9 +136,9 @@ const compositions = [
           </div>
         </div>
 
-        <div class="prototype-note surface">
+        <div class="prototype-note surface" data-pipeline-note>
           <span aria-hidden="true">◎</span>
-          <div><strong>MVP 交互原型</strong><p>当前完成 guided creation UX 与状态反馈；下一阶段接 Workers AI orchestration、内容审核和 R2 结果持久化。</p></div>
+          <div><strong>Workers 生成链路</strong><p>当前默认使用 Mock Provider 验证完整 API 流程；配置 D1、R2 与图片 Provider 后会自动持久化真实生成结果。</p></div>
         </div>
       </aside>
     </div>
@@ -136,8 +152,10 @@ const compositions = [
 
     const state = {
       entityType: 'character',
+      entityId: 'character-change',
       entity: '嫦娥',
       image: '/art/chinese-celestial.svg',
+      styleId: 'canonical',
       style: '经典神话',
       scene: '云海',
       composition: '手机锁屏',
@@ -177,6 +195,7 @@ const compositions = [
 
     root.querySelectorAll('[data-entity]').forEach((button) => {
       button.addEventListener('click', () => {
+        state.entityId = button.dataset.entityId || state.entityId;
         state.entity = button.dataset.name || state.entity;
         state.image = button.dataset.image || state.image;
         setPressed(`[data-entity-type="${button.dataset.entityType}"]`, button);
@@ -184,8 +203,13 @@ const compositions = [
       });
     });
 
-    root.querySelectorAll('[data-style]').forEach((button) => {
-      button.addEventListener('click', () => { state.style = button.dataset.style || state.style; setPressed('[data-style]', button); refresh(); });
+    root.querySelectorAll('[data-style-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state.styleId = button.dataset.styleId || state.styleId;
+        state.style = button.dataset.styleName || state.style;
+        setPressed('[data-style-id]', button);
+        refresh();
+      });
     });
 
     root.querySelectorAll('[data-scene]').forEach((button) => {
@@ -201,22 +225,55 @@ const compositions = [
       });
     });
 
-    root.querySelector('[data-generate]')?.addEventListener('click', () => {
+    root.querySelector('[data-generate]')?.addEventListener('click', async () => {
       const status = root.querySelector('[data-preview-status]');
       const button = root.querySelector('[data-generate]');
-      if (!status || !button) return;
+      const image = root.querySelector('[data-preview-image]');
+      const description = root.querySelector('[data-description]');
+      if (!status || !button || !image) return;
+
+      const statusTitle = status.querySelector('strong');
+      const statusText = status.querySelector('p');
       button.disabled = true;
       button.textContent = '正在绘神…';
       status.classList.add('is-generating');
-      status.querySelector('strong').textContent = `正在构筑 ${state.scene}`;
-      status.querySelector('p').textContent = `正在重现 ${state.entity} 的 ${state.style} 视觉…`;
-      window.setTimeout(() => {
-        status.classList.remove('is-generating');
-        status.querySelector('strong').textContent = `${state.entity} · ${state.style}`;
-        status.querySelector('p').textContent = '原型已完成 · 接入生成服务后这里展示真实结果';
-        button.disabled = false;
+      if (statusTitle) statusTitle.textContent = `正在构筑 ${state.scene}`;
+      if (statusText) statusText.textContent = `正在重现 ${state.entity} 的 ${state.style} 视觉…`;
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            entityType: state.entityType,
+            entityId: state.entityId,
+            styleId: state.styleId,
+            scene: state.scene,
+            composition: state.composition,
+            ratio: state.ratio,
+            description: description?.value || '',
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok || result.status !== 'succeeded' || !result.imageUrl) {
+          throw new Error(result.error?.message || '生成失败');
+        }
+
+        image.setAttribute('src', result.imageUrl);
+        image.setAttribute('alt', `${state.entity} · ${state.style} · ${state.scene}`);
+        if (statusTitle) statusTitle.textContent = `${state.entity} · ${state.style}`;
+        if (statusText) statusText.textContent = result.persisted
+          ? '神迹已完成并保存到 MythCanvas 内容资产中'
+          : '神迹已完成 · 当前环境使用临时生成结果';
         button.textContent = '再绘一次 ✦';
-      }, 1200);
+      } catch (error) {
+        if (statusTitle) statusTitle.textContent = '这次神迹没有完成';
+        if (statusText) statusText.textContent = error instanceof Error ? error.message : '请稍后再试';
+        button.textContent = '重新绘神 ✦';
+      } finally {
+        status.classList.remove('is-generating');
+        button.disabled = false;
+      }
     });
 
     refresh();
@@ -272,7 +329,7 @@ const compositions = [
   .preview-card { overflow: hidden; padding: var(--space-3); border-radius: var(--radius-xl); }
   .preview-frame { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: calc(var(--radius-xl) - 8px); background: var(--surface-muted); }
   .preview-frame img { width: 100%; height: 100%; object-fit: cover; }
-  .preview-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(6,14,23,.68), transparent 55%); }
+  .preview-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(6,14,23,.68), transparent 55%); pointer-events: none; }
   .preview-status { position: absolute; right: var(--space-5); bottom: var(--space-5); left: var(--space-5); display: grid; gap: var(--space-1); color: white; }
   .preview-status strong { font-family: var(--font-serif); font-size: 1.65rem; }
   .preview-status p { margin: 0; color: rgba(255,255,255,.78); font-size: .8rem; }
