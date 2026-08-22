@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CharacterCard from '../../components/character/CharacterCard.astro';
+import { getCharacters } from '../../lib/content/repositories';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const characters = await getCharacters(db);
+---
+
+<BaseLayout title="角色" description="探索拥有 Canonical Design 的神话角色与视觉形态。">
+  <section class="collection-hero">
+    <div class="container-wide">
+      <span class="eyebrow">Characters · Canonical Design</span>
+      <h1>诸神有形</h1>
+      <p>每个角色都拥有稳定的身份锚点，也可以在电影感、动漫、神圣与赛博画风中重新演绎。</p>
+    </div>
+  </section>
+  <section class="section-compact">
+    <div class="container-wide character-grid">
+      {characters.map((character) => <CharacterCard character={character} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .collection-hero { padding-block: clamp(4rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem); border-bottom: 1px solid var(--border); background: radial-gradient(circle at 82% 20%, var(--hero-ambient), transparent 28%); }
+  h1 { margin: 0; font-size: clamp(3rem, 6vw, 5.4rem); }
+  .collection-hero p { max-width: 42rem; margin: var(--space-5) 0 0; color: var(--text-secondary); }
+  .character-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
+  @media (max-width: 680px) { .character-grid { grid-template-columns: 1fr; } }
+</style>

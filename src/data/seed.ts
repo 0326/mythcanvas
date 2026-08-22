@@ -1,4 +1,4 @@
-import type { Artwork, Character, Mythology, Realm } from '../lib/content/types';
+import type { Artwork, Character, Mythology, Realm, Scene, Style } from '../lib/content/types';
 
 const prototypeLicense = {
   sourceType: 'prototype' as const,
@@ -18,7 +18,7 @@ export const mythologies: Mythology[] = [
       materials: ['玉石', '鎏金', '白瓷', '云雾'],
       atmosphere: ['空灵', '梦幻', '神圣', '辽阔'],
     },
-    heroImage: { src: '/art/chinese-celestial.svg', alt: '云海之上的东方天宫', width: 1600, height: 900 },
+    heroImage: { src: '/media/content/chinese-celestial.svg', alt: '云海之上的东方天宫', width: 1600, height: 900 },
   },
   {
     id: 'myth-greek',
@@ -32,7 +32,7 @@ export const mythologies: Mythology[] = [
       materials: ['大理石', '青铜', '黄金'],
       atmosphere: ['庄严', '明亮', '英雄感'],
     },
-    heroImage: { src: '/art/greek-olympus.jpg', alt: '奥林匹斯:云海之上的白色大理石神殿', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/greek-olympus.jpg', alt: '奥林匹斯:云海之上的白色大理石神殿', width: 1280, height: 720 },
   },
   {
     id: 'myth-norse',
@@ -46,7 +46,7 @@ export const mythologies: Mythology[] = [
       materials: ['巨石', '冰晶', '铁'],
       atmosphere: ['苍茫', '寒冷', '史诗'],
     },
-    heroImage: { src: '/art/norse-asgard.jpg', alt: '阿斯加德:极光之下的世界树与巨石堡垒', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/norse-asgard.jpg', alt: '阿斯加德:极光之下的世界树与巨石堡垒', width: 1280, height: 720 },
   },
   {
     id: 'myth-japanese',
@@ -60,7 +60,7 @@ export const mythologies: Mythology[] = [
       materials: ['木', '和纸', '石'],
       atmosphere: ['幽玄', '静谧', '灵性'],
     },
-    heroImage: { src: '/art/japanese-takamagahara.jpg', alt: '高天原:月下鸟居与雾中神社', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/japanese-takamagahara.jpg', alt: '高天原:月下鸟居与雾中神社', width: 1280, height: 720 },
   },
   {
     id: 'myth-egyptian',
@@ -74,7 +74,7 @@ export const mythologies: Mythology[] = [
       materials: ['砂岩', '黄金', '青金石'],
       atmosphere: ['炽热', '永恒', '神秘'],
     },
-    heroImage: { src: '/art/egyptian-duat.jpg', alt: '杜阿特:星空之下的砂岩巨门与太阳神舟', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/egyptian-duat.jpg', alt: '杜阿特:星空之下的砂岩巨门与太阳神舟', width: 1280, height: 720 },
   },
 ];
 
@@ -91,7 +91,7 @@ export const realms: Realm[] = [
       silhouette: '高低错落的东方宫殿群围绕中央天门向上生长',
       signatureMaterials: ['白玉', '鎏金', '云雾'],
     },
-    heroImage: { src: '/art/chinese-celestial.svg', alt: '三十三重天的云海宫阙', width: 1600, height: 900 },
+    heroImage: { src: '/media/content/chinese-celestial.svg', alt: '三十三重天的云海宫阙', width: 1600, height: 900 },
   },
   {
     id: 'realm-olympus',
@@ -104,7 +104,7 @@ export const realms: Realm[] = [
       anchors: ['白色柱廊', '高山云层', '黄金穹顶', '诸神议庭'],
       signatureMaterials: ['大理石', '黄金'],
     },
-    heroImage: { src: '/art/greek-olympus.jpg', alt: '奥林匹斯:高峰云层之上的诸神居所', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/greek-olympus.jpg', alt: '奥林匹斯:高峰云层之上的诸神居所', width: 1280, height: 720 },
   },
   {
     id: 'realm-asgard',
@@ -117,7 +117,7 @@ export const realms: Realm[] = [
       anchors: ['世界树', '彩虹桥', '北境宫殿', '极光天空'],
       signatureMaterials: ['巨石', '铁', '冰晶'],
     },
-    heroImage: { src: '/art/norse-asgard.jpg', alt: '阿斯加德:巨石、金属与彩虹桥连接的北境神域', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/norse-asgard.jpg', alt: '阿斯加德:巨石、金属与彩虹桥连接的北境神域', width: 1280, height: 720 },
   },
   {
     id: 'realm-takamagahara',
@@ -130,7 +130,7 @@ export const realms: Realm[] = [
       anchors: ['月轮', '鸟居', '神社屋顶', '雾林'],
       signatureMaterials: ['木', '石', '和纸'],
     },
-    heroImage: { src: '/art/japanese-takamagahara.jpg', alt: '高天原:月色与云层之间的鸟居与神社', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/japanese-takamagahara.jpg', alt: '高天原:月色与云层之间的鸟居与神社', width: 1280, height: 720 },
   },
   {
     id: 'realm-duat',
@@ -143,7 +143,7 @@ export const realms: Realm[] = [
       anchors: ['太阳圆盘', '神舟', '砂岩巨门', '星空穹顶'],
       signatureMaterials: ['砂岩', '黑石', '青金石'],
     },
-    heroImage: { src: '/art/egyptian-duat.jpg', alt: '杜阿特:太阳神舟穿越的冥界神域', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/egyptian-duat.jpg', alt: '杜阿特:太阳神舟穿越的冥界神域', width: 1280, height: 720 },
   },
 ];
 
@@ -162,7 +162,7 @@ export const characters: Character[] = [
       anchors: ['圆月背光', '长飘带', '玉兔', '玉白与鎏金'],
       silhouette: '轻盈长衣与环月构成纵向流动轮廓',
     },
-    portrait: { src: '/art/char-chang-e.jpg', alt: '嫦娥:圆月背光下的月宫仙子', width: 864, height: 1152 },
+    portrait: { src: '/media/content/char-chang-e.jpg', alt: '嫦娥:圆月背光下的月宫仙子', width: 864, height: 1152 },
   },
   {
     id: 'character-athena',
@@ -178,7 +178,7 @@ export const characters: Character[] = [
       anchors: ['长矛', '埃癸斯盾', '猫头鹰', '青铜与金'],
       silhouette: '高挑战士轮廓与大型圆盾形成强识别形态',
     },
-    portrait: { src: '/art/char-athena.jpg', alt: '雅典娜:持矛执盾的智慧女神', width: 864, height: 1152 },
+    portrait: { src: '/media/content/char-athena.jpg', alt: '雅典娜:持矛执盾的智慧女神', width: 864, height: 1152 },
   },
   {
     id: 'character-freyja',
@@ -191,7 +191,7 @@ export const characters: Character[] = [
     summary: '以布里辛嘉曼项链、猎鹰羽饰与北境金属材质建立稳定身份。',
     symbols: ['项链', '猎鹰', '猫', '金色'],
     canonicalDesign: { anchors: ['布里辛嘉曼', '猎鹰羽饰', '北境金属'] },
-    portrait: { src: '/art/char-freyja.jpg', alt: '芙蕾雅:佩戴布里辛嘉曼项链的北境女神', width: 864, height: 1152 },
+    portrait: { src: '/media/content/char-freyja.jpg', alt: '芙蕾雅:佩戴布里辛嘉曼项链的北境女神', width: 864, height: 1152 },
   },
   {
     id: 'character-kaguya',
@@ -204,7 +204,7 @@ export const characters: Character[] = [
     summary: '以竹影、月轮和层叠衣装形成安静、疏离、带有月光感的主形象。',
     symbols: ['月', '竹', '十二单', '月光'],
     canonicalDesign: { anchors: ['月轮', '竹影', '层叠衣装'] },
-    portrait: { src: '/art/char-kaguya.jpg', alt: '辉夜姬:竹影月光下的月之公主', width: 864, height: 1152 },
+    portrait: { src: '/media/content/char-kaguya.jpg', alt: '辉夜姬:竹影月光下的月之公主', width: 864, height: 1152 },
   },
   {
     id: 'character-anubis',
@@ -217,7 +217,7 @@ export const characters: Character[] = [
     summary: '以胡狼头、黑金材质与冥界审判符号保持清晰而神圣的身份。',
     symbols: ['胡狼', '天平', '黑金', '安卡'],
     canonicalDesign: { anchors: ['胡狼头', '天平', '黑金', '安卡'] },
-    portrait: { src: '/art/char-anubis.jpg', alt: '阿努比斯:执掌审判天平的亡者守护神', width: 864, height: 1152 },
+    portrait: { src: '/media/content/char-anubis.jpg', alt: '阿努比斯:执掌审判天平的亡者守护神', width: 864, height: 1152 },
   },
 ];
 
@@ -231,7 +231,7 @@ export const artworks: Artwork[] = [
     realmId: 'realm-heavenly-palace',
     styleId: 'canonical',
     moodIds: ['sacred', 'dreamy', 'epic'],
-    image: { src: '/art/chinese-celestial.svg', alt: '云海之上的金色天门和宫阙', width: 1600, height: 900 },
+    image: { src: '/media/content/chinese-celestial.svg', alt: '云海之上的金色天门和宫阙', width: 1600, height: 900 },
     license: prototypeLicense,
     reviewStatus: 'approved',
   },
@@ -245,7 +245,7 @@ export const artworks: Artwork[] = [
     characterIds: ['character-change'],
     styleId: 'sacred',
     moodIds: ['moonlight', 'quiet'],
-    image: { src: '/art/art-moon-palace.jpg', alt: '月宫清辉:圆月与飘带之间的嫦娥', width: 720, height: 1280 },
+    image: { src: '/media/content/art-moon-palace.jpg', alt: '月宫清辉:圆月与飘带之间的嫦娥', width: 720, height: 1280 },
     license: prototypeLicense,
     reviewStatus: 'approved',
   },
@@ -258,7 +258,7 @@ export const artworks: Artwork[] = [
     realmId: 'realm-olympus',
     styleId: 'cinematic',
     moodIds: ['sacred', 'bright'],
-    image: { src: '/art/art-olympus-dawn.jpg', alt: '晨光中的奥林匹斯:金色光线穿过大理石柱廊', width: 720, height: 1280 },
+    image: { src: '/media/content/art-olympus-dawn.jpg', alt: '晨光中的奥林匹斯:金色光线穿过大理石柱廊', width: 720, height: 1280 },
     license: prototypeLicense,
     reviewStatus: 'approved',
   },
@@ -271,7 +271,7 @@ export const artworks: Artwork[] = [
     realmId: 'realm-asgard',
     styleId: 'cinematic',
     moodIds: ['epic', 'cold'],
-    image: { src: '/art/art-asgard-aurora.jpg', alt: '极光下的阿斯加德:雪崖上的金色灯火殿堂', width: 720, height: 1280 },
+    image: { src: '/media/content/art-asgard-aurora.jpg', alt: '极光下的阿斯加德:雪崖上的金色灯火殿堂', width: 720, height: 1280 },
     license: prototypeLicense,
     reviewStatus: 'approved',
   },
@@ -284,7 +284,7 @@ export const artworks: Artwork[] = [
     realmId: 'realm-takamagahara',
     styleId: 'sacred',
     moodIds: ['moonlight', 'quiet'],
-    image: { src: '/art/art-takamagahara-moon.jpg', alt: '月下高天原:巨大满月与湖面鸟居', width: 720, height: 1280 },
+    image: { src: '/media/content/art-takamagahara-moon.jpg', alt: '月下高天原:巨大满月与湖面鸟居', width: 720, height: 1280 },
     license: prototypeLicense,
     reviewStatus: 'approved',
   },
@@ -297,17 +297,75 @@ export const artworks: Artwork[] = [
     realmId: 'realm-duat',
     styleId: 'dark-fantasy',
     moodIds: ['mysterious', 'sacred'],
-    image: { src: '/art/art-duat-sun-barge.jpg', alt: '太阳神舟:星空之河上的拉神金舟', width: 720, height: 1280 },
+    image: { src: '/media/content/art-duat-sun-barge.jpg', alt: '太阳神舟:星空之河上的拉神金舟', width: 720, height: 1280 },
     license: prototypeLicense,
     reviewStatus: 'approved',
   },
 ];
 
-export const styles = [
-  { id: 'canonical', name: '经典神话' },
-  { id: 'cinematic', name: '电影感' },
-  { id: 'sacred', name: '神圣' },
-  { id: 'anime', name: '动漫' },
-  { id: 'dark-fantasy', name: '暗黑幻想' },
-  { id: 'cyber-myth', name: '赛博神话' },
-] as const;
+export const styles: Style[] = [
+  { id: 'canonical', slug: 'canonical', name: '经典神话', nameEn: 'Classic Mythology' },
+  { id: 'cinematic', slug: 'cinematic', name: '电影感', nameEn: 'Cinematic' },
+  { id: 'sacred', slug: 'sacred', name: '神圣', nameEn: 'Sacred' },
+  { id: 'anime', slug: 'anime', name: '动漫', nameEn: 'Anime' },
+  { id: 'dark-fantasy', slug: 'dark-fantasy', name: '暗黑幻想', nameEn: 'Dark Fantasy' },
+  { id: 'cyber-myth', slug: 'cyber-myth', name: '赛博神话', nameEn: 'Cyber Myth' },
+];
+
+export const scenes: Scene[] = [
+  {
+    id: 'scene-sea-of-clouds',
+    mythologyId: 'myth-chinese',
+    realmId: 'realm-heavenly-palace',
+    slug: 'sea-of-clouds',
+    name: '云海天门',
+    nameEn: 'Sea of Clouds',
+    summary: '层叠云海与金色天门构成通往天宫的第一重天境。',
+    canonicalDesign: { anchors: ['云海', '天门', '金阙', '中轴'] },
+    heroImage: { src: '/media/content/chinese-celestial.svg', alt: '云海之上的金色天门', width: 1600, height: 900 },
+  },
+  {
+    id: 'scene-temple-of-olympus',
+    mythologyId: 'myth-greek',
+    realmId: 'realm-olympus',
+    slug: 'temple-of-olympus',
+    name: '诸神议庭',
+    nameEn: 'Court of the Gods',
+    summary: '高山之巅的白色神殿，诸神围绕黄金穹顶议事。',
+    canonicalDesign: { anchors: ['白色柱廊', '黄金穹顶', '高山云层'] },
+    heroImage: { src: '/media/content/greek-olympus.jpg', alt: '云层之上的白色大理石神殿', width: 1280, height: 720 },
+  },
+  {
+    id: 'scene-world-tree-roots',
+    mythologyId: 'myth-norse',
+    realmId: 'realm-asgard',
+    slug: 'world-tree-roots',
+    name: '世界树之根',
+    nameEn: 'Roots of the World Tree',
+    summary: '巨树根系贯穿九界，极光在北境夜空流动。',
+    canonicalDesign: { anchors: ['世界树', '根系', '极光', '符文'] },
+    heroImage: { src: '/media/content/norse-asgard.jpg', alt: '极光之下的世界树与巨石堡垒', width: 1280, height: 720 },
+  },
+  {
+    id: 'scene-bamboo-moon',
+    mythologyId: 'myth-japanese',
+    realmId: 'realm-takamagahara',
+    slug: 'bamboo-moon',
+    name: '月下竹林',
+    nameEn: 'Bamboo Moon',
+    summary: '竹林深处的神社与巨大满月，月色清冷而幽静。',
+    canonicalDesign: { anchors: ['竹林', '满月', '神社', '雾'] },
+    heroImage: { src: '/media/content/japanese-takamagahara.jpg', alt: '月下鸟居与雾中神社', width: 1280, height: 720 },
+  },
+  {
+    id: 'scene-river-of-stars',
+    mythologyId: 'myth-egyptian',
+    realmId: 'realm-duat',
+    slug: 'river-of-stars',
+    name: '星空之河',
+    nameEn: 'River of Stars',
+    summary: '太阳神舟沿星河驶向冥界，砂岩巨门立于两岸。',
+    canonicalDesign: { anchors: ['太阳圆盘', '神舟', '星空', '砂岩巨门'] },
+    heroImage: { src: '/media/content/egyptian-duat.jpg', alt: '星空之下的砂岩巨门与太阳神舟', width: 1280, height: 720 },
+  },
+];

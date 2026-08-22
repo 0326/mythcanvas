@@ -1,10 +1,23 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
-import { artworks, mythologies, styles } from '../../data/seed';
-import { getMythologyById, getRealmById } from '../../lib/content/queries';
+import {
+  getArtworks,
+  getMythologies,
+  getRealms,
+  getStyles,
+} from '../../lib/content/repositories';
 
-const approvedArtworks = artworks.filter((item) => item.reviewStatus === 'approved');
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const [approvedArtworks, mythologies, styles, mythologiesById, realmsById] = await Promise.all([
+  getArtworks(db),
+  getMythologies(db),
+  getStyles(db),
+  getMythologies(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+]);
 const contentTypes = [
   { id: 'all', name: '全部' },
   { id: 'realm', name: '神域' },
@@ -34,6 +47,10 @@ const contentTypes = [
   <section class="explore-content section-compact">
     <div class="container-wide">
       <div class="filter-panel surface" data-explore-filters>
+        <div class="filter-search" id="search">
+          <span class="small-caps">Find a myth</span>
+          <input type="search" placeholder="搜索世界、角色、传说…" aria-label="搜索世界、角色、传说" data-search-input />
+        </div>
         <div class="filter-row">
           <span class="filter-label">文明</span>
           <div class="filter-scroll" role="group" aria-label="按神话文明筛选">
@@ -73,11 +90,13 @@ const contentTypes = [
       </div>
 
       <div class="artwork-grid" data-artwork-grid>
-        {approvedArtworks.map((artwork) => {
-          const mythology = getMythologyById(artwork.mythologyId);
-          const realm = artwork.realmId ? getRealmById(artwork.realmId) : undefined;
-          return <ArtworkCard artwork={artwork} mythologyName={mythology?.name} realmName={realm?.name} />;
-        })}
+        {approvedArtworks.map((artwork) => (
+          <ArtworkCard
+            artwork={artwork}
+            mythologyName={mythologiesById.get(artwork.mythologyId)?.name}
+            realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined}
+          />
+        ))}
       </div>
 
       <div class="empty-state surface" data-empty-state hidden>
@@ -96,7 +115,7 @@ const contentTypes = [
     const grid = document.querySelector('[data-artwork-grid]');
     if (!root || !grid) return;
 
-    const state = { mythology: 'all', type: 'all', style: 'all' };
+    const state = { mythology: 'all', type: 'all', style: 'all', search: '' };
     const cards = Array.from(grid.querySelectorAll('[data-artwork-card]'));
     const count = document.querySelector('[data-result-count]');
     const empty = document.querySelector('[data-empty-state]');
@@ -107,7 +126,8 @@ const contentTypes = [
         const matches =
           (state.mythology === 'all' || card.dataset.mythology === state.mythology) &&
           (state.type === 'all' || card.dataset.type === state.type) &&
-          (state.style === 'all' || card.dataset.style === state.style);
+          (state.style === 'all' || card.dataset.style === state.style) &&
+          (!state.search || (card.textContent || '').toLowerCase().includes(state.search));
         card.hidden = !matches;
         if (matches) visible += 1;
       });
@@ -130,15 +150,22 @@ const contentTypes = [
       });
     });
 
+    root.querySelector('[data-search-input]')?.addEventListener('input', (event) => {
+      state.search = event.target instanceof HTMLInputElement ? event.target.value.trim().toLowerCase() : '';
+      apply();
+    });
+
     document.querySelector('[data-reset-filters]')?.addEventListener('click', () => {
       Object.keys(state).forEach((key) => {
-        state[key] = 'all';
+        state[key] = key === 'search' ? '' : 'all';
         root.querySelectorAll(`[data-filter="${key}"]`).forEach((item) => {
           const active = item.dataset.value === 'all';
           item.classList.toggle('is-active', active);
           item.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
       });
+      const searchInput = root.querySelector('[data-search-input]');
+      if (searchInput instanceof HTMLInputElement) searchInput.value = '';
       apply();
     });
   })();
@@ -153,6 +180,9 @@ const contentTypes = [
   .explore-title-row p { max-width: 42rem; margin: var(--space-5) 0 0; color: var(--text-secondary); }
   .explore-seal { display: grid; width: 98px; height: 98px; place-items: center; flex: 0 0 auto; border: 1px solid var(--border-strong); border-radius: 50%; color: var(--accent-strong); background: var(--surface); box-shadow: inset 0 0 0 14px color-mix(in srgb, var(--accent) 5%, transparent); font-family: var(--font-serif); font-size: 2rem; }
   .filter-panel { display: grid; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-lg); }
+  .filter-search { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(260px, 360px); align-items: center; gap: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border); }
+  .filter-search input { min-height: 38px; padding: .55rem .75rem; border: 1px solid var(--border); border-radius: 5px; color: var(--text-primary); background: var(--surface); outline: none; }
+  .filter-search input:focus { border-color: var(--border-strong); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 16%, transparent); }
   .filter-row { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: var(--space-4); align-items: center; }
   .filter-label { color: var(--text-muted); font-size: 0.78rem; font-weight: 700; }
   .filter-scroll { display: flex; gap: var(--space-2); min-width: 0; overflow-x: auto; scrollbar-width: none; }
@@ -168,6 +198,6 @@ const contentTypes = [
   .empty-state h3 { margin-bottom: var(--space-2); }
   .empty-state p { color: var(--text-secondary); }
   @media (max-width: 980px) { .artwork-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 720px) { .explore-title-row { align-items: start; } .explore-seal { width: 72px; height: 72px; font-size: 1.5rem; } .filter-row { grid-template-columns: 1fr; gap: var(--space-2); } .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 720px) { .explore-title-row { align-items: start; } .explore-seal { width: 72px; height: 72px; font-size: 1.5rem; } .filter-search { grid-template-columns: 1fr; gap: var(--space-2); } .filter-row { grid-template-columns: 1fr; gap: var(--space-2); } .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 480px) { .explore-seal { display: none; } }
 </style>

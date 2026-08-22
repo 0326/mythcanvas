@@ -78,3 +78,23 @@ export type Artwork = {
   license: LicenseMeta;
   reviewStatus: 'draft' | 'approved' | 'hidden';
 };
+
+export type Scene = {
+  id: string;
+  mythologyId: string;
+  realmId?: string;
+  slug: string;
+  name: string;
+  nameEn: string;
+  summary: string;
+  canonicalDesign: CanonicalDesign;
+  heroImage?: ImageAsset;
+};
+
+export type Style = {
+  id: string;
+  slug: string;
+  name: string;
+  nameEn: string;
+  promptHint?: string;
+};

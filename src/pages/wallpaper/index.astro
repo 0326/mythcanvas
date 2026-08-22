@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
+import {
+  getArtworks,
+  getMythologies,
+  getRealms,
+} from '../../lib/content/repositories';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const [approvedArtworks, mythologiesById, realmsById] = await Promise.all([
+  getArtworks(db),
+  getMythologies(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+]);
+---
+
+<BaseLayout title="精选壁纸" description="下载与收藏 MythCanvas 的神话视觉壁纸。">
+  <section class="collection-hero">
+    <div class="container-wide">
+      <span class="eyebrow">Wallpapers · Curated Visuals</span>
+      <h1>精选壁纸</h1>
+      <p>场景优先、角色并行。找到一张让你想带走的神话视觉作品。</p>
+    </div>
+  </section>
+  <section class="section-compact">
+    <div class="container-wide">
+      <div class="collection-head"><span class="small-caps">All mythologies</span><span>{approvedArtworks.length} 件作品</span></div>
+      <div class="artwork-grid">
+        {approvedArtworks.map((artwork) => <ArtworkCard artwork={artwork} mythologyName={mythologiesById.get(artwork.mythologyId)?.name} realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .collection-hero { padding-block: clamp(4rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem); border-bottom: 1px solid var(--border); background: radial-gradient(circle at 82% 20%, var(--hero-ambient), transparent 28%); }
+  h1 { margin: 0; font-size: clamp(3rem, 6vw, 5.4rem); }
+  .collection-hero p { max-width: 42rem; margin: var(--space-5) 0 0; color: var(--text-secondary); }
+  .collection-head { display: flex; justify-content: space-between; align-items: end; margin-bottom: var(--space-6); color: var(--text-muted); font-size: .8rem; }
+  .artwork-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); }
+  @media (max-width: 900px) { .artwork-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 680px) { .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>

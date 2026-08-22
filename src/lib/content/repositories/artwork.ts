@@ -1,0 +1,166 @@
+import { artworks as seedArtworks } from '../../../data/seed';
+import type { Artwork, ArtworkType, LicenseMeta } from '../types';
+import { optionalString, pageClause, parseStringArray } from './shared';
+import type { ArtworkListQuery } from './types';
+
+type ArtworkRow = Record<string, unknown>;
+
+const SELECT_COLUMNS = `
+  id, slug, title, type, mythology_id, realm_id, style_id, mood_ids_json,
+  asset_key, asset_mime, width, height, alt_text, source_type, license, creator, review_status
+`;
+
+export function mapArtworkRow(row: ArtworkRow, characterIds: readonly string[] = []): Artwork {
+  return {
+    id: String(row.id),
+    slug: String(row.slug),
+    title: String(row.title),
+    type: String(row.type) as ArtworkType,
+    mythologyId: String(row.mythology_id),
+    realmId: optionalString(row.realm_id),
+    characterIds: characterIds.length > 0 ? characterIds : undefined,
+    styleId: String(row.style_id),
+    moodIds: parseStringArray(row.mood_ids_json),
+    image: {
+      src: String(row.asset_key),
+      alt: String(row.alt_text),
+      width: Number(row.width),
+      height: Number(row.height),
+    },
+    license: {
+      sourceType: String(row.source_type) as LicenseMeta['sourceType'],
+      license: String(row.license),
+      creator: optionalString(row.creator),
+    },
+    reviewStatus: String(row.review_status) as Artwork['reviewStatus'],
+  };
+}
+
+/** 批量加载 artwork_characters，返回 artworkId -> characterIds 映射 */
+async function loadCharacterIds(db: D1Database, artworkIds: readonly string[]): Promise<Map<string, string[]>> {
+  if (artworkIds.length === 0) return new Map();
+  const placeholders = artworkIds.map(() => '?').join(',');
+  const rows = await db
+    .prepare(`SELECT artwork_id, character_id FROM artwork_characters WHERE artwork_id IN (${placeholders})`)
+    .bind(...artworkIds)
+    .all();
+  const map = new Map<string, string[]>();
+  for (const row of rows.results) {
+    const artworkId = String(row.artwork_id);
+    const list = map.get(artworkId) ?? [];
+    list.push(String(row.character_id));
+    map.set(artworkId, list);
+  }
+  return map;
+}
+
+function applySeedFilters(list: Artwork[], query: ArtworkListQuery): Artwork[] {
+  let result = list;
+  if (query.published !== 'all') result = result.filter((item) => item.reviewStatus === 'approved');
+  if (query.mythologyId) result = result.filter((item) => item.mythologyId === query.mythologyId);
+  if (query.realmId) result = result.filter((item) => item.realmId === query.realmId);
+  if (query.characterId) result = result.filter((item) => item.characterIds?.includes(query.characterId ?? ''));
+  if (query.styleId) result = result.filter((item) => item.styleId === query.styleId);
+  if (query.type) result = result.filter((item) => item.type === query.type);
+  const { limit, offset } = pageClause(query);
+  return result.slice(offset, offset + limit);
+}
+
+export async function getArtworks(db: D1Database | undefined, query: ArtworkListQuery = {}): Promise<Artwork[]> {
+  if (!db) return applySeedFilters(seedArtworks, query);
+
+  const where: string[] = [];
+  const values: unknown[] = [];
+  const join = query.characterId
+    ? ' JOIN artwork_characters ac ON ac.artwork_id = a.id'
+    : '';
+
+  if (query.characterId) {
+    where.push('ac.character_id = ?');
+    values.push(query.characterId);
+  }
+  if (query.mythologyId) {
+    where.push('a.mythology_id = ?');
+    values.push(query.mythologyId);
+  }
+  if (query.realmId) {
+    where.push('a.realm_id = ?');
+    values.push(query.realmId);
+  }
+  if (query.styleId) {
+    where.push('a.style_id = ?');
+    values.push(query.styleId);
+  }
+  if (query.type) {
+    where.push('a.type = ?');
+    values.push(query.type);
+  }
+  if (query.published !== 'all') {
+    where.push("a.publish_status = 'published'");
+    where.push("a.review_status = 'approved'");
+  }
+
+  const whereSql = where.length ? ` WHERE ${where.join(' AND ')}` : '';
+  const { limit, offset } = pageClause(query);
+  const rows = await db
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks a${join}${whereSql} ORDER BY a.created_at DESC, a.id LIMIT ? OFFSET ?`)
+    .bind(...values, limit, offset)
+    .all();
+
+  const characterMap = await loadCharacterIds(db, rows.results.map((row) => String(row.id)));
+  return rows.results.map((row) => mapArtworkRow(row, characterMap.get(String(row.id)) ?? []));
+}
+
+export async function getArtworkBySlug(db: D1Database | undefined, slug: string): Promise<Artwork | undefined> {
+  if (!db) return seedArtworks.find((item) => item.slug === slug);
+  const row = await db
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks WHERE slug = ? AND publish_status = 'published' AND review_status = 'approved'`)
+    .bind(slug)
+    .first();
+  if (!row) return undefined;
+  const characterMap = await loadCharacterIds(db, [String(row.id)]);
+  return mapArtworkRow(row, characterMap.get(String(row.id)) ?? []);
+}
+
+export async function getArtworkById(db: D1Database | undefined, id: string): Promise<Artwork | undefined> {
+  if (!db) return seedArtworks.find((item) => item.id === id);
+  const row = await db
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks WHERE id = ? AND publish_status = 'published' AND review_status = 'approved'`)
+    .bind(id)
+    .first();
+  if (!row) return undefined;
+  const characterMap = await loadCharacterIds(db, [String(row.id)]);
+  return mapArtworkRow(row, characterMap.get(String(row.id)) ?? []);
+}
+
+export async function getArtworksForMythology(
+  db: D1Database | undefined,
+  mythologyId: string,
+  query: ArtworkListQuery = {},
+): Promise<Artwork[]> {
+  return getArtworks(db, { ...query, mythologyId });
+}
+
+export async function getArtworksForRealm(
+  db: D1Database | undefined,
+  realmId: string,
+  query: ArtworkListQuery = {},
+): Promise<Artwork[]> {
+  return getArtworks(db, { ...query, realmId });
+}
+
+export async function getArtworksForCharacter(
+  db: D1Database | undefined,
+  characterId: string,
+  query: ArtworkListQuery = {},
+): Promise<Artwork[]> {
+  return getArtworks(db, { ...query, characterId });
+}
+
+export async function getArtworksForStyle(
+  db: D1Database | undefined,
+  styleId: string,
+  query: ArtworkListQuery = {},
+): Promise<Artwork[]> {
+  return getArtworks(db, { ...query, styleId });
+}

@@ -2,29 +2,30 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import RealmCard from '../../components/realm/RealmCard.astro';
-import { characters, styles } from '../../data/seed';
 import {
   getArtworksForCharacter,
+  getCharacterBySlug,
   getMythologyById,
-  getRealmById,
-} from '../../lib/content/queries';
-import type { Character } from '../../lib/content/types';
+  getRealms,
+  getStyles,
+} from '../../lib/content/repositories';
+import type { Realm } from '../../lib/content/types';
 
-export function getStaticPaths() {
-  return characters.map((character) => ({
-    params: { slug: character.slug },
-    props: { character },
-  }));
-}
+export const prerender = false;
 
-interface Props {
-  character: Character;
-}
-
-const { character } = Astro.props;
-const mythology = getMythologyById(character.mythologyId);
-const characterRealms = character.realmIds.map(getRealmById).filter(Boolean);
-const relatedArtworks = getArtworksForCharacter(character.id);
+const db = Astro.locals.runtime.env.DB;
+const { slug } = Astro.params;
+const character = await getCharacterBySlug(db, slug ?? '');
+if (!character) return Astro.redirect('/404');
+const [mythology, relatedArtworks, styles, realmsById] = await Promise.all([
+  getMythologyById(db, character.mythologyId),
+  getArtworksForCharacter(db, character.id),
+  getStyles(db),
+  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+]);
+const characterRealms = character.realmIds
+  .map((id) => realmsById.get(id))
+  .filter((item): item is Realm => item != null);
 ---
 
 <BaseLayout
@@ -118,7 +119,7 @@ const relatedArtworks = getArtworksForCharacter(character.id);
     <div class="container-wide">
       <div class="section-heading"><div><span class="eyebrow">Wallpapers</span><h2>{character.name} 视觉作品</h2></div></div>
       {relatedArtworks.length > 0 ? (
-        <div class="artwork-grid">{relatedArtworks.map((artwork) => <ArtworkCard artwork={artwork} mythologyName={mythology?.name} realmName={artwork.realmId ? getRealmById(artwork.realmId)?.name : undefined} />)}</div>
+        <div class="artwork-grid">{relatedArtworks.map((artwork) => <ArtworkCard artwork={artwork} mythologyName={mythology?.name} realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined} />)}</div>
       ) : (
         <div class="coming surface"><span aria-hidden="true">✦</span><h3>首批角色视觉正在绘制</h3><p>Canonical Design 已建立，下一步将补齐正式角色视觉资产。</p></div>
       )}
@@ -128,7 +129,7 @@ const relatedArtworks = getArtworksForCharacter(character.id);
   <section class="section-compact" id="recreate">
     <div class="container-wide recreate surface">
       <div><span class="eyebrow">AI Recreate</span><h2>绘制我的 {character.name}</h2><p>从角色身份开始，而不是从空白 Prompt 开始。选择画风、场景、氛围和设备构图即可。</p></div>
-      <a class="btn btn-primary" href="/#create">开始绘神</a>
+      <a class="btn btn-primary" href="/create/">开始绘神</a>
     </div>
   </section>
 </BaseLayout>

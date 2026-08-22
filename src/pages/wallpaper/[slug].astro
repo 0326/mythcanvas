@@ -1,32 +1,29 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
-import { artworks } from '../../data/seed';
 import {
+  getArtworkBySlug,
   getArtworksForMythology,
   getCharacterById,
   getMythologyById,
-  getRealmById,
-} from '../../lib/content/queries';
-import type { Artwork } from '../../lib/content/types';
+  getRealms,
+} from '../../lib/content/repositories';
 
-export function getStaticPaths() {
-  return artworks
-    .filter((artwork) => artwork.reviewStatus === 'approved')
-    .map((artwork) => ({ params: { slug: artwork.slug }, props: { artwork } }));
-}
+export const prerender = false;
 
-interface Props {
-  artwork: Artwork;
-}
-
-const { artwork } = Astro.props;
-const mythology = getMythologyById(artwork.mythologyId);
-const realm = artwork.realmId ? getRealmById(artwork.realmId) : undefined;
-const relatedCharacters = artwork.characterIds?.map(getCharacterById).filter(Boolean) ?? [];
-const related = getArtworksForMythology(artwork.mythologyId)
-  .filter((item) => item.id !== artwork.id)
-  .slice(0, 4);
+const db = Astro.locals.runtime.env.DB;
+const { slug } = Astro.params;
+const artwork = await getArtworkBySlug(db, slug ?? '');
+if (!artwork) return Astro.redirect('/404');
+const [mythology, relatedCharacters, related, realmsById] = await Promise.all([
+  getMythologyById(db, artwork.mythologyId),
+  artwork.characterIds
+    ? Promise.all(artwork.characterIds.map((id) => getCharacterById(db, id))).then((list) => list.filter((item) => item != null))
+    : Promise.resolve([]),
+  getArtworksForMythology(db, artwork.mythologyId).then((list) => list.filter((item) => item.id !== artwork.id).slice(0, 4)),
+  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+]);
+const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
 ---
 
 <BaseLayout
@@ -71,7 +68,7 @@ const related = getArtworksForMythology(artwork.mythologyId)
 
         <div class="actions">
           <a class="btn btn-primary" href={artwork.image.src} download>下载原图</a>
-          <a class="btn btn-secondary" href="/#create">AI 重绘</a>
+          <a class="btn btn-secondary" href="/create/">AI 重绘</a>
         </div>
         <p class="prototype-note">当前为 MVP 原型素材，正式上线前将接入 R2 高清原图与设备尺寸派生图。</p>
       </aside>
@@ -100,7 +97,7 @@ const related = getArtworksForMythology(artwork.mythologyId)
       <div class="container-wide">
         <div class="section-heading"><div><span class="eyebrow">Related</span><h2>继续探索这个文明</h2></div></div>
         <div class="related-grid">
-          {related.map((item) => <ArtworkCard artwork={item} mythologyName={mythology?.name} realmName={item.realmId ? getRealmById(item.realmId)?.name : undefined} />)}
+          {related.map((item) => <ArtworkCard artwork={item} mythologyName={mythology?.name} realmName={item.realmId ? realmsById.get(item.realmId)?.name : undefined} />)}
         </div>
       </div>
     </section>

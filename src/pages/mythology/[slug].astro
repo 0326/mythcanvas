@@ -3,30 +3,26 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import RealmCard from '../../components/realm/RealmCard.astro';
 import CharacterCard from '../../components/character/CharacterCard.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
-import { mythologies } from '../../data/seed';
 import {
   getArtworksForMythology,
   getCharactersForMythology,
-  getRealmById,
+  getMythologyBySlug,
+  getRealms,
   getRealmsForMythology,
-} from '../../lib/content/queries';
-import type { Mythology } from '../../lib/content/types';
+} from '../../lib/content/repositories';
 
-export function getStaticPaths() {
-  return mythologies.map((mythology) => ({
-    params: { slug: mythology.slug },
-    props: { mythology },
-  }));
-}
+export const prerender = false;
 
-interface Props {
-  mythology: Mythology;
-}
-
-const { mythology } = Astro.props;
-const relatedRealms = getRealmsForMythology(mythology.id);
-const relatedCharacters = getCharactersForMythology(mythology.id);
-const relatedArtworks = getArtworksForMythology(mythology.id);
+const db = Astro.locals.runtime.env.DB;
+const { slug } = Astro.params;
+const mythology = await getMythologyBySlug(db, slug ?? '');
+if (!mythology) return Astro.redirect('/404');
+const [relatedRealms, relatedCharacters, relatedArtworks, realmsById] = await Promise.all([
+  getRealmsForMythology(db, mythology.id),
+  getCharactersForMythology(db, mythology.id),
+  getArtworksForMythology(db, mythology.id),
+  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+]);
 ---
 
 <BaseLayout
@@ -83,7 +79,7 @@ const relatedArtworks = getArtworksForMythology(mythology.id);
       <div class="section-heading"><div><span class="eyebrow">Artworks</span><h2>视觉作品</h2></div></div>
       <div class="artwork-grid">
         {relatedArtworks.map((artwork) => (
-          <ArtworkCard artwork={artwork} mythologyName={mythology.name} realmName={artwork.realmId ? getRealmById(artwork.realmId)?.name : undefined} />
+          <ArtworkCard artwork={artwork} mythologyName={mythology.name} realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined} />
         ))}
       </div>
     </div>

@@ -45,7 +45,7 @@ const compositions = [
                   data-entity-id={character.id}
                   data-entity-type="character"
                   data-name={character.name}
-                  data-image={realm?.heroImage.src ?? '/art/chinese-celestial.svg'}
+                  data-image={character.portrait?.src ?? realm?.heroImage.src ?? '/media/content/chinese-celestial.svg'}
                   aria-pressed={index === 0 ? 'true' : 'false'}
                 >
                   <span class="entity-glyph">{character.symbols[0]}</span>
@@ -120,7 +120,7 @@ const compositions = [
       <aside class="preview-column">
         <div class="preview-card surface">
           <div class="preview-frame" data-preview-frame>
-            <img src="/art/chinese-celestial.svg" alt="AI 绘神预览" width="1600" height="900" data-preview-image />
+            <img src="/media/content/art-moon-palace.jpg" alt="AI 绘神预览" width="720" height="1280" data-preview-image />
             <div class="preview-overlay"></div>
             <div class="preview-status" data-preview-status>
               <span class="small-caps">Creation Preview</span>
@@ -134,11 +134,6 @@ const compositions = [
             <div><span>场景</span><strong data-summary-scene>云海</strong></div>
             <div><span>构图</span><strong data-summary-composition>手机锁屏</strong></div>
           </div>
-        </div>
-
-        <div class="prototype-note surface" data-pipeline-note>
-          <span aria-hidden="true">◎</span>
-          <div><strong>Workers 生成链路</strong><p>当前默认使用 Mock Provider 验证完整 API 流程；配置 D1、R2 与图片 Provider 后会自动持久化真实生成结果。</p></div>
         </div>
       </aside>
     </div>
@@ -154,7 +149,7 @@ const compositions = [
       entityType: 'character',
       entityId: 'character-change',
       entity: '嫦娥',
-      image: '/art/chinese-celestial.svg',
+      image: '/media/content/art-moon-palace.jpg',
       styleId: 'canonical',
       style: '经典神话',
       scene: '云海',
@@ -338,10 +333,6 @@ const compositions = [
   .preview-summary div { display: grid; gap: 2px; }
   .preview-summary span { color: var(--text-muted); font-size: .66rem; }
   .preview-summary strong { font-size: .78rem; }
-  .prototype-note { display: flex; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); }
-  .prototype-note > span { color: var(--accent); }
-  .prototype-note strong { font-size: .82rem; }
-  .prototype-note p { margin: var(--space-1) 0 0; color: var(--text-muted); font-size: .72rem; }
   @keyframes pulse { from { width: 36px; opacity: .45; } to { width: 120px; opacity: 1; } }
   @media (max-width: 980px) { .creator-grid { grid-template-columns: 1fr; } .preview-column { position: static; grid-row: 1; } .preview-card { max-width: 640px; margin-inline: auto; } .preview-frame { aspect-ratio: 16 / 10; } }
   @media (max-width: 620px) { .entity-options, .style-options, .composition-options { grid-template-columns: 1fr; } .preview-frame { aspect-ratio: 4 / 5; } }

@@ -2,29 +2,26 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CharacterCard from '../../components/character/CharacterCard.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
-import { realms, styles } from '../../data/seed';
 import {
   getArtworksForRealm,
   getCharactersForRealm,
   getMythologyById,
-} from '../../lib/content/queries';
-import type { Realm } from '../../lib/content/types';
+  getRealmBySlug,
+  getStyles,
+} from '../../lib/content/repositories';
 
-export function getStaticPaths() {
-  return realms.map((realm) => ({
-    params: { slug: realm.slug },
-    props: { realm },
-  }));
-}
+export const prerender = false;
 
-interface Props {
-  realm: Realm;
-}
-
-const { realm } = Astro.props;
-const mythology = getMythologyById(realm.mythologyId);
-const relatedCharacters = getCharactersForRealm(realm.id);
-const relatedArtworks = getArtworksForRealm(realm.id);
+const db = Astro.locals.runtime.env.DB;
+const { slug } = Astro.params;
+const realm = await getRealmBySlug(db, slug ?? '');
+if (!realm) return Astro.redirect('/404');
+const [mythology, relatedCharacters, relatedArtworks, styles] = await Promise.all([
+  getMythologyById(db, realm.mythologyId),
+  getCharactersForRealm(db, realm.id),
+  getArtworksForRealm(db, realm.id),
+  getStyles(db),
+]);
 ---
 
 <BaseLayout
@@ -103,7 +100,7 @@ const relatedArtworks = getArtworksForRealm(realm.id);
     <div class="container-wide">
       <div class="recreate surface">
         <div><span class="eyebrow">AI Recreate</span><h2>重新绘制 {realm.name}</h2><p>保留 {realm.canonicalDesign.anchors.slice(0, 2).join('、')} 等身份锚点，再选择新的画风、场景氛围和设备构图。</p></div>
-        <a class="btn btn-primary" href="/#create">开始绘神</a>
+        <a class="btn btn-primary" href="/create/">开始绘神</a>
       </div>
     </div>
   </section>

@@ -1,28 +1,28 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg-primary: #08131f;
-  --bg-secondary: #0b1826;
-  --bg-elevated: rgba(12, 27, 42, 0.9);
-  --surface: rgba(14, 31, 48, 0.78);
-  --surface-strong: #10243a;
-  --surface-muted: rgba(19, 42, 62, 0.72);
+  --bg-primary: #08101a;
+  --bg-secondary: #111b28;
+  --bg-elevated: rgba(17, 34, 53, 0.94);
+  --surface: rgba(18, 34, 56, 0.82);
+  --surface-strong: #182a45;
+  --surface-muted: rgba(30, 52, 76, 0.72);
 
   --text-primary: #f5ead7;
-  --text-secondary: #c5b79e;
-  --text-muted: #8ea0ad;
+  --text-secondary: #a9b7c7;
+  --text-muted: #8293a5;
   --text-inverse: #14202c;
 
-  --accent: #c6a15b;
-  --accent-strong: #e0bf78;
+  --accent: #d4af67;
+  --accent-strong: #e5c17b;
   --accent-soft: #5b4724;
   --jade: #79a7a0;
   --jade-soft: #183d3e;
   --cloud-blue: #8eacd7;
   --moon-white: #f3f5ef;
 
-  --border: rgba(198, 161, 91, 0.18);
-  --border-strong: rgba(198, 161, 91, 0.38);
+  --border: rgba(212, 175, 103, 0.25);
+  --border-strong: rgba(212, 175, 103, 0.48);
   --focus: #9bbce6;
 
   --shadow-sm: 0 10px 34px rgba(0, 5, 12, 0.25);
@@ -34,7 +34,7 @@
     radial-gradient(circle at 78% 12%, rgba(198, 161, 91, 0.11), transparent 30%),
     linear-gradient(180deg, #091522 0%, #08131f 58%, #07111b 100%);
 
-  --header-bg: rgba(8, 19, 31, 0.82);
+  --header-bg: rgba(8, 16, 26, 0.9);
   --hero-overlay: linear-gradient(90deg, rgba(8, 19, 31, 0.95) 0%, rgba(8, 19, 31, 0.62) 42%, rgba(8, 19, 31, 0.08) 74%);
   --hero-ambient: rgba(117, 158, 211, 0.18);
 }

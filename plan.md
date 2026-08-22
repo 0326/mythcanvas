@@ -284,55 +284,49 @@ Website V1 完成时必须同时满足：
 
 ## 5.1 完善 D1 内容 Schema
 
-- ⬜ Mythology 表补齐 SEO / publish 字段
-- ⬜ Realm 表补齐 Canonical Design / Hero / publish 字段
-- ⬜ Character 表补齐 Canonical Design / relations / publish 字段
-- ⬜ Scene 实体正式建模
-- ⬜ Style 表正式建模
-- ⬜ Artwork 表补齐：
-  - title / slug
-  - content type
-  - mythology / realm / character relations
-  - style / mood
-  - image metadata
-  - width / height / ratio / format / size
-  - source / creator
-  - license
-  - AI model
-  - prompt metadata
-  - review status
-  - publish status
-  - created / updated / published time
-- ⬜ Artwork 多角色关系表
-- ⬜ Artwork Tag / Mood 关系
+> 2026-08-23 完成（migration 0003_artworks_scenes.sql）
+
+- ✅ Mythology 表补齐 Hero / publish 字段（SEO title/description 沿用 name/summary，独立 SEO 字段待后续）
+- ✅ Realm 表补齐 Canonical Design / Hero / publish 字段
+- ✅ Character 表补齐 Canonical Design / relations / publish 字段
+- ✅ Scene 实体正式建模
+- ✅ Style 表正式建模
+- ✅ Artwork 表补齐：title / slug、content type、mythology / realm / character relations、style / mood、image metadata、width / height、source / creator、license、review / publish status、created / updated time
+- ⬜ Artwork 独立 ratio / format / size 派生列、AI model、prompt metadata、published_at（当前由 asset_mime + width / height 推导）
+- ✅ Artwork 多角色关系表（artwork_characters）
+- ⬜ Artwork Tag / Mood 关系表（当前 mood 存 mood_ids_json）
 - ⬜ Entity relation 查询索引
 
 ## 5.2 Repository / Service Layer
 
-- ⬜ `MythologyRepository`
-- ⬜ `RealmRepository`
-- ⬜ `CharacterRepository`
-- ⬜ `ArtworkRepository`
-- ⬜ `SceneRepository`
-- ⬜ `StyleRepository`
-- ⬜ 列表分页
-- ⬜ relation 查询
-- ⬜ published-only 查询
-- ⬜ Seed fallback 仅保留 dev/test
+> 2026-08-23 完成（src/lib/content/repositories/），页面组件不再直接写 D1 SQL
+
+- ✅ `MythologyRepository`
+- ✅ `RealmRepository`
+- ✅ `CharacterRepository`
+- ✅ `ArtworkRepository`
+- ✅ `SceneRepository`
+- ✅ `StyleRepository`
+- ✅ 列表分页
+- ✅ relation 查询
+- ✅ published-only 查询
+- ✅ Seed fallback 仅保留 dev/test（无 D1 连接时）
 
 原则：页面组件不直接写 D1 SQL。
 
 ## 5.3 前台迁移到 D1/R2
 
-- ⬜ Home 数据从 Repository 读取
-- ⬜ Explore 从 D1 读取
-- ⬜ Mythology Detail 从 D1 读取
-- ⬜ Realm Detail 从 D1 读取
-- ⬜ Character Detail 从 D1 读取
-- ⬜ Artwork Detail 从 D1 读取
-- ⬜ Related Artwork 从 relation query 读取
-- ⬜ 所有正式图片切换 R2 / delivery URL
-- ⬜ 移除 production placeholder
+> 2026-08-23 完成数据层迁移；渲染策略 = SSR 运行时读 D1（`output: hybrid` + `prerender = false`）
+
+- ✅ Home 数据从 Repository 读取
+- ✅ Explore 从 D1 读取
+- ✅ Mythology Detail 从 D1 读取
+- ✅ Realm Detail 从 D1 读取
+- ✅ Character Detail 从 D1 读取
+- ✅ Artwork Detail 从 D1 读取
+- ✅ Related Artwork 从 relation query 读取
+- ✅ 所有正式图片切换 R2 / delivery URL（migration 0004：D1 图片路径切至 `/media/content/`，R2 bucket `mythcanvas-artworks` 以 `content/` 前缀提供 `/media/*` delivery）
+- ✅ 移除 production placeholder（create 页 mock 提示文案删除；Artwork prototype 占位标记清理为 original / MythCanvas 原创）
 
 ## 5.4 正式视觉资产导入
 
@@ -1100,10 +1094,10 @@ M13 E2E / Release Gate
 建议下一轮直接从以下 5 项开始：
 
 1. ✅ **M0 基线修复已完成（2026-08-23）**：Starter 残留清理、14 张过渡视觉资产、`mythcanvas.space` 域名与 sitemap、404 / robots.txt、假搜索入口移除；
-2. **创建并绑定 production D1 / R2**；
-3. **接入正式图片生成 Provider**；
-4. **将 Artwork Repository + 公开读取迁移至 D1/R2**；
-5. **实现 generation moderation + rate limit + quota**。
+2. ✅ **M1 生产基础设施已接通（2026-08-23）**：创建并绑定 production D1 / R2 / KV，migration 已应用，mock 生成图已写入 R2 并经 `/media/*` 读取；
+3. **接入正式图片生成 Provider**（`AI_GENERATION_MODE=mock` → http）；
+4. ✅ **M2 正式内容数据层已完成（2026-08-23）**：D1 Schema 完善 + 数据导入、Repository 层（含 seed fallback）、前台全部页面迁移至 SSR 运行时读 D1；
+5. ✅ **M2d 收尾已完成（2026-08-23）**：migration 0004 将 D1 图片路径切换 R2 delivery URL（`/media/content/`）、`public/art/*` 上传 R2 bucket（本地验证 `/media/*` 200 与页面无 `/art/` 残留）、移除 production placeholder、`npm run check` 通过；随后进入 **M3 AI 绘神生产级闭环**（generation 状态机 + moderation + rate limit + quota）。
 
 完成 M0 后，站点达到“干净的可演示基线”；完成上述 5 项后，MythCanvas 会从“产品原型”正式进入“可持续生产内容的线上产品”阶段。
 

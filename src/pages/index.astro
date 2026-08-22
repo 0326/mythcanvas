@@ -4,24 +4,36 @@ import MythologyCard from '../components/mythology/MythologyCard.astro';
 import RealmCard from '../components/realm/RealmCard.astro';
 import CharacterCard from '../components/character/CharacterCard.astro';
 import ArtworkCard from '../components/artwork/ArtworkCard.astro';
-import { artworks, characters, mythologies, realms } from '../data/seed';
-import { getMythologyById, getRealmById } from '../lib/content/queries';
+import {
+  getArtworks,
+  getCharacters,
+  getMythologies,
+  getRealms,
+} from '../lib/content/repositories';
 
-const featuredRealms = realms.slice(0, 3);
-const featuredCharacters = characters.slice(0, 4);
-const featuredMythologies = mythologies;
-const featuredArtworks = artworks.slice(0, 6);
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks, mythologiesById, realmsById] =
+  await Promise.all([
+    getRealms(db, { limit: 3 }),
+    getCharacters(db, { limit: 4 }),
+    getMythologies(db),
+    getArtworks(db, { limit: 6 }),
+    getMythologies(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+    getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+  ]);
 ---
 
 <BaseLayout
   fullBleed
   description="绘神宇宙 MythCanvas：用 AI 重现神话世界。探索中国、希腊、北欧、日本与埃及神话中的神域、角色与视觉作品。"
-  image="/art/chinese-celestial.svg"
+  image="/media/content/chinese-celestial.svg"
 >
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-art" aria-hidden="true">
-      <img class="hero-art-light" src="/art/chinese-celestial.svg" alt="" width="1600" height="900" fetchpriority="high" />
-      <img class="hero-art-dark" src="/art/chinese-celestial-night.svg" alt="" width="1600" height="900" fetchpriority="high" />
+      <img class="hero-art-light" src="/media/content/art-moon-palace.jpg" alt="" width="720" height="1280" fetchpriority="high" />
+      <img class="hero-art-dark" src="/media/content/char-chang-e.jpg" alt="" width="864" height="1152" fetchpriority="high" />
     </div>
     <div class="hero-overlay"></div>
     <div class="container-wide hero-content">
@@ -35,7 +47,7 @@ const featuredArtworks = artworks.slice(0, 6);
         <p class="hero-intro">从云海天宫到奥林匹斯，从诸神到神兽。探索传说中的世界，并重新绘制属于你的版本。</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="/explore/">探索神境 <span aria-hidden="true">→</span></a>
-          <a class="btn btn-secondary" href="#create">开始绘神</a>
+          <a class="btn btn-secondary" href="/create/">开始绘神</a>
         </div>
         <div class="hero-mythologies" aria-label="首发神话文明">
           {featuredMythologies.map((mythology) => (
@@ -108,17 +120,13 @@ const featuredArtworks = artworks.slice(0, 6);
         <a class="btn btn-secondary" href="/explore/">查看全部壁纸</a>
       </div>
       <div class="artwork-grid">
-        {featuredArtworks.map((artwork) => {
-          const mythology = getMythologyById(artwork.mythologyId);
-          const realm = artwork.realmId ? getRealmById(artwork.realmId) : undefined;
-          return (
-            <ArtworkCard
-              artwork={artwork}
-              mythologyName={mythology?.name}
-              realmName={realm?.name}
-            />
-          );
-        })}
+        {featuredArtworks.map((artwork) => (
+          <ArtworkCard
+            artwork={artwork}
+            mythologyName={mythologiesById.get(artwork.mythologyId)?.name}
+            realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined}
+          />
+        ))}
       </div>
     </div>
   </section>
@@ -136,7 +144,7 @@ const featuredArtworks = artworks.slice(0, 6);
             <span class="chip">Athena · Cyber Myth</span>
             <span class="chip">Olympus · Fallen</span>
           </div>
-          <a class="btn btn-primary" href="/explore/">从一个神话开始</a>
+          <a class="btn btn-primary" href="/create/">从一个神话开始</a>
         </div>
       </div>
     </div>
@@ -146,7 +154,7 @@ const featuredArtworks = artworks.slice(0, 6);
 <style>
   .hero {
     position: relative;
-    min-height: min(820px, calc(100svh - 20px));
+    min-height: min(720px, calc(100svh - 20px));
     display: grid;
     align-items: center;
     overflow: hidden;
@@ -164,7 +172,7 @@ const featuredArtworks = artworks.slice(0, 6);
 
   .hero-art img {
     object-fit: cover;
-    object-position: center;
+    object-position: center 42%;
     transition: opacity var(--transition-base), transform 12s ease;
   }
 
@@ -186,19 +194,17 @@ const featuredArtworks = artworks.slice(0, 6);
 
   .hero-overlay {
     z-index: 1;
-    background:
-      var(--hero-overlay),
-      linear-gradient(to top, var(--bg-primary) 0%, transparent 24%);
+    background: var(--hero-overlay), linear-gradient(to top, var(--bg-primary) 0%, transparent 32%);
   }
 
   .hero-content {
     position: relative;
     z-index: 2;
-    padding-block: clamp(5rem, 10vw, 9rem);
+    padding-block: clamp(5rem, 10vw, 8rem);
   }
 
   .hero-copy {
-    max-width: 670px;
+    max-width: 620px;
   }
 
   .hero h1 {
@@ -208,6 +214,13 @@ const featuredArtworks = artworks.slice(0, 6);
 
   .hero h1 > span {
     color: var(--text-primary);
+  }
+
+  .hero h1 > span,
+  .hero-slogan,
+  .hero-intro,
+  .hero-mythologies {
+    text-shadow: 0 2px 20px color-mix(in srgb, var(--bg-primary) 36%, transparent);
   }
 
   .hero h1 em {
