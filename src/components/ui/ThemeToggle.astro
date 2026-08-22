@@ -1,0 +1,82 @@
+<button
+  class="theme-toggle"
+  type="button"
+  data-theme-toggle
+  aria-label="切换亮色与暗色主题"
+  title="切换主题"
+>
+  <span class="sun" aria-hidden="true">☀</span>
+  <span class="moon" aria-hidden="true">☾</span>
+</button>
+
+<script is:inline>
+  (() => {
+    const storageKey = 'mythcanvas-theme';
+    const apply = (theme) => {
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+      document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+        button.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+        button.setAttribute('aria-label', theme === 'dark' ? '切换为亮色主题' : '切换为暗色主题');
+      });
+    };
+
+    document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+      if (button.dataset.bound === 'true') return;
+      button.dataset.bound = 'true';
+      button.addEventListener('click', () => {
+        const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(storageKey, next);
+        apply(next);
+      });
+    });
+
+    apply(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+  })();
+</script>
+
+<style>
+  .theme-toggle {
+    position: relative;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-primary);
+    background: var(--surface);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+  }
+
+  .theme-toggle:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+  }
+
+  .sun,
+  .moon {
+    position: absolute;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .moon {
+    opacity: 0;
+    transform: rotate(-24deg) scale(0.75);
+  }
+
+  :global([data-theme='dark']) .sun {
+    opacity: 0;
+    transform: rotate(24deg) scale(0.75);
+  }
+
+  :global([data-theme='dark']) .moon {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+</style>
