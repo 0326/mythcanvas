@@ -201,10 +201,9 @@ const mythologyCards = [
   .hero-overlay {
     z-index: -2;
     background:
-      linear-gradient(to bottom, color-mix(in srgb, var(--bg-primary) 18%, transparent), transparent 24%),
+      linear-gradient(to bottom, color-mix(in srgb, var(--bg-primary) 14%, transparent), transparent 28%),
       radial-gradient(circle at 50% 39%, transparent 0 14%, color-mix(in srgb, var(--bg-primary) 10%, transparent) 44%, color-mix(in srgb, var(--bg-primary) 24%, transparent) 78%),
-      linear-gradient(to top, color-mix(in srgb, var(--bg-primary) 38%, transparent), transparent 38%),
-      var(--hero-overlay);
+      linear-gradient(to top, color-mix(in srgb, var(--bg-primary) 64%, transparent) 0%, color-mix(in srgb, var(--bg-primary) 28%, transparent) 38%, transparent 78%);
     pointer-events: none;
   }
 
@@ -288,9 +287,9 @@ const mythologyCards = [
     padding: clamp(.75rem, 1.5vh, 1rem) clamp(.85rem, 1.6vw, 1.2rem) clamp(.85rem, 1.6vh, 1.1rem);
     border: 1px solid color-mix(in srgb, var(--border-strong) 72%, transparent);
     border-radius: 14px;
-    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    background: color-mix(in srgb, var(--surface) 58%, transparent);
     box-shadow: 0 20px 48px color-mix(in srgb, var(--bg-primary) 18%, transparent);
-    backdrop-filter: blur(12px) saturate(112%);
+    backdrop-filter: blur(5px) saturate(108%);
   }
 
   .mythology-carousel {
@@ -312,6 +311,7 @@ const mythologyCards = [
     border-radius: 50%;
     color: var(--text-secondary);
     background: color-mix(in srgb, var(--surface) 84%, transparent);
+    cursor: pointer;
     transition: color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
   }
 
@@ -362,12 +362,12 @@ const mythologyCards = [
     scroll-snap-align: start;
     background: var(--bg-secondary);
     box-shadow: 0 8px 22px color-mix(in srgb, var(--bg-primary) 14%, transparent);
-    transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   }
 
   .mythology-card:hover,
   .mythology-card:focus-visible {
-    transform: translateY(-3px);
+    transform: none;
     border-color: color-mix(in srgb, var(--accent) 62%, var(--border-strong));
     box-shadow: 0 12px 30px color-mix(in srgb, var(--bg-primary) 21%, transparent);
   }

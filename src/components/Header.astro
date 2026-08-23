@@ -78,7 +78,7 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
   .site-header--immersive .header-icon,
   .site-header--immersive .avatar { color: var(--text-primary); filter: drop-shadow(0 1px 8px color-mix(in srgb, var(--bg-primary) 42%, transparent)); }
   .site-header--immersive .avatar { border-color: color-mix(in srgb, var(--text-primary) 26%, transparent); background: color-mix(in srgb, var(--surface) 58%, transparent); backdrop-filter: blur(10px); }
-  .site-header--immersive .theme-control { display: contents; }
+  .site-header--immersive .theme-control { display: flex; align-items: center; }
   .site-header--immersive .theme-toggle { border-color: color-mix(in srgb, var(--text-primary) 26%, transparent); background: color-mix(in srgb, var(--surface) 58%, transparent); backdrop-filter: blur(10px); filter: drop-shadow(0 1px 8px color-mix(in srgb, var(--bg-primary) 42%, transparent)); }
 
   @media (max-width: 820px) {
