@@ -199,7 +199,7 @@ function stringArray(value: unknown): string[] {
   }
 }
 
-function objectValue<T extends Record<string, unknown>>(value: unknown): T | undefined {
+function objectValue<T>(value: unknown): T | undefined {
   if (value && typeof value === 'object' && !Array.isArray(value)) return value as T;
   if (typeof value !== 'string' || !value) return undefined;
   try {
