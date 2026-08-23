@@ -1,53 +1,85 @@
 ---
-import { Landmark, Sparkles } from '@lucide/astro';
+import { Landmark, Monitor, Smartphone, Sparkles } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCharacters, getRealms, getStyles } from '../../lib/content/repositories';
+import { listCharacterVariantProfiles, listCreatorOutputSpecs } from '../../lib/generation/creator-config';
 
 export const prerender = false;
 
 const db = Astro.locals.runtime.env.DB;
-const [allCharacters, allRealms, styles] = await Promise.all([
+const [allCharacters, allRealms, styles, outputSpecs] = await Promise.all([
   getCharacters(db),
   getRealms(db),
   getStyles(db),
+  listCreatorOutputSpecs(db),
 ]);
+
 const creatorCharacters = allCharacters.slice(0, 5);
 const creatorRealms = allRealms.slice(0, 5);
+const variants = await listCharacterVariantProfiles(db, creatorCharacters.map((character) => character.id));
+const variantsByCharacter = new Map(creatorCharacters.map((character) => [
+  character.id,
+  variants.filter((variant) => variant.characterId === character.id),
+]));
+
 const scenes = ['云海', '月夜', '星空', '神殿', '山海', '遗迹', '深渊'];
-const compositions = [
-  { id: 'phone-lock', name: '手机锁屏', ratio: '9:16' },
-  { id: 'phone-home', name: '手机桌面', ratio: '9:16' },
-  { id: 'desktop', name: '桌面壁纸', ratio: '16:9' },
-  { id: 'epic', name: '史诗远景', ratio: '16:9' },
-];
+const compositions = ['人物居中', '环境叙事', '近景肖像', '史诗远景'];
 const quickRefines = [
   { key: 'epic', label: '更史诗', hint: '宏大构图、史诗氛围，画面更辽阔壮丽' },
-  { key: 'dreamy', label: '更梦幻', hint: '梦幻光晕、柔焦氛围，增强神话缥缈感' },
-  { key: 'realistic', label: '更写实', hint: '写实光影与材质，接近真实摄影质感' },
-  { key: 'bright', label: '更明亮', hint: '提高亮度与通透感，弱化阴影' },
-  { key: 'far-shot', label: '拉远镜头', hint: '更远的镜头距离，突出环境与空间层次' },
-  { key: 'divine-glow', label: '强化神光', hint: '强化圣光与神性氛围，突出文明象征' },
+  { key: 'dreamy', label: '更梦幻', hint: '梦幻光晕、柔和空气透视，增强神话缥缈感' },
+  { key: 'realistic', label: '更写实', hint: '写实光影与材质，减少塑料感与通用 AI 质感' },
+  { key: 'bright', label: '更明亮', hint: '提高亮度与通透感，保留层次而不过曝' },
+  { key: 'far-shot', label: '拉远镜头', hint: '扩大环境占比，强化神域与空间层次' },
+  { key: 'divine-glow', label: '强化神光', hint: '增强克制的神性光源，不使用泛滥粒子特效' },
 ];
-const entityTypeLabels = { character: '角色', realm: '神域' } as const;
+const variantTypeLabels = {
+  age: '年龄',
+  costume: '服装',
+  form: '形态',
+  composite: '综合',
+} as const;
+
+const initialCharacter = creatorCharacters[0];
+const initialStyle = styles[0];
+const initialOutput = outputSpecs.find((spec) => spec.deviceType === 'mobile') ?? outputSpecs[0];
+const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon-palace.jpg';
 ---
 
 <BaseLayout
   title="AI 绘神"
-  description="MythCanvas AI 绘神：从神话角色或神域开始，选择画风、场景与构图，生成属于你的神话视觉。"
+  description="MythCanvas AI 绘神：组合神话角色、年龄服装形态、独立画风、场景与 PC/手机壁纸规格，生成可持续复用的神话视觉。"
 >
   <section class="creator-hero">
-    <div class="container-wide">
-      <span class="eyebrow">AI Creator</span>
-      <h1>绘神 · 创造你的神话世界</h1>
-      <p>不是从空白 Prompt 开始。先选择“谁”或“哪里”，MythCanvas 自动带入文明 Visual DNA 与 Canonical Design。</p>
+    <div class="container-wide creator-hero-inner">
+      <div>
+        <span class="eyebrow">AI Creator · Structured Recipe</span>
+        <h1>角色不变，形态与画风自由组合</h1>
+        <p>选择神话角色或神域，再独立组合角色形态、画风、场景与设备规格。MythCanvas 会自动带入 Canonical Design 与文明 Visual DNA。</p>
+      </div>
+      <div class="recipe-principle" aria-label="绘神生成规则">
+        <span>角色</span><b>×</b><span>形态</span><b>×</b><span>画风</span><b>×</b><span>壁纸规格</span>
+      </div>
     </div>
   </section>
 
   <section class="creator-section section-compact">
-    <div class="container-wide creator-grid" data-creator>
+    <div
+      class="container-wide creator-grid"
+      data-creator
+      data-initial-entity-id={initialCharacter?.id ?? ''}
+      data-initial-entity-name={initialCharacter?.name ?? ''}
+      data-initial-image={initialImage}
+      data-initial-style-id={initialStyle?.id ?? 'canonical'}
+      data-initial-style-name={initialStyle?.name ?? '经典神话'}
+      data-initial-output-id={initialOutput?.id ?? 'mobile-wallpaper'}
+      data-initial-output-name={initialOutput?.name ?? '手机壁纸'}
+      data-initial-ratio={initialOutput?.ratio ?? '9:16'}
+      data-initial-width={String(initialOutput?.width ?? 1440)}
+      data-initial-height={String(initialOutput?.height ?? 2560)}
+    >
       <form class="creator-panel surface" onsubmit="return false;">
         <div class="step-block">
-          <div class="step-head"><span>01</span><div><h2>我要绘制</h2><p>选择角色或神域作为创作起点</p></div></div>
+          <div class="step-head"><span>01</span><div><h2>选择创作对象</h2><p>角色会锁定 Canonical Design；神域会锁定核心空间与建筑锚点。</p></div></div>
           <div class="segmented" role="group" aria-label="创作对象类型">
             <button class="is-active" type="button" data-entity-tab="character" aria-pressed="true">角色</button>
             <button type="button" data-entity-tab="realm" aria-pressed="false">神域</button>
@@ -64,7 +96,7 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
                 data-image={character.portrait?.src ?? '/media/content/chinese-celestial.svg'}
                 aria-pressed={index === 0 ? 'true' : 'false'}
               >
-                <span class="entity-glyph">{character.symbols[0]}</span>
+                <span class="entity-glyph" aria-hidden="true">{character.symbols[0]}</span>
                 <span><strong>{character.name}</strong><small>{character.role}</small></span>
               </button>
             ))}
@@ -88,8 +120,43 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
           </div>
         </div>
 
+        <div class="step-block" data-variant-step>
+          <div class="step-head"><span>02</span><div><h2>选择角色形态</h2><p>年龄、服装和神性形态属于角色 Variant，不属于画风。</p></div></div>
+          {creatorCharacters.map((character, characterIndex) => (
+            <div class="variant-options" data-variant-group={character.id} hidden={characterIndex !== 0}>
+              <button
+                class="variant-option is-active"
+                type="button"
+                data-variant-id=""
+                data-variant-name="经典设定"
+                data-variant-type="canonical"
+                aria-pressed="true"
+              >
+                <span class="variant-meta"><small>BASE</small><strong>经典设定</strong></span>
+                <span>使用角色主设，不叠加年龄、服装或形态变化。</span>
+              </button>
+              {(variantsByCharacter.get(character.id) ?? []).map((variant) => (
+                <button
+                  class="variant-option"
+                  type="button"
+                  data-variant-id={variant.id}
+                  data-variant-name={variant.name}
+                  data-variant-type={variant.variantType}
+                  aria-pressed="false"
+                >
+                  <span class="variant-meta"><small>{variantTypeLabels[variant.variantType]}</small><strong>{variant.name}</strong></span>
+                  <span>{variant.description}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+          {variants.length === 0 && (
+            <p class="variant-fallback">当前环境尚未应用角色形态数据迁移，将使用经典设定生成。</p>
+          )}
+        </div>
+
         <div class="step-block">
-          <div class="step-head"><span>02</span><div><h2>选择画风</h2><p>画风只改变表达方式，不改变角色和世界身份</p></div></div>
+          <div class="step-head"><span data-step-style>03</span><div><h2>选择独立画风</h2><p>画风只定义“怎么画”，不会静默改写角色年龄、服装或身份。</p></div></div>
           <div class="style-options">
             {styles.map((style, index) => (
               <button
@@ -100,55 +167,89 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
                 aria-pressed={index === 0 ? 'true' : 'false'}
               >
                 <span class:list={{ 'style-swatch': true, [`tone-${(index % 4) + 1}`]: true }} aria-hidden="true"></span>
-                {style.name}
+                <span><strong>{style.name}</strong><small>{style.nameEn}</small></span>
               </button>
             ))}
           </div>
         </div>
 
         <div class="step-block">
-          <div class="step-head"><span>03</span><div><h2>场景氛围</h2><p>选择一个主场景，可以继续叠加自由描述</p></div></div>
+          <div class="step-head"><span data-step-scene>04</span><div><h2>场景与镜头</h2><p>场景、镜头和临时氛围只影响这一张作品，不写回角色主设。</p></div></div>
+          <div class="field-label">场景</div>
           <div class="chip-options">
             {scenes.map((scene, index) => <button class:list={{ chip: true, 'is-active': index === 0 }} type="button" data-scene={scene} aria-pressed={index === 0 ? 'true' : 'false'}>{scene}</button>)}
           </div>
+          <div class="field-label composition-label">镜头构图</div>
+          <div class="chip-options">
+            {compositions.map((composition, index) => <button class:list={{ chip: true, 'is-active': index === 0 }} type="button" data-composition={composition} aria-pressed={index === 0 ? 'true' : 'false'}>{composition}</button>)}
+          </div>
           <label class="advanced-input">
-            <span>补充描述 <small>可选</small></span>
-            <textarea rows="3" maxlength="180" placeholder="例如：远处有巨大的月轮，云海被金色晨光照亮……" data-description></textarea>
+            <span>补充描述 <small>可选 · 不会覆盖角色和画风约束</small></span>
+            <textarea rows="3" maxlength="300" placeholder="例如：远处有巨大的月轮，风吹动披风，晨光穿过云层……" data-description></textarea>
           </label>
         </div>
 
         <div class="step-block">
-          <div class="step-head"><span>04</span><div><h2>构图与设备</h2><p>让生成结果从一开始就是可用壁纸</p></div></div>
-          <div class="composition-options">
-            {compositions.map((composition, index) => (
-              <button class:list={{ 'composition-option': true, 'is-active': index === 0 }} type="button" data-composition={composition.name} data-ratio={composition.ratio} aria-pressed={index === 0 ? 'true' : 'false'}>
-                <span class="ratio-box" style={`--ratio: ${composition.ratio.replace(':', '/')}`}></span>
-                <span><strong>{composition.name}</strong><small>{composition.ratio}</small></span>
+          <div class="step-head"><span data-step-output>05</span><div><h2>选择壁纸规格</h2><p>只提供主流 PC 与手机规格，并自动加入对应安全区和构图约束。</p></div></div>
+          <div class="output-options">
+            {outputSpecs.map((spec, index) => (
+              <button
+                class:list={{ 'output-option': true, 'is-active': spec.id === initialOutput?.id || (!initialOutput && index === 0) }}
+                type="button"
+                data-output-spec-id={spec.id}
+                data-output-name={spec.name}
+                data-output-device={spec.deviceType}
+                data-ratio={spec.ratio}
+                data-width={String(spec.width)}
+                data-height={String(spec.height)}
+                aria-pressed={spec.id === initialOutput?.id ? 'true' : 'false'}
+              >
+                <span class="device-icon" aria-hidden="true">
+                  {spec.deviceType === 'mobile' ? <Smartphone size={22} strokeWidth={1.65} /> : <Monitor size={24} strokeWidth={1.65} />}
+                </span>
+                <span class="output-copy">
+                  <strong>{spec.name}</strong>
+                  <small>{spec.ratio} · {spec.width}×{spec.height}</small>
+                </span>
+                <span class="output-note">{spec.deviceType === 'mobile' ? '预留锁屏顶部安全区' : '适合横向环境叙事'}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <button class="btn btn-primary generate-button" type="button" data-generate><span data-generate-label>开始绘神</span><Sparkles size={17} strokeWidth={1.8} aria-hidden="true" /></button>
+        <button class="btn btn-primary generate-button" type="button" data-generate>
+          <span data-generate-label>开始绘神</span><Sparkles size={17} strokeWidth={1.8} aria-hidden="true" />
+        </button>
       </form>
 
       <aside class="preview-column">
+        <div class="recipe-card surface">
+          <div class="recipe-head"><span class="small-caps">Generation Recipe</span><strong>本次绘神配方</strong></div>
+          <div class="recipe-grid">
+            <div><span>对象</span><strong data-summary-entity>{initialCharacter?.name ?? '角色'}</strong></div>
+            <div data-summary-variant-wrap><span>形态</span><strong data-summary-variant>经典设定</strong></div>
+            <div><span>画风</span><strong data-summary-style>{initialStyle?.name ?? '经典神话'}</strong></div>
+            <div><span>场景</span><strong data-summary-scene>云海</strong></div>
+            <div><span>镜头</span><strong data-summary-composition>人物居中</strong></div>
+            <div><span>规格</span><strong data-summary-output>{initialOutput?.name ?? '手机壁纸'}</strong></div>
+          </div>
+          <div class="identity-lock"><span class="lock-dot"></span><span data-identity-message>Canonical Design 已锁定，画风不会覆盖角色身份。</span></div>
+        </div>
+
         <div class="preview-card surface">
-          <div class="preview-frame" data-preview-frame>
-            <img src="/media/content/art-moon-palace.jpg" alt="AI 绘神预览" width="720" height="1280" data-preview-image />
-            <div class="preview-overlay"></div>
-            <div class="preview-status" data-preview-status>
-              <span class="small-caps">Creation Preview</span>
-              <strong data-preview-title>嫦娥 · 经典神话</strong>
-              <p data-preview-subtitle>云海 · 手机锁屏 · 9:16</p>
+          <div class="preview-stage" data-preview-stage data-device={initialOutput?.deviceType ?? 'mobile'}>
+            <div class="preview-frame" data-preview-frame>
+              <img src={initialImage} alt="AI 绘神预览" width="720" height="1280" data-preview-image />
+              <div class="preview-overlay"></div>
+              <div class="mobile-safe-zone" data-mobile-safe-zone aria-hidden="true"></div>
+              <div class="preview-status" data-preview-status>
+                <span class="small-caps">Creation Preview</span>
+                <strong data-preview-title>{initialCharacter?.name ?? '角色'} · {initialStyle?.name ?? '经典神话'}</strong>
+                <p data-preview-subtitle>经典设定 · 云海 · {initialOutput?.name ?? '手机壁纸'}</p>
+              </div>
             </div>
           </div>
-          <div class="preview-summary">
-            <div><span>对象</span><strong data-summary-entity>嫦娥</strong></div>
-            <div><span>画风</span><strong data-summary-style>经典神话</strong></div>
-            <div><span>场景</span><strong data-summary-scene>云海</strong></div>
-            <div><span>构图</span><strong data-summary-composition>手机锁屏</strong></div>
-          </div>
+          <div class="resolution-line"><span>输出尺寸</span><strong data-resolution>{initialOutput?.width ?? 1440} × {initialOutput?.height ?? 2560}</strong></div>
           <div class="preview-actions" data-preview-actions hidden>
             <a class="btn btn-secondary" data-download href="#" download>下载</a>
             <button class="btn btn-secondary" type="button" data-publish>申请公开</button>
@@ -157,8 +258,8 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
           </div>
         </div>
 
-        <div class="refine-card surface" data-refine hidden>
-          <div class="refine-head"><span class="small-caps">Quick Refine</span><strong>快捷微调</strong></div>
+        <div class="refine-card surface" data-refine-panel hidden>
+          <div class="refine-head"><span class="small-caps">Quick Refine</span><strong>保持配方，只微调结果</strong></div>
           <div class="refine-options">
             {quickRefines.map((item) => (
               <button class="refine-option" type="button" data-refine={item.key} title={item.hint}>{item.label}</button>
@@ -167,9 +268,9 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
         </div>
 
         <div class="history-card surface" data-history>
-          <div class="history-head"><span class="small-caps">Recent</span><strong>最近的绘神</strong><button type="button" class="history-clear" data-history-clear>清空</button></div>
+          <div class="history-head"><span><span class="small-caps">Recent</span><strong>最近的绘神</strong></span><button type="button" class="history-clear" data-history-clear>清空</button></div>
           <div class="history-list" data-history-list></div>
-          <div class="history-empty" data-history-empty>还没有生成记录，开始你的第一幅神话视觉吧。</div>
+          <div class="history-empty" data-history-empty>还没有生成记录。完成第一张后，可在这里快速回看配方。</div>
         </div>
       </aside>
     </div>
@@ -183,62 +284,29 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
 
     const state = {
       entityType: 'character',
-      entityId: 'character-change',
-      entity: '嫦娥',
-      image: '/media/content/art-moon-palace.jpg',
-      styleId: 'canonical',
-      style: '经典神话',
+      entityId: root.dataset.initialEntityId || '',
+      entity: root.dataset.initialEntityName || '',
+      image: root.dataset.initialImage || '',
+      variantId: '',
+      variant: '经典设定',
+      styleId: root.dataset.initialStyleId || 'canonical',
+      style: root.dataset.initialStyleName || '经典神话',
       scene: '云海',
-      composition: '手机锁屏',
-      ratio: '9:16',
+      composition: '人物居中',
+      outputSpecId: root.dataset.initialOutputId || 'mobile-wallpaper',
+      outputName: root.dataset.initialOutputName || '手机壁纸',
+      ratio: root.dataset.initialRatio || '9:16',
+      width: Number(root.dataset.initialWidth || 1440),
+      height: Number(root.dataset.initialHeight || 2560),
+      device: 'mobile',
       lastJobId: null,
       lastImageUrl: null,
     };
 
-    const HISTORY_KEY = 'mythcanvas-generations';
-    const loadHistory = () => {
-      try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
-    };
-    const saveHistory = (list) => {
-      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 8))); } catch { /* ignore */ }
-    };
-    const renderHistory = () => {
-      const list = loadHistory();
-      const listEl = root.querySelector('[data-history-list]');
-      const emptyEl = root.querySelector('[data-history-empty]');
-      if (!listEl) return;
-      listEl.innerHTML = '';
-      if (emptyEl) emptyEl.hidden = list.length !== 0;
-      list.forEach((item) => {
-        const row = document.createElement('button');
-        row.type = 'button';
-        row.className = 'history-item';
-        row.setAttribute('aria-label', `重新加载 ${item.entity} 的生成`);
-        const img = document.createElement('img');
-        img.src = item.imageUrl;
-        img.alt = '';
-        img.loading = 'lazy';
-        const span = document.createElement('span');
-        span.innerHTML = `<strong>${escapeHtml(item.entity)} · ${escapeHtml(item.style)}</strong><small>${escapeHtml(item.scene)} · ${escapeHtml(item.ratio)}</small>`;
-        row.appendChild(img);
-        row.appendChild(span);
-        row.addEventListener('click', () => {
-          state.entityId = item.entityId;
-          state.entity = item.entity;
-          state.styleId = item.styleId;
-          state.style = item.style;
-          state.scene = item.scene;
-          state.composition = item.composition;
-          state.ratio = item.ratio;
-          state.lastJobId = item.jobId || null;
-          state.lastImageUrl = item.imageUrl;
-          document.querySelector('[data-preview-image]')?.setAttribute('src', item.imageUrl);
-          refresh();
-        });
-        listEl.appendChild(row);
-      });
-    };
+    const HISTORY_KEY = 'mythcanvas-generations-v2';
     const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const loadHistory = () => { try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; } };
+    const saveHistory = (list) => { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 8))); } catch { /* ignore */ } };
 
     const setPressed = (selector, active) => {
       root.querySelectorAll(selector).forEach((item) => {
@@ -248,15 +316,36 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
       });
     };
 
+    const selectBaseVariant = () => {
+      state.variantId = '';
+      state.variant = '经典设定';
+      const group = root.querySelector(`[data-variant-group="${state.entityId}"]`);
+      const base = group?.querySelector('[data-variant-id=""]');
+      if (base) setPressed(`[data-variant-group="${state.entityId}"] [data-variant-id]`, base);
+    };
+
     const refresh = () => {
       const image = root.querySelector('[data-preview-image]');
-      if (image && image.getAttribute('src') !== state.image) image.setAttribute('src', state.image);
+      if (image && !state.lastImageUrl && image.getAttribute('src') !== state.image) image.setAttribute('src', state.image);
       root.querySelector('[data-preview-title]').textContent = `${state.entity} · ${state.style}`;
-      root.querySelector('[data-preview-subtitle]').textContent = `${state.scene} · ${state.composition} · ${state.ratio}`;
+      root.querySelector('[data-preview-subtitle]').textContent = `${state.entityType === 'character' ? state.variant + ' · ' : ''}${state.scene} · ${state.outputName}`;
       root.querySelector('[data-summary-entity]').textContent = state.entity;
       root.querySelector('[data-summary-style]').textContent = state.style;
       root.querySelector('[data-summary-scene]').textContent = state.scene;
       root.querySelector('[data-summary-composition]').textContent = state.composition;
+      root.querySelector('[data-summary-output]').textContent = `${state.outputName} · ${state.ratio}`;
+      root.querySelector('[data-summary-variant]').textContent = state.variant;
+      const variantWrap = root.querySelector('[data-summary-variant-wrap]');
+      if (variantWrap) variantWrap.hidden = state.entityType !== 'character';
+      const identityMessage = root.querySelector('[data-identity-message]');
+      if (identityMessage) identityMessage.textContent = state.entityType === 'character'
+        ? `Canonical Design 已锁定；${state.variant} 与 ${state.style} 正交组合。`
+        : '神域 Canonical Design 与文明 Visual DNA 已锁定。';
+      const stage = root.querySelector('[data-preview-stage]');
+      if (stage) stage.dataset.device = state.device;
+      const safeZone = root.querySelector('[data-mobile-safe-zone]');
+      if (safeZone) safeZone.hidden = state.device !== 'mobile';
+      root.querySelector('[data-resolution]').textContent = `${state.width} × ${state.height}`;
     };
 
     root.querySelectorAll('[data-entity-tab]').forEach((button) => {
@@ -264,8 +353,14 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
         const type = button.dataset.entityTab;
         if (!type) return;
         state.entityType = type;
+        state.lastImageUrl = null;
         setPressed('[data-entity-tab]', button);
         root.querySelectorAll('[data-entity-group]').forEach((group) => { group.hidden = group.dataset.entityGroup !== type; });
+        const variantStep = root.querySelector('[data-variant-step]');
+        if (variantStep) variantStep.hidden = type !== 'character';
+        root.querySelector('[data-step-style]').textContent = type === 'character' ? '03' : '02';
+        root.querySelector('[data-step-scene]').textContent = type === 'character' ? '04' : '03';
+        root.querySelector('[data-step-output]').textContent = type === 'character' ? '05' : '04';
         const first = root.querySelector(`[data-entity-group="${type}"] [data-entity]`);
         if (first) first.click();
       });
@@ -276,7 +371,20 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
         state.entityId = button.dataset.entityId || state.entityId;
         state.entity = button.dataset.name || state.entity;
         state.image = button.dataset.image || state.image;
+        state.lastImageUrl = null;
         setPressed(`[data-entity-type="${button.dataset.entityType}"]`, button);
+        root.querySelectorAll('[data-variant-group]').forEach((group) => { group.hidden = group.dataset.variantGroup !== state.entityId; });
+        if (state.entityType === 'character') selectBaseVariant();
+        refresh();
+      });
+    });
+
+    root.querySelectorAll('[data-variant-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (state.entityType !== 'character') return;
+        state.variantId = button.dataset.variantId || '';
+        state.variant = button.dataset.variantName || '经典设定';
+        setPressed(`[data-variant-group="${state.entityId}"] [data-variant-id]`, button);
         refresh();
       });
     });
@@ -291,14 +399,30 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
     });
 
     root.querySelectorAll('[data-scene]').forEach((button) => {
-      button.addEventListener('click', () => { state.scene = button.dataset.scene || state.scene; setPressed('[data-scene]', button); refresh(); });
+      button.addEventListener('click', () => {
+        state.scene = button.dataset.scene || state.scene;
+        setPressed('[data-scene]', button);
+        refresh();
+      });
     });
 
     root.querySelectorAll('[data-composition]').forEach((button) => {
       button.addEventListener('click', () => {
         state.composition = button.dataset.composition || state.composition;
-        state.ratio = button.dataset.ratio || state.ratio;
         setPressed('[data-composition]', button);
+        refresh();
+      });
+    });
+
+    root.querySelectorAll('[data-output-spec-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state.outputSpecId = button.dataset.outputSpecId || state.outputSpecId;
+        state.outputName = button.dataset.outputName || state.outputName;
+        state.device = button.dataset.outputDevice || state.device;
+        state.ratio = button.dataset.ratio || state.ratio;
+        state.width = Number(button.dataset.width || state.width);
+        state.height = Number(button.dataset.height || state.height);
+        setPressed('[data-output-spec-id]', button);
         refresh();
       });
     });
@@ -328,23 +452,22 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
       status.classList.add('is-generating');
       if (retryBtn) retryBtn.hidden = true;
       if (favoriteBtn) favoriteBtn.setAttribute('aria-pressed', 'false');
-      if (statusTitle) statusTitle.textContent = isRetry ? `重新构筑 ${state.scene}` : `正在构筑 ${state.scene}`;
-      if (statusText) statusText.textContent = `正在重现 ${state.entity} 的 ${state.style} 视觉…`;
+      if (statusTitle) statusTitle.textContent = isRetry ? '正在重新构筑' : '正在组合绘神配方';
+      if (statusText) statusText.textContent = `${state.entity}${state.entityType === 'character' ? ' · ' + state.variant : ''} · ${state.style} · ${state.outputName}`;
 
-      let body;
-      try {
-        body = {
-          entityType: state.entityType,
-          entityId: state.entityId,
-          styleId: state.styleId,
-          scene: state.scene,
-          composition: state.composition,
-          ratio: state.ratio,
-          description: description?.value || '',
-          sourceGenerationId: state.lastJobId || undefined,
-        };
-        if (refineHint) body.description = [body.description, refineHint].filter(Boolean).join('，');
-      } catch { /* ignore */ }
+      const baseDescription = description?.value || '';
+      const body = {
+        entityType: state.entityType,
+        entityId: state.entityId,
+        variantId: state.entityType === 'character' && state.variantId ? state.variantId : undefined,
+        styleId: state.styleId,
+        scene: state.scene,
+        composition: state.composition,
+        ratio: state.ratio,
+        outputSpecId: state.outputSpecId,
+        description: [baseDescription, refineHint].filter(Boolean).join('，'),
+        sourceGenerationId: state.lastJobId || undefined,
+      };
 
       try {
         const response = await fetch('/api/generate', {
@@ -353,25 +476,16 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
           body: JSON.stringify(body),
         });
         const result = await response.json();
-
-        if (response.status === 429) {
-          throw new Error(result.error?.message || '绘神次数已达上限，请稍后再试。');
-        }
-        if (result.status === 'moderated') {
-          throw new Error(result.error?.message || '生成内容未通过安全审核。');
-        }
-        if (!response.ok || result.status !== 'succeeded' || !result.imageUrl) {
-          throw new Error(result.error?.message || '生成失败');
-        }
+        if (response.status === 429) throw new Error(result.error?.message || '绘神次数已达上限，请稍后再试。');
+        if (result.status === 'moderated') throw new Error(result.error?.message || '生成内容未通过安全审核。');
+        if (!response.ok || result.status !== 'succeeded' || !result.imageUrl) throw new Error(result.error?.message || '生成失败');
 
         state.lastJobId = result.id;
         state.lastImageUrl = result.imageUrl;
         image.setAttribute('src', result.imageUrl);
-        image.setAttribute('alt', `${state.entity} · ${state.style} · ${state.scene}`);
+        image.setAttribute('alt', `${state.entity} · ${state.variant} · ${state.style} · ${state.scene}`);
         if (statusTitle) statusTitle.textContent = `${state.entity} · ${state.style}`;
-        if (statusText) statusText.textContent = result.persisted
-          ? '神迹已完成并保存到 MythCanvas 内容资产中'
-          : '神迹已完成 · 当前环境使用临时生成结果';
+        if (statusText) statusText.textContent = result.persisted ? '神迹已完成，并保存生成配方与资产溯源。' : '神迹已完成 · 当前环境使用临时生成结果。';
 
         const history = loadHistory();
         history.unshift({
@@ -379,11 +493,18 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
           entityType: state.entityType,
           entityId: state.entityId,
           entity: state.entity,
+          variantId: state.variantId,
+          variant: state.variant,
           styleId: state.styleId,
           style: state.style,
           scene: state.scene,
           composition: state.composition,
+          outputSpecId: state.outputSpecId,
+          outputName: state.outputName,
           ratio: state.ratio,
+          width: state.width,
+          height: state.height,
+          device: state.device,
           imageUrl: result.imageUrl,
           createdAt: new Date().toISOString(),
         });
@@ -391,8 +512,9 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
         renderHistory();
 
         if (downloadBtn instanceof HTMLAnchorElement) downloadBtn.href = result.imageUrl;
+        const refinePanel = root.querySelector('[data-refine-panel]');
+        if (refinePanel) refinePanel.hidden = false;
         setBusy(false, '再绘一次');
-        if (retryBtn) retryBtn.hidden = true;
       } catch (error) {
         const message = error instanceof Error ? error.message : '请稍后再试';
         if (statusTitle) statusTitle.textContent = '这次神迹没有完成';
@@ -404,29 +526,43 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
       }
     };
 
+    const renderHistory = () => {
+      const list = loadHistory();
+      const listEl = root.querySelector('[data-history-list]');
+      const emptyEl = root.querySelector('[data-history-empty]');
+      if (!listEl) return;
+      listEl.innerHTML = '';
+      if (emptyEl) emptyEl.hidden = list.length !== 0;
+      list.forEach((item) => {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'history-item';
+        row.setAttribute('aria-label', `查看 ${item.entity} 的生成`);
+        const img = document.createElement('img');
+        img.src = item.imageUrl;
+        img.alt = '';
+        img.loading = 'lazy';
+        const span = document.createElement('span');
+        span.innerHTML = `<strong>${escapeHtml(item.entity)} · ${escapeHtml(item.style)}</strong><small>${escapeHtml(item.variant || '经典设定')} · ${escapeHtml(item.outputName || item.ratio)}</small>`;
+        row.appendChild(img);
+        row.appendChild(span);
+        row.addEventListener('click', () => {
+          state.lastJobId = item.jobId || null;
+          state.lastImageUrl = item.imageUrl;
+          const preview = root.querySelector('[data-preview-image]');
+          if (preview) preview.setAttribute('src', item.imageUrl);
+        });
+        listEl.appendChild(row);
+      });
+    };
+
     root.querySelector('[data-generate]')?.addEventListener('click', () => runGenerate(false));
     root.querySelector('[data-retry]')?.addEventListener('click', () => runGenerate(true));
-
-    root.querySelectorAll('[data-refine]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const hint = button.title || '';
-        if (state.lastImageUrl) {
-          runGenerate(false, hint);
-        } else {
-          const description = root.querySelector('[data-description]');
-          if (description) {
-            const current = description.value.trim();
-            description.value = current ? `${current}，${button.textContent}` : button.textContent;
-          }
-          runGenerate(false);
-        }
-      });
-    });
+    root.querySelectorAll('[data-refine]').forEach((button) => button.addEventListener('click', () => runGenerate(false, button.title || '')));
 
     root.querySelector('[data-favorite]')?.addEventListener('click', async (event) => {
-      const favoriteBtn = event.currentTarget;
-      if (!favoriteBtn || !state.lastJobId) return;
-      const target = favoriteBtn;
+      const button = event.currentTarget;
+      if (!button || !state.lastJobId) return;
       try {
         const response = await fetch('/api/favorite', {
           method: 'POST',
@@ -435,132 +571,158 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
         });
         const result = await response.json();
         if (response.ok && result.favorited) {
-          target.setAttribute('aria-pressed', 'true');
-          target.textContent = '已收藏';
-        } else {
-          target.textContent = result.message === '请先登录后收藏' ? '登录后收藏' : '收藏';
-        }
-      } catch {
-        target.textContent = '收藏失败';
-      }
+          button.setAttribute('aria-pressed', 'true');
+          button.textContent = '已收藏';
+        } else button.textContent = result.message === '请先登录后收藏' ? '登录后收藏' : '收藏';
+      } catch { button.textContent = '收藏失败'; }
     });
 
     root.querySelector('[data-publish]')?.addEventListener('click', async (event) => {
-      const btn = event.currentTarget;
+      const button = event.currentTarget;
       if (!state.lastJobId) return;
-      const defaultTitle = `${state.entity} · ${state.style} · ${state.scene}`;
-      const title = window.prompt('为这幅作品起个标题（将通过审核后发布到探索页）', defaultTitle);
-      if (title === null) return;
-      const trimmed = title.trim();
-      if (!trimmed) { alert('标题不能为空'); return; }
-      btn.disabled = true;
+      const defaultTitle = `${state.entity} · ${state.variant} · ${state.style}`;
+      const title = window.prompt('为这幅作品起个标题（审核通过后进入探索页）', defaultTitle);
+      if (title === null || !title.trim()) return;
+      button.disabled = true;
       try {
         const response = await fetch('/api/submission', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            generationId: state.lastJobId,
-            title: trimmed,
-            name: `${state.entity}`,
-          }),
+          body: JSON.stringify({ generationId: state.lastJobId, title: title.trim(), name: state.entity }),
         });
         const result = await response.json();
         alert(result.message || '操作完成');
-      } catch {
-        alert('网络错误，请重试');
-      } finally {
-        btn.disabled = false;
-      }
+      } catch { alert('网络错误，请重试'); }
+      finally { button.disabled = false; }
     });
 
-    root.querySelector('[data-history-clear]')?.addEventListener('click', () => {
-      saveHistory([]);
-      renderHistory();
-    });
+    root.querySelector('[data-history-clear]')?.addEventListener('click', () => { saveHistory([]); renderHistory(); });
 
+    const initialOutputButton = root.querySelector(`[data-output-spec-id="${state.outputSpecId}"]`);
+    if (initialOutputButton) state.device = initialOutputButton.dataset.outputDevice || 'mobile';
     refresh();
     renderHistory();
   })();
 </script>
 
 <style>
-  .creator-hero { padding-block: 2.2rem 1.5rem; border-bottom: 1px solid var(--border); }
-  .creator-hero h1 { max-width: 860px; margin: 0; font-size: clamp(2.3rem, 4vw, 3.8rem); }
-  .creator-hero p { max-width: 720px; margin: .65rem 0 0; color: var(--text-secondary); font-size: .88rem; }
-  .creator-grid { display: grid; grid-template-columns: minmax(0, .92fr) minmax(420px, 1.08fr); gap: 1rem; align-items: start; }
+  .creator-hero { padding-block: 2.1rem 1.4rem; border-bottom: 1px solid var(--border); }
+  .creator-hero-inner { display: flex; justify-content: space-between; gap: 2rem; align-items: end; }
+  .creator-hero h1 { max-width: 760px; margin: .35rem 0 0; font-size: clamp(2.15rem, 4vw, 3.65rem); }
+  .creator-hero p { max-width: 740px; margin: .7rem 0 0; color: var(--text-secondary); font-size: .88rem; line-height: 1.8; }
+  .recipe-principle { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: flex-end; color: var(--text-muted); font-size: .72rem; white-space: nowrap; }
+  .recipe-principle span { padding: .45rem .62rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+  .recipe-principle b { color: var(--accent); font-weight: 400; }
+  .creator-grid { display: grid; grid-template-columns: minmax(0, .98fr) minmax(400px, 1.02fr); gap: 1rem; align-items: start; }
   .creator-panel { display: grid; gap: 1.1rem; padding: 1.2rem; border-radius: var(--radius-lg); }
   .step-block + .step-block { padding-top: 1.1rem; border-top: 1px solid var(--border); }
   .step-head { display: flex; gap: var(--space-4); align-items: start; margin-bottom: .8rem; }
-  .step-head > span { color: var(--accent); font-family: Georgia, serif; font-size: .75rem; }
-  .step-head h2 { margin: 0; font-family: var(--font-sans); font-size: 1.1rem; }
-  .step-head p { margin: .2rem 0 0; color: var(--text-muted); font-size: .78rem; }
+  .step-head > span { min-width: 18px; color: var(--accent); font-family: var(--font-serif); font-size: .75rem; }
+  .step-head h2 { margin: 0; font-family: var(--font-sans); font-size: 1.04rem; }
+  .step-head p { margin: .2rem 0 0; color: var(--text-muted); font-size: .76rem; line-height: 1.55; }
   .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-muted); }
   .segmented button { min-height: 38px; border: 0; border-radius: 9px; color: var(--text-secondary); background: transparent; cursor: pointer; }
   .segmented button.is-active { color: var(--text-primary); background: var(--surface-strong); box-shadow: var(--shadow-sm); }
   .entity-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-  .entity-option { display: flex; align-items: center; gap: var(--space-3); min-height: 70px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); text-align: left; background: var(--surface); cursor: pointer; }
-  .entity-option.is-active { border-color: var(--border-strong); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent); background: var(--surface-strong); }
-  .entity-glyph { display: grid; width: 42px; height: 42px; place-items: center; flex: 0 0 auto; border-radius: 50%; color: var(--accent-strong); background: var(--surface-muted); font-family: var(--font-serif); font-size: .72rem; }
+  .entity-option { display: flex; align-items: center; gap: var(--space-3); min-height: 68px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); text-align: left; background: var(--surface); cursor: pointer; }
+  .entity-option.is-active, .variant-option.is-active, .style-option.is-active, .output-option.is-active { border-color: var(--border-strong); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); background: var(--surface-strong); }
+  .entity-glyph { display: grid; width: 40px; height: 40px; place-items: center; flex: 0 0 auto; border-radius: 50%; color: var(--accent-strong); background: var(--surface-muted); font-family: var(--font-serif); font-size: .7rem; }
   .entity-option > span:last-child { display: grid; min-width: 0; }
-  .entity-option strong { font-size: .85rem; }
-  .entity-option small { margin-top: 2px; overflow: hidden; color: var(--text-muted); font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+  .entity-option strong, .output-option strong { font-size: .82rem; }
+  .entity-option small, .output-option small { margin-top: 2px; overflow: hidden; color: var(--text-muted); font-size: .67rem; text-overflow: ellipsis; white-space: nowrap; }
+  .variant-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .variant-option { display: grid; gap: .45rem; min-height: 92px; padding: .8rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); text-align: left; background: var(--surface); cursor: pointer; }
+  .variant-option > span:last-child { color: var(--text-muted); font-size: .7rem; line-height: 1.5; }
+  .variant-meta { display: flex; gap: .55rem; align-items: center; }
+  .variant-meta small { padding: .18rem .35rem; border-radius: 4px; color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .58rem; }
+  .variant-meta strong { color: var(--text-primary); font-size: .78rem; }
+  .variant-fallback { margin: 0; padding: .75rem; border: 1px dashed var(--border); border-radius: var(--radius-md); color: var(--text-muted); font-size: .72rem; }
   .style-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
-  .style-option { display: grid; gap: var(--space-2); justify-items: start; min-height: 82px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); background: var(--surface); cursor: pointer; font-size: .76rem; }
-  .style-option.is-active { color: var(--text-primary); border-color: var(--border-strong); background: var(--surface-strong); }
-  .style-swatch { width: 100%; height: 28px; border-radius: var(--radius-sm); }
+  .style-option { display: grid; gap: .5rem; justify-items: stretch; min-height: 86px; padding: .65rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); background: var(--surface); cursor: pointer; text-align: left; }
+  .style-option > span:last-child { display: grid; gap: 1px; }
+  .style-option strong { color: var(--text-primary); font-size: .75rem; }
+  .style-option small { color: var(--text-muted); font-size: .62rem; }
+  .style-swatch { width: 100%; height: 30px; border-radius: var(--radius-sm); }
   .tone-1 { background: linear-gradient(90deg, var(--cloud-blue), var(--accent)); }
   .tone-2 { background: linear-gradient(90deg, var(--jade), #e6c382); }
   .tone-3 { background: linear-gradient(90deg, #304b68, #9e8154); }
   .tone-4 { background: linear-gradient(90deg, #5c4e69, #91acd0); }
+  .field-label { margin: .25rem 0 .45rem; color: var(--text-secondary); font-size: .7rem; font-weight: 700; }
+  .composition-label { margin-top: .8rem; }
   .chip-options { display: flex; flex-wrap: wrap; gap: var(--space-2); }
   button.chip { cursor: pointer; }
   .advanced-input { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
-  .advanced-input > span { color: var(--text-secondary); font-size: .76rem; font-weight: 700; }
+  .advanced-input > span { color: var(--text-secondary); font-size: .74rem; font-weight: 700; }
   .advanced-input small { color: var(--text-muted); font-weight: 400; }
-  textarea { resize: vertical; min-height: 86px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); }
-  .composition-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-  .composition-option { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); background: var(--surface); text-align: left; cursor: pointer; }
-  .composition-option.is-active { color: var(--text-primary); border-color: var(--border-strong); background: var(--surface-strong); }
-  .ratio-box { display: block; width: 28px; height: 36px; flex: 0 0 auto; border: 1px solid var(--accent); border-radius: 4px; background: color-mix(in srgb, var(--accent) 8%, transparent); }
-  .composition-option:nth-child(n+3) .ratio-box { width: 42px; height: 27px; }
-  .composition-option > span:last-child { display: grid; }
-  .composition-option strong { font-size: .78rem; }
-  .composition-option small { color: var(--text-muted); font-size: .68rem; }
+  textarea { resize: vertical; min-height: 82px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); }
+  .output-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .output-option { position: relative; display: grid; grid-template-columns: auto 1fr; gap: .2rem .75rem; align-items: center; min-height: 92px; padding: .85rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); text-align: left; cursor: pointer; }
+  .device-icon { display: grid; width: 38px; height: 38px; grid-row: span 2; place-items: center; color: var(--accent-strong); border-radius: 50%; background: var(--surface-muted); }
+  .output-copy { display: grid; }
+  .output-note { grid-column: 2; color: var(--text-muted); font-size: .65rem; }
   .generate-button { width: 100%; min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; }
   .generate-button:disabled { cursor: wait; opacity: .7; }
   .preview-column { position: sticky; top: calc(var(--header-height) + var(--space-6)); display: grid; gap: var(--space-4); }
-  .preview-card { overflow: hidden; padding: .55rem; border-radius: var(--radius-lg); }
-  .preview-frame { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 8px; background: var(--surface-muted); }
+  .recipe-card, .refine-card, .history-card { padding: 1rem; border-radius: var(--radius-lg); }
+  .recipe-head, .refine-head { display: grid; gap: .15rem; margin-bottom: .8rem; }
+  .recipe-head strong, .refine-head strong { font-size: .86rem; }
+  .recipe-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+  .recipe-grid div { display: grid; gap: .18rem; padding: .62rem; border-radius: var(--radius-sm); background: var(--surface-muted); }
+  .recipe-grid span, .resolution-line span { color: var(--text-muted); font-size: .6rem; }
+  .recipe-grid strong, .resolution-line strong { overflow: hidden; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+  .identity-lock { display: flex; gap: .45rem; align-items: center; margin-top: .75rem; color: var(--text-secondary); font-size: .67rem; }
+  .lock-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--jade); box-shadow: 0 0 0 4px color-mix(in srgb, var(--jade) 12%, transparent); }
+  .preview-card { overflow: hidden; padding: .6rem; border-radius: var(--radius-lg); }
+  .preview-stage { min-height: 390px; display: grid; place-items: center; padding: .7rem; border-radius: var(--radius-md); background: var(--surface-muted); }
+  .preview-stage[data-device='mobile'] .preview-frame { width: min(52%, 285px); aspect-ratio: 9 / 16; }
+  .preview-stage[data-device='desktop'] .preview-frame { width: 100%; aspect-ratio: 16 / 9; }
+  .preview-frame { position: relative; overflow: hidden; border-radius: 10px; box-shadow: var(--shadow-md); background: var(--surface); transition: width .25s ease, aspect-ratio .25s ease; }
   .preview-frame img { width: 100%; height: 100%; object-fit: cover; }
-  .preview-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(6,14,23,.68), transparent 55%); pointer-events: none; }
-  .preview-status { position: absolute; right: var(--space-5); bottom: var(--space-5); left: var(--space-5); display: grid; gap: var(--space-1); color: white; }
-  .preview-status strong { font-family: var(--font-serif); font-size: 1.65rem; }
-  .preview-status p { margin: 0; color: rgba(255,255,255,.78); font-size: .8rem; }
-  .preview-status.is-generating::before { content: ''; position: absolute; top: -14px; left: 0; width: 54px; height: 1px; background: #f2d28e; animation: pulse 1.2s ease-in-out infinite alternate; }
-  .preview-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); padding: var(--space-4) var(--space-2) var(--space-2); }
-  .preview-summary div { display: grid; gap: 2px; }
-  .preview-summary span { color: var(--text-muted); font-size: .66rem; }
-  .preview-summary strong { font-size: .78rem; }
-  .preview-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); padding: var(--space-2) 0 var(--space-1); }
-  .preview-actions .btn { justify-content: center; font-size: .76rem; min-height: 36px; }
-  .refine-card, .history-card { padding: var(--space-4); border-radius: var(--radius-lg); }
-  .refine-head, .history-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
-  .refine-head strong, .history-head strong { font-size: .82rem; }
-  .refine-head .small-caps, .history-head .small-caps { margin: 0; }
-  .refine-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
-  .refine-option { min-height: 34px; border: 1px solid var(--border); border-radius: var(--radius-pill); color: var(--text-secondary); background: var(--surface); cursor: pointer; font-size: .72rem; }
-  .refine-option:hover { color: var(--text-primary); border-color: var(--border-strong); }
-  .history-list { display: grid; gap: var(--space-2); }
-  .history-item { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: var(--space-3); align-items: center; padding: var(--space-2); border: 1px solid transparent; border-radius: var(--radius-md); color: var(--text-primary); background: transparent; text-align: left; cursor: pointer; }
-  .history-item:hover { border-color: var(--border); background: var(--surface-muted); }
-  .history-item img { width: 44px; height: 60px; object-fit: cover; border-radius: var(--radius-sm); }
-  .history-item strong, .history-item small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .history-item strong { font-size: .76rem; }
-  .history-item small { margin-top: 2px; color: var(--text-muted); font-size: .66rem; }
-  .history-empty { padding: var(--space-4) 0 var(--space-2); color: var(--text-muted); font-size: .74rem; text-align: center; }
-  .history-clear { border: 0; color: var(--text-muted); background: transparent; cursor: pointer; font-size: .68rem; }
-  .history-clear:hover { color: var(--text-primary); }
-  @keyframes pulse { from { width: 36px; opacity: .45; } to { width: 120px; opacity: 1; } }
-  @media (max-width: 980px) { .creator-grid { grid-template-columns: 1fr; } .preview-column { position: static; grid-row: 1; } .preview-card { max-width: 640px; margin-inline: auto; } .preview-frame { aspect-ratio: 16 / 10; } }
-  @media (max-width: 620px) { .entity-options, .style-options, .composition-options { grid-template-columns: 1fr; } .preview-frame { aspect-ratio: 4 / 5; } }
+  .preview-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(4, 10, 17, .52), transparent 48%); pointer-events: none; }
+  .mobile-safe-zone { position: absolute; inset: 7% 7% auto; height: 15%; border: 1px dashed rgba(255,255,255,.42); border-radius: 12px; pointer-events: none; }
+  .preview-status { position: absolute; right: .8rem; bottom: .8rem; left: .8rem; display: grid; gap: .2rem; color: white; text-shadow: 0 1px 10px rgba(0,0,0,.5); }
+  .preview-status strong { font-size: .88rem; }
+  .preview-status p { margin: 0; font-size: .67rem; opacity: .82; }
+  .preview-status.is-generating { animation: creator-pulse 1.6s ease-in-out infinite; }
+  .resolution-line { display: flex; justify-content: space-between; gap: 1rem; padding: .75rem .45rem .35rem; color: var(--text-primary); }
+  .preview-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: .45rem; padding: .55rem .1rem .1rem; }
+  .preview-actions .btn { min-width: 0; padding-inline: .55rem; font-size: .68rem; }
+  .refine-options { display: flex; flex-wrap: wrap; gap: .45rem; }
+  .refine-option { padding: .42rem .58rem; border: 1px solid var(--border); border-radius: 999px; color: var(--text-secondary); background: var(--surface); cursor: pointer; font-size: .68rem; }
+  .history-head { display: flex; justify-content: space-between; gap: 1rem; align-items: end; margin-bottom: .7rem; }
+  .history-head > span { display: grid; gap: .15rem; }
+  .history-head strong { font-size: .82rem; }
+  .history-clear { border: 0; color: var(--text-muted); background: transparent; cursor: pointer; font-size: .65rem; }
+  .history-list { display: grid; gap: .45rem; }
+  .history-item { display: grid; grid-template-columns: 44px 1fr; gap: .6rem; align-items: center; padding: .4rem; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); background: transparent; text-align: left; cursor: pointer; }
+  .history-item img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; }
+  .history-item span { display: grid; min-width: 0; }
+  .history-item strong, .history-item small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-item strong { font-size: .68rem; }
+  .history-item small { color: var(--text-muted); font-size: .6rem; }
+  .history-empty { color: var(--text-muted); font-size: .68rem; line-height: 1.6; }
+  @keyframes creator-pulse { 50% { opacity: .58; } }
+  @media (max-width: 980px) {
+    .creator-hero-inner { display: grid; }
+    .recipe-principle { justify-content: flex-start; }
+    .creator-grid { grid-template-columns: 1fr; }
+    .preview-column { position: static; }
+    .preview-stage { min-height: 330px; }
+  }
+  @media (max-width: 640px) {
+    .creator-hero { padding-top: 1.5rem; }
+    .creator-hero h1 { font-size: 2.15rem; }
+    .recipe-principle { display: none; }
+    .creator-panel { padding: .85rem; }
+    .entity-options, .variant-options, .output-options { grid-template-columns: 1fr; }
+    .style-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .recipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .preview-stage[data-device='mobile'] .preview-frame { width: min(62%, 270px); }
+    .preview-stage { min-height: 360px; }
+    .preview-actions { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .preview-frame { transition: none; }
+    .preview-status.is-generating { animation: none; }
+  }
 </style>
