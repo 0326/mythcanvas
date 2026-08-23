@@ -168,7 +168,15 @@ Respect `prefers-color-scheme` for first visit; persist explicit user selection.
 - support `prefers-reduced-motion`
 - avoid excessive blur/glass effects that reduce legibility
 
-For any significant UI task, read `.agents/skills/mythcanvas-product-ux/SKILL.md`.
+For **every significant UI task**, read `.agents/skills/mythcanvas-product-ux/SKILL.md` before editing.
+
+For any task that supplies a screenshot, Figma frame, design mockup, or asks to “还原 / reproduce / match / pixel perfect”:
+
+- treat the visual reference as the acceptance target, not loose inspiration;
+- follow the skill's mandatory `analyze → implement → render → screenshot → compare → repair → screenshot again` loop;
+- perform at least two rendered visual verification passes when browser/screenshot tooling is available;
+- do not claim “pixel perfect” unless an actual rendered comparison was performed;
+- preserve route/data/API/SEO behavior while fixing visual fidelity.
 
 ---
 
@@ -218,86 +226,53 @@ This is an image-heavy product. Treat image performance as architecture.
 - always know image dimensions
 - avoid layout shift
 - use modern formats/derivatives when available
-- lazy-load below-the-fold artwork
-- do not lazy-load the primary LCP Hero image blindly
-- keep shipped JavaScript small
-- avoid hydrating static grids/cards only for hover effects
-- prefer CSS for simple motion/interaction
+- use `loading="lazy"` below the fold
+- prefer real `<img>`/`<picture>` semantics for SEO-critical images
+- do not ship huge originals when responsive derivatives are available
+- keep important first-screen art intentionally prioritized
 
 ---
 
-## 11. Accessibility baseline
+## 11. Accessibility rules
 
-Every delivery should preserve:
+At minimum:
 
-- keyboard navigation
+- keyboard access
 - visible focus states
-- readable contrast in both themes
 - semantic buttons/links
-- dialog Escape/restore-focus behavior
-- alt text strategy
-- reduced-motion support
-- status messages for async AI generation
+- accessible names for icon-only controls
+- sufficient text contrast
+- do not encode meaning by color alone
+- support `prefers-reduced-motion`
+- dialogs close with ESC when applicable
 
 ---
 
-## 12. Development workflow
+## 12. Change discipline
 
-Before coding:
-
-1. Read the relevant product/architecture section.
-2. Inspect existing implementation before inventing a new pattern.
-3. Load the relevant Skill.
-4. Identify whether the task is static content, interactive island, backend, or data modeling.
-5. List the affected routes/components/domain types.
-
-While coding:
-
-1. Reuse semantic tokens.
-2. Keep domain terms consistent.
-3. Preserve server-rendered core content.
-4. Implement Light and Dark together.
-5. Include responsive behavior in the same task.
-6. Add loading/empty/error states when applicable.
-
-Before finishing:
-
-1. Run `npm run check` when possible.
-2. Verify Light and Dark.
-3. Verify mobile and desktop.
-4. Verify no core SEO content requires hydration.
-5. Verify image semantics and no obvious layout shift.
-6. Summarize files changed and any follow-up technical debt.
+- Do not rewrite unrelated architecture while implementing a small feature.
+- Prefer small reusable domain components over giant page files.
+- Preserve existing public routes unless migration is intentional.
+- Keep Light/Dark parity when touching shared UI.
+- Keep content identity and rendering style separate in types and naming.
+- Update docs when architecture, product semantics or setup behavior changes.
 
 ---
 
-## 13. Page delivery checklist
+## 13. Validation
 
-For a new entity/detail page:
+Before considering a meaningful change complete, run the checks relevant to the change.
 
-- [ ] Route and slug strategy match architecture
-- [ ] Entity data is typed
-- [ ] Hero supports MythCanvas theme
-- [ ] Civilization Visual DNA is visible but not a full-site theme
-- [ ] Canonical Design identity is preserved
-- [ ] Style Variant section is explicit
-- [ ] Related entity graph is present
-- [ ] Download/favorite/create CTA hierarchy matches product spec
-- [ ] Mobile layout exists
-- [ ] Light and Dark share structure
-- [ ] Metadata/canonical/OG are present
-- [ ] Images have alt + dimensions
-- [ ] No unnecessary full-page hydration
+Typical baseline:
 
----
+```bash
+npm run build
+npm run typecheck
+npm run test
+```
 
-## 14. Avoid these shortcuts
+For Cloudflare/runtime changes also run the repository's dry-run / Wrangler checks where applicable.
 
-- Do not rebuild the application as Next.js/React because a feature is interactive.
-- Do not make five different site themes for five civilizations.
-- Do not use one global `style` field for Theme + Visual DNA + Artwork Style.
-- Do not copy generated mockup text/spacing literally without validating UX.
-- Do not add a giant global state library before there is a real need.
-- Do not put model provider secrets in browser code.
-- Do not make AI generation dependent on user-written expert prompts.
-- Do not use copyrighted modern character designs as seed content.
+For visual-reference tasks, compile/test success is necessary but **not sufficient**: complete the visual verification loop defined in `mythcanvas-product-ux`.
+
+Do not knowingly leave the branch in a failing state without stating the reason.
