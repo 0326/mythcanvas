@@ -1,9 +1,12 @@
-import type { ProviderGenerationRequest, ProviderGenerationResult } from './types';
+import type { GenerationQuality, ProviderGenerationRequest, ProviderGenerationResult } from './types';
 
 export type GenerationProviderEnv = {
-  AI_GENERATION_MODE?: 'mock' | 'http';
+  AI_GENERATION_MODE?: 'mock' | 'http' | 'openai';
   AI_PROVIDER_ENDPOINT?: string;
   AI_PROVIDER_API_KEY?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_IMAGE_MODEL?: string;
+  OPENAI_IMAGE_QUALITY?: GenerationQuality;
 };
 
 export interface ImageGenerationProvider {
@@ -11,13 +14,107 @@ export interface ImageGenerationProvider {
   generate(input: ProviderGenerationRequest): Promise<ProviderGenerationResult>;
 }
 
+export class ImageProviderError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string,
+    public readonly status?: number,
+    public readonly retryable = false,
+  ) {
+    super(message);
+    this.name = 'ImageProviderError';
+  }
+}
+
 export function createImageGenerationProvider(env: GenerationProviderEnv): ImageGenerationProvider {
   const mode = env.AI_GENERATION_MODE ?? 'mock';
+  if (mode === 'openai') {
+    if (!env.OPENAI_API_KEY) {
+      throw new ImageProviderError('OPENAI_API_KEY_MISSING', 'OPENAI_API_KEY is required when AI_GENERATION_MODE=openai.');
+    }
+    return new OpenAIImageProvider({
+      apiKey: env.OPENAI_API_KEY,
+      model: env.OPENAI_IMAGE_MODEL ?? 'gpt-image-2',
+      quality: env.OPENAI_IMAGE_QUALITY ?? 'high',
+    });
+  }
   if (mode === 'http' && env.AI_PROVIDER_ENDPOINT) {
     return new HttpImageProvider(env.AI_PROVIDER_ENDPOINT, env.AI_PROVIDER_API_KEY);
   }
   return new MockImageProvider();
 }
+
+class OpenAIImageProvider implements ImageGenerationProvider {
+  readonly name: string;
+
+  constructor(
+    private readonly options: {
+      apiKey: string;
+      model: string;
+      quality: GenerationQuality;
+    },
+  ) {
+    this.name = `openai:${options.model}`;
+  }
+
+  async generate(input: ProviderGenerationRequest): Promise<ProviderGenerationResult> {
+    const quality = input.quality ?? this.options.quality;
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${this.options.apiKey}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: this.options.model,
+        prompt: input.prompt,
+        size: `${input.width}x${input.height}`,
+        quality,
+      }),
+    });
+
+    const requestId = response.headers.get('x-request-id') ?? undefined;
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null) as OpenAIErrorPayload | null;
+      const providerCode = payload?.error?.code || payload?.error?.type || `HTTP_${response.status}`;
+      const message = payload?.error?.message || `OpenAI image generation failed (${response.status}).`;
+      throw new ImageProviderError(
+        `OPENAI_${String(providerCode).toUpperCase()}`,
+        message,
+        response.status,
+        response.status === 429 || response.status >= 500,
+      );
+    }
+
+    const payload = await response.json() as OpenAIImagePayload;
+    const imageBase64 = payload.data?.[0]?.b64_json;
+    if (!imageBase64) {
+      throw new ImageProviderError('OPENAI_EMPTY_IMAGE', 'GPT Image 2 returned no image data.', response.status);
+    }
+
+    return {
+      provider: this.name,
+      providerRequestId: requestId,
+      model: this.options.model,
+      bytes: decodeBase64(imageBase64),
+      mimeType: 'image/png',
+      width: input.width,
+      height: input.height,
+    };
+  }
+}
+
+type OpenAIImagePayload = {
+  data?: Array<{ b64_json?: string }>;
+};
+
+type OpenAIErrorPayload = {
+  error?: {
+    code?: string | null;
+    type?: string;
+    message?: string;
+  };
+};
 
 class MockImageProvider implements ImageGenerationProvider {
   name = 'mock-svg';
@@ -27,6 +124,7 @@ class MockImageProvider implements ImageGenerationProvider {
     return {
       provider: this.name,
       providerRequestId: `mock-${input.id}`,
+      model: 'mock-svg',
       bytes: new TextEncoder().encode(svg),
       mimeType: 'image/svg+xml',
       width: input.width,
@@ -54,13 +152,19 @@ class HttpImageProvider implements ImageGenerationProvider {
         prompt: input.prompt,
         width: input.width,
         height: input.height,
+        quality: input.quality,
         metadata: input.metadata,
       }),
     });
 
     if (!response.ok) {
       const detail = await response.text().catch(() => '');
-      throw new Error(`Image provider failed (${response.status})${detail ? `: ${detail.slice(0, 240)}` : ''}`);
+      throw new ImageProviderError(
+        'HTTP_PROVIDER_FAILED',
+        `Image provider failed (${response.status})${detail ? `: ${detail.slice(0, 240)}` : ''}`,
+        response.status,
+        response.status === 429 || response.status >= 500,
+      );
     }
 
     const contentType = response.headers.get('content-type') ?? '';
@@ -82,12 +186,14 @@ class HttpImageProvider implements ImageGenerationProvider {
       mimeType?: string;
       width?: number;
       height?: number;
+      model?: string;
     };
 
     if (payload.imageBase64) {
       return {
         provider: this.name,
         providerRequestId: payload.requestId,
+        model: payload.model,
         bytes: decodeBase64(payload.imageBase64),
         mimeType: payload.mimeType ?? 'image/png',
         width: payload.width ?? input.width,
@@ -97,11 +203,12 @@ class HttpImageProvider implements ImageGenerationProvider {
 
     if (payload.imageUrl) {
       const imageResponse = await fetch(payload.imageUrl);
-      if (!imageResponse.ok) throw new Error(`Provider image fetch failed (${imageResponse.status})`);
+      if (!imageResponse.ok) throw new ImageProviderError('HTTP_PROVIDER_IMAGE_FETCH_FAILED', `Provider image fetch failed (${imageResponse.status})`, imageResponse.status, imageResponse.status >= 500);
       const imageType = imageResponse.headers.get('content-type')?.split(';')[0] ?? payload.mimeType ?? 'image/png';
       return {
         provider: this.name,
         providerRequestId: payload.requestId,
+        model: payload.model,
         bytes: new Uint8Array(await imageResponse.arrayBuffer()),
         mimeType: imageType,
         width: payload.width ?? input.width,
@@ -109,7 +216,7 @@ class HttpImageProvider implements ImageGenerationProvider {
       };
     }
 
-    throw new Error('Image provider returned no supported image payload.');
+    throw new ImageProviderError('HTTP_PROVIDER_EMPTY_IMAGE', 'Image provider returned no supported image payload.');
   }
 }
 
