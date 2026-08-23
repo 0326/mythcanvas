@@ -6,12 +6,18 @@ describe('parseGenerationRequest', () => {
     const req = parseGenerationRequest({
       entityType: 'character',
       entityId: 'character-change',
+      variantId: 'change-mature-moon-robe',
       styleId: 'canonical',
       scene: '云海',
       composition: '手机锁屏',
       ratio: '9:16',
+      outputSpecId: 'mobile-wallpaper',
+      sourceGenerationId: 'parent-job',
     });
     expect(req.entityType).toBe('character');
+    expect(req.variantId).toBe('change-mature-moon-robe');
+    expect(req.outputSpecId).toBe('mobile-wallpaper');
+    expect(req.sourceGenerationId).toBe('parent-job');
     expect(req.description).toBe('');
   });
 
@@ -28,6 +34,20 @@ describe('parseGenerationRequest', () => {
     ).toThrow(GenerationValidationError);
   });
 
+  it('神域不能携带角色形态', () => {
+    expect(() =>
+      parseGenerationRequest({
+        entityType: 'realm',
+        entityId: 'realm-olympus',
+        variantId: 'athena-mature',
+        styleId: 'canonical',
+        scene: '神殿',
+        composition: '桌面壁纸',
+        ratio: '16:9',
+      }),
+    ).toThrow(/角色形态/);
+  });
+
   it('超长描述抛错', () => {
     expect(() =>
       parseGenerationRequest({
@@ -37,9 +57,9 @@ describe('parseGenerationRequest', () => {
         scene: 's',
         composition: 'c',
         ratio: '9:16',
-        description: 'a'.repeat(200),
+        description: 'a'.repeat(301),
       }),
-    ).toThrow(/180/);
+    ).toThrow(/300/);
   });
 
   it('非法比例抛错', () => {
