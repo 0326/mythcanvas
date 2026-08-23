@@ -59,19 +59,10 @@ class OpenAIImageProvider implements ImageGenerationProvider {
 
   async generate(input: ProviderGenerationRequest): Promise<ProviderGenerationResult> {
     const quality = input.quality ?? this.options.quality;
-    const response = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${this.options.apiKey}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: this.options.model,
-        prompt: input.prompt,
-        size: `${input.width}x${input.height}`,
-        quality,
-      }),
-    });
+    const references = input.references ?? [];
+    const response = references.length
+      ? await this.editWithReferences(input, quality, references)
+      : await this.generateFromText(input, quality);
 
     const requestId = response.headers.get('x-request-id') ?? undefined;
     if (!response.ok) {
@@ -101,6 +92,52 @@ class OpenAIImageProvider implements ImageGenerationProvider {
       width: input.width,
       height: input.height,
     };
+  }
+
+  private generateFromText(input: ProviderGenerationRequest, quality: GenerationQuality): Promise<Response> {
+    return fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${this.options.apiKey}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: this.options.model,
+        prompt: input.prompt,
+        size: `${input.width}x${input.height}`,
+        quality,
+      }),
+    });
+  }
+
+  private editWithReferences(
+    input: ProviderGenerationRequest,
+    quality: GenerationQuality,
+    references: NonNullable<ProviderGenerationRequest['references']>,
+  ): Promise<Response> {
+    const body = new FormData();
+    body.set('model', this.options.model);
+    body.set('prompt', [
+      input.prompt,
+      'Use the supplied images as high-fidelity identity references. Preserve the recurring subject identity and approved persistent design anchors while applying the requested variant, style, scene, and wallpaper composition.',
+    ].join('\n\n'));
+    body.set('size', `${input.width}x${input.height}`);
+    body.set('quality', quality);
+
+    references.forEach((reference, index) => {
+      const bytes = reference.bytes;
+      const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+      const blob = new Blob([buffer], { type: reference.mimeType || 'image/png' });
+      body.append('image[]', blob, `reference-${index + 1}.${extensionForMime(reference.mimeType)}`);
+    });
+
+    // GPT Image 2 processes image inputs at high fidelity automatically; do not
+    // send input_fidelity because the current API does not allow overriding it.
+    return fetch('https://api.openai.com/v1/images/edits', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${this.options.apiKey}` },
+      body,
+    });
   }
 }
 
@@ -153,6 +190,12 @@ class HttpImageProvider implements ImageGenerationProvider {
         width: input.width,
         height: input.height,
         quality: input.quality,
+        references: input.references?.map((reference) => ({
+          id: reference.id,
+          assetType: reference.assetType,
+          mimeType: reference.mimeType,
+          imageBase64: encodeBase64(reference.bytes),
+        })) ?? [],
         metadata: input.metadata,
       }),
     });
@@ -228,6 +271,24 @@ function decodeBase64(value: string): Uint8Array {
   return bytes;
 }
 
+function encodeBase64(bytes: Uint8Array): string {
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    const chunk = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.length));
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
+function extensionForMime(mimeType: string): string {
+  switch (mimeType) {
+    case 'image/jpeg': return 'jpg';
+    case 'image/webp': return 'webp';
+    default: return 'png';
+  }
+}
+
 function escapeXml(value: string): string {
   return value
     .replaceAll('&', '&amp;')
@@ -239,7 +300,8 @@ function escapeXml(value: string): string {
 
 function createMockSvg(input: ProviderGenerationRequest): string {
   const title = escapeXml(input.metadata.entityName ?? 'MythCanvas');
-  const subtitle = escapeXml(`${input.metadata.styleName ?? 'Myth'} · ${input.metadata.scene ?? 'Realm'}`);
+  const referenceCount = input.references?.length ?? 0;
+  const subtitle = escapeXml(`${input.metadata.styleName ?? 'Myth'} · ${input.metadata.scene ?? 'Realm'}${referenceCount ? ` · ${referenceCount} refs` : ''}`);
   const wide = input.width >= input.height;
   const moonX = wide ? Math.round(input.width * 0.76) : Math.round(input.width * 0.72);
   const moonY = Math.round(input.height * 0.2);

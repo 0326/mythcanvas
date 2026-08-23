@@ -1,0 +1,331 @@
+---
+import { Archive, ImagePlus, Plus, ShieldCheck } from '@lucide/astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCharacters } from '../../lib/content/repositories';
+
+export const prerender = false;
+const characters = await getCharacters(Astro.locals.runtime.env.DB);
+const assetTypes = [
+  ['portrait-front', '正面头像'],
+  ['portrait-three-quarter', '3/4 头像'],
+  ['fullbody-front', '正面全身'],
+  ['fullbody-three-quarter', '3/4 全身'],
+  ['signature-props', '标志道具'],
+  ['turnaround', '转面设定'],
+  ['expression-sheet', '表情设定'],
+] as const;
+---
+
+<BaseLayout title="角色资产工作台" description="MythCanvas 角色形态与 Canonical Reference Pack 管理">
+  <section class="studio-hero">
+    <div class="container-wide hero-row">
+      <div>
+        <span class="eyebrow">Admin · Character Studio</span>
+        <h1>角色资产工作台</h1>
+        <p>维护 Canonical Design、年龄/服装/形态 Variant 与 Reference Pack。这里定义“角色是谁”，画风仍由独立 Style System 管理。</p>
+      </div>
+      <nav class="admin-nav" aria-label="后台导航">
+        <a href="/admin">内容审核</a>
+        <a class="is-active" href="/admin/characters" aria-current="page">角色资产</a>
+      </nav>
+    </div>
+  </section>
+
+  <section class="section-compact">
+    <div class="container-wide studio" data-character-studio>
+      <div class="studio-toolbar surface">
+        <label class="token-field">
+          <span>ADMIN_TOKEN</span>
+          <input type="password" autocomplete="off" placeholder="输入后台访问令牌" data-token />
+        </label>
+        <label class="character-field">
+          <span>角色</span>
+          <select data-character>
+            {characters.map((character) => <option value={character.id}>{character.name} · {character.nameEn}</option>)}
+          </select>
+        </label>
+      </div>
+
+      <div class="studio-grid">
+        <main class="studio-main">
+          <section class="panel surface">
+            <div class="panel-head">
+              <div><span class="small-caps">Identity</span><h2>Canonical Design</h2></div>
+              <span class="identity-badge"><ShieldCheck size={15} strokeWidth={1.7} aria-hidden="true" /> 身份锚点</span>
+            </div>
+            <div class="character-identity" data-identity>
+              {characters.map((character, index) => (
+                <article data-identity-character={character.id} hidden={index !== 0}>
+                  <div class="identity-title">
+                    {character.portrait && <img src={character.portrait.src} alt="" width="64" height="64" />}
+                    <div><strong>{character.name}</strong><span>{character.role}</span></div>
+                  </div>
+                  <p>{character.summary}</p>
+                  <div class="anchor-list">
+                    {character.canonicalDesign.anchors.map((anchor) => <span>{anchor}</span>)}
+                    {character.symbols.map((symbol) => <span>{symbol}</span>)}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section class="panel surface">
+            <div class="panel-head">
+              <div><span class="small-caps">Reference Pack</span><h2>角色参考图</h2></div>
+              <span class="panel-note">生成时自动优先使用 Variant 图，再用 Canonical 补齐</span>
+            </div>
+            <div class="variant-scope">
+              <label><span>参考图作用域</span><select data-reference-variant><option value="">Canonical 主设</option></select></label>
+            </div>
+            <form class="upload-form" data-upload-form>
+              <label><span>类型</span><select name="assetType">{assetTypes.map(([value, label]) => <option value={value}>{label}</option>)}</select></label>
+              <label class="file-field"><span>图片</span><input type="file" name="file" accept="image/png,image/jpeg,image/webp" required /></label>
+              <label class="alt-field"><span>说明</span><input type="text" name="altText" maxlength="240" placeholder="例如：雅典娜 Canonical 正面头像" /></label>
+              <button class="btn btn-primary" type="submit"><ImagePlus size={16} strokeWidth={1.8} aria-hidden="true" /> 上传参考图</button>
+            </form>
+            <p class="form-message" data-upload-message></p>
+            <div class="reference-grid" data-reference-list></div>
+            <div class="empty-reference" data-reference-empty>当前作用域还没有参考图。生成仍可使用结构化 Canonical Design，但角色一致性会弱一些。</div>
+          </section>
+        </main>
+
+        <aside class="studio-side">
+          <section class="panel surface">
+            <div class="panel-head"><div><span class="small-caps">Variants</span><h2>年龄 / 服装 / 形态</h2></div></div>
+            <div class="variant-list" data-variant-list></div>
+            <div class="variant-empty" data-variant-empty>暂无额外形态，将使用经典设定。</div>
+          </section>
+
+          <section class="panel surface">
+            <div class="panel-head"><div><span class="small-caps">New Variant</span><h2>创建角色形态</h2></div></div>
+            <form class="variant-form" data-variant-form>
+              <label><span>类型</span><select name="variantType"><option value="age">年龄</option><option value="costume">服装</option><option value="form">形态</option><option value="composite">综合</option></select></label>
+              <label><span>名称</span><input name="name" required maxlength="80" placeholder="例如：月宫礼服" /></label>
+              <label><span>描述</span><textarea name="description" rows="3" maxlength="500" placeholder="这个 Variant 在产品中的含义"></textarea></label>
+              <label><span>允许改变的身份特征</span><textarea name="identityOverrides" rows="4" placeholder="每行一条，例如：\n层叠礼服\n更成熟的成年气质"></textarea><small>这里只写该 Variant 允许改变的持久特征，其他 Canonical anchors 默认锁定。</small></label>
+              <label><span>Prompt Fragment</span><textarea name="promptFragment" rows="5" maxlength="1600" placeholder="用自然语言描述这个形态如何呈现"></textarea></label>
+              <button class="btn btn-secondary" type="submit"><Plus size={16} strokeWidth={1.8} aria-hidden="true" /> 新建 Variant</button>
+              <p class="form-message" data-variant-message></p>
+            </form>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-character-studio]');
+    if (!root) return;
+    const tokenInput = root.querySelector('[data-token]');
+    const characterSelect = root.querySelector('[data-character]');
+    const variantSelect = root.querySelector('[data-reference-variant]');
+    const variantList = root.querySelector('[data-variant-list]');
+    const variantEmpty = root.querySelector('[data-variant-empty]');
+    const referenceList = root.querySelector('[data-reference-list]');
+    const referenceEmpty = root.querySelector('[data-reference-empty]');
+
+    const token = () => tokenInput instanceof HTMLInputElement ? tokenInput.value.trim() : '';
+    const characterId = () => characterSelect instanceof HTMLSelectElement ? characterSelect.value : '';
+    const variantId = () => variantSelect instanceof HTMLSelectElement ? variantSelect.value : '';
+    const headers = () => ({ authorization: `Bearer ${token()}` });
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+    const setMessage = (selector, message, error = false) => {
+      const node = root.querySelector(selector);
+      if (!node) return;
+      node.textContent = message;
+      node.classList.toggle('is-error', error);
+    };
+
+    const showIdentity = () => {
+      root.querySelectorAll('[data-identity-character]').forEach((node) => {
+        node.hidden = node.dataset.identityCharacter !== characterId();
+      });
+    };
+
+    const loadVariants = async () => {
+      if (!token() || !characterId()) return;
+      try {
+        const response = await fetch(`/api/admin/character-variants?characterId=${encodeURIComponent(characterId())}`, { headers: headers() });
+        if (!response.ok) throw new Error(response.status === 401 ? '访问令牌无效' : '形态加载失败');
+        const data = await response.json();
+        renderVariants(data.items || []);
+      } catch (error) {
+        if (variantList) variantList.innerHTML = `<p class="inline-error">${escapeHtml(error.message || '加载失败')}</p>`;
+      }
+    };
+
+    const renderVariants = (items) => {
+      if (variantEmpty) variantEmpty.hidden = items.length !== 0;
+      if (variantList) variantList.innerHTML = '';
+      if (variantSelect) {
+        const current = variantSelect.value;
+        variantSelect.innerHTML = '<option value="">Canonical 主设</option>';
+        items.forEach((item) => {
+          const option = document.createElement('option');
+          option.value = item.id;
+          option.textContent = `${typeLabel(item.variantType)} · ${item.name}`;
+          variantSelect.appendChild(option);
+        });
+        if ([...variantSelect.options].some((option) => option.value === current)) variantSelect.value = current;
+      }
+      items.forEach((item) => {
+        const card = document.createElement('article');
+        card.className = 'variant-card';
+        card.innerHTML = `<div><span>${escapeHtml(typeLabel(item.variantType))}</span><strong>${escapeHtml(item.name)}</strong></div><p>${escapeHtml(item.description || '暂无描述')}</p><button type="button" data-archive-variant="${escapeHtml(item.id)}" aria-label="归档 ${escapeHtml(item.name)}">归档</button>`;
+        card.querySelector('[data-archive-variant]')?.addEventListener('click', () => archiveVariant(item.id));
+        variantList?.appendChild(card);
+      });
+      loadReferences();
+    };
+
+    const loadReferences = async () => {
+      if (!token() || !characterId()) return;
+      const params = new URLSearchParams({ characterId: characterId() });
+      if (variantId()) params.set('variantId', variantId());
+      try {
+        const response = await fetch(`/api/admin/reference-assets?${params}`, { headers: headers() });
+        if (!response.ok) throw new Error(response.status === 401 ? '访问令牌无效' : '参考图加载失败');
+        const data = await response.json();
+        renderReferences(data.items || []);
+      } catch (error) {
+        referenceList.innerHTML = `<p class="inline-error">${escapeHtml(error.message || '加载失败')}</p>`;
+      }
+    };
+
+    const renderReferences = (items) => {
+      if (referenceEmpty) referenceEmpty.hidden = items.length !== 0;
+      if (referenceList) referenceList.innerHTML = '';
+      items.forEach((item) => {
+        const card = document.createElement('article');
+        card.className = 'reference-card';
+        card.innerHTML = `<div class="reference-image"><img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.altText)}" loading="lazy" /></div><div class="reference-copy"><span>${escapeHtml(item.assetType)}</span><strong>${escapeHtml(item.altText || item.assetType)}</strong><small>${escapeHtml(item.ownerType === 'character_variant' ? 'Variant Reference' : 'Canonical Reference')}</small></div><button type="button" data-archive-reference="${escapeHtml(item.id)}" aria-label="归档参考图"><span>归档</span></button>`;
+        card.querySelector('[data-archive-reference]')?.addEventListener('click', () => archiveReference(item.id));
+        referenceList?.appendChild(card);
+      });
+    };
+
+    const archiveVariant = async (id) => {
+      if (!confirm('归档这个 Variant？已有生成记录不会被删除。')) return;
+      const response = await fetch('/api/admin/character-variants', {
+        method: 'POST', headers: { ...headers(), 'content-type': 'application/json' }, body: JSON.stringify({ action: 'archive', id }),
+      });
+      const data = await response.json();
+      setMessage('[data-variant-message]', data.message || (response.ok ? '已归档' : '归档失败'), !response.ok);
+      if (response.ok) loadVariants();
+    };
+
+    const archiveReference = async (id) => {
+      if (!confirm('归档这张参考图？之后的生成不会再使用它。')) return;
+      const response = await fetch('/api/admin/reference-assets', {
+        method: 'POST', headers: { ...headers(), 'content-type': 'application/json' }, body: JSON.stringify({ action: 'archive', id, variantId: variantId() || undefined }),
+      });
+      const data = await response.json();
+      setMessage('[data-upload-message]', data.message || (response.ok ? '已归档' : '归档失败'), !response.ok);
+      if (response.ok) loadReferences();
+    };
+
+    root.querySelector('[data-variant-form]')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!token()) return setMessage('[data-variant-message]', '请先输入 ADMIN_TOKEN。', true);
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const body = {
+        action: 'create',
+        characterId: characterId(),
+        variantType: formData.get('variantType'),
+        name: formData.get('name'),
+        description: formData.get('description'),
+        identityOverrides: String(formData.get('identityOverrides') || '').split('\n').map((v) => v.trim()).filter(Boolean),
+        promptFragment: formData.get('promptFragment'),
+      };
+      setMessage('[data-variant-message]', '正在创建…');
+      const response = await fetch('/api/admin/character-variants', {
+        method: 'POST', headers: { ...headers(), 'content-type':'application/json' }, body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      setMessage('[data-variant-message]', response.ok ? 'Variant 已创建。' : (data.error?.message || '创建失败'), !response.ok);
+      if (response.ok) { form.reset(); await loadVariants(); if (variantSelect && data.item?.id) { variantSelect.value = data.item.id; await loadReferences(); } }
+    });
+
+    root.querySelector('[data-upload-form]')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!token()) return setMessage('[data-upload-message]', '请先输入 ADMIN_TOKEN。', true);
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      formData.set('characterId', characterId());
+      formData.set('variantId', variantId());
+      setMessage('[data-upload-message]', '正在上传…');
+      const response = await fetch('/api/admin/reference-assets', { method:'POST', headers: headers(), body: formData });
+      const data = await response.json();
+      setMessage('[data-upload-message]', response.ok ? '参考图已加入 Reference Pack。' : (data.error?.message || '上传失败'), !response.ok);
+      if (response.ok) { form.reset(); await loadReferences(); }
+    });
+
+    const typeLabel = (type) => ({ age:'年龄', costume:'服装', form:'形态', composite:'综合' }[type] || type);
+    tokenInput?.addEventListener('change', loadVariants);
+    characterSelect?.addEventListener('change', () => { showIdentity(); loadVariants(); });
+    variantSelect?.addEventListener('change', loadReferences);
+    showIdentity();
+  })();
+</script>
+
+<style>
+  .studio-hero { padding-block: 3.5rem 2.2rem; border-bottom: 1px solid var(--border); }
+  .hero-row { display:flex; justify-content:space-between; gap:2rem; align-items:end; }
+  .studio-hero h1 { margin:.3rem 0 0; font-size:clamp(2.5rem,5vw,4.4rem); }
+  .studio-hero p { max-width:700px; margin:.75rem 0 0; color:var(--text-secondary); line-height:1.75; }
+  .admin-nav { display:flex; gap:.35rem; padding:.3rem; border:1px solid var(--border); border-radius:999px; background:var(--surface); }
+  .admin-nav a { padding:.45rem .7rem; border-radius:999px; color:var(--text-secondary); font-size:.7rem; text-decoration:none; }
+  .admin-nav a.is-active { color:var(--text-primary); background:var(--surface-strong); }
+  .studio { display:grid; gap:1rem; }
+  .studio-toolbar { display:grid; grid-template-columns:1fr 1fr; gap:1rem; padding:1rem; border-radius:var(--radius-lg); }
+  label { display:grid; gap:.35rem; }
+  label > span { color:var(--text-secondary); font-size:.7rem; font-weight:700; }
+  input, select, textarea { width:100%; min-height:40px; padding:.55rem .65rem; border:1px solid var(--border); border-radius:8px; color:var(--text-primary); background:var(--surface); font:inherit; }
+  textarea { resize:vertical; }
+  label small { color:var(--text-muted); font-size:.64rem; line-height:1.5; }
+  .studio-grid { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr); gap:1rem; align-items:start; }
+  .studio-main,.studio-side { display:grid; gap:1rem; }
+  .panel { padding:1rem; border-radius:var(--radius-lg); }
+  .panel-head { display:flex; justify-content:space-between; gap:1rem; align-items:start; margin-bottom:1rem; }
+  .panel-head h2 { margin:.15rem 0 0; font-family:var(--font-sans); font-size:1rem; }
+  .panel-note { max-width:260px; color:var(--text-muted); text-align:right; font-size:.63rem; line-height:1.5; }
+  .identity-badge { display:inline-flex; align-items:center; gap:.3rem; color:var(--accent-strong); font-size:.65rem; }
+  .identity-title { display:flex; gap:.75rem; align-items:center; }
+  .identity-title img { width:58px; height:58px; object-fit:cover; border-radius:50%; }
+  .identity-title div { display:grid; gap:.15rem; }
+  .identity-title strong { font-size:1rem; }
+  .identity-title span { color:var(--text-muted); font-size:.68rem; }
+  .character-identity p { color:var(--text-secondary); font-size:.75rem; line-height:1.7; }
+  .anchor-list { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .anchor-list span { padding:.35rem .5rem; border:1px solid var(--border); border-radius:999px; color:var(--text-secondary); background:var(--surface-muted); font-size:.64rem; }
+  .variant-scope { max-width:320px; margin-bottom:.8rem; }
+  .upload-form { display:grid; grid-template-columns:160px 1fr 1fr auto; gap:.65rem; align-items:end; padding:.75rem; border-radius:var(--radius-md); background:var(--surface-muted); }
+  .upload-form .btn { min-height:40px; display:inline-flex; align-items:center; justify-content:center; gap:.35rem; }
+  .form-message { min-height:1em; margin:.55rem 0; color:var(--text-secondary); font-size:.68rem; }
+  .form-message.is-error,.inline-error { color:#b44; }
+  .reference-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; }
+  .reference-card { position:relative; overflow:hidden; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); }
+  .reference-image { aspect-ratio:4/3; overflow:hidden; background:var(--surface-muted); }
+  .reference-image img { width:100%; height:100%; object-fit:cover; }
+  .reference-copy { display:grid; gap:.12rem; padding:.6rem; }
+  .reference-copy span,.reference-copy small { color:var(--text-muted); font-size:.58rem; }
+  .reference-copy strong { overflow:hidden; font-size:.68rem; text-overflow:ellipsis; white-space:nowrap; }
+  .reference-card > button { position:absolute; top:.4rem; right:.4rem; border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:.28rem .45rem; color:white; background:rgba(5,10,16,.58); cursor:pointer; font-size:.56rem; }
+  .empty-reference,.variant-empty { padding:1rem; border:1px dashed var(--border); border-radius:var(--radius-md); color:var(--text-muted); font-size:.68rem; line-height:1.6; }
+  .variant-list { display:grid; gap:.5rem; }
+  .variant-card { position:relative; padding:.7rem; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); }
+  .variant-card div { display:flex; gap:.45rem; align-items:center; }
+  .variant-card div span { padding:.18rem .34rem; border-radius:4px; color:var(--accent-strong); background:color-mix(in srgb,var(--accent) 10%,transparent); font-size:.56rem; }
+  .variant-card strong { font-size:.72rem; }
+  .variant-card p { margin:.45rem 2.6rem 0 0; color:var(--text-muted); font-size:.63rem; line-height:1.5; }
+  .variant-card button { position:absolute; right:.55rem; bottom:.55rem; border:0; color:var(--text-muted); background:transparent; cursor:pointer; font-size:.58rem; }
+  .variant-form { display:grid; gap:.7rem; }
+  .variant-form .btn { display:inline-flex; gap:.35rem; align-items:center; justify-content:center; }
+  @media (max-width:1000px) { .studio-grid{grid-template-columns:1fr}.upload-form{grid-template-columns:1fr 1fr}.hero-row{display:grid}.admin-nav{width:max-content} }
+  @media (max-width:680px) { .studio-toolbar,.upload-form{grid-template-columns:1fr}.reference-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.panel-note{display:none}.studio-hero{padding-top:2rem} }
+</style>
