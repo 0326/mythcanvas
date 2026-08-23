@@ -12,11 +12,17 @@ export type EntityListQuery = Pagination & {
   published?: PublishedFilter;
 };
 
+export type ArtworkSort = 'recommended' | 'latest' | 'popular';
+export type ArtworkDevice = 'desktop' | 'mobile';
+
 export type ArtworkListQuery = Pagination & {
   mythologyId?: string;
   realmId?: string;
   characterId?: string;
   styleId?: string;
   type?: ArtworkType;
+  search?: string;
+  device?: ArtworkDevice;
+  sort?: ArtworkSort;
   published?: PublishedFilter;
 };
