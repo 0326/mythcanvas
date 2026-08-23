@@ -55,13 +55,25 @@ async function loadCharacterIds(db: D1Database, artworkIds: readonly string[]): 
 }
 
 function applySeedFilters(list: Artwork[], query: ArtworkListQuery): Artwork[] {
-  let result = list;
+  let result = [...list];
   if (query.published !== 'all') result = result.filter((item) => item.reviewStatus === 'approved');
   if (query.mythologyId) result = result.filter((item) => item.mythologyId === query.mythologyId);
   if (query.realmId) result = result.filter((item) => item.realmId === query.realmId);
   if (query.characterId) result = result.filter((item) => item.characterIds?.includes(query.characterId ?? ''));
   if (query.styleId) result = result.filter((item) => item.styleId === query.styleId);
   if (query.type) result = result.filter((item) => item.type === query.type);
+  if (query.search) {
+    const needle = query.search.trim().toLowerCase();
+    if (needle) {
+      result = result.filter((item) => `${item.title} ${item.image.alt}`.toLowerCase().includes(needle));
+    }
+  }
+  if (query.device === 'desktop') result = result.filter((item) => item.image.width >= item.image.height);
+  if (query.device === 'mobile') result = result.filter((item) => item.image.height > item.image.width);
+
+  // Seed 数据没有正式热度/发布时间元数据：推荐沿用编辑顺序，最新使用反向顺序作为可区分的本地兜底。
+  if (query.sort === 'latest') result.reverse();
+
   const { limit, offset } = pageClause(query);
   return result.slice(offset, offset + limit);
 }
@@ -95,6 +107,17 @@ export async function getArtworks(db: D1Database | undefined, query: ArtworkList
     where.push('a.type = ?');
     values.push(query.type);
   }
+  if (query.search?.trim()) {
+    const search = query.search.trim();
+    where.push('(instr(lower(a.title), lower(?)) > 0 OR instr(lower(a.alt_text), lower(?)) > 0)');
+    values.push(search, search);
+  }
+  if (query.device === 'desktop') {
+    where.push('a.width >= a.height');
+  }
+  if (query.device === 'mobile') {
+    where.push('a.height > a.width');
+  }
   if (query.published !== 'all') {
     where.push("a.publish_status = 'published'");
     where.push("a.review_status = 'approved'");
@@ -102,8 +125,14 @@ export async function getArtworks(db: D1Database | undefined, query: ArtworkList
 
   const whereSql = where.length ? ` WHERE ${where.join(' AND ')}` : '';
   const { limit, offset } = pageClause(query);
+  const orderBy = query.sort === 'recommended'
+    ? 'a.featured DESC, (a.favorite_count * 3 + a.download_count) DESC, COALESCE(a.published_at, a.created_at) DESC, a.id'
+    : query.sort === 'popular'
+      ? '(a.favorite_count * 3 + a.download_count) DESC, a.favorite_count DESC, a.download_count DESC, COALESCE(a.published_at, a.created_at) DESC, a.id'
+      : 'COALESCE(a.published_at, a.created_at) DESC, a.id';
+
   const rows = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks a${join}${whereSql} ORDER BY a.created_at DESC, a.id LIMIT ? OFFSET ?`)
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks a${join}${whereSql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`)
     .bind(...values, limit, offset)
     .all();
 

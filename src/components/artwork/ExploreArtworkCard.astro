@@ -1,0 +1,261 @@
+---
+import { ArrowUpRight, Heart } from '@lucide/astro';
+import type { Artwork } from '../../lib/content/types';
+
+interface Props {
+  artwork: Artwork;
+  mythologyName?: string;
+  realmName?: string;
+  variant?: 'hero' | 'side' | 'tile';
+  badge?: string;
+}
+
+const {
+  artwork,
+  mythologyName,
+  realmName,
+  variant = 'tile',
+  badge,
+} = Astro.props;
+
+const contextName = realmName ?? mythologyName ?? '神话视觉';
+const styleName = artwork.styleId.replaceAll('-', ' ');
+const ratio = `${artwork.image.width} / ${artwork.image.height}`;
+---
+
+<article
+  class:list={{
+    'explore-artwork-card': true,
+    [`explore-artwork-card--${variant}`]: true,
+  }}
+  data-artwork-card
+  data-artwork-id={artwork.id}
+  data-mythology={artwork.mythologyId}
+  data-type={artwork.type}
+  data-style={artwork.styleId}
+  style={`--art-ratio: ${ratio};`}
+>
+  <a class="card-link" href={`/wallpaper/${artwork.slug}/`} aria-label={`查看作品：${artwork.title}`}>
+    <div class="image-wrap">
+      <img
+        src={artwork.image.src}
+        alt={artwork.image.alt}
+        width={artwork.image.width}
+        height={artwork.image.height}
+        loading={variant === 'hero' ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+      <div class="image-overlay" aria-hidden="true"></div>
+
+      {badge && <span class="badge">{badge}</span>}
+      {variant === 'tile' && <span class="favorite-hint" aria-hidden="true"><Heart size={18} strokeWidth={1.7} /></span>}
+
+      <div class="copy">
+        <h3>{artwork.title}</h3>
+        <p>{mythologyName}{mythologyName && contextName !== mythologyName ? ' · ' : ''}{contextName !== mythologyName ? contextName : ''}</p>
+        {variant === 'tile' && <span class="style-name">{styleName}</span>}
+      </div>
+
+      {variant !== 'tile' && (
+        <span class="arrow" aria-hidden="true"><ArrowUpRight size={20} strokeWidth={1.7} /></span>
+      )}
+    </div>
+  </a>
+</article>
+
+<style>
+  .explore-artwork-card,
+  .card-link,
+  .image-wrap {
+    min-width: 0;
+  }
+
+  .explore-artwork-card {
+    break-inside: avoid;
+  }
+
+  .explore-artwork-card--hero,
+  .explore-artwork-card--side,
+  .explore-artwork-card--hero .card-link,
+  .explore-artwork-card--side .card-link {
+    height: 100%;
+  }
+
+  .card-link {
+    display: block;
+    color: inherit;
+  }
+
+  .card-link:hover {
+    color: inherit;
+  }
+
+  .image-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: var(--art-ratio);
+    border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
+    border-radius: 10px;
+    background: var(--surface-muted);
+    box-shadow: 0 10px 32px color-mix(in srgb, var(--text-primary) 6%, transparent);
+    isolation: isolate;
+    transition: transform var(--transition-base), border-color var(--transition-fast), box-shadow var(--transition-base);
+  }
+
+  .explore-artwork-card--hero .image-wrap {
+    height: 100%;
+    min-height: 360px;
+    aspect-ratio: auto;
+  }
+
+  .explore-artwork-card--side .image-wrap {
+    height: 100%;
+    min-height: 174px;
+    aspect-ratio: auto;
+  }
+
+  .card-link:hover .image-wrap,
+  .card-link:focus-visible .image-wrap {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    box-shadow: 0 16px 42px color-mix(in srgb, var(--text-primary) 10%, transparent);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 700ms cubic-bezier(.2, .7, .2, 1);
+  }
+
+  .card-link:hover img,
+  .card-link:focus-visible img {
+    transform: scale(1.025);
+  }
+
+  .image-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(to top, rgba(8, 12, 18, .68) 0%, rgba(8, 12, 18, .18) 44%, transparent 68%),
+      linear-gradient(to right, rgba(8, 12, 18, .12), transparent 46%);
+    pointer-events: none;
+  }
+
+  .copy {
+    position: absolute;
+    z-index: 2;
+    right: 3.8rem;
+    bottom: 1rem;
+    left: 1rem;
+    color: #fff;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, .38);
+  }
+
+  .explore-artwork-card--tile .copy {
+    right: 1rem;
+    bottom: .82rem;
+    left: .9rem;
+  }
+
+  h3 {
+    margin: 0;
+    color: inherit;
+    font-family: var(--font-display);
+    font-size: 1.18rem;
+    font-weight: 620;
+    letter-spacing: .015em;
+  }
+
+  .explore-artwork-card--hero h3 {
+    font-size: clamp(1.5rem, 2.3vw, 2rem);
+  }
+
+  .explore-artwork-card--tile h3 {
+    overflow: hidden;
+    font-size: .95rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  p {
+    margin: .24rem 0 0;
+    color: rgba(255, 255, 255, .78);
+    font-family: var(--font-ui);
+    font-size: .72rem;
+  }
+
+  .style-name {
+    display: block;
+    margin-top: .28rem;
+    color: rgba(255, 255, 255, .56);
+    font-family: var(--font-ui);
+    font-size: .65rem;
+    text-transform: capitalize;
+  }
+
+  .badge {
+    position: absolute;
+    z-index: 3;
+    top: .85rem;
+    left: .85rem;
+    padding: .34rem .62rem;
+    border: 1px solid rgba(255, 255, 255, .38);
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(15, 20, 28, .18);
+    backdrop-filter: blur(10px);
+    font-family: var(--font-ui);
+    font-size: .68rem;
+    font-weight: 650;
+  }
+
+  .favorite-hint {
+    position: absolute;
+    z-index: 3;
+    top: .75rem;
+    right: .75rem;
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 50%;
+    color: #fff;
+    background: rgba(8, 12, 18, .22);
+    backdrop-filter: blur(8px);
+  }
+
+  .arrow {
+    position: absolute;
+    z-index: 3;
+    right: 1rem;
+    bottom: 1rem;
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, .54);
+    border-radius: 50%;
+    color: #fff;
+    background: rgba(8, 12, 18, .16);
+    backdrop-filter: blur(8px);
+    transition: transform var(--transition-fast), background-color var(--transition-fast);
+  }
+
+  .card-link:hover .arrow,
+  .card-link:focus-visible .arrow {
+    transform: translate(2px, -2px);
+    background: rgba(8, 12, 18, .32);
+  }
+
+  @media (max-width: 720px) {
+    .explore-artwork-card--hero .image-wrap {
+      min-height: 300px;
+    }
+
+    .explore-artwork-card--side .image-wrap {
+      min-height: 190px;
+    }
+  }
+</style>

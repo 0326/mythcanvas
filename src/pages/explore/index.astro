@@ -1,215 +1,294 @@
 ---
-import { MoonStar } from '@lucide/astro';
+import {
+  ArrowDownWideNarrow,
+  Brush,
+  Globe2,
+  MonitorSmartphone,
+  MoonStar,
+  Search,
+  Shapes,
+  X,
+} from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
+import ExploreArtworkCard from '../../components/artwork/ExploreArtworkCard.astro';
 import {
   getArtworks,
   getMythologies,
   getRealms,
   getStyles,
 } from '../../lib/content/repositories';
+import type { ArtworkDevice, ArtworkSort } from '../../lib/content/repositories';
+import type { ArtworkType } from '../../lib/content/types';
 
 export const prerender = false;
 
 const db = Astro.locals.runtime.env.DB;
-
-// —— 从 URL query 读取初始筛选状态（R9：URL 可分享、可刷新、SEO 可见）
 const params = Astro.url.searchParams;
-const initialMythology = params.get('mythology') ?? 'all';
-const initialType = params.get('type') ?? 'all';
-const initialStyle = (params.get('style') ?? 'all').replace('+', ' ');
-const initialSearch = params.get('q') ?? '';
 
-const [approvedArtworks, mythologies, styles, mythologiesById, realmsById] = await Promise.all([
-  getArtworks(db),
-  getMythologies(db),
-  getStyles(db),
-  getMythologies(db).then((list) => new Map(list.map((item) => [item.id, item]))),
-  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
-]);
 const contentTypes = [
-  { id: 'all', name: '全部' },
+  { id: 'all', name: '全部类型' },
   { id: 'realm', name: '神域' },
   { id: 'character', name: '角色' },
   { id: 'scene', name: '场景' },
   { id: 'creature', name: '神兽' },
+  { id: 'architecture', name: '建筑' },
+] as const;
+
+const sortOptions: { id: ArtworkSort; name: string }[] = [
+  { id: 'recommended', name: '推荐优先' },
+  { id: 'latest', name: '最新发布' },
+  { id: 'popular', name: '热门优先' },
 ];
+
+const deviceOptions = [
+  { id: 'all', name: '全部设备' },
+  { id: 'desktop', name: '桌面壁纸' },
+  { id: 'mobile', name: '手机壁纸' },
+] as const;
+
+const initialMythology = params.get('mythology') ?? 'all';
+const requestedType = params.get('type') ?? 'all';
+const initialType = contentTypes.some((item) => item.id === requestedType) ? requestedType : 'all';
+const initialStyle = params.get('style') ?? 'all';
+const requestedDevice = params.get('device') ?? 'all';
+const initialDevice = deviceOptions.some((item) => item.id === requestedDevice) ? requestedDevice : 'all';
+const requestedSort = params.get('sort') as ArtworkSort | null;
+const initialSort: ArtworkSort = sortOptions.some((item) => item.id === requestedSort) ? requestedSort! : 'recommended';
+const initialSearch = params.get('q')?.trim() ?? '';
+
+const [mythologies, styles, realms] = await Promise.all([
+  getMythologies(db),
+  getStyles(db),
+  getRealms(db),
+]);
+
+const approvedArtworks = await getArtworks(db, {
+  mythologyId: initialMythology === 'all' ? undefined : initialMythology,
+  type: initialType === 'all' ? undefined : initialType as ArtworkType,
+  styleId: initialStyle === 'all' ? undefined : initialStyle,
+  search: initialSearch || undefined,
+  device: initialDevice === 'all' ? undefined : initialDevice as ArtworkDevice,
+  sort: initialSort,
+  limit: 100,
+});
+
+const mythologiesById = new Map(mythologies.map((item) => [item.id, item]));
+const realmsById = new Map(realms.map((item) => [item.id, item]));
+
+const featuredPrimary = approvedArtworks[0];
+const featuredSecondary = approvedArtworks[1];
+const featuredTertiary = approvedArtworks[2];
+const hasFeaturedMosaic = Boolean(featuredPrimary && featuredSecondary && featuredTertiary);
+const galleryArtworks = hasFeaturedMosaic ? approvedArtworks.slice(3) : approvedArtworks;
+
+const sortPresentation: Record<ArtworkSort, { badge: string; heading: string; description: string }> = {
+  recommended: {
+    badge: '编辑推荐',
+    heading: '更多神话作品',
+    description: '从不同文明与画风中继续发现值得停留的作品。',
+  },
+  latest: {
+    badge: '最新发布',
+    heading: '最新作品',
+    description: '按发布时间浏览最近加入 MythCanvas 的视觉作品。',
+  },
+  popular: {
+    badge: '正在流行',
+    heading: '热门作品',
+    description: '优先展示收藏与下载反馈更高的神话视觉。',
+  },
+};
+
+const hasActiveFilters = initialMythology !== 'all'
+  || initialType !== 'all'
+  || initialStyle !== 'all'
+  || initialDevice !== 'all'
+  || initialSort !== 'recommended'
+  || Boolean(initialSearch);
 ---
 
 <BaseLayout
-  title="探索"
-  description="探索 MythCanvas 的神话视觉作品，按文明、内容类型和画风发现神域、角色与场景。"
+  title="探索神境"
+  description="探索 MythCanvas 的神话视觉作品，按文明、内容类型、画风、设备与热度发现诸神和传说中的世界。"
 >
-  <section class="explore-hero">
-    <div class="container-wide">
-      <span class="eyebrow">Explore MythCanvas</span>
-      <div class="explore-title-row">
-        <div>
-          <h1>探索</h1>
-          <p>探索神话世界，发现角色、神域与视觉作品。</p>
-          <nav class="explore-tabs" aria-label="探索分类">
-            <a class="is-active" href="/explore/" aria-current="page">推荐</a>
-            <a href="/realm/">世界</a>
-            <a href="/character/">角色</a>
-            <a href="/explore/?type=scene">事件</a>
-            <a href="/explore/?style=canonical">传说</a>
-            <a href="/mythology/">文明</a>
-          </nav>
-        </div>
-        <div class="explore-seal" aria-hidden="true"><span>神</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="explore-content section-compact">
-    <div class="container-wide">
-      <div class="filter-panel surface" data-explore-filters>
-        <div class="filter-search" id="search">
-          <span class="small-caps">Find a myth</span>
-          <input type="search" placeholder="搜索作品标题…" aria-label="搜索作品标题" data-search-input value={initialSearch} />
-        </div>
-        <div class="filter-row">
-          <span class="filter-label">文明</span>
-          <div class="filter-scroll" role="group" aria-label="按神话文明筛选">
-            <button class:list={{ chip: true, 'is-active': initialMythology === 'all' }} type="button" data-filter="mythology" data-value="all" aria-pressed={initialMythology === 'all'}>全部</button>
-            {mythologies.map((mythology) => (
-              <button class:list={{ chip: true, 'is-active': initialMythology === mythology.id }} type="button" data-filter="mythology" data-value={mythology.id} aria-pressed={initialMythology === mythology.id}>{mythology.name}</button>
-            ))}
-          </div>
+  <div class="explore-shell">
+    <section class="explore-intro">
+      <div class="container-wide explore-intro-grid">
+        <div class="intro-copy">
+          <span class="eyebrow">Explore MythCanvas</span>
+          <h1>探索神境</h1>
+          <p>跨越文明，发现诸神与传说中的世界。</p>
         </div>
 
-        <div class="filter-row">
-          <span class="filter-label">内容</span>
-          <div class="filter-scroll" role="group" aria-label="按内容类型筛选">
-            {contentTypes.map((type) => (
-              <button class:list={{ chip: true, 'is-active': initialType === type.id }} type="button" data-filter="type" data-value={type.id} aria-pressed={initialType === type.id}>{type.name}</button>
-            ))}
-          </div>
-        </div>
-
-        <div class="filter-row">
-          <span class="filter-label">画风</span>
-          <div class="filter-scroll" role="group" aria-label="按视觉风格筛选">
-            <button class:list={{ chip: true, 'is-active': initialStyle === 'all' }} type="button" data-filter="style" data-value="all" aria-pressed={initialStyle === 'all'}>全部</button>
-            {styles.map((style) => (
-              <button class:list={{ chip: true, 'is-active': initialStyle === style.id || initialStyle === style.slug }} type="button" data-filter="style" data-value={style.id} aria-pressed={initialStyle === style.id || initialStyle === style.slug}>{style.name}</button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div class="results-head">
-        <div>
-          <span class="small-caps">Curated Visuals</span>
-          <h2>精选作品</h2>
-        </div>
-        <p><strong data-result-count>{approvedArtworks.length}</strong> 件作品</p>
-      </div>
-
-      <div class="artwork-grid" data-artwork-grid>
-        {approvedArtworks.map((artwork) => (
-          <ArtworkCard
-            artwork={artwork}
-            mythologyName={mythologiesById.get(artwork.mythologyId)?.name}
-            realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined}
+        <form class="search-box" data-search-form role="search">
+          <Search size={18} strokeWidth={1.7} aria-hidden="true" />
+          <input
+            type="search"
+            value={initialSearch}
+            placeholder="搜索神话、角色、世界…"
+            aria-label="搜索神话视觉作品"
+            data-search-input
           />
-        ))}
+          <button class="sr-only" type="submit">搜索</button>
+        </form>
       </div>
+    </section>
 
-      <div class="empty-state surface" data-empty-state hidden>
-        <span aria-hidden="true"><MoonStar size={36} strokeWidth={1.5} /></span>
-        <h3>这个神境还没有作品</h3>
-        <p>换一个文明、内容类型或画风继续探索。</p>
-        <button class="btn btn-secondary" type="button" data-reset-filters>重置筛选</button>
+    <section class="explore-content">
+      <div class="container-wide">
+        <div class="filter-bar surface" data-explore-controls aria-label="探索筛选与排序">
+          <label class="filter-control">
+            <Globe2 size={17} strokeWidth={1.65} aria-hidden="true" />
+            <span class="control-name">文明</span>
+            <select data-query-control data-param="mythology" aria-label="按文明筛选">
+              <option value="all" selected={initialMythology === 'all'}>全部文明</option>
+              {mythologies.map((mythology) => (
+                <option value={mythology.id} selected={initialMythology === mythology.id}>{mythology.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <label class="filter-control">
+            <Shapes size={17} strokeWidth={1.65} aria-hidden="true" />
+            <span class="control-name">类型</span>
+            <select data-query-control data-param="type" aria-label="按内容类型筛选">
+              {contentTypes.map((type) => (
+                <option value={type.id} selected={initialType === type.id}>{type.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <label class="filter-control">
+            <Brush size={17} strokeWidth={1.65} aria-hidden="true" />
+            <span class="control-name">画风</span>
+            <select data-query-control data-param="style" aria-label="按画风筛选">
+              <option value="all" selected={initialStyle === 'all'}>全部画风</option>
+              {styles.map((style) => (
+                <option value={style.id} selected={initialStyle === style.id || initialStyle === style.slug}>{style.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <label class="filter-control">
+            <MonitorSmartphone size={17} strokeWidth={1.65} aria-hidden="true" />
+            <span class="control-name">设备</span>
+            <select data-query-control data-param="device" aria-label="按设备比例筛选">
+              {deviceOptions.map((device) => (
+                <option value={device.id} selected={initialDevice === device.id}>{device.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <label class="filter-control filter-control--sort">
+            <ArrowDownWideNarrow size={17} strokeWidth={1.65} aria-hidden="true" />
+            <span class="control-name">排序</span>
+            <select data-query-control data-param="sort" aria-label="作品排序">
+              {sortOptions.map((sort) => (
+                <option value={sort.id} selected={initialSort === sort.id}>{sort.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <div class="filter-meta">
+            <span><strong>{approvedArtworks.length}</strong> 件作品</span>
+            {hasActiveFilters && (
+              <a class="reset-link" href="/explore/">
+                <X size={14} strokeWidth={1.8} aria-hidden="true" />
+                清除
+              </a>
+            )}
+          </div>
+        </div>
+
+        {hasFeaturedMosaic && featuredPrimary && featuredSecondary && featuredTertiary && (
+          <section class="featured-mosaic" aria-label="当前排序精选作品">
+            <div class="featured-primary">
+              <ExploreArtworkCard
+                artwork={featuredPrimary}
+                mythologyName={mythologiesById.get(featuredPrimary.mythologyId)?.name}
+                realmName={featuredPrimary.realmId ? realmsById.get(featuredPrimary.realmId)?.name : undefined}
+                variant="hero"
+                badge={sortPresentation[initialSort].badge}
+              />
+            </div>
+            <div class="featured-side">
+              <ExploreArtworkCard
+                artwork={featuredSecondary}
+                mythologyName={mythologiesById.get(featuredSecondary.mythologyId)?.name}
+                realmName={featuredSecondary.realmId ? realmsById.get(featuredSecondary.realmId)?.name : undefined}
+                variant="side"
+              />
+              <ExploreArtworkCard
+                artwork={featuredTertiary}
+                mythologyName={mythologiesById.get(featuredTertiary.mythologyId)?.name}
+                realmName={featuredTertiary.realmId ? realmsById.get(featuredTertiary.realmId)?.name : undefined}
+                variant="side"
+              />
+            </div>
+          </section>
+        )}
+
+        {approvedArtworks.length > 0 && galleryArtworks.length > 0 && (
+          <section class="gallery-section" aria-labelledby="gallery-heading">
+            <div class="gallery-heading">
+              <div>
+                <h2 id="gallery-heading">{sortPresentation[initialSort].heading}</h2>
+                <p>{sortPresentation[initialSort].description}</p>
+              </div>
+            </div>
+
+            <div class="artwork-masonry" data-artwork-grid>
+              {galleryArtworks.map((artwork) => (
+                <ExploreArtworkCard
+                  artwork={artwork}
+                  mythologyName={mythologiesById.get(artwork.mythologyId)?.name}
+                  realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {approvedArtworks.length === 0 && (
+          <div class="empty-state surface">
+            <span aria-hidden="true"><MoonStar size={34} strokeWidth={1.5} /></span>
+            <h2>这个神境还没有作品</h2>
+            <p>换一个文明、内容类型、画风或设备继续探索。</p>
+            <a class="btn btn-secondary" href="/explore/">重置全部条件</a>
+          </div>
+        )}
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </BaseLayout>
 
 <script is:inline>
   (() => {
-    const root = document.querySelector('[data-explore-filters]');
-    const grid = document.querySelector('[data-artwork-grid]');
-    if (!root || !grid) return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialSearch = urlParams.get('q') ?? '';
-    const state = {
-      mythology: urlParams.get('mythology') || 'all',
-      type: urlParams.get('type') || 'all',
-      style: decodeURIComponent(urlParams.get('style') || 'all'),
-      search: initialSearch.toLowerCase(),
+    const updateQuery = (key, value) => {
+      const url = new URL(window.location.href);
+      const isDefault = value === 'all' || (key === 'sort' && value === 'recommended');
+      if (isDefault || !value) url.searchParams.delete(key);
+      else url.searchParams.set(key, value);
+      window.location.assign(`${url.pathname}${url.search}`);
     };
 
-    const cards = Array.from(grid.querySelectorAll('[data-artwork-card]'));
-    const count = document.querySelector('[data-result-count]');
-    const empty = document.querySelector('[data-empty-state]');
-    const searchInput = root.querySelector('[data-search-input]');
-    if (searchInput instanceof HTMLInputElement) searchInput.value = initialSearch;
-
-    const syncURL = () => {
-      const query = new URLSearchParams();
-      if (state.mythology !== 'all') query.set('mythology', state.mythology);
-      if (state.type !== 'all') query.set('type', state.type);
-      if (state.style !== 'all') query.set('style', state.style);
-      if (state.search) query.set('q', state.search);
-      const qs = query.toString();
-      window.history.replaceState(null, '', qs ? `/explore/?${qs}` : '/explore/');
-    };
-
-    const apply = () => {
-      let visible = 0;
-      cards.forEach((card) => {
-        const matches =
-          (state.mythology === 'all' || card.dataset.mythology === state.mythology) &&
-          (state.type === 'all' || card.dataset.type === state.type) &&
-          (state.style === 'all' || card.dataset.style === state.style) &&
-          (!state.search || (card.textContent || '').toLowerCase().includes(state.search));
-        card.hidden = !matches;
-        if (matches) visible += 1;
-      });
-      if (count) count.textContent = String(visible);
-      if (empty) empty.hidden = visible !== 0;
-      syncURL();
-    };
-
-    root.querySelectorAll('[data-filter]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const key = button.dataset.filter;
-        const value = button.dataset.value;
-        if (!key || !value || !(key in state)) return;
-        state[key] = key === 'style' ? decodeURIComponent(value) : value;
-        root.querySelectorAll(`[data-filter="${key}"]`).forEach((item) => {
-          const active = item === button;
-          item.classList.toggle('is-active', active);
-          item.setAttribute('aria-pressed', active ? 'true' : 'false');
-        });
-        apply();
+    document.querySelectorAll('[data-query-control]').forEach((control) => {
+      control.addEventListener('change', () => {
+        if (!(control instanceof HTMLSelectElement)) return;
+        const key = control.dataset.param;
+        if (!key) return;
+        updateQuery(key, control.value);
       });
     });
 
-    root.querySelector('[data-search-input]')?.addEventListener('input', (event) => {
-      state.search = event.target instanceof HTMLInputElement ? event.target.value.trim().toLowerCase() : '';
-      apply();
+    const searchForm = document.querySelector('[data-search-form]');
+    const searchInput = document.querySelector('[data-search-input]');
+    searchForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!(searchInput instanceof HTMLInputElement)) return;
+      updateQuery('q', searchInput.value.trim());
     });
 
-    document.querySelector('[data-reset-filters]')?.addEventListener('click', () => {
-      Object.keys(state).forEach((key) => {
-        state[key] = key === 'search' ? '' : 'all';
-        root.querySelectorAll(`[data-filter="${key}"]`).forEach((item) => {
-          const active = item.dataset.value === 'all';
-          item.classList.toggle('is-active', active);
-          item.setAttribute('aria-pressed', active ? 'true' : 'false');
-        });
-      });
-      const sInput = root.querySelector('[data-search-input]');
-      if (sInput instanceof HTMLInputElement) sInput.value = '';
-      apply();
-    });
-
-    apply();
-
-    // —— 埋点：内容点击（M11）——
     const tracker = async (name, targetId) => {
       try {
         await fetch('/api/events', {
@@ -218,52 +297,365 @@ const contentTypes = [
           body: JSON.stringify({ name, targetId, page: location.pathname }),
           keepalive: true,
         });
-      } catch { /* ignore */ }
+      } catch { /* analytics is non-blocking */ }
     };
-    grid.querySelectorAll('[data-artwork-card]').forEach((card) => {
+
+    document.querySelectorAll('[data-artwork-card]').forEach((card) => {
       card.addEventListener('click', () => {
-        void tracker('artwork_click', card.dataset.mythology || undefined);
+        void tracker('artwork_click', card.dataset.artworkId || undefined);
       });
     });
   })();
 </script>
 
 <style>
-  .explore-hero { position: relative; overflow: hidden; padding-block: 2rem 1.3rem; border-bottom: 1px solid var(--border); }
-  .explore-hero::after { content: ''; position: absolute; width: min(520px, 48vw); aspect-ratio: 1; right: -15%; top: -220%; border: 1px solid var(--border); border-radius: 50%; box-shadow: 0 0 0 56px color-mix(in srgb, var(--accent) 4%, transparent), 0 0 0 112px color-mix(in srgb, var(--jade) 3%, transparent); pointer-events: none; }
-  .explore-title-row { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: var(--space-10); }
-  .explore-title-row > div:first-child { max-width: 760px; }
-  .explore-tabs { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: .9rem; }
-  .explore-tabs a { position: relative; padding-bottom: .45rem; color: var(--text-secondary); font-size: .76rem; }
-  .explore-tabs a::after { content: ''; position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform var(--transition-fast); }
-  .explore-tabs a:hover, .explore-tabs a:focus-visible, .explore-tabs a.is-active { color: var(--text-primary); }
-  .explore-tabs a:hover::after, .explore-tabs a:focus-visible::after, .explore-tabs a.is-active::after { transform: scaleX(1); }
-  h1 { margin: 0; font-size: clamp(2.4rem, 4vw, 3.5rem); }
-  .explore-title-row p { max-width: 42rem; margin: .45rem 0 0; color: var(--text-secondary); font-size: .85rem; }
-  .explore-seal { display: none; }
-  .explore-content { padding-block: 1.15rem 3.5rem; }
-  .filter-panel { display: grid; gap: .55rem; padding: .15rem 0 0; border-radius: 0; background: transparent; border: 0; box-shadow: none; backdrop-filter: none; }
-  .filter-search { display: grid; grid-template-columns: 1fr minmax(260px, 340px); align-items: center; gap: var(--space-4); padding-bottom: .8rem; border-bottom: 1px solid var(--border); }
-  .filter-search input { min-height: 38px; padding: .55rem .75rem; border: 1px solid var(--border); border-radius: 5px; color: var(--text-primary); background: var(--surface); outline: none; }
-  .filter-search input:focus { border-color: var(--border-strong); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 16%, transparent); }
-  .filter-row { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: .75rem; align-items: center; }
-  .filter-label { color: var(--text-muted); font-size: 0.7rem; font-weight: 700; }
-  .filter-scroll { display: flex; gap: var(--space-2); min-width: 0; overflow-x: auto; scrollbar-width: none; }
-  .filter-scroll::-webkit-scrollbar { display: none; }
-  button.chip { cursor: pointer; }
-  .results-head { display: flex; align-items: end; justify-content: space-between; margin: 1.6rem 0 1rem; }
-  .results-head h2 { margin: var(--space-1) 0 0; font-size: clamp(1.6rem, 2.4vw, 2.2rem); }
-  .results-head p { margin: 0; color: var(--text-muted); font-size: 0.82rem; }
-  .results-head strong { color: var(--accent-strong); font-size: 1rem; }
-  .artwork-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
-  .artwork-grid :global(.image-wrap) { aspect-ratio: 16 / 10; border-radius: 8px 8px 0 0; box-shadow: none; }
-  .artwork-grid :global(.copy) { margin-top: -1px; padding: .65rem .7rem .75rem; border: 1px solid var(--border); border-top: 0; border-radius: 0 0 8px 8px; background: var(--surface); }
-  .artwork-grid :global(.copy h3) { font-size: .86rem; }
-  .empty-state { margin-top: var(--space-8); padding: var(--space-16) var(--space-6); border-radius: var(--radius-lg); text-align: center; }
-  .empty-state > span { display: block; margin-bottom: var(--space-3); color: var(--accent); font-size: 2.4rem; }
-  .empty-state h3 { margin-bottom: var(--space-2); }
-  .empty-state p { color: var(--text-secondary); }
-  @media (max-width: 980px) { .artwork-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 720px) { .explore-title-row { align-items: start; } .explore-seal { width: 72px; height: 72px; font-size: 1.5rem; } .filter-search { grid-template-columns: 1fr; gap: var(--space-2); } .filter-row { grid-template-columns: 1fr; gap: var(--space-2); } .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 480px) { .explore-seal { display: none; } }
+  .explore-shell {
+    position: relative;
+    min-height: calc(100vh - var(--header-height));
+    overflow: hidden;
+    background: color-mix(in srgb, var(--bg-primary) 94%, var(--surface));
+  }
+
+  .explore-intro {
+    position: relative;
+    padding-block: clamp(2.7rem, 5.2vw, 4.8rem) clamp(2rem, 3.6vw, 3rem);
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  }
+
+  .explore-intro::after {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -70px;
+    width: min(520px, 45vw);
+    aspect-ratio: 1.3;
+    opacity: .42;
+    background:
+      radial-gradient(circle at 68% 48%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 4%),
+      radial-gradient(ellipse at center, transparent 0 53%, color-mix(in srgb, var(--accent) 17%, transparent) 53.4% 53.8%, transparent 54.2%),
+      radial-gradient(ellipse at center, transparent 0 68%, color-mix(in srgb, var(--jade) 10%, transparent) 68.4% 68.8%, transparent 69.2%);
+    transform: rotate(-8deg);
+    pointer-events: none;
+  }
+
+  .explore-intro-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+    align-items: center;
+    gap: clamp(2rem, 6vw, 7rem);
+  }
+
+  .intro-copy h1 {
+    margin: 0;
+    font-size: clamp(2.7rem, 5vw, 4.35rem);
+    line-height: 1.02;
+    letter-spacing: -.035em;
+  }
+
+  .intro-copy p {
+    margin: .72rem 0 0;
+    color: var(--text-secondary);
+    font-family: var(--font-literary);
+    font-size: clamp(.95rem, 1.4vw, 1.12rem);
+    letter-spacing: .035em;
+  }
+
+  .search-box {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: .7rem;
+    min-height: 48px;
+    padding-inline: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-muted);
+    background: color-mix(in srgb, var(--surface) 84%, transparent);
+    box-shadow: 0 12px 34px color-mix(in srgb, var(--text-primary) 5%, transparent);
+    backdrop-filter: blur(16px) saturate(120%);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .search-box:focus-within {
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 12%, transparent);
+  }
+
+  .search-box input {
+    width: 100%;
+    min-width: 0;
+    padding: .7rem 0;
+    border: 0;
+    outline: 0;
+    color: var(--text-primary);
+    background: transparent;
+    font-family: var(--font-ui);
+    font-size: .86rem;
+  }
+
+  .search-box input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .explore-content {
+    padding-block: 0 4rem;
+  }
+
+  .filter-bar {
+    position: sticky;
+    top: calc(var(--header-height) + .55rem);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    min-height: 58px;
+    margin-top: 1.15rem;
+    padding: .35rem .55rem;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+  }
+
+  .filter-control {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, auto);
+    align-items: center;
+    gap: .42rem;
+    min-width: 0;
+    padding: .48rem .72rem;
+    color: var(--accent-strong);
+    border-right: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  }
+
+  .filter-control--sort {
+    border-right: 0;
+  }
+
+  .control-name {
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    font-size: .78rem;
+    font-weight: 680;
+  }
+
+  .filter-control select {
+    max-width: 118px;
+    padding: .18rem 1.05rem .18rem .08rem;
+    border: 0;
+    outline: 0;
+    color: var(--text-secondary);
+    background: transparent;
+    font-family: var(--font-ui);
+    font-size: .76rem;
+    cursor: pointer;
+  }
+
+  .filter-meta {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    margin-left: auto;
+    padding-inline: .7rem;
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+    font-size: .72rem;
+    white-space: nowrap;
+  }
+
+  .filter-meta strong {
+    color: var(--accent-strong);
+    font-size: .86rem;
+  }
+
+  .reset-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    color: var(--text-secondary);
+  }
+
+  .featured-mosaic {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(300px, .95fr);
+    gap: .7rem;
+    height: clamp(410px, 45vw, 560px);
+    margin-top: .8rem;
+  }
+
+  .featured-primary,
+  .featured-side,
+  .featured-side > * {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .featured-side {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: .7rem;
+  }
+
+  .gallery-section {
+    padding-top: clamp(2rem, 4vw, 3.2rem);
+  }
+
+  .gallery-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .gallery-heading h2 {
+    margin: 0;
+    font-size: clamp(1.65rem, 2.5vw, 2.25rem);
+  }
+
+  .gallery-heading p {
+    max-width: 38rem;
+    margin: .42rem 0 0;
+    color: var(--text-muted);
+    font-size: .8rem;
+  }
+
+  .artwork-masonry {
+    columns: 4 230px;
+    column-gap: .8rem;
+  }
+
+  .artwork-masonry :global(.explore-artwork-card) {
+    margin-bottom: .8rem;
+  }
+
+  .empty-state {
+    margin-top: 1rem;
+    padding: clamp(4rem, 9vw, 7rem) 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .empty-state > span {
+    display: grid;
+    width: fit-content;
+    margin: 0 auto 1rem;
+    color: var(--accent);
+  }
+
+  .empty-state h2 {
+    margin: 0;
+    font-size: 1.65rem;
+  }
+
+  .empty-state p {
+    margin: .55rem 0 1.25rem;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 1080px) {
+    .filter-bar {
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filter-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-meta {
+      position: sticky;
+      right: 0;
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+    }
+
+    .featured-mosaic {
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, .9fr);
+    }
+  }
+
+  @media (max-width: 820px) {
+    .explore-intro-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .search-box {
+      width: min(100%, 520px);
+    }
+
+    .filter-bar {
+      position: relative;
+      top: auto;
+    }
+
+    .featured-mosaic {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+
+    .featured-primary {
+      min-height: 360px;
+    }
+
+    .featured-side {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: none;
+    }
+
+    .featured-side > * {
+      min-height: 210px;
+    }
+
+    .artwork-masonry {
+      columns: 3 190px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .explore-intro {
+      padding-block: 2.15rem 1.6rem;
+    }
+
+    .intro-copy h1 {
+      font-size: 2.7rem;
+    }
+
+    .filter-bar {
+      margin-inline: -4px;
+      border-radius: 10px;
+    }
+
+    .filter-control {
+      padding-inline: .6rem;
+    }
+
+    .control-name {
+      display: none;
+    }
+
+    .filter-meta > span {
+      display: none;
+    }
+
+    .featured-primary {
+      min-height: 300px;
+    }
+
+    .featured-side {
+      grid-template-columns: 1fr;
+    }
+
+    .featured-side > * {
+      min-height: 205px;
+    }
+
+    .artwork-masonry {
+      columns: 2 140px;
+      column-gap: .65rem;
+    }
+
+    .artwork-masonry :global(.explore-artwork-card) {
+      margin-bottom: .65rem;
+    }
+  }
 </style>
