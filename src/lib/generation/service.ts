@@ -3,6 +3,7 @@ import { persistGeneratedAsset } from '../cloudflare/assets';
 import { moderateGenerationInput } from '../moderation/moderation';
 import { composeGenerationPrompt, composeGenerationPromptLayers, resolveGenerationContext } from './prompt';
 import { createImageGenerationProvider, ImageProviderError } from './provider';
+import { loadGenerationReferenceImages } from './reference-assets';
 import type { GenerationJob, GenerationQuality, GenerationRequest, GenerationResponse } from './types';
 
 export type GenerationServiceEnv = {
@@ -121,7 +122,14 @@ export async function generateArtwork(
     ? (env.OPENAI_IMAGE_MODEL ?? 'gpt-image-2')
     : undefined;
   const quality = context.outputSpec.quality;
-  const referenceAssetIds = context.variant?.referenceAssetIds ? [...context.variant.referenceAssetIds] : [];
+
+  // Character generation opportunistically upgrades from text-only generation to
+  // reference-image editing when an approved Canonical/Variant Reference Pack exists.
+  // Missing D1/R2/reference assets must never make the Creator unusable.
+  const references = context.entityType === 'character'
+    ? await loadGenerationReferenceImages(env.DB, env.ARTWORKS, context.entityId, context.variant?.id)
+    : [];
+  const referenceAssetIds = references.map((reference) => reference.id);
 
   const job: GenerationJob = {
     id,
@@ -159,6 +167,7 @@ export async function generateArtwork(
         width: context.dimensions.width,
         height: context.dimensions.height,
         quality,
+        references,
         metadata: {
           entityType: context.entityType,
           entityId: context.entityId,
@@ -173,6 +182,7 @@ export async function generateArtwork(
           composition: context.composition,
           outputSpecId: context.outputSpec.id,
           ratio: context.ratio,
+          referenceCount: String(references.length),
         },
       }),
       GENERATION_TIMEOUT_MS,

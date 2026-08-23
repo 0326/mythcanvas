@@ -1,8 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getOutputSpecProfile } from '../src/lib/generation/config-repository';
+import { listCreatorOutputSpecs } from '../src/lib/generation/creator-config';
 import { composeGenerationPrompt, composeGenerationPromptLayers } from '../src/lib/generation/prompt';
 import { createImageGenerationProvider, ImageProviderError } from '../src/lib/generation/provider';
 import type { ResolvedGenerationContext } from '../src/lib/generation/types';
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('structured generation system', () => {
   it('maps mobile wallpaper to 1440x2560', async () => {
@@ -19,6 +24,12 @@ describe('structured generation system', () => {
     expect(spec.width).toBe(2560);
     expect(spec.height).toBe(1440);
     expect(spec.ratio).toBe('16:9');
+  });
+
+  it('exposes exactly the two V1 Creator wallpaper specs without D1', async () => {
+    const specs = await listCreatorOutputSpecs(undefined);
+    expect(specs.map((spec) => spec.id)).toEqual(['mobile-wallpaper', 'desktop-wallpaper']);
+    expect(specs.map((spec) => spec.deviceType)).toEqual(['mobile', 'desktop']);
   });
 
   it('keeps Character, Variant, Style and OutputSpec in separate prompt layers', () => {
@@ -83,5 +94,71 @@ describe('structured generation system', () => {
   it('fails closed when OpenAI mode has no secret', () => {
     expect(() => createImageGenerationProvider({ AI_GENERATION_MODE: 'openai' }))
       .toThrow(ImageProviderError);
+  });
+
+  it('uses image edits when GPT Image 2 receives Character references', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(init?.method).toBe('POST');
+      expect(init?.body).toBeInstanceOf(FormData);
+      const form = init?.body as FormData;
+      expect(form.get('model')).toBe('gpt-image-2');
+      expect(form.getAll('image[]')).toHaveLength(1);
+      expect(form.get('size')).toBe('1440x2560');
+      return new Response(JSON.stringify({ data: [{ b64_json: 'aW1hZ2U=' }] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json', 'x-request-id': 'req-edit' },
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const provider = createImageGenerationProvider({
+      AI_GENERATION_MODE: 'openai',
+      OPENAI_API_KEY: 'test-key',
+      OPENAI_IMAGE_MODEL: 'gpt-image-2',
+    });
+    const result = await provider.generate({
+      id: 'job-1',
+      prompt: 'Athena canonical identity',
+      width: 1440,
+      height: 2560,
+      quality: 'high',
+      references: [{
+        id: 'ref-athena-front',
+        assetType: 'portrait-front',
+        mimeType: 'image/png',
+        bytes: new Uint8Array([1, 2, 3]),
+      }],
+      metadata: {},
+    });
+
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/v1/images/edits');
+    expect(result.providerRequestId).toBe('req-edit');
+    expect(result.bytes.byteLength).toBeGreaterThan(0);
+  });
+
+  it('uses text generation when no Character reference pack is available', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(typeof init?.body).toBe('string');
+      return new Response(JSON.stringify({ data: [{ b64_json: 'aW1hZ2U=' }] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const provider = createImageGenerationProvider({
+      AI_GENERATION_MODE: 'openai',
+      OPENAI_API_KEY: 'test-key',
+    });
+    await provider.generate({
+      id: 'job-2',
+      prompt: 'Chang e canonical identity',
+      width: 2560,
+      height: 1440,
+      quality: 'high',
+      metadata: {},
+    });
+
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/v1/images/generations');
   });
 });

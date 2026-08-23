@@ -82,12 +82,20 @@ export type ResolvedGenerationContext = {
   dimensions: GenerationDimensions;
 };
 
+export type ProviderReferenceImage = {
+  id: string;
+  assetType: string;
+  mimeType: string;
+  bytes: Uint8Array;
+};
+
 export type ProviderGenerationRequest = {
   id: string;
   prompt: string;
   width: number;
   height: number;
   quality?: GenerationQuality;
+  references?: ProviderReferenceImage[];
   metadata: Record<string, string>;
 };
 
