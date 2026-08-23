@@ -43,6 +43,28 @@ Every mythology has a `Civilization Visual DNA`, but civilizations do **not** re
 
 Important Character and Realm entities have a `Canonical Design`. Style variants may change rendering style but should preserve identity anchors.
 
+### Character, Variant, Style and OutputSpec are orthogonal
+
+For character artwork and AI generation, keep these dimensions separate:
+
+```text
+Character        = who
+CharacterVariant = persistent age / costume / form state
+Mythology        = cultural identity / Visual DNA
+Style            = how the subject is rendered
+OutputSpec       = device / aspect / resolution / safe-zone composition
+Theme            = website Light / Dark presentation only
+```
+
+Never encode `anime`, `cinematic`, `cyber-myth`, etc. into CharacterVariant data. Never put age/costume/form into Style definitions.
+
+For character art work, read:
+
+- `.agents/skills/mythcanvas-character-design/SKILL.md`
+- `.agents/skills/mythcanvas-style-system/SKILL.md`
+- `.agents/skills/mythcanvas-character-generation/SKILL.md`
+- `docs/CHARACTER_ART_SYSTEM.md`
+
 ### Image-first UX
 
 Artwork should visually dominate UI chrome. Avoid game HUDs, SaaS dashboards, excessive pills, dense control panels and decorative pseudo-traditional UI.
@@ -60,7 +82,7 @@ Do not default to a blank large prompt box. Build structured creation from Chara
 - Add hydration only for components that require interaction.
 - React is allowed for justified islands; do not convert the site into a React SPA.
 - Runtime target is Cloudflare Workers.
-- Planned persistence: D1 for relational metadata, R2 for images, KV for config/cache.
+- Persistence: D1 for relational metadata, R2 for images, KV for config/cache/session data.
 - TypeScript is required for domain and service code.
 
 If React is introduced, add `@astrojs/react`, `react`, and `react-dom` deliberately and document which islands use it.
@@ -92,9 +114,12 @@ Use these names consistently:
 - `Mythology`: civilization/mythology system, e.g. Chinese, Greek.
 - `Realm`: a mythic world/domain, e.g. Olympus, Heavenly Palace.
 - `Character`: god, hero, spirit or named mythic figure.
+- `CharacterVariant`: persistent age/costume/form/composite state of a Character.
 - `Scene`: named or reusable visual location/event concept.
 - `Artwork`: a visual work and its image metadata.
-- `Style`: visual rendering style such as Cinematic or Anime.
+- `Style`: artwork rendering style such as Cinematic or Anime.
+- `OutputSpec`: device/aspect/resolution/safe-zone definition for generation.
+- `ReferenceAsset`: R2-backed reference image metadata owned by Character/Variant/Style.
 - `VisualDNA`: civilization identity constraints.
 - `CanonicalDesign`: stable identity anchors for a Character or Realm.
 - `Theme`: application Light/Dark presentation only.
@@ -180,7 +205,37 @@ For any task that supplies a screenshot, Figma frame, design mockup, or asks to 
 
 ---
 
-## 8. SEO / GEO rules
+## 8. Image-generation rules
+
+Production character generation targets **GPT Image 2** through a server-side provider. Keep provider/model configuration server-side and configurable; never expose `OPENAI_API_KEY` to browser code.
+
+Prompt composition must be deterministic and layered:
+
+```text
+MythCanvas purpose
+→ Character Canonical identity
+→ CharacterVariant delta
+→ Civilization Visual DNA
+→ Style visual grammar
+→ Scene / camera / composition
+→ OutputSpec
+→ optional user refinement
+→ guardrails
+```
+
+Rules:
+
+- Use precise natural-language image instructions, not diffusion keyword soup, weight syntax, or fake negative-prompt tags.
+- System-owned Character/Variant/Style constraints come before user free text.
+- Store prompt layers and model/reference provenance, not only the final concatenated prompt.
+- PC and mobile wallpapers are separate compositions; do not generate one and stretch/crop it into the other.
+- V1 final specs are `desktop-wallpaper` 2560×1440 and `mobile-wallpaper` 1440×2560.
+- Reference-image bytes belong in R2; ownership/provenance belongs in D1.
+- A beautiful image that fails Character identity, Style, or wallpaper QA is not an approved asset.
+
+---
+
+## 9. SEO / GEO rules
 
 Core entity pages must be useful without JavaScript.
 
@@ -202,7 +257,7 @@ For SEO work, read `.agents/skills/mythcanvas-seo-geo/SKILL.md`.
 
 ---
 
-## 9. Content and IP rules
+## 10. Content and IP rules
 
 Mythological/public-domain archetypes can be used as source material, but do not copy the specific visual design of modern anime, games, films or other copyrighted adaptations.
 
@@ -219,7 +274,7 @@ For content modeling, read `.agents/skills/mythcanvas-content-model/SKILL.md`.
 
 ---
 
-## 10. Performance rules
+## 11. Performance rules
 
 This is an image-heavy product. Treat image performance as architecture.
 
@@ -234,7 +289,7 @@ This is an image-heavy product. Treat image performance as architecture.
 
 ---
 
-## 11. Accessibility baseline
+## 12. Accessibility baseline
 
 Every delivery should preserve:
 
@@ -249,15 +304,16 @@ Every delivery should preserve:
 
 ---
 
-## 12. Development workflow
+## 13. Development workflow
 
 Before coding:
 
 1. Read the relevant product/architecture section.
 2. Inspect existing implementation before inventing a new pattern.
 3. Load the relevant Skill.
-4. Identify whether the task is static content, interactive island, backend, or data modeling.
+4. Identify whether the task is static content, interactive island, backend, data modeling, or artwork generation.
 5. List the affected routes/components/domain types.
+6. For character art tasks, explicitly identify Character, CharacterVariant, Style, and OutputSpec ownership before changing schemas or prompts.
 
 While coding:
 
@@ -267,20 +323,23 @@ While coding:
 4. Implement Light and Dark together.
 5. Include responsive behavior in the same task.
 6. Add loading/empty/error states when applicable.
+7. Preserve structured generation provenance when touching the image pipeline.
 
 Before finishing:
 
 1. Run `npm run check` when possible.
-2. Verify Light and Dark.
-3. Verify mobile and desktop.
-4. Verify no core SEO content requires hydration.
-5. Verify image semantics and no obvious layout shift.
-6. For visual-reference tasks, complete the screenshot comparison loop in `mythcanvas-product-ux`; compile/test success alone is not visual acceptance.
-7. Summarize files changed and any follow-up technical debt.
+2. Run `npm test` for generation/security/domain changes.
+3. Verify Light and Dark for UI work.
+4. Verify mobile and desktop.
+5. Verify no core SEO content requires hydration.
+6. Verify image semantics and no obvious layout shift.
+7. For visual-reference tasks, complete the screenshot comparison loop in `mythcanvas-product-ux`; compile/test success alone is not visual acceptance.
+8. For generation work, verify Character/Style/OutputSpec remain orthogonal and migration/schema compatibility is documented.
+9. Summarize files changed and any follow-up technical debt.
 
 ---
 
-## 13. Page delivery checklist
+## 14. Page delivery checklist
 
 For a new entity/detail page:
 
@@ -300,13 +359,17 @@ For a new entity/detail page:
 
 ---
 
-## 14. Avoid these shortcuts
+## 15. Avoid these shortcuts
 
 - Do not rebuild the application as Next.js/React because a feature is interactive.
 - Do not make five different site themes for five civilizations.
 - Do not use one global `style` field for Theme + Visual DNA + Artwork Style.
+- Do not encode artwork Style into CharacterVariant.
+- Do not encode age/costume/form into Style.
+- Do not store production style logic only in hard-coded prompt maps once D1 style profiles are available.
+- Do not crop a PC wallpaper into the mobile deliverable as the primary production path.
 - Do not copy generated mockup text/spacing literally without validating UX.
 - Do not add a giant global state library before there is a real need.
 - Do not put model provider secrets in browser code.
 - Do not make AI generation dependent on user-written expert prompts.
-- Do not use copyrighted modern character designs as seed content.
+- Do not use copyrighted modern character designs as seed/reference content.

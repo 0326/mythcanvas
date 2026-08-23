@@ -1,16 +1,19 @@
 import { completeGenerationJob, failGenerationJob, insertGenerationJob, markGenerationGenerating } from '../cloudflare/generation-repository';
 import { persistGeneratedAsset } from '../cloudflare/assets';
 import { moderateGenerationInput } from '../moderation/moderation';
-import { composeGenerationPrompt, resolveGenerationContext } from './prompt';
-import { createImageGenerationProvider } from './provider';
-import type { GenerationJob, GenerationRequest, GenerationResponse } from './types';
+import { composeGenerationPrompt, composeGenerationPromptLayers, resolveGenerationContext } from './prompt';
+import { createImageGenerationProvider, ImageProviderError } from './provider';
+import type { GenerationJob, GenerationQuality, GenerationRequest, GenerationResponse } from './types';
 
 export type GenerationServiceEnv = {
   DB?: D1Database;
   ARTWORKS?: R2Bucket;
-  AI_GENERATION_MODE?: 'mock' | 'http';
+  AI_GENERATION_MODE?: 'mock' | 'http' | 'openai';
   AI_PROVIDER_ENDPOINT?: string;
   AI_PROVIDER_API_KEY?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_IMAGE_MODEL?: string;
+  OPENAI_IMAGE_QUALITY?: GenerationQuality;
 };
 
 /** 不可重试错误：重试同样会失败（审核、参数错误） */
@@ -20,9 +23,16 @@ export const NON_RETRYABLE_CODES = new Set([
   'STYLE_NOT_FOUND',
   'ENTITY_NOT_FOUND',
   'MYTHOLOGY_NOT_FOUND',
+  'VARIANT_NOT_FOUND',
+  'INVALID_VARIANT',
+  'INVALID_OUTPUT_SPEC',
+  'OUTPUT_SPEC_RATIO_MISMATCH',
+  'OPENAI_MODERATION_BLOCKED',
 ]);
 
-const GENERATION_TIMEOUT_MS = 120_000;
+// GPT Image 2 complex generations may legitimately approach two minutes.
+// Keep a little transport headroom instead of cutting valid requests off at 120s.
+const GENERATION_TIMEOUT_MS = 180_000;
 
 export async function generateArtwork(
   request: GenerationRequest,
@@ -46,6 +56,8 @@ export async function generateArtwork(
       entityId: request.entityId,
       mythologyId: '',
       styleId: request.styleId,
+      characterVariantId: request.variantId,
+      outputSpecId: request.outputSpecId,
       scene: request.scene,
       composition: request.composition,
       ratio: request.ratio,
@@ -86,8 +98,30 @@ export async function generateArtwork(
     };
   }
 
+  const promptLayers = composeGenerationPromptLayers(context);
   const prompt = composeGenerationPrompt(context);
-  const provider = createImageGenerationProvider(env);
+
+  let provider;
+  try {
+    provider = createImageGenerationProvider(env);
+  } catch (error) {
+    const code = error instanceof ImageProviderError ? error.code : 'PROVIDER_CONFIG_ERROR';
+    const message = error instanceof Error ? error.message : 'Image provider configuration error';
+    return {
+      id,
+      status: 'failed',
+      persisted: false,
+      provider: 'none',
+      promptPreview: summarizePrompt(prompt),
+      error: { code, message },
+    };
+  }
+
+  const generationModel = env.AI_GENERATION_MODE === 'openai'
+    ? (env.OPENAI_IMAGE_MODEL ?? 'gpt-image-2')
+    : undefined;
+  const quality = context.outputSpec.quality;
+  const referenceAssetIds = context.variant?.referenceAssetIds ? [...context.variant.referenceAssetIds] : [];
 
   const job: GenerationJob = {
     id,
@@ -96,12 +130,18 @@ export async function generateArtwork(
     entityId: context.entityId,
     mythologyId: context.mythologyId,
     styleId: context.styleId,
+    characterVariantId: context.variant?.id,
+    outputSpecId: context.outputSpec.id,
     scene: context.scene,
     composition: context.composition,
     ratio: context.ratio,
     description: context.description,
     prompt,
+    promptLayers,
     provider: provider.name,
+    generationModel,
+    generationQuality: quality,
+    referenceAssetIds,
     sourceGenerationId: request.sourceGenerationId,
     createdAt,
     updatedAt: createdAt,
@@ -118,16 +158,20 @@ export async function generateArtwork(
         prompt,
         width: context.dimensions.width,
         height: context.dimensions.height,
+        quality,
         metadata: {
           entityType: context.entityType,
           entityId: context.entityId,
           entityName: context.entityName,
           mythologyId: context.mythologyId,
           mythologyName: context.mythologyName,
+          variantId: context.variant?.id ?? '',
+          variantName: context.variant?.name ?? '',
           styleId: context.styleId,
           styleName: context.styleName,
           scene: context.scene,
           composition: context.composition,
+          outputSpecId: context.outputSpec.id,
           ratio: context.ratio,
         },
       }),
@@ -146,6 +190,7 @@ export async function generateArtwork(
       id,
       provider: result.provider,
       providerRequestId: result.providerRequestId,
+      generationModel: result.model ?? generationModel,
       assetKey: asset.key || undefined,
       mimeType: result.mimeType,
       width: result.width,
@@ -162,19 +207,29 @@ export async function generateArtwork(
     };
   } catch (error) {
     const isTimeout = error instanceof GenerationTimeoutError;
+    const isProviderError = error instanceof ImageProviderError;
     const message = error instanceof Error ? error.message : 'Unknown generation error';
-    const code = isTimeout ? 'GENERATION_TIMEOUT' : 'GENERATION_FAILED';
-    await failGenerationJob(env.DB, id, code, isTimeout ? '生成超时，请稍后重试。' : message).catch(() => undefined);
+    const code = isTimeout
+      ? 'GENERATION_TIMEOUT'
+      : isProviderError
+        ? error.code
+        : 'GENERATION_FAILED';
+    const persistedMessage = isTimeout ? '生成超时，请稍后重试。' : message;
+    await failGenerationJob(env.DB, id, code, persistedMessage).catch(() => undefined);
+
+    const publicMessage = isTimeout
+      ? '这次神迹用时太久，请稍后重试。'
+      : code === 'OPENAI_MODERATION_BLOCKED'
+        ? '这次生成请求未通过图片模型的安全检查，请调整描述后再试。'
+        : '这次神迹没有完成，请稍后再试。';
+
     return {
       id,
       status: 'failed',
       persisted: persistedJob,
       provider: provider.name,
       promptPreview: summarizePrompt(prompt),
-      error: {
-        code,
-        message: isTimeout ? '这次神迹用时太久，请稍后重试。' : '这次神迹没有完成，请稍后再试。',
-      },
+      error: { code, message: publicMessage },
     };
   }
 }
