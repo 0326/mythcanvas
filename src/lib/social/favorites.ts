@@ -19,11 +19,12 @@ export async function addFavorite(
   targetId: string,
 ): Promise<boolean> {
   if (!db) return true;
-  await db
+  const result = await db
     .prepare('INSERT OR IGNORE INTO favorites (user_id, target_type, target_id) VALUES (?, ?, ?)')
     .bind(userId, targetType, targetId)
     .run();
-  if (targetType === 'artwork') {
+  // 仅在真正插入时才计数，避免重复提交/竞态导致 favorite_count 虚高
+  if (result.meta.changes > 0 && targetType === 'artwork') {
     await db.prepare('UPDATE artworks SET favorite_count = favorite_count + 1 WHERE id = ?').bind(targetId).run().catch(() => undefined);
   }
   return true;

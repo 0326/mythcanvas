@@ -18,7 +18,7 @@ export async function searchAll(
   query: string,
   limit = 24,
 ): Promise<SearchResult[]> {
-  const term = query.trim();
+  const term = query.trim().slice(0, 60);
   if (!term) return [];
 
   const results: SearchResult[] = [];
@@ -31,6 +31,11 @@ export async function searchAll(
   await Promise.all(tasks);
 
   return results.sort((a, b) => b.score - a.score).slice(0, limit);
+}
+
+/** 转义 LIKE 通配符（配合 SQL 中的 ESCAPE '\'），防止 % / _ / \ 干扰匹配语义 */
+function escapeLike(term: string): string {
+  return term.replace(/[\\%_]/g, (ch) => `\\${ch}`);
 }
 
 /**
@@ -52,10 +57,11 @@ function scoreName(name: string[], nameEn: string, termLower: string): number {
 
 async function searchMythologies(db: D1Database | undefined, term: string): Promise<SearchResult[]> {
   const termLower = term.toLowerCase();
+  const like = `%${escapeLike(term)}%`;
   const rows = await queryRows(
     db,
-    `SELECT id, slug, name, name_en, summary, hero_src FROM mythologies WHERE publish_status='published' AND (name LIKE ? OR name_en LIKE ? OR summary LIKE ?)`,
-    [`%${term}%`, `%${term}%`, `%${term}%`],
+    `SELECT id, slug, name, name_en, summary, hero_src FROM mythologies WHERE publish_status='published' AND (name LIKE ? ESCAPE '\\' OR name_en LIKE ? ESCAPE '\\' OR summary LIKE ? ESCAPE '\\')`,
+    [like, like, like],
   );
   return rows.map((row) => ({
     type: 'mythology' as const,
@@ -70,10 +76,11 @@ async function searchMythologies(db: D1Database | undefined, term: string): Prom
 
 async function searchRealms(db: D1Database | undefined, term: string): Promise<SearchResult[]> {
   const termLower = term.toLowerCase();
+  const like = `%${escapeLike(term)}%`;
   const rows = await queryRows(
     db,
-    `SELECT id, slug, name, name_en, summary, hero_src FROM realms WHERE publish_status='published' AND (name LIKE ? OR name_en LIKE ? OR summary LIKE ?)`,
-    [`%${term}%`, `%${term}%`, `%${term}%`],
+    `SELECT id, slug, name, name_en, summary, hero_src FROM realms WHERE publish_status='published' AND (name LIKE ? ESCAPE '\\' OR name_en LIKE ? ESCAPE '\\' OR summary LIKE ? ESCAPE '\\')`,
+    [like, like, like],
   );
   return rows.map((row) => ({
     type: 'realm' as const,
@@ -88,10 +95,11 @@ async function searchRealms(db: D1Database | undefined, term: string): Promise<S
 
 async function searchCharacters(db: D1Database | undefined, term: string): Promise<SearchResult[]> {
   const termLower = term.toLowerCase();
+  const like = `%${escapeLike(term)}%`;
   const rows = await queryRows(
     db,
-    `SELECT id, slug, name, name_en, role, portrait_src FROM characters WHERE publish_status='published' AND (name LIKE ? OR name_en LIKE ? OR role LIKE ? OR summary LIKE ?)`,
-    [`%${term}%`, `%${term}%`, `%${term}%`, `%${term}%`],
+    `SELECT id, slug, name, name_en, role, portrait_src FROM characters WHERE publish_status='published' AND (name LIKE ? ESCAPE '\\' OR name_en LIKE ? ESCAPE '\\' OR role LIKE ? ESCAPE '\\' OR summary LIKE ? ESCAPE '\\')`,
+    [like, like, like, like],
   );
   return rows.map((row) => ({
     type: 'character' as const,
@@ -106,10 +114,11 @@ async function searchCharacters(db: D1Database | undefined, term: string): Promi
 
 async function searchArtworks(db: D1Database | undefined, term: string): Promise<SearchResult[]> {
   const termLower = term.toLowerCase();
+  const like = `%${escapeLike(term)}%`;
   const rows = await queryRows(
     db,
-    `SELECT id, slug, title, alt_text, asset_key FROM artworks WHERE publish_status='published' AND review_status='approved' AND (title LIKE ? OR alt_text LIKE ?)`,
-    [`%${term}%`, `%${term}%`],
+    `SELECT id, slug, title, alt_text, asset_key FROM artworks WHERE publish_status='published' AND review_status='approved' AND (title LIKE ? ESCAPE '\\' OR alt_text LIKE ? ESCAPE '\\')`,
+    [like, like],
   );
   return rows.map((row) => ({
     type: 'artwork' as const,

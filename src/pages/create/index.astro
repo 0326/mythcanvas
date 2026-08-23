@@ -218,7 +218,7 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
         img.alt = '';
         img.loading = 'lazy';
         const span = document.createElement('span');
-        span.innerHTML = `<strong>${escapeHtml(item.entity)} · ${escapeHtml(item.style)}</strong><small>${escapeHtml(item.scene)} · ${item.ratio}</small>`;
+        span.innerHTML = `<strong>${escapeHtml(item.entity)} · ${escapeHtml(item.style)}</strong><small>${escapeHtml(item.scene)} · ${escapeHtml(item.ratio)}</small>`;
         row.appendChild(img);
         row.appendChild(span);
         row.addEventListener('click', () => {

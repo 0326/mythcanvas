@@ -65,8 +65,8 @@ export const prerender = false;
         card.innerHTML = `
           <div class="submission-main">
             <div class="submission-meta">
-              <span class="status status-${item.status}">${item.status === 'pending' ? '待审核' : item.status === 'approved' ? '已发布' : '已拒绝'}</span>
-              <span class="submission-date">${(item.createdAt || '').slice(0, 16)}</span>
+              <span class="status status-${escapeHtml(item.status)}">${item.status === 'pending' ? '待审核' : item.status === 'approved' ? '已发布' : '已拒绝'}</span>
+              <span class="submission-date">${escapeHtml((item.createdAt || '').slice(0, 16))}</span>
             </div>
             <h3>${escapeHtml(item.title)}</h3>
             <p>${escapeHtml(item.name)}</p>
@@ -74,8 +74,8 @@ export const prerender = false;
           </div>
           <div class="submission-actions">
             ${item.status === 'pending' ? `
-              <button class="btn btn-primary" type="button" data-approve="${item.id}">通过并发布</button>
-              <button class="btn btn-secondary" type="button" data-reject="${item.id}">拒绝</button>
+              <button class="btn btn-primary" type="button" data-approve="${escapeHtml(item.id)}">通过并发布</button>
+              <button class="btn btn-secondary" type="button" data-reject="${escapeHtml(item.id)}">拒绝</button>
             ` : `<span class="reviewed-note">${escapeHtml(item.reviewNote || '')}</span>`}
           </div>`;
         card.querySelector('[data-approve]')?.addEventListener('click', () => act(item.id, 'approve'));

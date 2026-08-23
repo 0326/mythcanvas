@@ -1141,6 +1141,36 @@ M13 E2E / Release Gate
 
 ---
 
+# 21.2 2026-08-23 安全 Review 与修复（第二轮）
+
+> 针对 main 分支的安全与健壮性专项 Review，全部修复并通过 `npm run check`（build + tsc + wrangler dry-run）与 `npm run test`（11 例）。
+
+## 🔴 高危（安全漏洞，已修复）
+
+- ✅ **S1 · /api/generate 限流可绕过 + KV 写放大**：无 cookie 请求每次以新建 user id 作限流标识 → 10 次/小时形同虚设，且每次请求写入 180 天 TTL 的 KV session（存储耗尽攻击面）。修复：限流前移至 session 创建之前；有 cookie 按 session、无 cookie 按 IP 限流；新增 IP 级兜底限额（60 次/小时）；429 响应带 `Retry-After`。
+- ✅ **S2 · /api/submission 缺归属校验 + 可无限重复提交**：任何人可替他人生成作品提交审核命名发布；随机 UUID 使 `INSERT OR IGNORE` 永不忽略，可刷爆审核队列。修复：校验 `job.userId === user.id`（403）；同 generation 已有 pending 提交时拒绝（400）；新增限流（5 次/小时）。`GenerationJob` 类型与 repository SELECT/映射补齐 `userId` 字段。
+- ✅ **S3 · /api/admin/review 本地调试后门**：`ALLOW_ADMIN_HEADER` 一旦误配到生产，任意访客可凭 `x-admin-force` 头完全绕过鉴权。修复：后门仅在请求来自 localhost/127.0.0.1/[::1] 时生效。
+- ✅ **S4 · /api/download 无校验无限流**：可枚举任意 artworkId（含未发布作品）、刷 download_count、灌爆 download_events 表。修复：改用 `getArtworkById`（仅 published+approved）；新增限流（60 次/小时）。
+- ✅ **S5 · /api/events 无限流 + extra 无大小限制**：可无限制写 analytics_events，extra JSON 可任意大。修复：新增限流（120 次/小时）；extra 序列化超 1000 字符丢弃。
+
+## 🟠 中危（防御纵深 / 健壮性，已修复）
+
+- ✅ **S6 · 前端 XSS 硬化**：admin 页 `item.status/id/createdAt`、create 页 `item.ratio` 此前未转义插入 innerHTML（防御纵深）。
+- ✅ **S7 · search LIKE 通配符未转义**：输入 `%` 可匹配全部、查询长度未限制。修复：`escapeLike` + `ESCAPE '\\'` + 词条上限 60 字符。
+- ✅ **S8 · favorite_count 计数竞态**：`INSERT OR IGNORE` 被忽略时仍 +1。修复：仅在 `meta.changes > 0` 时计数。
+- ✅ **S9 · /my 页会话 cookie 丢失 HttpOnly**：此前经 `document.cookie` 回写（浏览器忽略 HttpOnly 属性）。修复：改用 `Astro.cookies.set` 响应头下发（session.ts 导出 `SESSION_COOKIE` / `sessionCookieOptions`，并返回 `sessionId`）。
+- ✅ **S10 · CSP 补强**：新增 `object-src 'none'`、`worker-src 'self'`。
+
+## Review 确认的合格项（未改动）
+
+- 全部 SQL 均使用参数绑定，无字符串拼接注入面；分页经 `pageClause` 钳制（1–1000）。
+- `/media/*` R2 delivery 无路径穿越风险（key 由 R2 API 语义处理）；immutable 缓存 + ETag 正确。
+- 生成链路密钥仅在服务端使用；moderation / 状态机 / 超时处理实现与 plan 记录一致。
+- `/api/generation/[id]` 无归属校验但返回内容不含 prompt 等敏感信息且 ID 为 UUID（不可枚举），风险可接受，暂不改动。
+- CSP 保留 `unsafe-inline`：Astro 内联脚本（主题 bootstrap、各页交互脚本）依赖；nonce 化留待后续工程化改造。
+
+---
+
 # 20. Website V1 之后的 P2 Roadmap
 
 以下能力不阻塞 Website V1：

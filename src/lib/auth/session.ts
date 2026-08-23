@@ -12,9 +12,19 @@ export type SessionUser = {
   isGuest: boolean;
 };
 
-const SESSION_COOKIE = 'mythcanvas_session';
+export const SESSION_COOKIE = 'mythcanvas_session';
 const GUEST_PREFIX = 'guest';
 const KV_TTL = 60 * 60 * 24 * 180; // 180 天
+
+/** 供 Astro.cookies.set 使用的 cookie 选项（保持 HttpOnly） */
+export function sessionCookieOptions() {
+  return {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    maxAge: KV_TTL,
+  };
+}
 
 export function readSessionId(request: Request): string | null {
   const cookie = request.headers.get('cookie') ?? '';
@@ -35,7 +45,7 @@ export function clearSessionCookie(): string {
 export async function getOrCreateUser(
   kv: KVNamespace | undefined,
   request: Request,
-): Promise<{ user: SessionUser; cookie?: string }> {
+): Promise<{ user: SessionUser; cookie?: string; sessionId?: string }> {
   const existing = readSessionId(request);
   return resolveForSession(kv, request, existing);
 }
@@ -45,13 +55,13 @@ export async function resolveForSession(
   kv: KVNamespace | undefined,
   request: Request,
   sessionId: string | null,
-): Promise<{ user: SessionUser; cookie?: string }> {
+): Promise<{ user: SessionUser; cookie?: string; sessionId?: string }> {
   if (sessionId) {
     const cached = await kv?.get(sessionKey(sessionId));
     if (cached) {
       try {
         const parsed = JSON.parse(cached) as SessionUser;
-        return { user: parsed };
+        return { user: parsed, sessionId };
       } catch {
         // 损坏的缓存，继续创建新 session
       }
@@ -65,7 +75,7 @@ export async function resolveForSession(
     isGuest: true,
   };
   await kv?.put(sessionKey(newSessionId), JSON.stringify(user), { expirationTtl: KV_TTL });
-  return { user, cookie: buildSessionCookie(newSessionId) };
+  return { user, cookie: buildSessionCookie(newSessionId), sessionId: newSessionId };
 }
 
 /** 根据 session id 读取用户；无则返回 null（用于已登录态校验） */

@@ -80,6 +80,8 @@ export type GenerationJob = {
   errorMessage?: string;
   sourceGenerationId?: string;
   isPublic?: boolean;
+  /** 归属用户（匿名 session 或登录用户） */
+  userId?: string;
   createdAt: string;
   updatedAt: string;
 };

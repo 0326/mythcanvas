@@ -51,9 +51,11 @@ export async function checkRateLimit(
   return { allowed: true, remaining: limit - timestamps.length, limit };
 }
 
-/** 提取请求的限流标识：优先 session，其次 IP */
-export function rateLimitIdentifier(request: Request, sessionId?: string | null): string {
-  if (sessionId) return `s:${sessionId}`;
-  const ip = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for') ?? 'unknown';
-  return `ip:${ip}`;
+/** 提取客户端 IP（生产环境在 Cloudflare 上，cf-connecting-ip 可信） */
+export function clientIp(request: Request): string {
+  const cf = request.headers.get('cf-connecting-ip');
+  if (cf) return cf.trim();
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0].trim();
+  return 'unknown';
 }

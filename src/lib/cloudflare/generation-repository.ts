@@ -50,7 +50,7 @@ export async function listGenerationsByUser(
     .prepare(`
       SELECT id, status, entity_type, entity_id, mythology_id, style_id, scene, composition, ratio,
              description, prompt, provider, provider_request_id, asset_key, asset_mime, asset_width,
-             asset_height, error_code, error_message, source_generation_id, is_public, created_at, updated_at
+             asset_height, error_code, error_message, source_generation_id, is_public, user_id, created_at, updated_at
       FROM generation_jobs
       WHERE user_id = ?
       ORDER BY created_at DESC LIMIT ?
@@ -122,7 +122,7 @@ export async function getGenerationJob(db: D1Database | undefined, id: string): 
   const row = await db.prepare(`
     SELECT id, status, entity_type, entity_id, mythology_id, style_id, scene, composition, ratio,
            description, prompt, provider, provider_request_id, asset_key, asset_mime, asset_width,
-           asset_height, error_code, error_message, source_generation_id, is_public, created_at, updated_at
+           asset_height, error_code, error_message, source_generation_id, is_public, user_id, created_at, updated_at
     FROM generation_jobs
     WHERE id = ?
   `).bind(id).first<Record<string, unknown>>();
@@ -154,6 +154,7 @@ function mapJobRow(row: Record<string, unknown>): GenerationJob {
     errorMessage: optionalString(row.error_message),
     sourceGenerationId: optionalString(row.source_generation_id),
     isPublic: Number(row.is_public) === 1,
+    userId: optionalString(row.user_id),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   };

@@ -11,8 +11,13 @@ function authorized(request: Request, adminToken: string | undefined): boolean {
 }
 
 function directAdmin(request: Request, env: unknown): boolean {
-  // 本地调试：通过强制头（仅 NON_PROD 时可用，见 wrangler var）
-  return Boolean((env as { ALLOW_ADMIN_HEADER?: string }).ALLOW_ADMIN_HEADER && request.headers.get('x-admin-force'));
+  // 本地调试后门：仅当 ALLOW_ADMIN_HEADER 显式开启 且 请求来自本机时可用，
+  // 避免该变量被误配到生产环境后成为任意访客的鉴权绕过
+  const flag = (env as { ALLOW_ADMIN_HEADER?: string }).ALLOW_ADMIN_HEADER;
+  if (!flag) return false;
+  const hostname = new URL(request.url).hostname;
+  const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+  return isLocal && Boolean(request.headers.get('x-admin-force'));
 }
 
 /** GET /api/admin/review — 列出待审核（受 ADMIN_TOKEN 保护） */

@@ -69,6 +69,22 @@ export async function getSubmission(db: D1Database | undefined, id: string): Pro
   return row ? mapSubmission(row) : null;
 }
 
+/** 查询某生成作品是否已有待审核提交（防止重复刷审核队列） */
+export async function getPendingSubmissionByGeneration(
+  db: D1Database | undefined,
+  generationId: string,
+): Promise<ContentSubmission | null> {
+  if (!db) return null;
+  const row = await db
+    .prepare(
+      `SELECT id, generation_id, user_id, name, title, alt_text, status, review_note, reviewed_at, artwork_id, created_at
+       FROM content_submissions WHERE generation_id = ? AND status = 'pending' LIMIT 1`,
+    )
+    .bind(generationId)
+    .first();
+  return row ? mapSubmission(row) : null;
+}
+
 function mapSubmission(row: Record<string, unknown>): ContentSubmission {
   return {
     id: String(row.id),

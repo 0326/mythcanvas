@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
-import { getOrCreateUser } from '../../lib/auth/session';
+import { getOrCreateUser, SESSION_COOKIE, sessionCookieOptions } from '../../lib/auth/session';
 import { listGenerationsByUser } from '../../lib/cloudflare/generation-repository';
 import { listFavorites } from '../../lib/social/favorites';
 import { getArtworkById, getCharacterById, getRealmById } from '../../lib/content/repositories';
@@ -10,6 +10,10 @@ export const prerender = false;
 
 const sessionResult = await getOrCreateUser(Astro.locals.runtime.env.SESSION, Astro.request);
 const user = sessionResult.user;
+// 新建 session 时通过响应头设置 cookie（保持 HttpOnly，不能走 document.cookie）
+if (sessionResult.cookie && sessionResult.sessionId) {
+  Astro.cookies.set(SESSION_COOKIE, sessionResult.sessionId, sessionCookieOptions());
+}
 const generations = await listGenerationsByUser(Astro.locals.runtime.env.DB, user.id);
 const favorites = await listFavorites(Astro.locals.runtime.env.DB, user.id);
 
@@ -25,7 +29,6 @@ const favoriteEntities = await Promise.all(
 const favoriteArtworks = favoriteEntities
   .filter((item) => item.fav.targetType === 'artwork' && item.entity)
   .map((item) => item.entity);
-const myCookie = sessionResult.cookie;
 ---
 
 <BaseLayout title="我的宇宙" description="管理你收藏的神话角色、神域与视觉作品，以及你的绘神历史。">
@@ -128,12 +131,6 @@ const myCookie = sessionResult.cookie;
         root.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== panel; });
       });
     });
-
-    // set cookie if a fresh session was created (make subsequent fetches authenticated)
-    const cookie = {myCookie};
-    if (cookie && !document.cookie.includes('mythcanvas_session')) {
-      document.cookie = cookie;
-    }
 
     // nickname save
     const nameInput = root.querySelector('[data-profile-name]');
