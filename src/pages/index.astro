@@ -11,6 +11,8 @@ const mythologyBySlug = new Map(mythologies.map((item) => [item.slug, item]));
 
 const heroLightImage = '/bg.png';
 const heroDarkImage = '/bg-dark.png';
+const heroTitleChars = [...'绘世神域'];
+const heroCtaChars = [...'开启神话探索之旅'];
 
 const mythologyCards = [
   {
@@ -81,9 +83,19 @@ const mythologyCards = [
 
     <div class="hero-stage container-wide">
       <div class="hero-copy">
-        <h1 id="hero-title">绘世神域</h1>
+        <h1 id="hero-title" aria-label="绘世神域">
+          {heroTitleChars.map((char, index) => (
+            <span class="title-char" style={`--char-index:${index}`} aria-hidden="true">{char}</span>
+          ))}
+        </h1>
         <p>用 AI 重现神话世界</p>
-        <a class="hero-cta" href="/explore/">开启神话探索之旅</a>
+        <a class="hero-cta" href="/explore/" aria-label="开启神话探索之旅">
+          <span class="cta-text" aria-hidden="true">
+            {heroCtaChars.map((char, index) => (
+              <span class="cta-char" style={`--char-index:${index}`}>{char}</span>
+            ))}
+          </span>
+        </a>
       </div>
     </div>
 
@@ -221,33 +233,87 @@ const mythologyCards = [
   }
 
   .hero-copy {
+    position: relative;
     width: min(760px, 100%);
     min-width: 0;
     margin-top: clamp(0rem, 3vh, 2.2rem);
     text-align: center;
-    text-shadow: 0 2px 24px color-mix(in srgb, var(--bg-primary) 42%, transparent);
+  }
+
+  .hero-copy::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 34%;
+    left: 50%;
+    width: min(620px, 82vw);
+    height: clamp(150px, 22vw, 230px);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(255, 232, 169, .24) 0%, rgba(232, 184, 89, .10) 36%, transparent 72%);
+    filter: blur(22px);
+    transform: translate(-50%, -50%);
+    animation: hero-ambient-breathe 6.8s ease-in-out infinite;
+    pointer-events: none;
   }
 
   .hero-copy h1 {
+    display: inline-flex;
     margin: 0;
-    color: var(--text-primary);
-    font-family: var(--font-serif);
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-family: var(--font-display, var(--font-serif));
     font-size: clamp(3.2rem, 4.8vw, 4.8rem);
     font-weight: 650;
-    letter-spacing: .12em;
+    letter-spacing: 0;
     line-height: .98;
+    isolation: isolate;
+    filter: drop-shadow(0 4px 16px rgba(73, 43, 12, .24));
+  }
+
+  .title-char {
+    --char-delay: calc(var(--char-index) * -0.62s);
+    display: inline-block;
+    margin-inline: .06em;
+    color: transparent;
+    background-image:
+      repeating-linear-gradient(18deg, rgba(255,255,255,.10) 0 1px, rgba(120,74,20,.08) 1px 2px, transparent 2px 5px),
+      radial-gradient(circle at 28% 24%, rgba(255,247,211,.55) 0 3%, transparent 13%),
+      linear-gradient(108deg,
+        #8c5a1e 0%,
+        #bd8734 23%,
+        #e6bd68 39%,
+        #fff4c2 47%,
+        #ffffff 50%,
+        #f6d77f 56%,
+        #c28a34 72%,
+        #8d5b20 100%);
+    background-position: 0 0, 0 0, 230% 0;
+    background-size: 7px 7px, 100% 100%, 260% 100%;
+    background-repeat: repeat, no-repeat, no-repeat;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: .35px rgba(115, 73, 24, .32);
+    text-shadow: 0 0 1px rgba(255,255,255,.28);
+    animation: title-char-shimmer 4.9s cubic-bezier(.42,0,.25,1) infinite;
+    animation-delay: var(--char-delay);
   }
 
   .hero-copy p {
     margin: clamp(1rem, 2.2vh, 1.5rem) 0 0;
     color: var(--text-primary);
-    font-family: var(--font-serif);
+    font-family: var(--font-literary, var(--font-serif));
     font-size: clamp(1.05rem, 1.65vw, 1.42rem);
     font-weight: 520;
     letter-spacing: .18em;
+    text-shadow:
+      0 1px 2px color-mix(in srgb, var(--bg-primary) 70%, transparent),
+      0 0 16px color-mix(in srgb, var(--bg-primary) 48%, transparent);
   }
 
   .hero-cta {
+    position: relative;
     display: inline-flex;
     min-width: 188px;
     min-height: 44px;
@@ -255,24 +321,112 @@ const mythologyCards = [
     justify-content: center;
     margin-top: clamp(1.35rem, 2.8vh, 2rem);
     padding: .72rem 1.55rem;
-    border: 1px solid color-mix(in srgb, var(--accent-strong) 52%, transparent);
+    overflow: hidden;
+    border: 1px solid rgba(255, 225, 153, .58);
     border-radius: 999px;
-    color: var(--text-inverse);
-    background: color-mix(in srgb, var(--accent) 90%, transparent);
-    box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 20%, transparent);
+    color: #fff8dc;
+    background:
+      repeating-linear-gradient(135deg, rgba(255,255,255,.045) 0 1px, transparent 1px 5px),
+      radial-gradient(circle at 28% 20%, rgba(255,244,194,.18), transparent 32%),
+      linear-gradient(145deg, rgba(133, 83, 24, .90), rgba(190, 133, 45, .94) 48%, rgba(112, 67, 20, .94));
+    box-shadow:
+      0 10px 28px rgba(125, 77, 18, .22),
+      inset 0 1px 0 rgba(255,255,255,.24),
+      inset 0 -1px 0 rgba(85,48,10,.24);
     font-size: .86rem;
     font-weight: 650;
     letter-spacing: .08em;
     text-shadow: none;
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+    animation: cta-ambient-breathe 5.6s ease-in-out infinite;
+  }
+
+  .hero-cta::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.12) 0 1px, transparent 1.5px) 0 0 / 11px 11px,
+      linear-gradient(to bottom, rgba(255,255,255,.06), transparent 45%);
+    mix-blend-mode: screen;
+    opacity: .55;
+    pointer-events: none;
+  }
+
+  .cta-text {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cta-char {
+    --char-delay: calc(var(--char-index) * -0.28s);
+    display: inline-block;
+    color: transparent;
+    background-image: linear-gradient(105deg,
+      #f4d17c 0%,
+      #fff4bf 28%,
+      #ffffff 47%,
+      #fff8d6 52%,
+      #e8bd59 70%,
+      #f4d17c 100%);
+    background-position: 220% 0;
+    background-size: 250% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 1px rgba(70,38,8,.34));
+    animation: cta-char-shimmer 3.8s cubic-bezier(.42,0,.3,1) infinite;
+    animation-delay: var(--char-delay);
   }
 
   .hero-cta:hover,
   .hero-cta:focus-visible {
     transform: translateY(-2px);
-    color: var(--text-inverse);
-    background: var(--accent-strong);
-    box-shadow: 0 14px 34px color-mix(in srgb, var(--accent) 28%, transparent);
+    border-color: rgba(255, 237, 184, .88);
+    color: #fff8dc;
+    box-shadow:
+      0 14px 36px rgba(163, 104, 26, .30),
+      0 0 30px rgba(246, 200, 104, .18),
+      inset 0 1px 0 rgba(255,255,255,.3);
+  }
+
+  @keyframes title-char-shimmer {
+    0%, 18% {
+      background-position: 0 0, 0 0, 230% 0;
+      filter: drop-shadow(0 0 6px rgba(225,170,73,.08));
+    }
+    48% {
+      background-position: 0 0, 0 0, 48% 0;
+      filter: drop-shadow(0 0 13px rgba(255,226,151,.34));
+    }
+    76%, 100% {
+      background-position: 0 0, 0 0, -150% 0;
+      filter: drop-shadow(0 0 6px rgba(225,170,73,.10));
+    }
+  }
+
+  @keyframes cta-char-shimmer {
+    0%, 24% { background-position: 220% 0; }
+    58% { background-position: 45% 0; }
+    84%, 100% { background-position: -140% 0; }
+  }
+
+  @keyframes hero-ambient-breathe {
+    0%, 100% { opacity: .68; transform: translate(-50%, -50%) scale(.96); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  }
+
+  @keyframes cta-ambient-breathe {
+    0%, 100% {
+      box-shadow: 0 10px 28px rgba(125,77,18,.20), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(85,48,10,.22);
+    }
+    50% {
+      box-shadow: 0 12px 34px rgba(157,99,22,.28), 0 0 22px rgba(246,198,94,.13), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(85,48,10,.18);
+    }
   }
 
   .mythology-dock {
@@ -445,7 +599,7 @@ const mythologyCards = [
   @media (max-width: 820px) {
     .hero-stage { padding-top: 8.7rem; }
     .hero-copy { margin-top: 0; }
-    .hero-copy h1 { letter-spacing: .08em; }
+    .title-char { margin-inline: .035em; }
     .mythology-panel { border-radius: 12px; }
     .mythology-card { flex-basis: min(34vw, 200px); min-width: 150px; }
   }
@@ -478,6 +632,16 @@ const mythologyCards = [
     .carousel-button {
       transition: none;
     }
+
+    .title-char,
+    .cta-char,
+    .hero-copy::before,
+    .hero-cta {
+      animation: none;
+    }
+
+    .title-char { background-position: 0 0, 0 0, 50% 0; }
+    .cta-char { background-position: 50% 0; }
     .mythology-viewport { scroll-behavior: auto; }
   }
 </style>
