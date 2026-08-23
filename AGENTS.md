@@ -151,6 +151,17 @@ Respect `prefers-color-scheme` for first visit; persist explicit user selection.
 
 ### Shared
 
+### Icon system
+
+- Functional UI icons MUST use `@lucide/astro` with named imports.
+- Do not use emoji or Unicode glyphs as buttons, navigation, status, action, search, theme, favorite, download, user, notification, or directional icons.
+- Prefer semantic icon names so AI agents can infer intent: `Search`, `Moon`, `Sun`, `Heart`, `Download`, `UserRound`, `Sparkles`, `ArrowRight`.
+- Default UI icon size is 16–20px with stroke width around 1.75–2 unless the composition requires otherwise.
+- Icon-only controls must have an accessible `aria-label`; purely decorative icons must use `aria-hidden="true"`.
+- Civilization Visual DNA and MythCanvas brand motifs may use custom SVG when Lucide has no culturally appropriate symbol. These are content/brand symbols, not general UI icons.
+- Do not mix Phosphor, Tabler, Heroicons, or another general-purpose icon library into normal UI without an explicit design-system migration decision.
+- Never signal state only through an icon or color; preserve text/ARIA state where needed.
+
 - heading can use serif; body/forms/buttons use readable sans-serif
 - card radius roughly 8–12px unless design requires otherwise
 - motion should be slow, atmospheric and optional

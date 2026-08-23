@@ -1,4 +1,5 @@
 ---
+import { ArrowRight, Landmark } from '@lucide/astro';
 import type { Realm } from '../../lib/content/types';
 
 interface Props {
@@ -19,13 +20,13 @@ const { realm, href = `/realm/${realm.slug}/` } = Astro.props;
         height={realm.heroImage.height}
         loading="lazy"
       />
-      <span class="realm-glyph" aria-hidden="true">◇</span>
+      <span class="realm-glyph" aria-hidden="true"><Landmark size={17} strokeWidth={1.8} /></span>
     </div>
     <div class="realm-copy">
       <span class="small-caps">Realm</span>
       <h3>{realm.name}</h3>
       <p>{realm.nameEn}</p>
-      <span class="realm-action">进入神域 <span aria-hidden="true">→</span></span>
+      <span class="realm-action">进入神域 <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" /></span>
     </div>
   </a>
 </article>
@@ -111,6 +112,9 @@ const { realm, href = `/realm/${realm.slug}/` } = Astro.props;
   }
 
   .realm-action {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
     color: var(--text-secondary);
     font-size: 0.84rem;
     font-weight: 700;

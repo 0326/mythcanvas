@@ -1,3 +1,7 @@
+---
+import { Moon, Sun } from '@lucide/astro';
+---
+
 <button
   class="theme-toggle"
   type="button"
@@ -5,8 +9,8 @@
   aria-label="切换亮色与暗色主题"
   title="切换主题"
 >
-  <span class="sun" aria-hidden="true">☀</span>
-  <span class="moon" aria-hidden="true">☾</span>
+  <span class="sun" aria-hidden="true"><Sun size={18} strokeWidth={1.8} /></span>
+  <span class="moon" aria-hidden="true"><Moon size={18} strokeWidth={1.8} /></span>
 </button>
 
 <script is:inline>
@@ -62,6 +66,8 @@
   .sun,
   .moon {
     position: absolute;
+    display: grid;
+    place-items: center;
     transition: opacity var(--transition-fast), transform var(--transition-fast);
   }
 
