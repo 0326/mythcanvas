@@ -1,5 +1,5 @@
 html {
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -10,15 +10,60 @@ body {
   line-height: 1.65;
 }
 
+/* Display typography: brand, page identity and entity names. */
 h1,
 h2,
 h3,
 h4,
 .display-serif,
-.brand-serif {
-  font-family: var(--font-serif);
+.display-type,
+.brand-serif,
+.entity-name {
+  font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.015em;
+}
+
+/* Literary typography: short mythology narration, quotations and atmospheric copy only. */
+.literary,
+.literary-copy,
+.entity-summary,
+blockquote,
+q {
+  font-family: var(--font-literary);
+  font-weight: 400;
+  letter-spacing: 0.025em;
+}
+
+/* Existing MythCanvas narrative surfaces migrated to the literary role. */
+.hero-copy > p,
+.entity-copy > p,
+.realm-hero-copy > p,
+.character-copy .summary,
+.section-heading p,
+.mythology-heading p,
+.myth-card .copy > p,
+.character-card .summary,
+.hero-summary,
+.character-summary,
+.realm-summary,
+.mythology-summary {
+  font-family: var(--font-literary) !important;
+  font-weight: 400;
+  letter-spacing: 0.025em;
+}
+
+/* Product interaction typography must remain neutral and highly legible. */
+button,
+input,
+select,
+textarea,
+.btn,
+.chip,
+.small-caps,
+.eyebrow,
+.ui-type {
+  font-family: var(--font-ui);
 }
 
 h1,
@@ -42,6 +87,15 @@ h2 {
 h3 {
   font-size: clamp(1.3rem, 2vw, 1.85rem);
   line-height: 1.25;
+}
+
+.entity-summary,
+.literary-copy,
+.hero-summary,
+.character-summary,
+.realm-summary,
+.mythology-summary {
+  line-height: 1.85;
 }
 
 .small-caps {
