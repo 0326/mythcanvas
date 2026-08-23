@@ -1,38 +1,131 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import RealmCard from '../../components/realm/RealmCard.astro';
 import {
   getArtworksForCharacter,
   getCharacterBySlug,
   getMythologyById,
   getRealms,
-  getStyles,
 } from '../../lib/content/repositories';
-import type { Realm } from '../../lib/content/types';
-import { SITE_TITLE } from '../../consts';
+import {
+  characterStyles,
+  getCharacterStyle,
+  normalizeCharacterStyleId,
+  type CharacterStyleId,
+} from '../../lib/content/character-styles';
+import type { Artwork, ImageAsset, Realm } from '../../lib/content/types';
 
 export const prerender = false;
+
+type WallpaperDevice = 'pc' | 'mobile';
+type WallpaperEntry = {
+  id: string;
+  styleId: CharacterStyleId;
+  device: WallpaperDevice;
+  title: string;
+  image: ImageAsset;
+  href: string;
+  position: string;
+};
 
 const db = Astro.locals.runtime.env.DB;
 const { slug } = Astro.params;
 const character = await getCharacterBySlug(db, slug ?? '');
 if (!character) return Astro.redirect('/404');
-const [mythology, relatedArtworks, styles, realmsById] = await Promise.all([
+
+const [mythology, relatedArtworks, realms] = await Promise.all([
   getMythologyById(db, character.mythologyId),
   getArtworksForCharacter(db, character.id),
-  getStyles(db),
-  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+  getRealms(db),
 ]);
+
+const realmsById = new Map(realms.map((item) => [item.id, item]));
 const characterRealms = character.realmIds
   .map((id) => realmsById.get(id))
   .filter((item): item is Realm => item != null);
+
+const requestedStyle = normalizeCharacterStyleId(Astro.url.searchParams.get('style'));
+const selectedStyle: CharacterStyleId = requestedStyle ?? 'canonical';
+const selectedDevice: WallpaperDevice = Astro.url.searchParams.get('device') === 'mobile' ? 'mobile' : 'pc';
+const selectedStyleDefinition = getCharacterStyle(selectedStyle);
+
+const styleHref = (styleId: CharacterStyleId, device: WallpaperDevice = selectedDevice) =>
+  `?style=${styleId}&device=${device}#wallpapers`;
+
+const fallbackImage: ImageAsset = {
+  src: '/art/chinese-celestial.svg',
+  alt: '云海之上的东方神域',
+  width: 1600,
+  height: 900,
+};
+
+const imageCandidates = [
+  ...relatedArtworks.map((artwork) => artwork.image),
+  character.portrait,
+  characterRealms[0]?.heroImage,
+  mythology?.heroImage,
+].filter((image): image is ImageAsset => image != null);
+
+const heroImage =
+  relatedArtworks.find((artwork) => artwork.image.width >= artwork.image.height)?.image ??
+  character.portrait ??
+  characterRealms[0]?.heroImage ??
+  mythology?.heroImage ??
+  imageCandidates[0] ??
+  fallbackImage;
+
+const normalizeArtworkStyle = (artwork: Artwork): CharacterStyleId =>
+  normalizeCharacterStyleId(artwork.styleId) ?? 'canonical';
+
+const artworkDevice = (artwork: Artwork): WallpaperDevice =>
+  artwork.image.width >= artwork.image.height ? 'pc' : 'mobile';
+
+const imageForEntry = (styleId: CharacterStyleId, device: WallpaperDevice, index: number) => {
+  const matches = relatedArtworks.filter(
+    (artwork) => normalizeArtworkStyle(artwork) === styleId && artworkDevice(artwork) === device,
+  );
+  if (matches.length > 0) {
+    const artwork = matches[index % matches.length];
+    return { image: artwork.image, artwork };
+  }
+
+  const preferred = imageCandidates.filter((image) =>
+    device === 'pc' ? image.width >= image.height : image.width < image.height,
+  );
+  const pool = preferred.length > 0 ? preferred : imageCandidates;
+  return { image: pool[index % pool.length] ?? fallbackImage, artwork: undefined };
+};
+
+const wallpaperEntries: WallpaperEntry[] = characterStyles.flatMap((style) =>
+  (['pc', 'mobile'] as const).flatMap((device) => {
+    const count = device === 'pc' ? 3 : 5;
+    return Array.from({ length: count }, (_, index) => {
+      const { image, artwork } = imageForEntry(style.id, device, index);
+      return {
+        id: `${character.id}-${style.id}-${device}-${index + 1}`,
+        styleId: style.id,
+        device,
+        title: artwork?.title ?? `${character.name} · ${style.name} ${index + 1}`,
+        image,
+        href: artwork ? `/wallpaper/${artwork.slug}/` : '/create/',
+        position: device === 'pc' ? `${35 + index * 15}% center` : `${50 + index * 8}% center`,
+      } satisfies WallpaperEntry;
+    });
+  }),
+);
+
+const stylePreview = (styleId: CharacterStyleId) => {
+  const artwork = relatedArtworks.find((item) => normalizeArtworkStyle(item) === styleId);
+  return artwork?.image ?? character.portrait ?? heroImage;
+};
 ---
 
 <BaseLayout
   title={character.name}
   description={`${character.name} · ${character.nameEn}：${character.summary}`}
-  image={character.portrait?.src ?? characterRealms[0]?.heroImage.src ?? mythology?.heroImage.src}
+  image={heroImage.src}
+  fullBleed
+  immersiveHeader
 >
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={JSON.stringify([
@@ -55,129 +148,259 @@ const characterRealms = character.realmIds
       },
     ])} />
   </Fragment>
-  <section class="character-hero">
-    <div class="container-wide hero-grid">
-      <div class="character-copy">
-        <a class="back-link" href={mythology ? `/mythology/${mythology.slug}/` : '/explore/'}>← {mythology?.name ?? '返回探索'}</a>
-        <span class="eyebrow">{character.role}</span>
-        <h1>{character.name}</h1>
-        <p class="en-name">{character.nameEn}</p>
-        <p class="summary">{character.summary}</p>
-        <div class="symbol-list">
-          {character.symbols.map((symbol) => <span class="chip">{symbol}</span>)}
-        </div>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#variants">查看视觉形态</a>
-          <a class="btn btn-secondary" href="#recreate">绘制我的 {character.name}</a>
-        </div>
-      </div>
 
-      <div class="character-visual" aria-label={character.portrait ? `${character.name} Canonical Design 肖像` : `${character.name} Canonical Design 视觉占位`}>
-        {character.portrait ? (
-          <img
-            class="portrait-img"
-            src={character.portrait.src}
-            alt={character.portrait.alt}
-            width={character.portrait.width}
-            height={character.portrait.height}
-            fetchpriority="high"
-          />
-        ) : (
-          <div class="visual-mock" aria-hidden="true">
-            <div class="moon"></div>
-            <div class="orbit orbit-a"></div>
-            <div class="orbit orbit-b"></div>
-            <div class="sigil">{character.symbols[0] ?? '✦'}</div>
+  <div class="character-page" data-character-page data-selected-style={selectedStyle} data-selected-device={selectedDevice}>
+    <section class="character-hero" id="character-hero" aria-labelledby="character-title">
+      <img class="character-hero-image" src={heroImage.src} alt={heroImage.alt} width={heroImage.width} height={heroImage.height} fetchpriority="high" />
+      <div class="character-hero-overlay" aria-hidden="true"></div>
+
+      <div class="container-wide character-hero-inner">
+        <div class="character-copy">
+          <a class="back-link" href={mythology ? `/mythology/${mythology.slug}/` : '/character/'}>← {mythology?.name ?? '返回角色'}</a>
+          <div class="character-kicker"><span>{mythology?.name ?? 'Mythology'}</span><span>{character.role}</span></div>
+          <h1 id="character-title">{character.name}</h1>
+          <p class="en-name">{character.nameEn}</p>
+          <div class="identity-tags" aria-label="角色识别符号">
+            {character.symbols.slice(0, 4).map((symbol) => <span>{symbol}</span>)}
           </div>
-        )}
-        <div class="visual-caption">
-          <span>Canonical Design</span>
-          <strong>{character.canonicalDesign.anchors.slice(0, 3).join(' · ')}</strong>
+          <p class="summary">{character.summary}</p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/create/">绘制我的 {character.name}</a>
+            <a class="hero-scroll-link" href="#wallpapers">查看壁纸 ↓</a>
+          </div>
+
+          <div class="style-rail" aria-labelledby="style-rail-title">
+            <div class="style-rail-heading"><span id="style-rail-title">风格变体</span><span>换画风，不换身份</span></div>
+            <div class="style-preview-grid">
+              {characterStyles.map((style) => (
+                <a
+                  class:list={{ 'style-preview': true, [`style-${style.id}`]: true, 'is-active': style.id === selectedStyle }}
+                  href={styleHref(style.id)}
+                  data-style-filter={style.id}
+                  data-scroll-to-wallpapers
+                  aria-label={`${style.name} · ${style.nameEn}`}
+                  aria-pressed={style.id === selectedStyle ? 'true' : 'false'}
+                >
+                  <span class="style-preview-image"><img src={stylePreview(style.id).src} alt="" loading="lazy" width={stylePreview(style.id).width} height={stylePreview(style.id).height} /></span>
+                  <span class="style-preview-copy"><strong>{style.name}</strong><small>{style.nameEn}</small></span>
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section-compact">
-    <div class="container-wide identity-grid">
-      <div>
-        <span class="eyebrow">Identity Anchors</span>
-        <h2>换画风，不换身份</h2>
-        <p>角色可以进入不同材质、时代和画法，但 Canonical Design 的关键识别点必须被保留。</p>
-      </div>
-      <div class="identity-list surface">
-        {character.canonicalDesign.anchors.map((anchor, index) => (
-          <div><span>{String(index + 1).padStart(2, '0')}</span><strong>{anchor}</strong></div>
-        ))}
-        {character.canonicalDesign.silhouette && <p>{character.canonicalDesign.silhouette}</p>}
-      </div>
-    </div>
-  </section>
-
-  <section class="section-compact section-tint" id="variants">
-    <div class="container-wide">
-      <div class="section-heading"><div><span class="eyebrow">Style Variants</span><h2>多种画风，同一个 {character.name}</h2><p>视觉风格独立于文明 Visual DNA 和网站 Light / Dark Theme。</p></div></div>
-      <div class="variant-grid">
-        {styles.map((style, index) => (
-          <article class="variant surface">
-            <div class:list={{ swatch: true, [`swatch-${(index % 4) + 1}`]: true }}><span>{character.symbols[index % character.symbols.length] ?? '✦'}</span></div>
-            <div><span class="small-caps">Style Variant</span><h3>{style.name}</h3></div>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  {characterRealms.length > 0 && (
-    <section class="section-compact">
-      <div class="container-wide">
-        <div class="section-heading"><div><span class="eyebrow">Related Realms</span><h2>所在神域</h2></div></div>
-        <div class="realm-grid">{characterRealms.map((realm) => realm && <RealmCard realm={realm} />)}</div>
       </div>
     </section>
-  )}
 
-  <section class="section-compact">
-    <div class="container-wide">
-      <div class="section-heading"><div><span class="eyebrow">Wallpapers</span><h2>{character.name} 视觉作品</h2></div></div>
-      {relatedArtworks.length > 0 ? (
-        <div class="artwork-grid">{relatedArtworks.map((artwork) => <ArtworkCard artwork={artwork} mythologyName={mythology?.name} realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined} />)}</div>
-      ) : (
-        <div class="coming surface"><span aria-hidden="true">✦</span><h3>首批角色视觉正在绘制</h3><p>Canonical Design 已建立，下一步将补齐正式角色视觉资产。</p></div>
-      )}
-    </div>
-  </section>
+    <section class="wallpapers-section" id="wallpapers" aria-labelledby="wallpapers-title">
+      <div class="container-wide">
+        <div class="wallpapers-heading">
+          <div>
+            <span class="eyebrow">Character Wallpapers</span>
+            <h2 id="wallpapers-title"><span>{character.name}</span> · <span data-selected-style-name>{selectedStyleDefinition.name}</span></h2>
+            <p data-selected-style-description>{selectedStyleDefinition.description}</p>
+          </div>
+          <a class="back-to-hero" href="#character-hero">返回角色首屏 ↑</a>
+        </div>
 
-  <section class="section-compact" id="recreate">
-    <div class="container-wide recreate surface">
-      <div><span class="eyebrow">AI Recreate</span><h2>绘制我的 {character.name}</h2><p>从角色身份开始，而不是从空白 Prompt 开始。选择画风、场景、氛围和设备构图即可。</p></div>
-      <a class="btn btn-primary" href="/create/">开始绘神</a>
-    </div>
-  </section>
+        <div class="wallpaper-filter-bar">
+          <div class="filter-group" role="group" aria-label="选择画风">
+            <span class="filter-label">画风</span>
+            <div class="filter-options">
+              {characterStyles.map((style) => (
+                <a class:list={{ 'filter-option': true, 'is-active': style.id === selectedStyle }} href={styleHref(style.id)} data-style-filter={style.id} aria-pressed={style.id === selectedStyle ? 'true' : 'false'}>{style.name}</a>
+              ))}
+            </div>
+          </div>
+
+          <div class="filter-group device-filter" role="group" aria-label="选择壁纸设备">
+            <span class="filter-label">壁纸</span>
+            <div class="filter-options">
+              {(['pc', 'mobile'] as const).map((device) => (
+                <a class:list={{ 'filter-option': true, 'is-active': device === selectedDevice }} href={styleHref(selectedStyle, device)} data-device-filter={device} aria-pressed={device === selectedDevice ? 'true' : 'false'}>{device === 'pc' ? 'PC' : 'Mobile'}</a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div class="wallpaper-grid" data-wallpaper-grid data-active-device={selectedDevice}>
+          {wallpaperEntries.map((entry) => {
+            const style = getCharacterStyle(entry.styleId);
+            return (
+              <article class:list={{ 'wallpaper-card': true, [`wallpaper-style-${entry.styleId}`]: true }} data-wallpaper-card data-style={entry.styleId} data-device={entry.device} hidden={entry.styleId !== selectedStyle || entry.device !== selectedDevice}>
+                <a href={entry.href} aria-label={`${entry.title} · ${style.name}`}>
+                  <div class="wallpaper-visual" style={`--wallpaper-position: ${entry.position}`}>
+                    <img src={entry.image.src} alt={entry.image.alt} width={entry.image.width} height={entry.image.height} loading="lazy" decoding="async" />
+                    <span class="wallpaper-shade" aria-hidden="true"></span>
+                    <span class="wallpaper-style-badge">{style.name}</span>
+                    <span class="wallpaper-open">查看壁纸 ↗</span>
+                  </div>
+                  <div class="wallpaper-copy">
+                    <div><h3>{entry.title}</h3><p>{entry.device === 'pc' ? 'PC 壁纸' : 'Mobile 壁纸'} · {style.nameEn}</p></div>
+                    <span class="wallpaper-index">{String(Number(entry.id.split('-').at(-1) ?? 1)).padStart(2, '0')}</span>
+                  </div>
+                </a>
+              </article>
+            );
+          })}
+        </div>
+        <p class="wallpaper-empty" data-wallpaper-empty hidden>这个画风暂时没有可展示的壁纸。</p>
+      </div>
+    </section>
+
+    <section class="identity-section section-compact" aria-labelledby="identity-title">
+      <div class="container-wide identity-grid">
+        <div><span class="eyebrow">Canonical Design</span><h2 id="identity-title">换画风，不换身份</h2><p>角色可以进入不同材质、时代和画法，但这些识别点必须持续存在。</p></div>
+        <div class="identity-list surface">
+          {character.canonicalDesign.anchors.map((anchor, index) => <div><span>{String(index + 1).padStart(2, '0')}</span><strong>{anchor}</strong></div>)}
+          {character.canonicalDesign.silhouette && <p>{character.canonicalDesign.silhouette}</p>}
+        </div>
+      </div>
+    </section>
+
+    {characterRealms.length > 0 && (
+      <section class="related-section section-compact" aria-labelledby="realm-title">
+        <div class="container-wide"><div class="section-heading"><div><span class="eyebrow">Related Realm</span><h2 id="realm-title">所在神域</h2></div></div><div class="realm-grid">{characterRealms.map((realm) => <RealmCard realm={realm} />)}</div></div>
+      </section>
+    )}
+
+    <section class="recreate-section section-compact" id="recreate">
+      <div class="container-wide recreate surface"><div><span class="eyebrow">AI Recreate</span><h2>绘制我的 {character.name}</h2><p>从角色身份开始，选择画风、场景和 PC / Mobile 构图，生成属于你的神话壁纸。</p></div><a class="btn btn-primary" href="/create/">开始绘神</a></div>
+    </section>
+  </div>
 </BaseLayout>
 
+<script>
+  const page = document.querySelector('[data-character-page]');
+  const wallpaperGrid = page?.querySelector('[data-wallpaper-grid]');
+  const wallpaperCards = Array.from(page?.querySelectorAll('[data-wallpaper-card]') ?? []);
+  const styleLinks = Array.from(page?.querySelectorAll('[data-style-filter]') ?? []);
+  const deviceLinks = Array.from(page?.querySelectorAll('[data-device-filter]') ?? []);
+  const styleName = page?.querySelector('[data-selected-style-name]');
+  const styleDescription = page?.querySelector('[data-selected-style-description]');
+  const emptyState = page?.querySelector('[data-wallpaper-empty]');
+  const wallpapersSection = page?.querySelector('#wallpapers');
+
+  const styleDescriptions = {
+    canonical: '保留角色最稳定的神话身份与视觉锚点。',
+    sacred: '以克制神光、仪式感和空灵氛围强化神性。',
+    warrior: '将角色身份转译为更有力量感的史诗形态。',
+    dark: '使用深色层次和神秘氛围，但不走恐怖化路线。',
+    cyber: '融合未来材质与光几何，同时保留文明身份。',
+    anime: '以清晰线稿和插画式光影呈现角色。',
+  };
+
+  const setUrlState = (style, device) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('style', style);
+    url.searchParams.set('device', device);
+    url.hash = 'wallpapers';
+    window.history.replaceState({}, '', url);
+  };
+
+  const applyFilters = (style, device, shouldScroll = false) => {
+    if (!page || !wallpaperGrid) return;
+    page.dataset.selectedStyle = style;
+    page.dataset.selectedDevice = device;
+    wallpaperGrid.dataset.activeDevice = device;
+    wallpaperCards.forEach((card) => { card.hidden = !(card.dataset.style === style && card.dataset.device === device); });
+    styleLinks.forEach((link) => { const active = link.dataset.styleFilter === style; link.classList.toggle('is-active', active); link.setAttribute('aria-pressed', String(active)); });
+    deviceLinks.forEach((link) => { const active = link.dataset.deviceFilter === device; link.classList.toggle('is-active', active); link.setAttribute('aria-pressed', String(active)); });
+    if (styleName) styleName.textContent = styleLinks.find((link) => link.dataset.styleFilter === style)?.textContent?.trim() ?? style;
+    if (styleDescription) styleDescription.textContent = styleDescriptions[style as keyof typeof styleDescriptions] ?? '';
+    if (emptyState) emptyState.hidden = wallpaperCards.some((card) => !card.hidden);
+    setUrlState(style, device);
+    if (shouldScroll) wallpapersSection?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  };
+
+  styleLinks.forEach((link) => link.addEventListener('click', (event) => {
+    event.preventDefault();
+    const style = link.dataset.styleFilter;
+    const device = page?.dataset.selectedDevice ?? 'pc';
+    if (style) applyFilters(style, device, link.hasAttribute('data-scroll-to-wallpapers'));
+  }));
+
+  deviceLinks.forEach((link) => link.addEventListener('click', (event) => {
+    event.preventDefault();
+    const device = link.dataset.deviceFilter;
+    const style = page?.dataset.selectedStyle ?? 'canonical';
+    if (device === 'pc' || device === 'mobile') applyFilters(style, device);
+  }));
+</script>
+
 <style>
-  .character-hero { padding-block: 2rem 2.5rem; border-bottom: 1px solid var(--border); background: radial-gradient(circle at 78% 30%, var(--hero-ambient), transparent 34%); }
-  .hero-grid { display: grid; grid-template-columns: .78fr 1.22fr; gap: 1rem; align-items: stretch; padding: .6rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-sm); }
-  .character-copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(1.25rem, 3vw, 2.6rem); }
-  .back-link { display: inline-block; margin-bottom: 1.8rem; color: var(--text-secondary); font-size: .76rem; }
-  .character-copy h1 { margin: 0; }
-  .en-name { margin: var(--space-2) 0 0; color: var(--accent-strong); font-family: Georgia, serif; font-size: 1.25rem; }
-  .summary { max-width: 30rem; margin: var(--space-5) 0 0; color: var(--text-secondary); font-size: .86rem; line-height: 1.75; }
-  .symbol-list, .hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-6); }
-  .hero-actions { gap: var(--space-3); margin-top: 1.8rem; }
-  .character-visual { position: relative; min-height: 450px; display: grid; place-items: center; overflow: hidden; border-radius: 8px; background: linear-gradient(145deg, var(--surface), var(--surface-muted)); }
-  .character-visual::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--moon-white) 70%, transparent), transparent 22%), linear-gradient(to top, color-mix(in srgb, var(--accent) 6%, transparent), transparent 50%); }
-  .portrait-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .visual-mock { position: absolute; inset: 0; display: grid; place-items: center; }
-  .moon { position: absolute; width: min(330px, 60%); aspect-ratio: 1; border: 1px solid var(--border-strong); border-radius: 50%; box-shadow: 0 0 80px var(--hero-ambient), inset 0 0 50px color-mix(in srgb, var(--moon-white) 36%, transparent); }
-  .orbit { position: absolute; width: 72%; height: 38%; border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 50%; }
-  .orbit-a { transform: rotate(24deg); }
-  .orbit-b { transform: rotate(-24deg); }
-  .sigil { position: relative; z-index: 2; max-width: 15rem; padding: var(--space-4); color: var(--accent-strong); font-family: var(--font-serif); font-size: clamp(1.4rem, 3vw, 2.4rem); text-align: center; }
-  .visual-caption { position: absolute; right: 1rem; bottom: 1rem; left: 1rem; display: grid; gap: var(--space-1); padding: .7rem .8rem; border: 1px solid var(--border); border-radius: 7px; background: color-mix(in srgb, var(--surface) 84%, transparent); backdrop-filter: blur(12px); }
-  .visual-caption span { color: var(--accent-strong); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
-  .visual-caption strong { font-size: .82rem; }
+  .character-page { min-width: var(--site-min-width); background: var(--bg-primary); }
+  .character-hero { position: relative; display: flex; min-height: 100svh; overflow: hidden; isolation: isolate; color: var(--text-primary); background: var(--bg-primary); }
+  .character-hero-image, .character-hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .character-hero-image { z-index: -3; object-fit: cover; object-position: center; filter: saturate(.94) contrast(.98); transform: scale(1.01); }
+  .character-hero-overlay { z-index: -2; background: linear-gradient(90deg, color-mix(in srgb, var(--bg-primary) 94%, transparent) 0%, color-mix(in srgb, var(--bg-primary) 78%, transparent) 30%, color-mix(in srgb, var(--bg-primary) 32%, transparent) 58%, transparent 86%), linear-gradient(to top, color-mix(in srgb, var(--bg-primary) 36%, transparent) 0%, transparent 34%); }
+  .character-hero-inner { position: relative; z-index: 1; display: flex; min-height: 100svh; align-items: center; padding-block: clamp(6.5rem, 11vh, 9rem) clamp(2.5rem, 5vh, 4.5rem); }
+  .character-copy { width: min(650px, 56%); min-width: 590px; }
+  .back-link { display: inline-flex; margin-bottom: 1.3rem; color: var(--text-secondary); font-size: .78rem; }
+  .back-link:hover { color: var(--text-primary); }
+  .character-kicker { display: flex; align-items: center; gap: .65rem; color: var(--accent-strong); font-size: .76rem; font-weight: 760; letter-spacing: .14em; text-transform: uppercase; }
+  .character-kicker span + span { padding-left: .65rem; border-left: 1px solid var(--border-strong); }
+  .character-copy h1 { max-width: 650px; margin: .65rem 0 0; color: var(--text-primary); font-size: clamp(4rem, 7vw, 6.8rem); line-height: .92; letter-spacing: .08em; text-shadow: 0 2px 22px color-mix(in srgb, var(--bg-primary) 45%, transparent); }
+  .en-name { margin: .7rem 0 0; color: var(--accent-strong); font-family: Georgia, serif; font-size: 1.25rem; letter-spacing: .08em; }
+  .identity-tags { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.35rem; }
+  .identity-tags span { display: inline-flex; min-height: 30px; align-items: center; padding-inline: .8rem; border: 1px solid color-mix(in srgb, var(--border-strong) 85%, transparent); border-radius: var(--radius-pill); color: var(--text-secondary); background: color-mix(in srgb, var(--surface) 56%, transparent); backdrop-filter: blur(8px); font-size: .78rem; }
+  .summary { max-width: 34rem; margin: 1.5rem 0 0; color: var(--text-secondary); font-size: .94rem; line-height: 1.85; text-shadow: 0 1px 12px color-mix(in srgb, var(--bg-primary) 42%, transparent); }
+  .hero-actions { display: flex; align-items: center; gap: 1.2rem; margin-top: 1.7rem; }
+  .hero-scroll-link, .back-to-hero { color: var(--text-secondary); font-size: .82rem; transition: color var(--transition-fast); }
+  .hero-scroll-link:hover, .back-to-hero:hover { color: var(--text-primary); }
+  .style-rail { max-width: 650px; margin-top: 2.2rem; }
+  .style-rail-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .65rem; }
+  .style-rail-heading span:first-child { color: var(--text-primary); font-family: var(--font-serif); font-size: 1.04rem; }
+  .style-rail-heading span:last-child { color: var(--text-muted); font-size: .72rem; }
+  .style-preview-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .65rem; }
+  .style-preview { display: grid; min-width: 0; overflow: hidden; border: 1px solid color-mix(in srgb, var(--border-strong) 62%, transparent); border-radius: 9px; color: var(--text-primary); background: color-mix(in srgb, var(--surface) 68%, transparent); box-shadow: 0 8px 24px color-mix(in srgb, var(--bg-primary) 16%, transparent); transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
+  .style-preview:hover, .style-preview:focus-visible, .style-preview.is-active { border-color: var(--accent-strong); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 38%, transparent), 0 10px 26px color-mix(in srgb, var(--bg-primary) 22%, transparent); }
+  .style-preview-image { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; }
+  .style-preview-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(5, 12, 20, .48), transparent 64%); }
+  .style-preview-image img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--transition-slow), filter var(--transition-base); }
+  .style-preview:hover .style-preview-image img, .style-preview:focus-visible .style-preview-image img { transform: scale(1.06); }
+  .style-preview-copy { display: grid; gap: .12rem; padding: .45rem .5rem .55rem; }
+  .style-preview-copy strong { font-size: .73rem; white-space: nowrap; }
+  .style-preview-copy small { color: var(--text-muted); font-size: .61rem; white-space: nowrap; }
+  .style-canonical .style-preview-image img, .wallpaper-style-canonical img { filter: saturate(.92) contrast(1.02); }
+  .style-sacred .style-preview-image img, .wallpaper-style-sacred img { filter: brightness(1.05) saturate(.88) sepia(.04); }
+  .style-warrior .style-preview-image img, .wallpaper-style-warrior img { filter: contrast(1.12) saturate(1.16); }
+  .style-dark .style-preview-image img, .wallpaper-style-dark img { filter: brightness(.68) contrast(1.16) saturate(.9); }
+  .style-cyber .style-preview-image img, .wallpaper-style-cyber img { filter: hue-rotate(18deg) saturate(1.3) contrast(1.08); }
+  .style-anime .style-preview-image img, .wallpaper-style-anime img { filter: brightness(1.06) saturate(1.18) contrast(.94); }
+
+  .wallpapers-section { min-height: 100svh; padding-block: clamp(4rem, 8vh, 7rem); background: radial-gradient(circle at 14% 8%, color-mix(in srgb, var(--hero-ambient) 84%, transparent), transparent 28%), var(--page-glow); }
+  .wallpapers-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--space-8); margin-bottom: 2rem; }
+  .wallpapers-heading h2 { margin: 0; font-size: clamp(2rem, 3.5vw, 3.4rem); }
+  .wallpapers-heading p { max-width: 38rem; margin: .6rem 0 0; color: var(--text-secondary); }
+  .back-to-hero { white-space: nowrap; }
+  .wallpaper-filter-bar { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: .8rem .9rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: color-mix(in srgb, var(--surface) 72%, transparent); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px) saturate(112%); }
+  .filter-group { display: flex; min-width: 0; align-items: center; gap: .8rem; }
+  .device-filter { flex: 0 0 auto; }
+  .filter-label { color: var(--text-muted); font-size: .76rem; white-space: nowrap; }
+  .filter-options { display: flex; gap: .35rem; }
+  .filter-option { display: inline-flex; min-height: 34px; align-items: center; justify-content: center; padding-inline: .85rem; border: 1px solid transparent; border-radius: 6px; color: var(--text-secondary); cursor: pointer; font-size: .78rem; white-space: nowrap; transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast); }
+  .filter-option:hover, .filter-option:focus-visible, .filter-option.is-active { color: var(--text-primary); border-color: var(--border-strong); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .wallpaper-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.8rem 1.35rem; margin-top: 2rem; }
+  .wallpaper-grid[data-active-device="mobile"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .wallpaper-card[hidden] { display: none; }
+  .wallpaper-card { min-width: 0; }
+  .wallpaper-card a { display: block; color: inherit; }
+  .wallpaper-visual { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-muted); box-shadow: var(--shadow-sm); transition: border-color var(--transition-fast), box-shadow var(--transition-base); }
+  .wallpaper-card[data-device="mobile"] .wallpaper-visual { aspect-ratio: 9 / 16; }
+  .wallpaper-visual img { width: 100%; height: 100%; object-fit: cover; object-position: var(--wallpaper-position); transition: transform var(--transition-slow); }
+  .wallpaper-card:hover .wallpaper-visual, .wallpaper-card:focus-within .wallpaper-visual { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+  .wallpaper-card:hover .wallpaper-visual img, .wallpaper-card:focus-within .wallpaper-visual img { transform: scale(1.035); }
+  .wallpaper-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, rgba(5, 12, 20, .58), transparent 46%); }
+  .wallpaper-style-badge { position: absolute; left: .7rem; bottom: .7rem; padding: .3rem .48rem; border: 1px solid rgba(255,255,255,.32); border-radius: 4px; color: #fff; background: rgba(5, 12, 20, .28); backdrop-filter: blur(8px); font-size: .66rem; }
+  .wallpaper-open { position: absolute; top: .7rem; right: .7rem; padding: .3rem .48rem; border: 1px solid rgba(255,255,255,.32); border-radius: 4px; color: #fff; background: rgba(5, 12, 20, .32); font-size: .66rem; opacity: 0; transition: opacity var(--transition-fast); }
+  .wallpaper-card:hover .wallpaper-open, .wallpaper-card:focus-within .wallpaper-open { opacity: 1; }
+  .wallpaper-copy { display: flex; align-items: start; justify-content: space-between; gap: .7rem; padding: .7rem .1rem 0; }
+  .wallpaper-copy h3 { margin: 0; font-size: .92rem; }
+  .wallpaper-copy p { margin: .22rem 0 0; color: var(--text-muted); font-size: .72rem; }
+  .wallpaper-index { color: var(--text-muted); font-family: Georgia, serif; font-size: .7rem; }
+  .wallpaper-empty { margin: 3rem 0; color: var(--text-secondary); text-align: center; }
+  .identity-section { border-block: 1px solid var(--border); background: color-mix(in srgb, var(--bg-secondary) 72%, transparent); }
   .identity-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: var(--space-10); }
   .identity-grid > div:first-child p { max-width: 34rem; color: var(--text-secondary); }
   .identity-list { padding: var(--space-6); border-radius: var(--radius-lg); }
@@ -185,23 +408,21 @@ const characterRealms = character.realmIds
   .identity-list > div:first-child { padding-top: 0; }
   .identity-list span { color: var(--accent); font-family: Georgia, serif; font-size: .78rem; }
   .identity-list p { margin: var(--space-5) 0 0; color: var(--text-secondary); }
-  .section-tint { border-block: 1px solid var(--border); background: color-mix(in srgb, var(--bg-secondary) 66%, transparent); }
-  .variant-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
-  .variant { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); border-radius: var(--radius-lg); }
-  .swatch { display: grid; width: 80px; aspect-ratio: 1; place-items: center; flex: 0 0 auto; border-radius: 50%; color: var(--text-inverse); font-family: var(--font-serif); font-size: .8rem; }
-  .swatch-1 { background: linear-gradient(145deg, var(--cloud-blue), var(--accent)); }
-  .swatch-2 { background: linear-gradient(145deg, var(--jade), #e8c98d); }
-  .swatch-3 { background: linear-gradient(145deg, #304a66, #a98858); }
-  .swatch-4 { background: linear-gradient(145deg, #5e516d, #89a7ca); }
-  .variant h3 { margin: var(--space-1) 0 0; font-size: 1.15rem; }
+  .related-section, .recreate-section { background: var(--bg-primary); }
   .realm-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
-  .artwork-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); }
-  .coming { padding: var(--space-16) var(--space-6); border-radius: var(--radius-lg); text-align: center; }
-  .coming > span { color: var(--accent); font-size: 2rem; }
-  .coming h3 { margin: var(--space-4) 0 var(--space-2); }
-  .coming p { color: var(--text-secondary); }
   .recreate { display: flex; align-items: end; justify-content: space-between; gap: var(--space-10); padding: clamp(2rem, 5vw, 4rem); border-radius: var(--radius-xl); }
   .recreate p { max-width: 42rem; margin: 0; color: var(--text-secondary); }
-  @media (max-width: 900px) { .hero-grid, .identity-grid { grid-template-columns: 1fr; } .character-visual { min-height: 440px; } .variant-grid, .realm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 640px) { .variant-grid, .realm-grid { grid-template-columns: 1fr; } .recreate { align-items: start; flex-direction: column; } }
+
+  @media (max-width: 1240px) {
+    .container-wide { width: calc(100% - 48px); }
+    .character-copy { width: 60%; }
+    .style-preview-grid { gap: .5rem; }
+    .style-preview-copy { padding-inline: .38rem; }
+    .style-preview-copy strong { font-size: .68rem; }
+    .style-preview-copy small { font-size: .57rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .character-hero-image { transform: none; }
+  }
 </style>

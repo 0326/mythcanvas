@@ -11,7 +11,7 @@ const mythologyBySlug = new Map(mythologies.map((item) => [item.slug, item]));
 
 const heroLightImage = '/bg.png';
 const heroDarkImage = '/bg-dark.png';
-const heroTitleChars = [...'绘世神域'];
+const heroTitleChars = [...'绘世神话'];
 const heroCtaChars = [...'开启神话探索之旅'];
 
 const mythologyCards = [
@@ -71,7 +71,7 @@ const mythologyCards = [
   fullBleed
   immersiveHeader
   hideFooter
-  description="绘世神域 MythCanvas：用 AI 重现神话世界。探索华夏、希腊、北欧、日本、印度与埃及神话中的诸神与神域。"
+  description="绘世神话 MythCanvas：用 AI 重现神话世界。探索华夏、希腊、北欧、日本、印度与埃及神话中的诸神与神域。"
   image={heroLightImage}
 >
   <section class="home-shell" aria-labelledby="hero-title">
@@ -83,7 +83,7 @@ const mythologyCards = [
 
     <div class="hero-stage container-wide">
       <div class="hero-copy">
-        <h1 id="hero-title" aria-label="绘世神域">
+        <h1 id="hero-title" aria-label="绘世神话">
           {heroTitleChars.map((char, index) => (
             <span class="title-char" style={`--char-index:${index}`} aria-hidden="true">{char}</span>
           ))}
@@ -272,7 +272,7 @@ const mythologyCards = [
   }
 
   .title-char {
-    --char-delay: calc(var(--char-index) * -0.62s);
+    --char-delay: calc(var(--char-index) * -1.24s);
     display: inline-block;
     margin-inline: .06em;
     color: transparent;
@@ -295,9 +295,10 @@ const mythologyCards = [
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     -webkit-text-stroke: .35px rgba(115, 73, 24, .32);
-    text-shadow: 0 0 1px rgba(255,255,255,.28);
-    animation: title-char-shimmer 4.9s cubic-bezier(.42,0,.25,1) infinite;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, .45)) drop-shadow(0 0 14px rgba(255, 255, 255, .22));
+    animation: title-char-shimmer 9.8s cubic-bezier(.42,0,.25,1) infinite;
     animation-delay: var(--char-delay);
+    will-change: filter, background-position;
   }
 
   .hero-copy p {
@@ -397,15 +398,15 @@ const mythologyCards = [
   @keyframes title-char-shimmer {
     0%, 18% {
       background-position: 0 0, 0 0, 230% 0;
-      filter: drop-shadow(0 0 6px rgba(225,170,73,.08));
+      filter: drop-shadow(0 0 7px rgba(255, 255, 255, .48)) drop-shadow(0 0 18px rgba(255, 255, 255, .28)) drop-shadow(0 0 42px rgba(255, 255, 255, .16));
     }
     48% {
       background-position: 0 0, 0 0, 48% 0;
-      filter: drop-shadow(0 0 13px rgba(255,226,151,.34));
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, .72)) drop-shadow(0 0 30px rgba(255, 255, 255, .48)) drop-shadow(0 0 64px rgba(255, 255, 255, .26));
     }
     76%, 100% {
       background-position: 0 0, 0 0, -150% 0;
-      filter: drop-shadow(0 0 6px rgba(225,170,73,.10));
+      filter: drop-shadow(0 0 7px rgba(255, 255, 255, .50)) drop-shadow(0 0 18px rgba(255, 255, 255, .30)) drop-shadow(0 0 42px rgba(255, 255, 255, .18));
     }
   }
 
@@ -640,7 +641,7 @@ const mythologyCards = [
       animation: none;
     }
 
-    .title-char { background-position: 0 0, 0 0, 50% 0; }
+    .title-char { background-position: 0 0, 0 0, 50% 0; filter: drop-shadow(0 0 10px rgba(255, 255, 255, .56)) drop-shadow(0 0 26px rgba(255, 255, 255, .30)) drop-shadow(0 0 54px rgba(255, 255, 255, .18)); }
     .cta-char { background-position: 50% 0; }
     .mythology-viewport { scroll-behavior: auto; }
   }

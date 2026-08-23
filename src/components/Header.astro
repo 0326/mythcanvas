@@ -1,5 +1,5 @@
 ---
-import { Bell, Search, Sparkles, UserRound } from '@lucide/astro';
+import { Bell, Search, UserRound } from '@lucide/astro';
 import ThemeToggle from './ui/ThemeToggle.astro';
 
 interface Props {
@@ -22,9 +22,9 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
 
 <header class:list={{ 'site-header': true, 'site-header--immersive': immersive }}>
   <div class="container-wide header-row">
-    <a class="brand" href="/" aria-label="绘世神域 MythCanvas 首页">
-      <span class="brand-mark" aria-hidden="true"><Sparkles size={15} strokeWidth={1.8} /></span>
-      <span class="brand-copy"><strong class="brand-serif">绘世神域</strong><span>MythCanvas</span></span>
+    <a class="brand" href="/" aria-label="绘世神话 MythCanvas 首页">
+      <span class="brand-mark" aria-hidden="true"><img src="/favicon.svg" width="30" height="30" alt="" /></span>
+      <span class="brand-copy"><strong class="brand-serif">绘世神话</strong></span>
     </a>
 
     <nav class="main-nav" aria-label="主导航">
@@ -46,10 +46,9 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
   .site-header { position: sticky; top: 0; z-index: var(--z-header); border-bottom: 1px solid var(--border); background: var(--header-bg); backdrop-filter: blur(18px) saturate(130%); }
   .header-row { min-height: var(--header-height); display: grid; grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr); align-items: center; gap: var(--space-6); }
   .brand { display: inline-flex; width: fit-content; align-items: center; gap: var(--space-3); }
-  .brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid var(--border-strong); border-radius: 50%; color: var(--accent-strong); background: var(--surface); box-shadow: inset 0 0 0 5px color-mix(in srgb, var(--accent) 5%, transparent); }
+  .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; }
   .brand-copy { display: grid; line-height: 1.05; }
   .brand-copy strong { font-size: 1.06rem; font-weight: 700; }
-  .brand-copy span { margin-top: 3px; color: var(--text-muted); font-family: Georgia, serif; font-size: .66rem; letter-spacing: .04em; }
   .main-nav { display: flex; align-items: center; justify-content: center; gap: clamp(1rem, 2.2vw, 1.8rem); }
   .main-nav a { position: relative; padding-block: 1.35rem; color: var(--text-secondary); font-size: .78rem; font-weight: 650; transition: color var(--transition-fast); }
   .main-nav a::after { content: ''; position: absolute; right: 12%; bottom: .7rem; left: 12%; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform var(--transition-fast); }
@@ -69,17 +68,16 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
     backdrop-filter: none;
   }
   .site-header--immersive .header-row { min-height: clamp(64px, 7.6vw, 78px); }
-  .site-header--immersive .brand-mark { display: none; }
+  .site-header--immersive .brand-mark img { filter: drop-shadow(0 1px 10px color-mix(in srgb, var(--bg-primary) 48%, transparent)); }
   .site-header--immersive .brand-copy { text-shadow: 0 2px 18px color-mix(in srgb, var(--bg-primary) 48%, transparent); }
   .site-header--immersive .brand-copy strong { font-size: 1.18rem; letter-spacing: .08em; }
-  .site-header--immersive .brand-copy span { color: var(--text-secondary); font-size: .63rem; letter-spacing: .055em; }
   .site-header--immersive .main-nav a { padding-block: 1.1rem; text-shadow: 0 1px 14px color-mix(in srgb, var(--bg-primary) 55%, transparent); }
   .site-header--immersive .main-nav a::after { display: none; }
   .site-header--immersive .header-icon,
   .site-header--immersive .avatar { color: var(--text-primary); filter: drop-shadow(0 1px 8px color-mix(in srgb, var(--bg-primary) 42%, transparent)); }
   .site-header--immersive .avatar { border-color: color-mix(in srgb, var(--text-primary) 26%, transparent); background: color-mix(in srgb, var(--surface) 58%, transparent); backdrop-filter: blur(10px); }
   .site-header--immersive .theme-control { display: flex; align-items: center; }
-  .site-header--immersive .theme-toggle { border-color: color-mix(in srgb, var(--text-primary) 26%, transparent); background: color-mix(in srgb, var(--surface) 58%, transparent); backdrop-filter: blur(10px); filter: drop-shadow(0 1px 8px color-mix(in srgb, var(--bg-primary) 42%, transparent)); }
+  .site-header--immersive .theme-toggle { color: var(--text-primary); filter: drop-shadow(0 1px 8px color-mix(in srgb, var(--bg-primary) 42%, transparent)); }
 
   @media (max-width: 820px) {
     .header-row { grid-template-columns: 1fr auto; gap: var(--space-3); padding-block: .6rem; }

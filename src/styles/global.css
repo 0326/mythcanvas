@@ -11,12 +11,13 @@
 }
 
 html {
-  min-width: 320px;
+  min-width: var(--site-min-width);
   background: var(--bg-primary);
   scroll-behavior: smooth;
 }
 
 body {
+  min-width: var(--site-min-width);
   min-height: 100vh;
   margin: 0;
   color: var(--text-primary);
@@ -322,19 +323,6 @@ main {
   34% { opacity: .78; }
   64% { left: 118%; opacity: .62; }
   72%, 100% { left: 118%; opacity: 0; }
-}
-
-@media (max-width: 760px) {
-  .container,
-  .container-wide {
-    width: min(calc(100% - 28px), var(--container));
-  }
-
-  .section-heading {
-    align-items: start;
-    flex-direction: column;
-    margin-bottom: var(--space-6);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

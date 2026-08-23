@@ -7,7 +7,7 @@
   </defs>
   <circle cx="64" cy="64" r="56" fill="#FBF7ED" stroke="url(#bg)" stroke-width="6"/>
   <circle cx="64" cy="64" r="40" stroke="#B9822C" stroke-width="2" opacity=".5"/>
-  <path d="M64 28 72 52 96 64 72 76 64 100 56 76 32 64 56 52 64 28Z" fill="url(#bg)"/>
+  <path d="M64 22 70.12 49.22 93.7 34.3 78.78 57.88 106 64 78.78 70.12 93.7 93.7 70.12 78.78 64 106 57.88 78.78 34.3 93.7 49.22 70.12 22 64 49.22 57.88 34.3 34.3 57.88 49.22 64 22Z" fill="url(#bg)"/>
   <circle cx="64" cy="64" r="8" fill="#FBF7ED"/>
   <style>
     @media (prefers-color-scheme: dark) {

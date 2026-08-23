@@ -10,6 +10,7 @@
 
   --container: 1180px;
   --container-wide: 1360px;
+  --site-min-width: 1080px;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;

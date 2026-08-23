@@ -1,43 +1,43 @@
 {
-	"name": "mythcanvas",
-	"description": "MythCanvas (绘世神域) — 用 AI 重现神话世界的视觉探索与创作平台。",
-	"cloudflare": {
-		"label": "MythCanvas",
-		"products": [
-			"Workers"
-		],
-		"categories": [],
-		"preview_icon_url": "https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/394ca3c9-d351-4036-035a-9f6dfa26dd00/public",
-		"preview_image_url": "https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/f40a6577-eed5-4f3e-cef4-b5ef0a1be100/preview",
-		"publish": true
-	},
-	"dependencies": {
-		"@astrojs/cloudflare": "12.6.12",
-		"@astrojs/sitemap": "3.6.1",
-		"@lucide/astro": "^1.33.0",
-		"astro": "5.16.9",
-		"typescript": "5.9.3"
-	},
-	"devDependencies": {
-		"vitest": "^4.1.11",
-		"wrangler": "4.88.0"
-	},
-	"engines": {
-		"node": ">=22"
-	},
-	"private": true,
-	"scripts": {
-		"astro": "astro",
-		"build": "astro build",
-		"cf-typegen": "wrangler types",
-		"check": "astro build && tsc && wrangler deploy --dry-run",
-		"typecheck": "tsc --noEmit",
-		"test": "vitest run",
-		"test:watch": "vitest",
-		"deploy": "wrangler deploy",
-		"dev": "astro dev",
-		"preview": "astro build && wrangler dev",
-		"migration:check": "wrangler d1 migrations apply mythcanvas-db --local"
-	},
-	"type": "module"
+  "name": "mythcanvas",
+  "description": "MythCanvas (绘世神话) — 用 AI 重现神话世界的视觉探索与创作平台。",
+  "cloudflare": {
+    "label": "MythCanvas",
+    "products": [
+      "Workers"
+    ],
+    "categories": [],
+    "preview_icon_url": "https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/394ca3c9-d351-4036-035a-9f6dfa26dd00/public",
+    "preview_image_url": "https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/f40a6577-eed5-4f3e-cef4-b5ef0a1be100/preview",
+    "publish": true
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "12.6.12",
+    "@astrojs/sitemap": "3.6.1",
+    "@lucide/astro": "^1.33.0",
+    "astro": "5.16.9",
+    "typescript": "5.9.3"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.11",
+    "wrangler": "4.88.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "private": true,
+  "scripts": {
+    "astro": "astro",
+    "build": "astro build",
+    "cf-typegen": "wrangler types",
+    "check": "astro build && tsc && wrangler deploy --dry-run",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy": "wrangler deploy",
+    "dev": "astro dev",
+    "preview": "astro build && wrangler dev",
+    "migration:check": "wrangler d1 migrations apply mythcanvas-db --local"
+  },
+  "type": "module"
 }
