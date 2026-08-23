@@ -2,6 +2,11 @@
 import { Bell, Search, Sparkles, UserRound } from '@lucide/astro';
 import ThemeToggle from './ui/ThemeToggle.astro';
 
+interface Props {
+  immersive?: boolean;
+}
+
+const { immersive = false } = Astro.props;
 const pathname = Astro.url.pathname;
 const navItems = [
   { label: '首页', href: '/' },
@@ -15,7 +20,7 @@ const navItems = [
 const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
 ---
 
-<header class="site-header">
+<header class:list={{ 'site-header': true, 'site-header--immersive': immersive }}>
   <div class="container-wide header-row">
     <a class="brand" href="/" aria-label="绘世神域 MythCanvas 首页">
       <span class="brand-mark" aria-hidden="true"><Sparkles size={15} strokeWidth={1.8} /></span>
@@ -31,7 +36,7 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
     <div class="header-actions">
       <a class="header-icon" href="/search/" aria-label="搜索"><Search size={18} strokeWidth={1.8} aria-hidden="true" /></a>
       <a class="header-icon" href="/my/" aria-label="通知"><Bell size={18} strokeWidth={1.8} aria-hidden="true" /></a>
-      <ThemeToggle />
+      <span class="theme-control"><ThemeToggle /></span>
       <a class="avatar" href="/my/" aria-label="我的宇宙"><UserRound size={17} strokeWidth={1.8} aria-hidden="true" /></a>
     </div>
   </div>
@@ -54,12 +59,36 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
   .header-icon, .avatar { display: grid; width: 30px; height: 30px; place-items: center; color: var(--text-secondary); transition: color var(--transition-fast), transform var(--transition-fast); }
   .header-icon:hover, .avatar:hover { color: var(--accent-strong); transform: translateY(-1px); }
   .avatar { border: 1px solid var(--border-strong); border-radius: 50%; color: var(--text-primary); background: var(--surface); }
+  .theme-control { display: contents; }
+
+  .site-header--immersive {
+    position: absolute;
+    inset: 0 0 auto;
+    border-bottom: 0;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--bg-primary) 36%, transparent), transparent);
+    backdrop-filter: none;
+  }
+  .site-header--immersive .header-row { min-height: clamp(64px, 7.6vw, 78px); }
+  .site-header--immersive .brand-mark { display: none; }
+  .site-header--immersive .brand-copy { text-shadow: 0 2px 18px color-mix(in srgb, var(--bg-primary) 48%, transparent); }
+  .site-header--immersive .brand-copy strong { font-size: 1.18rem; letter-spacing: .08em; }
+  .site-header--immersive .brand-copy span { color: var(--text-secondary); font-size: .63rem; letter-spacing: .055em; }
+  .site-header--immersive .main-nav a { padding-block: 1.1rem; text-shadow: 0 1px 14px color-mix(in srgb, var(--bg-primary) 55%, transparent); }
+  .site-header--immersive .main-nav a::after { display: none; }
+  .site-header--immersive .header-icon,
+  .site-header--immersive .avatar { color: var(--text-primary); filter: drop-shadow(0 1px 8px color-mix(in srgb, var(--bg-primary) 42%, transparent)); }
+  .site-header--immersive .avatar { border-color: color-mix(in srgb, var(--text-primary) 26%, transparent); background: color-mix(in srgb, var(--surface) 58%, transparent); backdrop-filter: blur(10px); }
+  .site-header--immersive .theme-control { display: none; }
+
   @media (max-width: 820px) {
     .header-row { grid-template-columns: 1fr auto; gap: var(--space-3); padding-block: .6rem; }
     .main-nav { grid-column: 1 / -1; order: 3; width: 100%; justify-content: flex-start; gap: var(--space-6); overflow-x: auto; scrollbar-width: none; }
     .main-nav::-webkit-scrollbar { display: none; }
     .main-nav a { padding-block: .45rem .75rem; white-space: nowrap; }
     .main-nav a::after { bottom: .35rem; }
+    .site-header--immersive { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg-primary) 56%, transparent), transparent); }
+    .site-header--immersive .header-row { min-height: 62px; padding-block: .45rem; }
+    .site-header--immersive .main-nav { gap: var(--space-5); }
   }
-  @media (max-width: 560px) { .brand-copy strong { font-size: .96rem; } .header-icon { display: none; } .header-actions { gap: .25rem; } }
+  @media (max-width: 560px) { .brand-copy strong { font-size: .96rem; } .header-icon { display: none; } .header-actions { gap: .25rem; } .site-header--immersive .brand-copy strong { font-size: 1rem; } }
 </style>
