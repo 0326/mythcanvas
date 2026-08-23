@@ -1,4 +1,5 @@
 ---
+import { Bell, Search, Sparkles, UserRound } from '@lucide/astro';
 import ThemeToggle from './ui/ThemeToggle.astro';
 
 const pathname = Astro.url.pathname;
@@ -17,7 +18,7 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
 <header class="site-header">
   <div class="container-wide header-row">
     <a class="brand" href="/" aria-label="绘神宇宙 MythCanvas 首页">
-      <span class="brand-mark" aria-hidden="true"><span>✦</span></span>
+      <span class="brand-mark" aria-hidden="true"><Sparkles size={15} strokeWidth={1.8} /></span>
       <span class="brand-copy"><strong class="brand-serif">绘神宇宙</strong><span>MythCanvas</span></span>
     </a>
 
@@ -28,10 +29,10 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
     </nav>
 
     <div class="header-actions">
-      <a class="header-icon" href="/search/" aria-label="搜索">⌕</a>
-      <a class="header-icon header-bell" href="/my/" aria-label="通知">♧</a>
+      <a class="header-icon" href="/search/" aria-label="搜索"><Search size={18} strokeWidth={1.8} aria-hidden="true" /></a>
+      <a class="header-icon" href="/my/" aria-label="通知"><Bell size={18} strokeWidth={1.8} aria-hidden="true" /></a>
       <ThemeToggle />
-      <a class="avatar" href="/my/" aria-label="我的宇宙">我</a>
+      <a class="avatar" href="/my/" aria-label="我的宇宙"><UserRound size={17} strokeWidth={1.8} aria-hidden="true" /></a>
     </div>
   </div>
 </header>
@@ -41,7 +42,6 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
   .header-row { min-height: var(--header-height); display: grid; grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr); align-items: center; gap: var(--space-6); }
   .brand { display: inline-flex; width: fit-content; align-items: center; gap: var(--space-3); }
   .brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid var(--border-strong); border-radius: 50%; color: var(--accent-strong); background: var(--surface); box-shadow: inset 0 0 0 5px color-mix(in srgb, var(--accent) 5%, transparent); }
-  .brand-mark span { font-size: .75rem; }
   .brand-copy { display: grid; line-height: 1.05; }
   .brand-copy strong { font-size: 1.06rem; font-weight: 700; }
   .brand-copy span { margin-top: 3px; color: var(--text-muted); font-family: Georgia, serif; font-size: .66rem; letter-spacing: .04em; }
@@ -51,10 +51,9 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
   .main-nav a:hover, .main-nav a:focus-visible, .main-nav a.active { color: var(--text-primary); }
   .main-nav a:hover::after, .main-nav a:focus-visible::after, .main-nav a.active::after { transform: scaleX(1); }
   .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); }
-  .header-icon, .avatar { display: grid; width: 30px; height: 30px; place-items: center; color: var(--text-secondary); font-size: 1.15rem; transition: color var(--transition-fast), transform var(--transition-fast); }
+  .header-icon, .avatar { display: grid; width: 30px; height: 30px; place-items: center; color: var(--text-secondary); transition: color var(--transition-fast), transform var(--transition-fast); }
   .header-icon:hover, .avatar:hover { color: var(--accent-strong); transform: translateY(-1px); }
-  .header-bell { font-size: 1rem; }
-  .avatar { border: 1px solid var(--border-strong); border-radius: 50%; color: var(--text-primary); background: var(--surface); font-size: .7rem; font-weight: 700; }
+  .avatar { border: 1px solid var(--border-strong); border-radius: 50%; color: var(--text-primary); background: var(--surface); }
   @media (max-width: 820px) {
     .header-row { grid-template-columns: 1fr auto; gap: var(--space-3); padding-block: .6rem; }
     .main-nav { grid-column: 1 / -1; order: 3; width: 100%; justify-content: flex-start; gap: var(--space-6); overflow-x: auto; scrollbar-width: none; }
