@@ -148,13 +148,12 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
   )}
 </BaseLayout>
 
-<script is:inline>
+<script is:inline define:vars={{ artworkId: artwork.id }}>
   (() => {
     // —— 下载规格菜单 + 下载统计 ——
     const toggle = document.querySelector('[data-download-toggle]');
     const menu = document.querySelector('[data-download-menu]');
     const link = document.querySelector('[data-download-link]');
-    const artworkId = {artwork.id};
     if (toggle && menu) {
       toggle.addEventListener('click', (e) => {
         e.preventDefault();

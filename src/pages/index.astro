@@ -45,19 +45,30 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
           <em>MythCanvas</em>
         </h1>
         <p class="hero-slogan">用 AI 重现神话世界</p>
-        <p class="hero-intro">从云海天宫到奥林匹斯，从诸神到神兽。探索传说中的世界，并重新绘制属于你的版本。</p>
+        <p class="hero-intro">探索诸神、神域与传说中的世界，创造属于你的神话视觉。</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="/explore/">探索神境 <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" /></a>
           <a class="btn btn-secondary" href="/create/">开始绘神</a>
         </div>
-        <div class="hero-mythologies" aria-label="首发神话文明">
-          {featuredMythologies.map((mythology) => (
-            <a href={`/mythology/${mythology.slug}/`}>{mythology.name}</a>
-          ))}
-        </div>
       </div>
     </div>
     <div class="hero-scroll" aria-hidden="true"><span></span>向下探索</div>
+  </section>
+
+  <section class="civilization-section" aria-labelledby="civilization-title">
+    <div class="container-wide">
+      <div class="civilization-heading">
+        <div><span class="small-caps">Civilization Visual DNA</span><h2 id="civilization-title">文明与神话</h2></div>
+        <p>每一种文明，都有自己的 Visual DNA</p>
+      </div>
+      <div class="civilization-strip">
+        {featuredMythologies.map((mythology) => (
+          <a class="civilization-tile" href={`/mythology/${mythology.slug}/`} style={`--tile-image: url('${mythology.heroImage.src}')`}>
+            <span class="tile-sheen"></span><strong>{mythology.name}</strong><small>{mythology.visualDna.motifs.slice(0, 2).join(' · ')}</small>
+          </a>
+        ))}
+      </div>
+    </div>
   </section>
 
   <section class="section" id="realms">
@@ -155,7 +166,7 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
 <style>
   .hero {
     position: relative;
-    min-height: min(720px, calc(100svh - 20px));
+    min-height: min(620px, calc(100svh - 20px));
     display: grid;
     align-items: center;
     overflow: hidden;
@@ -173,7 +184,7 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
 
   .hero-art img {
     object-fit: cover;
-    object-position: center 42%;
+    object-position: center 32%;
     transition: opacity var(--transition-base), transform 12s ease;
   }
 
@@ -195,22 +206,31 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
 
   .hero-overlay {
     z-index: 1;
-    background: var(--hero-overlay), linear-gradient(to top, var(--bg-primary) 0%, transparent 32%);
+    background:
+      radial-gradient(circle at 50% 45%, transparent 0%, color-mix(in srgb, var(--bg-primary) 14%, transparent) 46%, var(--bg-primary) 100%),
+      linear-gradient(to top, color-mix(in srgb, var(--bg-primary) 44%, transparent), transparent 40%),
+      var(--hero-overlay);
   }
 
   .hero-content {
     position: relative;
     z-index: 2;
-    padding-block: clamp(5rem, 10vw, 8rem);
+    display: grid;
+    place-items: center;
+    width: 100%;
+    padding-block: clamp(4rem, 9vw, 7rem);
   }
 
   .hero-copy {
     max-width: 620px;
+    margin-inline: auto;
+    text-align: center;
   }
 
   .hero h1 {
     display: grid;
     margin: 0;
+    justify-items: center;
   }
 
   .hero h1 > span {
@@ -244,6 +264,7 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
 
   .hero-intro {
     max-width: 34rem;
+    margin-inline: auto;
     margin: var(--space-4) 0 0;
     color: var(--text-secondary);
     font-size: 1rem;
@@ -253,26 +274,8 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-3);
-    margin-top: var(--space-8);
-  }
-
-  .hero-mythologies {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    margin-top: var(--space-8);
-  }
-
-  .hero-mythologies a {
-    color: var(--text-secondary);
-    font-size: 0.78rem;
-    font-weight: 650;
-  }
-
-  .hero-mythologies a + a::before {
-    content: '·';
-    margin-right: var(--space-4);
-    color: var(--accent);
+    justify-content: center;
+    margin-top: var(--space-7);
   }
 
   .hero-scroll {
@@ -298,6 +301,17 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
     border-block: 1px solid var(--border);
     background: color-mix(in srgb, var(--bg-secondary) 66%, transparent);
   }
+
+  .civilization-section { padding-block: 1.2rem 2.4rem; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--bg-secondary) 65%, transparent); }
+  .civilization-heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-bottom: .85rem; }
+  .civilization-heading h2 { display: inline; margin: 0 0 0 .8rem; font-family: var(--font-serif); font-size: 1.2rem; }
+  .civilization-heading p { margin: 0; color: var(--text-muted); font-size: .72rem; }
+  .civilization-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .65rem; }
+  .civilization-tile { position: relative; min-height: 92px; display: flex; flex-direction: column; justify-content: end; overflow: hidden; padding: .7rem; border: 1px solid var(--border); border-radius: 8px; color: white; background: var(--tile-image) center / cover; }
+  .civilization-tile::after, .tile-sheen { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(6, 16, 26, .82), rgba(6, 16, 26, .04) 78%); }
+  .civilization-tile strong, .civilization-tile small { position: relative; z-index: 1; }
+  .civilization-tile strong { font-family: var(--font-serif); font-size: .88rem; }
+  .civilization-tile small { margin-top: .15rem; color: rgba(255,255,255,.78); font-size: .62rem; }
 
   .realm-grid {
     display: grid;
@@ -469,9 +483,7 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
       min-height: 680px;
     }
 
-    .hero-art img {
-      object-position: 62% center;
-    }
+    .hero-art img { object-position: 58% center; }
 
     .hero-scroll {
       display: none;
@@ -480,6 +492,8 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
     .mythology-grid {
       grid-template-columns: 1fr;
     }
+
+    .civilization-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     .artwork-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));

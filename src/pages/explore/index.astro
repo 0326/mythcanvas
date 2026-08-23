@@ -45,8 +45,8 @@ const contentTypes = [
       <span class="eyebrow">Explore MythCanvas</span>
       <div class="explore-title-row">
         <div>
-          <h1>探索神话世界</h1>
-          <p>文化决定“是谁”，画风决定“怎么画”。在统一的 MythCanvas 体验中发现不同文明的 Visual DNA。</p>
+          <h1>探索</h1>
+          <p>探索神话世界，发现角色、神域与视觉作品。</p>
         </div>
         <div class="explore-seal" aria-hidden="true"><span>神</span></div>
       </div>
@@ -221,27 +221,30 @@ const contentTypes = [
 </script>
 
 <style>
-  .explore-hero { position: relative; overflow: hidden; padding-block: clamp(4.5rem, 8vw, 8rem) clamp(3rem, 5vw, 5rem); border-bottom: 1px solid var(--border); }
-  .explore-hero::after { content: ''; position: absolute; width: min(720px, 72vw); aspect-ratio: 1; right: -18%; top: -72%; border: 1px solid var(--border); border-radius: 50%; box-shadow: 0 0 0 70px color-mix(in srgb, var(--accent) 4%, transparent), 0 0 0 140px color-mix(in srgb, var(--jade) 3%, transparent); pointer-events: none; }
+  .explore-hero { position: relative; overflow: hidden; padding-block: 2rem 1.3rem; border-bottom: 1px solid var(--border); }
+  .explore-hero::after { content: ''; position: absolute; width: min(520px, 48vw); aspect-ratio: 1; right: -15%; top: -220%; border: 1px solid var(--border); border-radius: 50%; box-shadow: 0 0 0 56px color-mix(in srgb, var(--accent) 4%, transparent), 0 0 0 112px color-mix(in srgb, var(--jade) 3%, transparent); pointer-events: none; }
   .explore-title-row { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: var(--space-10); }
   .explore-title-row > div:first-child { max-width: 760px; }
-  h1 { margin: 0; font-size: clamp(3rem, 6vw, 5rem); }
-  .explore-title-row p { max-width: 42rem; margin: var(--space-5) 0 0; color: var(--text-secondary); }
-  .explore-seal { display: grid; width: 98px; height: 98px; place-items: center; flex: 0 0 auto; border: 1px solid var(--border-strong); border-radius: 50%; color: var(--accent-strong); background: var(--surface); box-shadow: inset 0 0 0 14px color-mix(in srgb, var(--accent) 5%, transparent); font-family: var(--font-serif); font-size: 2rem; }
-  .filter-panel { display: grid; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-lg); }
-  .filter-search { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(260px, 360px); align-items: center; gap: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border); }
+  h1 { margin: 0; font-size: clamp(2.4rem, 4vw, 3.5rem); }
+  .explore-title-row p { max-width: 42rem; margin: .45rem 0 0; color: var(--text-secondary); font-size: .85rem; }
+  .explore-seal { display: none; }
+  .filter-panel { display: grid; gap: .55rem; padding: 1rem 0 0; border-radius: 0; background: transparent; border: 0; box-shadow: none; backdrop-filter: none; }
+  .filter-search { display: grid; grid-template-columns: 1fr minmax(260px, 340px); align-items: center; gap: var(--space-4); padding-bottom: .8rem; border-bottom: 1px solid var(--border); }
   .filter-search input { min-height: 38px; padding: .55rem .75rem; border: 1px solid var(--border); border-radius: 5px; color: var(--text-primary); background: var(--surface); outline: none; }
   .filter-search input:focus { border-color: var(--border-strong); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 16%, transparent); }
-  .filter-row { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: var(--space-4); align-items: center; }
-  .filter-label { color: var(--text-muted); font-size: 0.78rem; font-weight: 700; }
+  .filter-row { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: .75rem; align-items: center; }
+  .filter-label { color: var(--text-muted); font-size: 0.7rem; font-weight: 700; }
   .filter-scroll { display: flex; gap: var(--space-2); min-width: 0; overflow-x: auto; scrollbar-width: none; }
   .filter-scroll::-webkit-scrollbar { display: none; }
   button.chip { cursor: pointer; }
-  .results-head { display: flex; align-items: end; justify-content: space-between; margin: clamp(3rem, 6vw, 5rem) 0 var(--space-6); }
-  .results-head h2 { margin: var(--space-1) 0 0; font-size: clamp(2rem, 3vw, 2.8rem); }
+  .results-head { display: flex; align-items: end; justify-content: space-between; margin: 2rem 0 1rem; }
+  .results-head h2 { margin: var(--space-1) 0 0; font-size: clamp(1.6rem, 2.4vw, 2.2rem); }
   .results-head p { margin: 0; color: var(--text-muted); font-size: 0.82rem; }
   .results-head strong { color: var(--accent-strong); font-size: 1rem; }
-  .artwork-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5) var(--space-4); }
+  .artwork-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .artwork-grid :global(.image-wrap) { aspect-ratio: 16 / 10; border-radius: 8px 8px 0 0; box-shadow: none; }
+  .artwork-grid :global(.copy) { margin-top: -1px; padding: .65rem .7rem .75rem; border: 1px solid var(--border); border-top: 0; border-radius: 0 0 8px 8px; background: var(--surface); }
+  .artwork-grid :global(.copy h3) { font-size: .86rem; }
   .empty-state { margin-top: var(--space-8); padding: var(--space-16) var(--space-6); border-radius: var(--radius-lg); text-align: center; }
   .empty-state > span { display: block; margin-bottom: var(--space-3); color: var(--accent); font-size: 2.4rem; }
   .empty-state h3 { margin-bottom: var(--space-2); }
