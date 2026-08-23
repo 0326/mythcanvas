@@ -37,6 +37,9 @@ q {
 
 /* Existing MythCanvas narrative surfaces migrated to the literary role. */
 .hero-copy > p,
+.entity-copy > p,
+.realm-hero-copy > p,
+.character-copy .summary,
 .section-heading p,
 .mythology-heading p,
 .myth-card .copy > p,
