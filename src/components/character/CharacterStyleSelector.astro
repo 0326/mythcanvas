@@ -30,7 +30,7 @@ const styleHref = (styleId: CharacterStyleId) => {
       data-style-filter={style.id}
       data-style-label={style.name}
       data-style-description={style.description}
-      aria-pressed={style.id === selectedStyleId ? 'true' : 'false'}
+      aria-current={style.id === selectedStyleId ? 'true' : 'false'}
     >
       <span class="style-swatch" aria-hidden="true"></span>
       <div class="style-copy">

@@ -36,18 +36,3 @@ export async function getCharacterVariants(
     .all();
   return rows.results.map(mapCharacterVariantRow);
 }
-
-export async function getCharacterVariantBySlug(
-  db: D1Database | undefined,
-  characterId: string,
-  slug: string,
-): Promise<CharacterVariant | undefined> {
-  if (!db) return seedCharacterVariants.find((variant) => variant.characterId === characterId && variant.slug === slug);
-  const row = await db
-    .prepare(
-      `SELECT ${SELECT_COLUMNS} FROM character_variants WHERE character_id = ? AND slug = ? AND status = 'active'`,
-    )
-    .bind(characterId, slug)
-    .first();
-  return row ? mapCharacterVariantRow(row) : undefined;
-}

@@ -86,14 +86,14 @@ const searchValue = requestedQuery;
               class:list={{ 'filter-option': true, 'is-active': selectedMythology === '' }}
               href={filterHref('')}
               data-mythology-filter=""
-              aria-pressed={selectedMythology === '' ? 'true' : 'false'}
+              aria-current={selectedMythology === '' ? 'true' : 'false'}
             >全部</a>
             {mythologies.map((mythology) => (
               <a
                 class:list={{ 'filter-option': true, 'is-active': mythology.slug === selectedMythology }}
                 href={filterHref(mythology.slug)}
                 data-mythology-filter={mythology.slug}
-                aria-pressed={mythology.slug === selectedMythology ? 'true' : 'false'}
+                aria-current={mythology.slug === selectedMythology ? 'true' : 'false'}
               >{mythology.name}</a>
             ))}
           </div>
@@ -115,8 +115,9 @@ const searchValue = requestedQuery;
       </div>
     </section>
 
-    <section class="section-compact gallery-section" aria-label="角色列表">
+    <section class="section-compact gallery-section" aria-labelledby="gallery-heading">
       <div class="container-wide">
+        <h2 id="gallery-heading" class="sr-only">全部角色</h2>
         {characters.length > 0 ? (
           <div class="character-grid" data-character-grid>
             {characters.map((character) => {
@@ -182,7 +183,7 @@ const searchValue = requestedQuery;
         const value = link.getAttribute('data-mythology-filter') ?? '';
         const active = value === mythology;
         link.classList.toggle('is-active', active);
-        link.setAttribute('aria-pressed', String(active));
+        link.setAttribute('aria-current', String(active));
       });
       if (root) root.dataset.selectedMythology = mythology;
       if (emptyState) emptyState.hidden = visibleCount > 0;
@@ -304,6 +305,7 @@ const searchValue = requestedQuery;
   }
   .character-cell[hidden] { display: none; }
 
+  .gallery-empty[hidden] { display: none; }
   .gallery-empty {
     display: flex;
     flex-direction: column;

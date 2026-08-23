@@ -129,7 +129,7 @@ const buildCreateHref = (
         name: character.name,
         alternateName: character.nameEn,
         description: character.summary,
-        image: character.portrait ? new URL(character.portrait.src, Astro.site).toString() : undefined,
+        image: heroImage ? new URL(heroImage.src, Astro.site).toString() : undefined,
       },
       {
         '@context': 'https://schema.org',
@@ -256,20 +256,14 @@ const buildCreateHref = (
     const emptyStyleName = emptyState?.querySelector('[data-empty-style-name]');
     const wallpapersSection = page?.querySelector('#wallpapers');
 
-    const styleDescriptions: Record<string, string> = {
-      canonical: '保留角色最稳定的神话身份与视觉锚点。',
-      cinematic: '以电影感写实光影与氛围深度强化角色神性与史诗感。',
-      sacred: '以克制神光、仪式感和空灵氛围强化神性。',
-      anime: '以清晰线稿和插画式光影呈现角色。',
-      'dark-fantasy': '使用深色层次和神秘氛围，但不走恐怖化路线。',
-      'cyber-myth': '融合未来材质与光几何，同时保留文明身份。',
-    };
-
     const styleLabels = new Map<string, string>();
+    const styleDescriptions = new Map<string, string>();
     styleLinks.forEach((link) => {
       const id = link.getAttribute('data-style-filter');
       const label = link.getAttribute('data-style-label');
       if (id && label) styleLabels.set(id, label);
+      const description = link.getAttribute('data-style-description');
+      if (id && description) styleDescriptions.set(id, description);
     });
 
     const setUrlState = (variant: string, style: string, device: string) => {
@@ -311,17 +305,17 @@ const buildCreateHref = (
       variantLinks.forEach((link) => {
         const active = (link.getAttribute('data-variant-filter') ?? '') === variant;
         link.classList.toggle('is-active', active);
-        link.setAttribute('aria-pressed', String(active));
+        link.setAttribute('aria-current', String(active));
       });
       styleLinks.forEach((link) => {
         const active = link.getAttribute('data-style-filter') === style;
         link.classList.toggle('is-active', active);
-        link.setAttribute('aria-pressed', String(active));
+        link.setAttribute('aria-current', String(active));
       });
       deviceLinks.forEach((link) => {
         const active = link.getAttribute('data-device-filter') === device;
         link.classList.toggle('is-active', active);
-        link.setAttribute('aria-pressed', String(active));
+        link.setAttribute('aria-current', String(active));
       });
 
       const label = styleLabels.get(style) ?? style;

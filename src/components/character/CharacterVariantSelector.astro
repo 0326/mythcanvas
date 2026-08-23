@@ -30,11 +30,11 @@ const portraitImage: ImageAsset | undefined = character.portrait;
 
 <div class="variant-selector" role="group" aria-label="选择角色形态">
   <a
-    class:list={{ 'variant-card': true, 'is-active': selectedVariantSlug === '' }}
-    href={variantHref('')}
-    data-variant-filter=""
-    aria-pressed={selectedVariantSlug === '' ? 'true' : 'false'}
-  >
+      class:list={{ 'variant-card': true, 'is-active': selectedVariantSlug === '' }}
+      href={variantHref('')}
+      data-variant-filter=""
+      aria-current={selectedVariantSlug === '' ? 'true' : 'false'}
+    >
     <div class="variant-visual">
       {portraitImage ? (
         <img
@@ -63,7 +63,7 @@ const portraitImage: ImageAsset | undefined = character.portrait;
         class:list={{ 'variant-card': true, 'is-active': variant.slug === selectedVariantSlug }}
         href={variantHref(variant.slug)}
         data-variant-filter={variant.slug}
-        aria-pressed={variant.slug === selectedVariantSlug ? 'true' : 'false'}
+        aria-current={variant.slug === selectedVariantSlug ? 'true' : 'false'}
       >
         <div class="variant-visual">
           {previewSrc ? (

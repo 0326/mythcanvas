@@ -68,7 +68,7 @@ const deviceLabels: Record<DeviceFilter, string> = {
           class:list={{ 'filter-option': true, 'is-active': device === selectedDevice }}
           href={deviceHref(device)}
           data-device-filter={device}
-          aria-pressed={device === selectedDevice ? 'true' : 'false'}
+          aria-current={device === selectedDevice ? 'true' : 'false'}
         >{deviceLabels[device]}</a>
       ))}
     </div>
@@ -155,6 +155,7 @@ const deviceLabels: Record<DeviceFilter, string> = {
   .wallpaper-copy h3 { margin: 0; font-size: .92rem; }
   .wallpaper-copy p { margin: .22rem 0 0; color: var(--text-muted); font-size: .72rem; }
 
+  .wallpaper-empty[hidden] { display: none; }
   .wallpaper-empty { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin: 3rem 0; color: var(--text-secondary); text-align: center; }
   .wallpaper-empty-title { margin: 0; }
   .wallpaper-empty-cta { margin-top: .4rem; }

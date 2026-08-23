@@ -10,7 +10,7 @@ const { character, mythology } = Astro.props;
 const primarySymbol = character.symbols[0] ?? '✦';
 ---
 
-<article class="character-card surface" data-character-card>
+<article class="character-card surface">
   <a href={`/character/${character.slug}/`} aria-label={`${character.name} · ${character.nameEn}`}>
     <div class="portrait">
       {character.portrait ? (
