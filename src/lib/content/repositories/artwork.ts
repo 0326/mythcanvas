@@ -78,6 +78,11 @@ function applySeedFilters(list: Artwork[], query: ArtworkListQuery): Artwork[] {
   return result.slice(offset, offset + limit);
 }
 
+function isMissingRankingColumnError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /no such column[^\n]*(featured|favorite_count|download_count|published_at)/i.test(message);
+}
+
 export async function getArtworks(db: D1Database | undefined, query: ArtworkListQuery = {}): Promise<Artwork[]> {
   if (!db) return applySeedFilters(seedArtworks, query);
 
@@ -131,10 +136,21 @@ export async function getArtworks(db: D1Database | undefined, query: ArtworkList
       ? '(a.favorite_count * 3 + a.download_count) DESC, a.favorite_count DESC, a.download_count DESC, COALESCE(a.published_at, a.created_at) DESC, a.id'
       : 'COALESCE(a.published_at, a.created_at) DESC, a.id';
 
-  const rows = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks a${join}${whereSql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`)
-    .bind(...values, limit, offset)
-    .all();
+  let rows;
+  try {
+    rows = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks a${join}${whereSql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`)
+      .bind(...values, limit, offset)
+      .all();
+  } catch (error) {
+    // 线上 D1 可能尚未应用 0005_user_features.sql。排序增强字段缺失时先降级到旧 Schema，
+    // 保证 Explore 可用；待迁移补齐后自动恢复推荐/热门排序，无需再次改代码。
+    if (!isMissingRankingColumnError(error)) throw error;
+    rows = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks a${join}${whereSql} ORDER BY a.created_at DESC, a.id LIMIT ? OFFSET ?`)
+      .bind(...values, limit, offset)
+      .all();
+  }
 
   const characterMap = await loadCharacterIds(db, rows.results.map((row) => String(row.id)));
   return rows.results.map((row) => mapArtworkRow(row, characterMap.get(String(row.id)) ?? []));
