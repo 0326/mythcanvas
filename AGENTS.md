@@ -168,7 +168,15 @@ Respect `prefers-color-scheme` for first visit; persist explicit user selection.
 - support `prefers-reduced-motion`
 - avoid excessive blur/glass effects that reduce legibility
 
-For any significant UI task, read `.agents/skills/mythcanvas-product-ux/SKILL.md`.
+For **every significant UI task**, read `.agents/skills/mythcanvas-product-ux/SKILL.md` before editing.
+
+For any task that supplies a screenshot, Figma frame, design mockup, or asks to “还原 / reproduce / match / pixel perfect”:
+
+- treat the visual reference as the acceptance target, not loose inspiration;
+- follow the skill's mandatory `analyze → implement → render → screenshot → compare → repair → screenshot again` loop;
+- perform at least two rendered visual verification passes when browser/screenshot tooling is available;
+- do not claim “pixel perfect” unless an actual rendered comparison was performed;
+- preserve route/data/API/SEO behavior while fixing visual fidelity.
 
 ---
 
@@ -267,7 +275,8 @@ Before finishing:
 3. Verify mobile and desktop.
 4. Verify no core SEO content requires hydration.
 5. Verify image semantics and no obvious layout shift.
-6. Summarize files changed and any follow-up technical debt.
+6. For visual-reference tasks, complete the screenshot comparison loop in `mythcanvas-product-ux`; compile/test success alone is not visual acceptance.
+7. Summarize files changed and any follow-up technical debt.
 
 ---
 
