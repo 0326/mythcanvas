@@ -47,6 +47,14 @@ const contentTypes = [
         <div>
           <h1>探索</h1>
           <p>探索神话世界，发现角色、神域与视觉作品。</p>
+          <nav class="explore-tabs" aria-label="探索分类">
+            <a class="is-active" href="/explore/" aria-current="page">推荐</a>
+            <a href="/realm/">世界</a>
+            <a href="/character/">角色</a>
+            <a href="/explore/?type=scene">事件</a>
+            <a href="/explore/?style=canonical">传说</a>
+            <a href="/mythology/">文明</a>
+          </nav>
         </div>
         <div class="explore-seal" aria-hidden="true"><span>神</span></div>
       </div>
@@ -225,10 +233,16 @@ const contentTypes = [
   .explore-hero::after { content: ''; position: absolute; width: min(520px, 48vw); aspect-ratio: 1; right: -15%; top: -220%; border: 1px solid var(--border); border-radius: 50%; box-shadow: 0 0 0 56px color-mix(in srgb, var(--accent) 4%, transparent), 0 0 0 112px color-mix(in srgb, var(--jade) 3%, transparent); pointer-events: none; }
   .explore-title-row { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: var(--space-10); }
   .explore-title-row > div:first-child { max-width: 760px; }
+  .explore-tabs { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: .9rem; }
+  .explore-tabs a { position: relative; padding-bottom: .45rem; color: var(--text-secondary); font-size: .76rem; }
+  .explore-tabs a::after { content: ''; position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform var(--transition-fast); }
+  .explore-tabs a:hover, .explore-tabs a:focus-visible, .explore-tabs a.is-active { color: var(--text-primary); }
+  .explore-tabs a:hover::after, .explore-tabs a:focus-visible::after, .explore-tabs a.is-active::after { transform: scaleX(1); }
   h1 { margin: 0; font-size: clamp(2.4rem, 4vw, 3.5rem); }
   .explore-title-row p { max-width: 42rem; margin: .45rem 0 0; color: var(--text-secondary); font-size: .85rem; }
   .explore-seal { display: none; }
-  .filter-panel { display: grid; gap: .55rem; padding: 1rem 0 0; border-radius: 0; background: transparent; border: 0; box-shadow: none; backdrop-filter: none; }
+  .explore-content { padding-block: 1.15rem 3.5rem; }
+  .filter-panel { display: grid; gap: .55rem; padding: .15rem 0 0; border-radius: 0; background: transparent; border: 0; box-shadow: none; backdrop-filter: none; }
   .filter-search { display: grid; grid-template-columns: 1fr minmax(260px, 340px); align-items: center; gap: var(--space-4); padding-bottom: .8rem; border-bottom: 1px solid var(--border); }
   .filter-search input { min-height: 38px; padding: .55rem .75rem; border: 1px solid var(--border); border-radius: 5px; color: var(--text-primary); background: var(--surface); outline: none; }
   .filter-search input:focus { border-color: var(--border-strong); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 16%, transparent); }
@@ -237,7 +251,7 @@ const contentTypes = [
   .filter-scroll { display: flex; gap: var(--space-2); min-width: 0; overflow-x: auto; scrollbar-width: none; }
   .filter-scroll::-webkit-scrollbar { display: none; }
   button.chip { cursor: pointer; }
-  .results-head { display: flex; align-items: end; justify-content: space-between; margin: 2rem 0 1rem; }
+  .results-head { display: flex; align-items: end; justify-content: space-between; margin: 1.6rem 0 1rem; }
   .results-head h2 { margin: var(--space-1) 0 0; font-size: clamp(1.6rem, 2.4vw, 2.2rem); }
   .results-head p { margin: 0; color: var(--text-muted); font-size: 0.82rem; }
   .results-head strong { color: var(--accent-strong); font-size: 1rem; }
