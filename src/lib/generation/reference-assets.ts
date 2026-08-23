@@ -82,22 +82,25 @@ export async function loadGenerationReferenceImages(
   // Variant-specific references should override equivalent canonical slots while
   // canonical references continue to anchor identity for slots the variant does not replace.
   const ordered = dedupeReferenceSlots(records, variantId).slice(0, maxImages);
-  const loaded = await Promise.all(ordered.map(async (record) => {
+  const loaded: GenerationReferenceImage[] = [];
+
+  for (const record of ordered) {
     try {
       const object = await bucket.get(record.assetKey);
-      if (!object) return undefined;
-      return {
+      if (!object) continue;
+      const buffer = await object.arrayBuffer();
+      loaded.push({
         id: record.id,
         assetType: record.assetType,
         mimeType: record.mimeType || object.httpMetadata?.contentType || 'image/png',
-        bytes: new Uint8Array(await object.arrayBuffer()),
-      } satisfies GenerationReferenceImage;
+        bytes: new Uint8Array(buffer),
+      });
     } catch {
-      return undefined;
+      // A missing/corrupt reference must not make the Creator unusable.
     }
-  }));
+  }
 
-  return loaded.filter((item): item is GenerationReferenceImage => Boolean(item));
+  return loaded;
 }
 
 export async function insertReferenceAsset(
