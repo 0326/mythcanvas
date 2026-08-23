@@ -11,19 +11,24 @@
 }
 
 html {
-  min-width: var(--site-min-width);
   background: var(--bg-primary);
   scroll-behavior: smooth;
 }
 
 body {
-  min-width: var(--site-min-width);
   min-height: 100vh;
   margin: 0;
   color: var(--text-primary);
   background: var(--page-glow);
   overflow-wrap: break-word;
   transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+@media (min-width: 1080px) {
+  html,
+  body {
+    min-width: var(--site-min-width);
+  }
 }
 
 body::before {

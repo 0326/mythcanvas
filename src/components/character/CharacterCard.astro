@@ -1,40 +1,40 @@
 ---
-import type { Character } from '../../lib/content/types';
+import type { Character, Mythology } from '../../lib/content/types';
 
 interface Props {
   character: Character;
+  mythology?: Mythology;
 }
 
-const { character } = Astro.props;
+const { character, mythology } = Astro.props;
 const primarySymbol = character.symbols[0] ?? '✦';
 ---
 
-<article class="character-card surface">
-  <a href={`/character/${character.slug}/`}>
-    {character.portrait ? (
-      <div class="portrait portrait-image">
+<article class="character-card surface" data-character-card>
+  <a href={`/character/${character.slug}/`} aria-label={`${character.name} · ${character.nameEn}`}>
+    <div class="portrait">
+      {character.portrait ? (
         <img
           src={character.portrait.src}
-          alt=""
+          alt={`${character.name} 角色肖像`}
           width={character.portrait.width}
           height={character.portrait.height}
           loading="lazy"
+          decoding="async"
         />
-      </div>
-    ) : (
-      <div class="portrait" aria-hidden="true">
-        <div class="moon-ring"></div>
-        <span>{primarySymbol}</span>
-      </div>
-    )}
+      ) : (
+        <div class="portrait-fallback" aria-hidden="true">
+          <div class="moon-ring"></div>
+          <span>{primarySymbol}</span>
+        </div>
+      )}
+      <span class="enter-hint" aria-hidden="true">进入角色 →</span>
+    </div>
     <div class="copy">
-      <span class="role">{character.role}</span>
+      {mythology && <span class="mythology">{mythology.name}</span>}
       <h3>{character.name}</h3>
       <p class="en">{character.nameEn}</p>
-      <p class="summary">{character.summary}</p>
-      <div class="symbols">
-        {character.symbols.slice(0, 4).map((symbol) => <span>{symbol}</span>)}
-      </div>
+      <span class="role">{character.role}</span>
     </div>
   </a>
 </article>
@@ -47,68 +47,42 @@ const primarySymbol = character.symbols[0] ?? '✦';
   }
 
   .character-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     border-color: var(--border-strong);
     box-shadow: var(--shadow-md);
   }
 
   a {
-    display: grid;
-    grid-template-columns: 150px 1fr;
-    min-height: 220px;
+    display: flex;
+    flex-direction: column;
     color: inherit;
   }
 
   .portrait {
     position: relative;
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--surface-muted);
+  }
+
+  .portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    transition: transform var(--transition-slow);
+  }
+
+  .portrait-fallback {
+    position: absolute;
+    inset: 0;
     display: grid;
     place-items: center;
-    overflow: hidden;
     color: var(--accent-strong);
     background:
       radial-gradient(circle at 52% 38%, color-mix(in srgb, var(--moon-white) 80%, transparent), transparent 24%),
       linear-gradient(155deg, var(--cloud-blue), var(--jade-soft));
-  }
-
-  .portrait::before,
-  .portrait::after {
-    content: "";
-    position: absolute;
-    width: 180px;
-    height: 58px;
-    border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
-    border-radius: 50%;
-    transform: rotate(-22deg);
-  }
-
-  .portrait::after {
-    transform: rotate(42deg);
-  }
-
-  .portrait > span {
-    position: relative;
-    z-index: 1;
-    max-width: 90px;
-    padding: var(--space-2);
-    text-align: center;
-    font-family: var(--font-serif);
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  .portrait-image {
-    background: var(--surface-muted);
-  }
-
-  .portrait-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform var(--transition-slow);
-  }
-
-  .character-card:hover .portrait-image img {
-    transform: scale(1.045);
   }
 
   .moon-ring {
@@ -120,56 +94,73 @@ const primarySymbol = character.symbols[0] ?? '✦';
     box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 28%, transparent);
   }
 
-  .copy {
-    padding: var(--space-5) var(--space-6);
-  }
-
-  .role {
-    color: var(--accent-strong);
-    font-size: 0.75rem;
+  .portrait-fallback span {
+    position: relative;
+    z-index: 1;
+    max-width: 90px;
+    padding: var(--space-2);
+    text-align: center;
+    font-family: var(--font-serif);
+    font-size: 1rem;
     font-weight: 700;
   }
 
+  .enter-hint {
+    position: absolute;
+    right: 0.7rem;
+    bottom: 0.7rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-pill);
+    color: #fff;
+    background: rgba(5, 12, 20, 0.42);
+    backdrop-filter: blur(8px);
+    font-size: 0.72rem;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .character-card:hover .portrait img,
+  .character-card:focus-within .portrait img {
+    transform: scale(1.035);
+  }
+
+  .character-card:hover .enter-hint,
+  .character-card:focus-within .enter-hint {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: var(--space-4) var(--space-5) var(--space-5);
+  }
+
+  .mythology {
+    color: var(--accent-strong);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
   h3 {
-    margin: var(--space-2) 0 0;
-    font-size: 1.55rem;
+    margin: 0.15rem 0 0;
+    font-size: 1.4rem;
+    line-height: 1.2;
   }
 
   .en {
-    margin: 0 0 var(--space-3);
+    margin: 0;
     color: var(--text-muted);
     font-family: Georgia, serif;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
   }
 
-  .summary {
-    margin: 0;
+  .role {
+    margin-top: 0.35rem;
     color: var(--text-secondary);
-    font-size: 0.83rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .symbols {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-top: var(--space-4);
-  }
-
-  .symbols span {
-    padding: 0.18rem 0.42rem;
-    border-radius: var(--radius-pill);
-    color: var(--text-muted);
-    background: var(--surface-muted);
-    font-size: 0.7rem;
-  }
-
-  @media (max-width: 520px) {
-    a {
-      grid-template-columns: 104px 1fr;
-    }
+    font-size: 0.78rem;
   }
 </style>

@@ -1,0 +1,98 @@
+---
+import type { Character } from '../../lib/content/types';
+import {
+  characterStyles,
+  type CharacterStyleId,
+} from '../../lib/content/character-styles';
+
+interface Props {
+  character: Character;
+  selectedStyleId: CharacterStyleId;
+  selectedVariantSlug: string;
+}
+
+const { character, selectedStyleId, selectedVariantSlug } = Astro.props;
+
+const styleHref = (styleId: CharacterStyleId) => {
+  const params = new URLSearchParams();
+  if (selectedVariantSlug) params.set('variant', selectedVariantSlug);
+  if (styleId !== 'canonical') params.set('style', styleId);
+  const query = params.toString();
+  return `/character/${character.slug}/${query ? `?${query}` : ''}#forms`;
+};
+---
+
+<div class="style-selector" role="group" aria-label="选择艺术风格">
+  {characterStyles.map((style) => (
+    <a
+      class:list={{ 'style-card': true, 'is-active': style.id === selectedStyleId }}
+      href={styleHref(style.id)}
+      data-style-filter={style.id}
+      data-style-label={style.name}
+      data-style-description={style.description}
+      aria-pressed={style.id === selectedStyleId ? 'true' : 'false'}
+    >
+      <span class="style-swatch" aria-hidden="true"></span>
+      <div class="style-copy">
+        <span class="style-name">{style.name}</span>
+        <span class="style-en">{style.nameEn}</span>
+      </div>
+    </a>
+  ))}
+</div>
+
+<style>
+  .style-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .style-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: inherit;
+    background: var(--surface);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+  }
+  .style-card:hover,
+  .style-card:focus-visible {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-sm);
+  }
+  .style-card.is-active {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .style-swatch {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    background:
+      radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 48%, transparent), transparent 60%),
+      var(--surface-muted);
+  }
+
+  .style-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .style-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .style-en {
+    color: var(--text-muted);
+    font-family: Georgia, serif;
+    font-size: 0.7rem;
+  }
+</style>

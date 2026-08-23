@@ -1,0 +1,171 @@
+---
+import type { Character, ImageAsset } from '../../lib/content/types';
+import type { CharacterStyleId } from '../../lib/content/character-styles';
+
+export type WallpaperDevice = 'pc' | 'mobile';
+export type DeviceFilter = 'all' | WallpaperDevice;
+
+export type ArtworkCard = {
+  id: string;
+  styleId: CharacterStyleId;
+  device: WallpaperDevice;
+  title: string;
+  styleName: string;
+  styleNameEn: string;
+  image: ImageAsset;
+  href: string;
+};
+
+interface Props {
+  character: Character;
+  artworkCards: ArtworkCard[];
+  selectedStyle: CharacterStyleId;
+  selectedStyleName: string;
+  selectedDevice: DeviceFilter;
+  selectedVariantSlug: string;
+  emptyCreateHref: string;
+}
+
+const {
+  character,
+  artworkCards,
+  selectedStyle,
+  selectedStyleName,
+  selectedDevice,
+  selectedVariantSlug,
+  emptyCreateHref,
+} = Astro.props;
+
+const cardMatchesDevice = (card: ArtworkCard, device: DeviceFilter) =>
+  device === 'all' || card.device === device;
+
+const hasVisible = artworkCards.some(
+  (card) => card.styleId === selectedStyle && cardMatchesDevice(card, selectedDevice),
+);
+
+const deviceHref = (device: DeviceFilter) => {
+  const params = new URLSearchParams();
+  if (selectedVariantSlug) params.set('variant', selectedVariantSlug);
+  if (selectedStyle && selectedStyle !== 'canonical') params.set('style', selectedStyle);
+  if (device !== 'all') params.set('device', device);
+  const query = params.toString();
+  return `/character/${character.slug}/${query ? `?${query}` : ''}#wallpapers`;
+};
+
+const deviceLabels: Record<DeviceFilter, string> = {
+  all: '全部',
+  pc: 'PC',
+  mobile: 'Mobile',
+};
+---
+
+<div class="wallpaper-device-bar">
+  <div class="filter-group" role="group" aria-label="选择壁纸设备">
+    <span class="filter-label">设备</span>
+    <div class="filter-options">
+      {(['all', 'pc', 'mobile'] as const).map((device) => (
+        <a
+          class:list={{ 'filter-option': true, 'is-active': device === selectedDevice }}
+          href={deviceHref(device)}
+          data-device-filter={device}
+          aria-pressed={device === selectedDevice ? 'true' : 'false'}
+        >{deviceLabels[device]}</a>
+      ))}
+    </div>
+  </div>
+</div>
+
+{artworkCards.length > 0 ? (
+  <div class="wallpaper-grid" data-wallpaper-grid data-active-device={selectedDevice}>
+    {artworkCards.map((card) => (
+      <article
+        class:list={{ 'wallpaper-card': true, [`wallpaper-style-${card.styleId}`]: true }}
+        data-wallpaper-card
+        data-style={card.styleId}
+        data-device={card.device}
+        hidden={card.styleId !== selectedStyle || !cardMatchesDevice(card, selectedDevice)}
+      >
+        <a href={card.href} aria-label={`${card.title} · ${card.styleName}`}>
+          <div class="wallpaper-visual">
+            <img src={card.image.src} alt={card.image.alt} width={card.image.width} height={card.image.height} loading="lazy" decoding="async" />
+            <span class="wallpaper-shade" aria-hidden="true"></span>
+            <span class="wallpaper-style-badge">{card.styleName}</span>
+            <span class="wallpaper-open">查看壁纸 ↗</span>
+          </div>
+          <div class="wallpaper-copy">
+            <div><h3>{card.title}</h3><p>{card.device === 'pc' ? 'PC 壁纸' : 'Mobile 壁纸'} · {card.styleNameEn}</p></div>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+) : null}
+
+<div class="wallpaper-empty" data-wallpaper-empty hidden={hasVisible}>
+  <p class="wallpaper-empty-title">暂无「<span data-empty-style-name>{selectedStyleName}</span>」风格的 {character.name} 作品</p>
+  <a class="btn btn-outline wallpaper-empty-cta" href={emptyCreateHref} data-empty-create>生成第一张</a>
+</div>
+
+<style>
+  .wallpaper-device-bar { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem; }
+  .filter-group { display: flex; min-width: 0; align-items: center; gap: 0.8rem; }
+  .filter-label { color: var(--text-muted); font-size: 0.76rem; white-space: nowrap; }
+  .filter-options { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .filter-option {
+    display: inline-flex; min-height: 34px; align-items: center; justify-content: center;
+    padding-inline: 0.85rem; border: 1px solid transparent; border-radius: 6px;
+    color: var(--text-secondary); cursor: pointer; font-size: 0.78rem; white-space: nowrap;
+    transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+  }
+  .filter-option:hover, .filter-option:focus-visible, .filter-option.is-active {
+    color: var(--text-primary); border-color: var(--border-strong);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .wallpaper-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.8rem 1.35rem; margin-top: 1.5rem; }
+  .wallpaper-grid[data-active-device="mobile"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .wallpaper-grid[data-active-device="all"] { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .wallpaper-card[hidden] { display: none; }
+  .wallpaper-card { min-width: 0; }
+  .wallpaper-card a { display: block; color: inherit; }
+  .wallpaper-visual {
+    position: relative; aspect-ratio: 16 / 9; overflow: hidden;
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    background: var(--surface-muted); box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-base);
+  }
+  .wallpaper-card[data-device="mobile"] .wallpaper-visual { aspect-ratio: 9 / 16; }
+  .wallpaper-visual img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--transition-slow); }
+  .wallpaper-card:hover .wallpaper-visual, .wallpaper-card:focus-within .wallpaper-visual { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+  .wallpaper-card:hover .wallpaper-visual img, .wallpaper-card:focus-within .wallpaper-visual img { transform: scale(1.035); }
+  .wallpaper-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, rgba(5, 12, 20, .58), transparent 46%); }
+  .wallpaper-style-badge {
+    position: absolute; left: .7rem; bottom: .7rem; padding: .3rem .48rem;
+    border: 1px solid rgba(255,255,255,.32); border-radius: 4px;
+    color: #fff; background: rgba(5, 12, 20, .28); backdrop-filter: blur(8px); font-size: .66rem;
+  }
+  .wallpaper-open {
+    position: absolute; top: .7rem; right: .7rem; padding: .3rem .48rem;
+    border: 1px solid rgba(255,255,255,.32); border-radius: 4px;
+    color: #fff; background: rgba(5, 12, 20, .32); font-size: .66rem;
+    opacity: 0; transition: opacity var(--transition-fast);
+  }
+  .wallpaper-card:hover .wallpaper-open, .wallpaper-card:focus-within .wallpaper-open { opacity: 1; }
+  .wallpaper-copy { display: flex; align-items: start; justify-content: space-between; gap: .7rem; padding: .7rem .1rem 0; }
+  .wallpaper-copy h3 { margin: 0; font-size: .92rem; }
+  .wallpaper-copy p { margin: .22rem 0 0; color: var(--text-muted); font-size: .72rem; }
+
+  .wallpaper-empty { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin: 3rem 0; color: var(--text-secondary); text-align: center; }
+  .wallpaper-empty-title { margin: 0; }
+  .wallpaper-empty-cta { margin-top: .4rem; }
+
+  @media (max-width: 768px) {
+    .wallpaper-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .wallpaper-grid[data-active-device="mobile"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .wallpaper-grid[data-active-device="all"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 480px) {
+    .wallpaper-grid { grid-template-columns: 1fr; }
+    .wallpaper-grid[data-active-device="mobile"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>

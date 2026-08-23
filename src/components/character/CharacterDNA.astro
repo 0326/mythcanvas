@@ -1,0 +1,115 @@
+---
+import type { Character, Mythology, Realm } from '../../lib/content/types';
+
+interface Props {
+  character: Character;
+  mythology?: Mythology;
+  realms: readonly Realm[];
+}
+
+const { character, mythology, realms } = Astro.props;
+
+const joinList = (items: readonly string[]) => items.join(' / ');
+
+const dnaEntries: { label: string; value: string }[] = [
+  { label: '身份', value: character.role },
+  { label: '所属文明', value: mythology?.name ?? '—' },
+  { label: '所在神域', value: realms.length > 0 ? realms.map((r) => r.name).join(' · ') : '—' },
+  { label: '核心符号', value: character.symbols.length > 0 ? joinList(character.symbols) : '—' },
+  { label: '稳定视觉锚点', value: character.canonicalDesign.anchors.length > 0 ? joinList(character.canonicalDesign.anchors) : '—' },
+];
+
+const silhouette = character.canonicalDesign.silhouette;
+const signatureMaterials = character.canonicalDesign.signatureMaterials;
+---
+
+<section class="identity-section section-compact" aria-labelledby="identity-title">
+  <div class="container-wide identity-grid">
+    <div class="identity-intro">
+      <span class="eyebrow">Character DNA · 角色基因</span>
+      <h2 id="identity-title">换画风，不换身份</h2>
+      <p>角色可以进入不同材质、时代和画法，但这些识别点必须持续存在。这是不同 Style 仍然是同一个角色的根基。</p>
+    </div>
+    <div class="identity-panel surface">
+      <dl class="dna-list">
+        {dnaEntries.map((entry) => (
+          <div class="dna-row">
+            <dt class="dna-label">{entry.label}</dt>
+            <dd class="dna-value">{entry.value}</dd>
+          </div>
+        ))}
+        {silhouette && (
+          <div class="dna-row dna-row--full">
+            <dt class="dna-label">核心轮廓</dt>
+            <dd class="dna-value dna-value--silhouette">{silhouette}</dd>
+          </div>
+        )}
+        {signatureMaterials && signatureMaterials.length > 0 && (
+          <div class="dna-row dna-row--full">
+            <dt class="dna-label">标志性材质</dt>
+            <dd class="dna-value">{joinList(signatureMaterials)}</dd>
+          </div>
+        )}
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .identity-section {
+    border-block: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
+  }
+  .identity-grid {
+    display: grid;
+    grid-template-columns: .8fr 1.2fr;
+    gap: var(--space-10);
+    align-items: start;
+  }
+  .identity-intro p {
+    max-width: 34rem;
+    color: var(--text-secondary);
+  }
+  .identity-panel {
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+  }
+
+  .dna-list { margin: 0; }
+  .dna-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: var(--space-4);
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .dna-row:first-child { padding-top: 0; }
+  .dna-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .dna-row--full {
+    grid-template-columns: 120px 1fr;
+  }
+  .dna-label {
+    margin: 0;
+    color: var(--accent-strong);
+    font-size: .76rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+  }
+  .dna-value {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: .92rem;
+    line-height: 1.65;
+  }
+  .dna-value--silhouette {
+    color: var(--text-secondary);
+    font-family: var(--font-literary);
+  }
+
+  @media (max-width: 900px) {
+    .identity-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .dna-row { grid-template-columns: 1fr; gap: var(--space-1); }
+  }
+</style>

@@ -46,16 +46,31 @@ const favoriteArtworks = favoriteEntities
         <div>
           <strong data-nickname>{user.nickname}</strong>
           <span>{user.isGuest ? '游客' : '已登录探索者'} · {generations.length} 个生成作品</span>
+          {user.email && <span class="profile-email" title={user.email}>{user.email}</span>}
         </div>
-        <details class="login-form">
-          <summary>设置昵称 / 登录</summary>
-          <form onsubmit="return false">
-            <input type="text" maxlength="24" placeholder="输入昵称（可选）" data-profile-name />
-            <button class="btn btn-secondary" type="button" data-profile-save>保存</button>
-          </form>
-          {!user.isGuest && <button class="btn btn-secondary" type="button" data-profile-logout>登出</button>}
-        </details>
-        <a class="btn btn-primary" href="/create/">开始绘神</a>
+        {user.isGuest ? (
+          <div class="profile-cta">
+            <a class="btn btn-primary" href="/login/?redirect=/my/">邮箱登录</a>
+            <p class="profile-cta-hint">登录后可永久保存作品与收藏，并在多设备间同步。</p>
+            <details class="login-form">
+              <summary>仅设置昵称（不登录）</summary>
+              <form onsubmit="return false">
+                <input type="text" maxlength="24" placeholder="输入昵称（可选）" data-profile-name />
+                <button class="btn btn-secondary" type="button" data-profile-save>保存</button>
+              </form>
+            </details>
+          </div>
+        ) : (
+          <details class="login-form">
+            <summary>修改昵称</summary>
+            <form onsubmit="return false">
+              <input type="text" maxlength="24" placeholder="输入昵称（可选）" data-profile-name />
+              <button class="btn btn-secondary" type="button" data-profile-save>保存</button>
+            </form>
+            <button class="btn btn-secondary" type="button" data-profile-logout>登出</button>
+          </details>
+        )}
+        <a class="btn btn-primary-outline" href="/create/">开始绘神</a>
       </aside>
 
       <div class="my-content">
@@ -178,6 +193,10 @@ const favoriteArtworks = favoriteEntities
   .profile-avatar { display: grid; width: 56px; height: 56px; place-items: center; border: 1px solid var(--border-strong); border-radius: 50%; color: var(--accent-strong); background: var(--surface-muted); font-family: var(--font-serif); font-size: 1.4rem; }
   .profile strong, .profile span { display: block; }
   .profile span { margin-top: .25rem; color: var(--text-muted); font-size: .74rem; }
+  .profile-email { color: var(--text-tertiary); font-size: .7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+  .profile-cta { display: grid; gap: var(--space-2); }
+  .profile-cta-hint { font-size: .72rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
+  .btn-primary-outline { border: 1px solid var(--accent); color: var(--accent-strong); background: transparent; }
   .login-form summary { cursor: pointer; color: var(--accent-strong); font-size: .78rem; margin-bottom: var(--space-2); }
   .login-form form { display: grid; gap: var(--space-2); }
   .login-form input { min-height: 36px; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); background: var(--surface); font-size: .8rem; }

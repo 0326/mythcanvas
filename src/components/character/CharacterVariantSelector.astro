@@ -1,0 +1,190 @@
+---
+import type { Character, CharacterVariant, CharacterVariantType, ImageAsset } from '../../lib/content/types';
+
+interface Props {
+  character: Character;
+  variants: readonly CharacterVariant[];
+  selectedVariantSlug: string;
+  selectedStyleId: string;
+}
+
+const { character, variants, selectedVariantSlug, selectedStyleId } = Astro.props;
+
+const variantTypeLabels: Record<CharacterVariantType, string> = {
+  age: '年龄形态',
+  costume: '服饰形态',
+  form: '形态变体',
+  composite: '复合形态',
+};
+
+const variantHref = (variantSlug: string) => {
+  const params = new URLSearchParams();
+  if (variantSlug) params.set('variant', variantSlug);
+  if (selectedStyleId && selectedStyleId !== 'canonical') params.set('style', selectedStyleId);
+  const query = params.toString();
+  return `/character/${character.slug}/${query ? `?${query}` : ''}#forms`;
+};
+
+const portraitImage: ImageAsset | undefined = character.portrait;
+---
+
+<div class="variant-selector" role="group" aria-label="选择角色形态">
+  <a
+    class:list={{ 'variant-card': true, 'is-active': selectedVariantSlug === '' }}
+    href={variantHref('')}
+    data-variant-filter=""
+    aria-pressed={selectedVariantSlug === '' ? 'true' : 'false'}
+  >
+    <div class="variant-visual">
+      {portraitImage ? (
+        <img
+          src={portraitImage.src}
+          alt={`${character.name} 经典形态`}
+          width={portraitImage.width}
+          height={portraitImage.height}
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <div class="variant-fallback" aria-hidden="true"><span>{character.symbols[0] ?? '✦'}</span></div>
+      )}
+    </div>
+    <div class="variant-copy">
+      <span class="variant-type">经典</span>
+      <span class="variant-name">{character.name}</span>
+      <p class="variant-desc">角色最稳定的神话身份与视觉锚点。</p>
+    </div>
+  </a>
+
+  {variants.map((variant) => {
+    const previewSrc = variant.referencePack[0];
+    return (
+      <a
+        class:list={{ 'variant-card': true, 'is-active': variant.slug === selectedVariantSlug }}
+        href={variantHref(variant.slug)}
+        data-variant-filter={variant.slug}
+        aria-pressed={variant.slug === selectedVariantSlug ? 'true' : 'false'}
+      >
+        <div class="variant-visual">
+          {previewSrc ? (
+            <img
+              src={previewSrc}
+              alt={`${character.name} ${variant.name}`}
+              loading="lazy"
+              decoding="async"
+            />
+          ) : portraitImage ? (
+            <img
+              src={portraitImage.src}
+              alt={`${character.name} ${variant.name} 形态配置`}
+              width={portraitImage.width}
+              height={portraitImage.height}
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div class="variant-fallback" aria-hidden="true"><span>{character.symbols[0] ?? '✦'}</span></div>
+          )}
+          {!previewSrc && portraitImage && <span class="variant-config-tag">形态配置</span>}
+        </div>
+        <div class="variant-copy">
+          <span class="variant-type">{variantTypeLabels[variant.variantType]}</span>
+          <span class="variant-name">{variant.name}</span>
+          <p class="variant-desc">{variant.description}</p>
+        </div>
+      </a>
+    );
+  })}
+</div>
+
+<style>
+  .variant-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .variant-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    color: inherit;
+    background: var(--surface);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  }
+  .variant-card:hover,
+  .variant-card:focus-visible {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+  }
+  .variant-card.is-active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), var(--shadow-sm);
+  }
+
+  .variant-visual {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--surface-muted);
+  }
+  .variant-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+  .variant-fallback {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: var(--accent-strong);
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    background:
+      radial-gradient(circle at 52% 38%, color-mix(in srgb, var(--moon-white) 80%, transparent), transparent 24%),
+      linear-gradient(155deg, var(--cloud-blue), var(--jade-soft));
+  }
+  .variant-config-tag {
+    position: absolute;
+    top: 0.45rem;
+    left: 0.45rem;
+    padding: 0.2rem 0.45rem;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(6px);
+    font-size: 0.64rem;
+  }
+
+  .variant-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+  .variant-type {
+    color: var(--accent-strong);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .variant-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .variant-desc {
+    margin: 0.2rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

@@ -7,6 +7,10 @@ declare namespace Cloudflare {
     AI_PROVIDER_ENDPOINT?: string;
     AI_PROVIDER_API_KEY?: string;
     ADMIN_TOKEN?: string;
+    RESEND_API_KEY?: string;
+    MAIL_FROM_EMAIL?: string;
+    MAIL_FROM_NAME?: string;
+    PUBLIC_BASE_URL?: string;
   }
 }
 

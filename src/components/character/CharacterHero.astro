@@ -1,0 +1,201 @@
+---
+import type { Character, ImageAsset, Mythology } from '../../lib/content/types';
+
+interface Props {
+  character: Character;
+  mythology?: Mythology;
+  heroImage: ImageAsset;
+  createHref: string;
+}
+
+const { character, mythology, heroImage, createHref } = Astro.props;
+---
+
+<section class="character-hero" id="character-hero" aria-labelledby="character-title">
+  <img
+    class="character-hero-image"
+    src={heroImage.src}
+    alt={heroImage.alt}
+    width={heroImage.width}
+    height={heroImage.height}
+    fetchpriority="high"
+  />
+  <div class="character-hero-overlay" aria-hidden="true"></div>
+
+  <div class="container-wide character-hero-inner">
+    <div class="character-copy">
+      <a class="back-link" href={mythology ? `/mythology/${mythology.slug}/` : '/character/'}>
+        ← {mythology?.name ?? '返回角色'}
+      </a>
+      <div class="character-kicker">
+        <span>{mythology?.name ?? 'Mythology'}</span>
+        <span>{character.role}</span>
+      </div>
+      <h1 id="character-title">{character.name}</h1>
+      <p class="en-name">{character.nameEn}</p>
+      <div class="identity-tags" aria-label="角色识别符号">
+        {character.symbols.slice(0, 4).map((symbol) => <span>{symbol}</span>)}
+      </div>
+      <p class="summary">{character.summary}</p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href={createHref} data-create-cta>绘制我的 {character.name}</a>
+        <a class="hero-scroll-link" href="#forms">查看形态与作品 ↓</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .character-hero {
+    position: relative;
+    display: flex;
+    min-height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+  }
+  .character-hero-image,
+  .character-hero-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .character-hero-image {
+    z-index: -3;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(0.94) contrast(0.98);
+    transform: scale(1.01);
+  }
+  .character-hero-overlay {
+    z-index: -2;
+    background:
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--bg-primary) 94%, transparent) 0%,
+        color-mix(in srgb, var(--bg-primary) 78%, transparent) 30%,
+        color-mix(in srgb, var(--bg-primary) 32%, transparent) 58%,
+        transparent 86%
+      ),
+      linear-gradient(to top, color-mix(in srgb, var(--bg-primary) 36%, transparent) 0%, transparent 34%);
+  }
+  .character-hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 100svh;
+    align-items: center;
+    padding-block: clamp(6.5rem, 11vh, 9rem) clamp(2.5rem, 5vh, 4.5rem);
+  }
+  .character-copy {
+    width: min(620px, 56%);
+  }
+  .back-link {
+    display: inline-flex;
+    margin-bottom: 1.3rem;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+  }
+  .back-link:hover {
+    color: var(--text-primary);
+  }
+  .character-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--accent-strong);
+    font-size: 0.76rem;
+    font-weight: 760;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .character-kicker span + span {
+    padding-left: 0.65rem;
+    border-left: 1px solid var(--border-strong);
+  }
+  .character-copy h1 {
+    max-width: 620px;
+    margin: 0.65rem 0 0;
+    color: var(--text-primary);
+    font-size: clamp(4rem, 7vw, 6.8rem);
+    line-height: 0.92;
+    letter-spacing: 0.08em;
+    text-shadow: 0 2px 22px color-mix(in srgb, var(--bg-primary) 45%, transparent);
+  }
+  .en-name {
+    margin: 0.7rem 0 0;
+    color: var(--accent-strong);
+    font-family: Georgia, serif;
+    font-size: 1.25rem;
+    letter-spacing: 0.08em;
+  }
+  .identity-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1.35rem;
+  }
+  .identity-tags span {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    padding-inline: 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--border-strong) 85%, transparent);
+    border-radius: var(--radius-pill);
+    color: var(--text-secondary);
+    background: color-mix(in srgb, var(--surface) 56%, transparent);
+    backdrop-filter: blur(8px);
+    font-size: 0.78rem;
+  }
+  .summary {
+    max-width: 34rem;
+    margin: 1.5rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.94rem;
+    line-height: 1.85;
+    text-shadow: 0 1px 12px color-mix(in srgb, var(--bg-primary) 42%, transparent);
+  }
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: 1.7rem;
+  }
+  .hero-scroll-link {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    transition: color var(--transition-fast);
+  }
+  .hero-scroll-link:hover {
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 1240px) {
+    .character-copy {
+      width: 60%;
+    }
+  }
+  @media (max-width: 768px) {
+    .character-hero,
+    .character-hero-inner {
+      min-height: auto;
+    }
+    .character-hero-inner {
+      padding-block: clamp(5rem, 14vh, 7rem) clamp(2rem, 5vh, 3.5rem);
+    }
+    .character-copy {
+      width: 100%;
+    }
+    .character-copy h1 {
+      font-size: clamp(3rem, 14vw, 5rem);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .character-hero-image {
+      transform: none;
+    }
+  }
+</style>

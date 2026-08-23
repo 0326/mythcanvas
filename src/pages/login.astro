@@ -1,0 +1,231 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getUserBySessionId, readSessionId } from '../lib/auth/session';
+
+export const prerender = false;
+
+// 已登录用户直接跳转到「我的」页面，避免重复登录
+const sessionId = readSessionId(Astro.request);
+const currentUser = sessionId ? await getUserBySessionId(Astro.locals.runtime.env.SESSION, sessionId) : null;
+const redirectTarget = (Astro.url.searchParams.get('redirect') ?? '/my/').startsWith('/') ? Astro.url.searchParams.get('redirect') : '/my/';
+const isLoggedIn = currentUser && !currentUser.isGuest;
+---
+
+<BaseLayout
+  title="登录 · 绘神宇宙"
+  description="登录 MythCanvas 绘神宇宙，保存你的神话壁纸、收藏与 AI 创作。"
+>
+  <section class="auth-hero">
+    <div class="container-narrow">
+      <span class="eyebrow">登录 MythCanvas</span>
+      <h1>开启你的神话宇宙</h1>
+      <p class="auth-sub">输入邮箱即可登录，无需密码。我们会向你的邮箱发送验证码，也可选择用登录链接一步进入。</p>
+    </div>
+  </section>
+
+  <section class="auth-section" data-redirect={redirectTarget}>
+    <div class="container-narrow">
+      {isLoggedIn ? (
+        <div class="surface auth-card" data-state="logged-in">
+          <p class="auth-done">你已登录为 <strong>{currentUser!.email ?? currentUser!.nickname}</strong>。</p>
+          <a class="btn btn-primary" href={redirectTarget} data-go>进入我的宇宙</a>
+          <a class="auth-alt" href="/my/">查看个人中心</a>
+        </div>
+      ) : (
+        <div class="surface auth-card" data-state="enter-email">
+          <form class="auth-form" data-step="email" data-auth-form>
+            <label class="field">
+              <span class="field-label">邮箱</span>
+              <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="you@example.com" data-email aria-label="邮箱地址" />
+            </label>
+
+            <div class="auth-modes">
+              <button class="btn btn-primary" type="button" data-action="otp" data-send>发送验证码</button>
+              <button class="btn btn-ghost" type="button" data-action="magic" data-send>发送登录链接</button>
+            </div>
+
+            <p class="auth-hint">验证码 10 分钟内有效，登录链接 15 分钟内有效。</p>
+          </form>
+
+          <form class="auth-form auth-verify" data-step="code" data-verify-form hidden>
+            <label class="field">
+              <span class="field-label">验证码 <span class="field-meta" data-code-target-email></span></span>
+              <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="6 位数字" data-code aria-label="验证码" />
+            </label>
+            <button class="btn btn-primary" type="submit">验证并登录</button>
+            <p class="auth-hint"><a href="#" data-resend>没收到？重新发送</a> · <a href="#" data-back>换个邮箱</a></p>
+          </form>
+
+          <div class="auth-status" data-status role="status" aria-live="polite" hidden></div>
+
+          <noscript>
+            <p class="auth-noscript">本页面需要 JavaScript 以发送验证码。若不想启用，可联系管理员通过邮件登录链接完成登录。</p>
+          </noscript>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const card = document.querySelector('[data-auth-form]')?.closest('.auth-card') as HTMLElement | null;
+  if (card && card.dataset.state === 'enter-email') {
+    const emailForm = card.querySelector('[data-auth-form]') as HTMLElement;
+    const verifyForm = card.querySelector('[data-verify-form]') as HTMLElement;
+    const statusEl = card.querySelector('[data-status]') as HTMLElement;
+    const emailInput = card.querySelector('[data-email]') as HTMLInputElement;
+    const codeInput = card.querySelector('[data-code]') as HTMLInputElement;
+    const codeTargetEmail = card.querySelector('[data-code-target-email]') as HTMLElement;
+    const redirectTarget = card.closest('[data-redirect]')?.getAttribute('data-redirect') ?? '/my/';
+    let pendingNonce = '';
+    let pendingEmail = '';
+
+    setStatus(''); // 初始清空
+
+    emailForm.querySelectorAll('[data-send]').forEach((btn) =>
+      btn.addEventListener('click', async (event) => {
+        const target = event.currentTarget as HTMLButtonElement;
+        const mode = target.dataset.action as 'otp' | 'magic';
+        const email = emailInput.value.trim();
+        if (!email) {
+          setStatus('请输入邮箱地址。', 'error');
+          emailInput.focus();
+          return;
+        }
+        target.disabled = true;
+        setStatus('发送中…');
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ email, mode, redirect: redirectTarget }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            setStatus(data?.error?.message ?? '发送失败，请重试。', 'error');
+            return;
+          }
+          if (mode === 'magic') {
+            if (data.devFallback?.magicUrl) {
+              setStatus(`邮件未配置（开发模式）。点击此链接登录：${data.devFallback.magicUrl}`, 'dev', data.devFallback.magicUrl);
+            } else {
+              setStatus('登录链接已发送至邮箱，点击邮件中的按钮即可登录。', 'ok');
+            }
+          } else {
+            pendingNonce = data.nonceId ?? '';
+            pendingEmail = email;
+            // 开发降级：直接展示验证码
+            if (data.devFallback?.otp) {
+              codeInput.value = data.devFallback.otp;
+              setStatus(`邮件未配置（开发模式），验证码已自动填入：${data.devFallback.otp}`, 'dev');
+            } else {
+              setStatus('验证码已发送，请查收邮件。', 'ok');
+            }
+            pendingNonce = pendingNonce || data.devFallback?.nonceId || '';
+            showVerifyStep(email);
+          }
+        } catch {
+          setStatus('网络异常，请重试。', 'error');
+        } finally {
+          target.disabled = false;
+        }
+      }),
+    );
+
+    verifyForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const code = codeInput.value.trim();
+      if (!code) {
+        setStatus('请输入验证码。', 'error');
+        codeInput.focus();
+        return;
+      }
+      const submitBtn = verifyForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+      submitBtn.disabled = true;
+      setStatus('验证中…');
+      try {
+        const res = await fetch('/api/auth/verify', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email: pendingEmail, code, nonceId: pendingNonce }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setStatus(data?.error?.message ?? '验证失败。', 'error');
+          return;
+        }
+        setStatus(data?.message ?? '登录成功，正在跳转…', 'ok');
+        window.location.href = redirectTarget;
+      } catch {
+        setStatus('网络异常，请重试。', 'error');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    card.querySelector('[data-resend]')?.addEventListener('click', async (event) => {
+      event.preventDefault();
+      emailForm.querySelector('[data-action="otp"]')?.dispatchEvent(new Event('click'));
+    });
+    card.querySelector('[data-back]')?.addEventListener('click', (event) => {
+      event.preventDefault();
+      hideVerifyStep();
+      setStatus('');
+      codeInput.value = '';
+    });
+
+    function showVerifyStep(email: string) {
+      emailForm.hidden = true;
+      verifyForm.hidden = false;
+      codeTargetEmail.textContent = `（已发送至 ${email}）`;
+      codeInput.focus();
+    }
+    function hideVerifyStep() {
+      verifyForm.hidden = true;
+      emailForm.hidden = false;
+      emailInput.focus();
+    }
+    function setStatus(message: string, kind: 'ok' | 'error' | 'dev' | '' = '', link?: string) {
+      if (!message) {
+        statusEl.hidden = true;
+        statusEl.textContent = '';
+        return;
+      }
+      statusEl.hidden = false;
+      statusEl.dataset.kind = kind;
+      if (link) {
+        statusEl.innerHTML = '';
+        const a = document.createElement('a');
+        a.href = link;
+        a.textContent = message;
+        statusEl.appendChild(a);
+      } else {
+        statusEl.textContent = message;
+      }
+    }
+  }
+</script>
+
+<style>
+  .auth-hero { padding: var(--space-16) 0 var(--space-8); text-align: center; }
+  .auth-hero h1 { font-size: clamp(1.75rem, 3vw, 2.4rem); margin: var(--space-3) 0 var(--space-4); }
+  .auth-sub { color: var(--text-secondary); max-width: 32rem; margin: 0 auto; line-height: 1.7; }
+  .auth-section { padding: var(--space-6) 0 var(--space-20); }
+  .auth-card { max-width: 26rem; margin: 0 auto; padding: var(--space-8); border-radius: 12px; }
+  .auth-form { display: flex; flex-direction: column; gap: var(--space-4); }
+  .field { display: flex; flex-direction: column; gap: var(--space-2); }
+  .field-label { font-size: .85rem; color: var(--text-secondary); font-weight: 600; }
+  .field-meta { color: var(--text-tertiary); font-weight: 400; }
+  .auth-modes { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+  .auth-modes .btn { flex: 1 1 8rem; }
+  .auth-hint { font-size: .8rem; color: var(--text-tertiary); margin: 0; }
+  .auth-hint a { color: var(--accent); text-decoration: none; }
+  .auth-status { margin-top: var(--space-4); padding: var(--space-3); border-radius: 8px; font-size: .85rem; line-height: 1.6; }
+  .auth-status[data-kind='ok'] { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--text-primary); }
+  .auth-status[data-kind='error'] { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--text-primary); }
+  .auth-status[data-kind='dev'] { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--text-primary); }
+  .auth-status a { color: var(--accent); word-break: break-all; }
+  .auth-done { color: var(--text-primary); margin: 0 0 var(--space-4); }
+  .auth-alt { display: inline-block; margin-top: var(--space-3); font-size: .85rem; color: var(--text-secondary); text-decoration: none; }
+  .auth-noscript { color: var(--text-tertiary); font-size: .85rem; }
+</style>

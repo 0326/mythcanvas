@@ -64,6 +64,20 @@ export type Character = {
   portrait?: ImageAsset;
 };
 
+export type CharacterVariantType = 'age' | 'costume' | 'form' | 'composite';
+
+export type CharacterVariant = {
+  id: string;
+  characterId: string;
+  slug: string;
+  name: string;
+  variantType: CharacterVariantType;
+  description: string;
+  traits: Record<string, unknown>;
+  identityOverrides: readonly string[];
+  referencePack: readonly string[];
+};
+
 export type Artwork = {
   id: string;
   slug: string;

@@ -1,0 +1,38 @@
+---
+import type { Character, Mythology } from '../../lib/content/types';
+import CharacterCard from './CharacterCard.astro';
+
+interface Props {
+  characters: readonly Character[];
+  mythologyById: Map<string, Mythology>;
+}
+
+const { characters, mythologyById } = Astro.props;
+---
+
+{characters.length > 0 && (
+  <section class="related-section section-compact" aria-labelledby="related-characters-title">
+    <div class="container-wide">
+      <div class="section-heading">
+        <div><span class="eyebrow">Related Characters</span><h2 id="related-characters-title">更多角色</h2></div>
+      </div>
+      <div class="related-character-grid">
+        {characters.map((relCharacter) => (
+          <CharacterCard character={relCharacter} mythology={mythologyById.get(relCharacter.mythologyId)} />
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .related-section { background: var(--bg-primary); }
+  .related-character-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-5);
+  }
+  @media (max-width: 480px) {
+    .related-character-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
