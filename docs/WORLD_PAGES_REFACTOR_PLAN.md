@@ -1,912 +1,165 @@
 # MythCanvas 世界列表 + 世界详情页重构计划
 
 > 状态：Ready for Implementation  
-> 当前公开路径：`/realm/` + `/realm/{slug}/`  
-> 目标公开路径：`/world/` + `/world/{slug}/`  
-> 内部领域模型：继续使用 `Realm`，本次不做无收益的数据表 / TypeScript 全量重命名。
+> 正式公开路径：`/world/` + `/world/{slug}/`  
+> 正式领域模型：`World`  
+> 本项目为新系统：**不考虑 `/realm/*` 兼容，不保留 Realm 命名，不做旧数据迁移兼容层。**
 
 ---
 
 # 0. 重构结论
 
-本次不是单纯优化 `/realm` 页面样式，而是同时解决三个问题：
+本次不是 `/realm` 的局部改版，而是将“世界”正式确立为 MythCanvas 的一级核心对象，并一次性统一产品语言、URL、TypeScript 类型、数据库表、外键、Repository、组件与页面目录。
 
-1. **公开产品命名不统一**：导航已经使用「世界」，URL 却暴露内部领域术语 `/realm/`；
-2. **世界页面不像“世界探索”**：当前主要是普通 Hero、Canonical Design 文本、Style 占位卡、角色和壁纸 Grid；
-3. **已有 Scene / Character / Artwork 数据没有形成世界探索链**：特别是 `getScenesForRealm()` 已存在，但当前 World Detail 完全没有使用。
-
-本次最终统一为：
+最终对象链：
 
 ```text
 神话文明 Mythology
-  → 世界 World（内部模型仍为 Realm）
+  → 世界 World
       → 地标 / 场景 Scene
       → 角色 Character
       → 视觉作品 Artwork
       → AI 创作
 ```
 
-公开产品语言：
+核心产品定义：
 
-> **文明决定世界属于哪里，世界承载空间与故事，场景是世界中的地点，角色生活在世界中，Artwork 是这些对象的视觉演绎。**
+> **文明决定世界属于哪里，World 承载空间和故事，Scene 是世界中可以被进入的地点，Character 生活在世界中，Artwork 是这些对象的真实视觉演绎。**
 
----
-
-# 1. 命名与 URL 决策
-
-## 1.1 为什么 `/realm/` 不适合作为公开 URL
-
-`Realm` 作为工程领域模型没有问题，但不是大多数用户自然理解和输入的词。
-
-当前已经出现明显不一致：
-
-```text
-Header：世界
-Footer：神域
-Page Title：神域
-URL：/realm/
-Domain Model：Realm
-```
-
-同一个对象出现「世界 / 神域 / Realm」三种公开表达，增加认知成本，也会让后续 SEO、导航、文案和内容组织持续分裂。
+公开、代码和数据层不再出现 Realm / 神域 / 世界三套并行词汇。
 
 ---
 
-## 1.2 最终公开命名
+# 1. 命名统一：Realm 全量改为 World
 
-统一：
+## 1.1 正式命名
 
 ```text
-中文一级导航：世界
-英文产品词：World
-公开 URL：/world/
+中文产品名：世界
+英文产品名：World
+列表 URL：/world/
 详情 URL：/world/{slug}/
 ```
 
 示例：
 
 ```text
+/world/heavenly-palace/
 /world/olympus/
 /world/asgard/
 /world/takamagahara/
 /world/duat/
-/world/heavenly-palace/
 ```
 
-选择 `/world/` 而不是 `/worlds/`，原因：
+选择单数 `/world/`，与现有 `/character/`、`/mythology/`、`/wallpaper/` 保持一致。
 
-- 当前核心实体路由均采用单数：`/character/`、`/mythology/`、`/wallpaper/`；
-- `/world/{slug}` 与现有 URL 风格一致；
-- 简短、直观、易分享；
-- 导航文字「世界」与 URL 语义直接对应。
+## 1.2 不做旧地址兼容
+
+这是新系统，直接删除：
+
+```text
+src/pages/realm/
+```
+
+不实现：
+
+- `/realm/*` redirect；
+- legacy route；
+- canonical 兼容；
+- 旧 Realm 数据转换层；
+- Realm/World 双命名 API。
+
+验收标准是：**代码库业务语义中不再存在 Realm。**
+
+允许 migration 文件历史文本中保留已经执行过的旧 SQL 记录，但新 schema、运行时代码、测试、文档不得继续引用 Realm。
 
 ---
 
-## 1.3 `Realm` 内部模型暂时不改
+# 2. 数据模型全量重命名
 
-本次**不要**为了 URL 改名而执行：
-
-```text
-Realm -> World
-realms table -> worlds table
-realm_id -> world_id
-getRealms -> getWorlds
-```
-
-这些属于内部领域实现，当前没有用户价值，且会引入大量数据库 migration、API、生成链路和历史数据修改成本。
-
-本次采用边界映射：
+## 2.1 TypeScript
 
 ```text
-Public UX / URL       Internal Model
--------------------------------------
-世界 / World           Realm
-/world/                realms table
-/world/{slug}/         getRealmBySlug()
-地标 / 场景            Scene
+Realm                     → World
+realmId                   → worldId
+realmIds                  → worldIds
 ```
 
-以后只有当领域模型本身也需要重新定义时，再单独评估内部改名。
-
----
-
-# 2. `/realm` → `/world` 迁移要求
-
-这是 P0，必须和页面重构一起完成，不能只新建 `/world` 后留下两套可索引页面。
-
-## 2.1 新路由
-
-新增：
-
-```text
-src/pages/world/index.astro
-src/pages/world/[slug].astro
-```
-
-正式页面只存在于 `/world`。
-
----
-
-## 2.2 旧路由永久重定向
-
-保留兼容入口：
-
-```text
-/realm/        -> /world/
-/realm/{slug}/ -> /world/{slug}/
-```
-
-使用永久重定向：
-
-```text
-301 或 308
-```
-
-推荐使用轻量 legacy route 页面完成 redirect，避免在 middleware 中持续堆业务路由逻辑。
-
-要求：
-
-- slug 原样保留；
-- query string 尽量保留；
-- 不形成 redirect chain；
-- `/realm/*` 不再渲染实际内容；
-- 不允许 `/realm` 与 `/world` 两份重复内容同时返回 200。
-
----
-
-## 2.3 更新所有站内链接
-
-至少检查并更新：
-
-```text
-src/components/Header.astro
-src/components/Footer.astro
-src/components/realm/RealmCard.astro
-src/pages/index.astro
-src/pages/explore/**
-src/pages/mythology/**
-src/pages/character/**
-src/pages/wallpaper/**
-src/pages/search/**
-src/pages/create/**
-docs/PRODUCT.md
-README.md
-```
-
-原则：
-
-> 站内任何新链接都不能继续输出 `/realm/`。
-
-`RealmCard.astro` 文件名可以暂时保留，但默认 href 必须改成 `/world/${realm.slug}/`。
-
----
-
-## 2.4 SEO / Canonical
-
-新页面 canonical 必须是：
-
-```text
-https://mythcanvas.space/world/{slug}/
-```
-
-同时更新：
-
-- Breadcrumb JSON-LD；
-- OG URL；
-- Sitemap；
-- 所有 Related Entity links；
-- 搜索结果链接。
-
-旧 `/realm/*` 仅做 permanent redirect，不生成独立 canonical 页面。
-
-注意当前项目使用 `@astrojs/sitemap` + `output: server`。执行时需要验证动态 World Detail 是否实际进入 sitemap；如果动态 D1 实体没有被枚举，增加运行时 sitemap 能力或显式动态实体 sitemap，不要假设 Astro 集成已经覆盖 D1 动态详情页。
-
----
-
-# 3. 当前世界列表页问题
-
-当前 `src/pages/realm/index.astro` 基本结构：
-
-```text
-Hero
-  → H1 进入神域
-  → 一段说明
-
-3-column RealmCard Grid
-```
-
-主要问题：
-
-1. 仍像一个普通内容分类列表；
-2. 世界视觉没有成为主体；
-3. 无文明筛选；
-4. 无搜索；
-5. 无世界层级感；
-6. RealmCard 图像占比和信息层级偏普通卡片；
-7. 当前只有少量世界时页面显空，未来世界增加后又缺乏浏览组织能力。
-
-世界列表页需要从“Realm collection”升级成：
-
-> **World Atlas / 神话世界入口。**
-
----
-
-# 4. `/world/` 世界列表页重构
-
-## 4.1 页面目标
-
-用户进入世界页后，需要快速完成：
-
-1. 被世界级场景视觉吸引；
-2. 理解这些世界分别属于哪个神话文明；
-3. 快速筛选感兴趣的文明；
-4. 进入一个世界继续看地标、角色和作品；
-5. 明确世界页与 Explore、Mythology、Character 的职责差异。
-
-职责定义：
-
-```text
-Explore       = 看作品
-Mythology     = 看文明体系
-World         = 探索空间世界
-Character     = 探索角色资产
-Wallpaper     = 消费单张作品
-Create        = 创作
-```
-
----
-
-## 4.2 页面 IA
-
-推荐：
-
-```text
-Header
-
-World Atlas Hero
-  eyebrow: Worlds
-  H1: 进入神话世界
-  简短说明
-
-World Toolbar
-  [全部] [中国] [希腊] [北欧] [日本] [埃及]
-  Search World
-
-World Gallery
-  大幅横向世界卡
-
-Explore More CTA
-```
-
-Hero 不需要占满首屏，真正主视觉是 World Gallery。
-
----
-
-## 4.3 World Card 重构
-
-世界对象与 Character Card 不同，必须强调横向环境视觉。
-
-推荐比例：
-
-```text
-16:10 / 3:2
-```
-
-桌面卡片结构：
-
-```text
-┌─────────────────────────────────────┐
-│                                     │
-│            WORLD IMAGE              │
-│                                     │
-│ 中国神话                             │
-│ 三十三重天                           │
-│ Celestial Palace                    │
-└─────────────────────────────────────┘
-```
-
-默认展示：
-
-- Hero Image；
-- Mythology 名称；
-- World Name；
-- English Name；
-- 可选一句非常短 Summary。
-
-不要展示：
-
-- Canonical anchors；
-- Materials；
-- Style 标签堆积；
-- 大量数量 badge；
-- 技术词 Realm。
-
-Hover / Focus：
-
-- 图片轻微 scale；
-- 标题区域提升可读性；
-- 出现「进入世界 →」即可。
-
----
-
-## 4.4 World Grid
-
-建议：
-
-```text
->= 1400px: 3 columns
-900-1399: 2 columns
-<900: 1 column
-```
-
-世界卡不建议做 4～5 列，因为环境图需要足够宽度才能产生空间感。
-
-如果内容数量仍然只有 5 个，可允许第一张 Featured World 跨两列，但不要把布局做成不可扩展的硬编码拼贴。
-
----
-
-## 4.5 文明筛选
-
-第一版只保留：
-
-```text
-全部
-中国神话
-希腊神话
-北欧神话
-日本神话
-埃及神话
-```
-
-URL 状态：
-
-```text
-/world/?mythology=chinese
-```
-
-与 Character 页面筛选交互保持一致。
-
----
-
-## 4.6 搜索
-
-搜索字段：
-
-- 中文名；
-- 英文名；
-- Summary；
-- Mythology 名称。
-
-URL：
-
-```text
-/world/?q=奥林匹斯
-```
-
-支持与 mythology 参数组合。
-
----
-
-# 5. 当前世界详情页问题
-
-当前 `src/pages/realm/[slug].astro` 已经具备：
-
-- Realm Hero；
-- Canonical Design；
-- Style Variants；
-- Related Characters；
-- Wallpapers；
-- Recreate CTA。
-
-但存在几个核心产品问题。
-
-## P0-1：世界详情页不够沉浸
-
-当前 Hero 是一个：
-
-```text
-左侧文字 + 右侧图片
-```
-
-的普通 Surface Card。
-
-对于 MythCanvas 核心差异化对象“世界”，这种设计更像详情资料卡，而不是进入一个空间。
-
-世界详情应该是全站最强调环境视觉的页面之一。
-
----
-
-## P0-2：Scene / Landmark 完全缺席
-
-Repository 已经存在：
-
-```text
-getScenesForRealm(db, realmId)
-```
-
-但当前世界详情完全没有读取 Scene。
-
-这直接导致：
-
-```text
-三十三重天
-奥林匹斯
-阿斯加德
-高天原
-杜阿特
-```
-
-只是一个名字 + 一张 Hero 图，无法继续“进入”这个世界。
-
-Scene 应该成为 World Detail 的第一核心子实体。
-
----
-
-## P0-3：Style Variant 使用假视觉占位
-
-当前页面遍历所有 styles，然后用：
-
-```text
-圆形渐变 orb + Style Name
-```
-
-表达所谓视觉形态。
-
-这不是真实视觉作品，也无法让用户理解同一个世界在不同画风下是什么样。
-
-新规则：
-
-> **只展示真实 Artwork 支撑的视觉演绎。**
-
-没有真实 Style Artwork，就不要制造 Style Preview。
-
----
-
-## P0-4：公开页面暴露过多生成系统术语
-
-当前文案：
-
-```text
-Canonical Design
-这个世界必须保留什么
-Style Variant 可以改变时代、材质与画法……
-```
-
-这些更像内部 Prompt / Design System 说明。
-
-对消费端用户应该翻译成世界叙事语言，例如：
-
-```text
-世界印记
-世界地标
-标志材质
-视觉演绎
-```
-
-内部仍使用 `canonicalDesign` 数据即可。
-
----
-
-## P1-1：缺少 Related Worlds
-
-当前用户看完一个世界后，只能继续：
-
-```text
-Character / Artwork / Create
-```
-
-缺少：
-
-```text
-同文明其他世界
-```
-
-未来一个 Mythology 下出现多个 Realm 后，Related Worlds 是重要探索路径。
-
----
-
-## P1-2：Create CTA 没有世界上下文
-
-当前：
-
-```text
-<a href="/create/">开始绘神</a>
-```
-
-用户从某个 World 进入 Creator 后，不应再次手动找同一个世界。
-
-需要把 World / Realm 上下文自动带入 Creator。
-
----
-
-# 6. `/world/{slug}/` 最终 IA
-
-推荐最终顺序：
-
-```text
-1. Immersive World Hero
-2. World Overview / 世界印记
-3. Landmarks / Scenes
-4. Inhabitants / Characters
-5. Visual Interpretations / Real Artworks
-6. Wallpapers
-7. Related Worlds
-8. AI Recreate CTA
-```
-
-如果真实 Artwork 数量暂时不够，可以合并 5 + 6；但 Scene / Landmarks 不允许再缺失。
-
----
-
-# 7. Section 1：Immersive World Hero
-
-## 7.1 目标
-
-第一屏需要让用户感觉：
-
-> **“我正在进入这个世界。”**
-
-而不是：
-
-> “我在看一个世界资料卡。”
-
----
-
-## 7.2 推荐结构
-
-使用 `fullBleed + immersiveHeader`，与角色页形成对象差异：
-
-```text
-┌──────────────────────────────────────────────────┐
-│                                                  │
-│                                                  │
-│                 WORLD LANDSCAPE                  │
-│                                                  │
-│  中国神话                                        │
-│  三十三重天                                      │
-│  Celestial Palace                                │
-│  云海之上的诸神世界……                            │
-│                                                  │
-│  [探索地标] [绘制这个世界]                       │
-│                                                  │
-└──────────────────────────────────────────────────┘
-```
-
-World 图像占首屏主体。
-
-文本应位于图片安全区，不使用厚重左右分栏卡。
-
----
-
-## 7.3 Hero 保留
-
-- Mythology；
-- World Name；
-- Name EN；
-- 一句 Summary；
-- CTA：探索地标；
-- CTA：绘制这个世界。
-
-Hero 不展示：
-
-- Canonical anchors 列表；
-- Style Grid；
-- Materials 大段文字；
-- 多层 badge。
-
----
-
-# 8. Section 2：World Overview / 世界印记
-
-内部继续读取：
-
-```text
-realm.canonicalDesign
-```
-
-公开不再直接叫 Canonical Design。
-
-推荐文案：
-
-```text
-World Identity
-世界印记
-```
-
-展示：
-
-- 核心地标 / anchors；
-- 标志材质；
-- 可选空间轮廓 silhouette；
-- 所属文明；
-- 代表氛围可从 Mythology Visual DNA 派生。
-
-示例：
-
-```text
-三十三重天
-
-世界印记
-- 层叠宫阙
-- 云海中轴
-- 月轮 / 日轮
-- 玉阶天门
-
-标志材质
-白玉 · 鎏金 · 云雾
-```
-
-设计上应更像世界设定摘要，不要像后台字段面板。
-
----
-
-# 9. Section 3：Landmarks / Scenes
-
-这是本次世界页最重要的新模块。
-
-数据：
-
-```text
-getScenesForRealm(db, realm.id)
-```
-
-Section：
-
-```text
-Landmarks
-探索这个世界
-```
-
-示例：
-
-```text
-三十三重天
-  ├── 云海天门
-  ├── 月宫
-  ├── 玉阶
-  └── 天庭主殿
-```
-
-当前数据少时，有几个 Scene 就展示几个，不制造假地点。
-
----
-
-## 9.1 Scene Card
-
-推荐横向大图：
-
-```text
-Image
-Scene Name
-Name EN
-Short Summary
-```
-
-如果未来增加 Scene Detail Route，可点击进入。
-
-如果 Scene 暂时没有独立公开详情页：
-
-- 第一阶段可以作为 World 内锚点内容展示；
-- 不要为了点击性创建空详情页。
-
----
-
-## 9.2 世界空间感
-
-第一版不要做复杂地图系统。
-
-优先实现：
-
-```text
-大幅 Scene 图 + 有序视觉路径
-```
-
-未来内容规模足够后，再评估：
-
-- World Map；
-- Landmark spatial graph；
-- 可交互路线。
-
-不要为了“像世界”首版引入重型 Canvas / WebGL 地图。
-
----
-
-# 10. Section 4：Inhabitants / Characters
-
-标题推荐：
-
-```text
-Inhabitants
-这里的角色
-```
-
-数据：
-
-```text
-getCharactersForRealm(db, realm.id)
-```
-
-复用角色重构后的 image-first `CharacterCard`。
-
-世界详情中角色优先展示：
-
-- Portrait；
-- Name；
-- Role。
-
-不要重新展示 Character Summary / Canonical Design。
-
-如果角色很多：
-
-```text
-首屏显示 4～8 个
-查看全部角色 → /character/?world={slug}
-```
-
-是否增加 `world` 筛选参数可在执行时根据角色页现有筛选架构决定，不要求首个 commit 必须支持。
-
----
-
-# 11. Section 5：Visual Interpretations
-
-当前假 Style Orb 全部删除。
-
-新的视觉演绎来源必须是：
-
-```text
-getArtworksForRealm(realm.id)
-```
-
-然后基于真实 Artwork 的 `styleId` 聚合。
-
-示例：
-
-```text
-视觉演绎
-
-[经典神话 · 3]
-[电影感 · 2]
-[神圣 · 1]
-```
-
-每一个 Style Preview 必须使用该 Style 下真实 Artwork cover。
-
-如果某 Style 没有真实作品：
-
-- 不展示伪 Preview；
-- 可以在 Create CTA 中允许用户生成；
-- 不使用 gradient orb；
-- 不使用 CSS filter 模拟画风。
-
----
-
-# 12. Section 6：World Wallpapers
-
-真实 Artwork 列表继续保留，但与 Visual Interpretations 形成明确关系。
-
-第一版过滤建议：
-
-```text
-[全部] [PC] [Mobile]
-```
-
-设备类型可以基于现有 Artwork / OutputSpec 数据，如果旧 Artwork 没有 OutputSpec，则暂时按宽高比推断。
-
-禁止：
-
-- 为了填 Grid 复制图片；
-- 同一张图片冒充多个设备作品；
-- 套 CSS filter 冒充 Style。
-
-无作品时显示真实 Empty State：
-
-```text
-这个世界暂时还没有可下载的壁纸。
-[绘制第一张]
-```
-
----
-
-# 13. Section 7：Related Worlds
-
-数据：
-
-```text
-getRealmsForMythology(db, realm.mythologyId)
-  .filter(item => item.id !== realm.id)
-```
-
-标题：
-
-```text
-More Worlds
-继续探索这个文明
-```
-
-优先显示同 Mythology 的其他 World。
-
-如果只有一个 Realm，则整个 Section 不展示，不制造空模块。
-
----
-
-# 14. Section 8：AI Recreate
-
-CTA：
-
-```text
-绘制我的 {realm.name}
-```
-
-进入 Creator 时自动带上：
-
-```text
-realmId
-mythologyId
-```
-
-如果 Creator URL 当前支持 query state，推荐：
-
-```text
-/create/?realm={realm.id}
-```
-
-如果 Creator 使用 slug，统一使用：
-
-```text
-/create/?world={realm.slug}
-```
-
-不要同时支持两种 URL 参数。
-
-Creator 内部仍可以映射回 Realm ID。
-
-目标：
-
-```text
-World Detail
-  → Create
-  → 已自动选中当前世界
-  → 用户只需选择 Style / Device / Scene
-```
-
----
-
-# 15. 数据层改造
-
-World Detail 页面加载建议调整为：
+`src/lib/content/types.ts`：
 
 ```ts
-const [
-  mythology,
-  scenes,
-  relatedCharacters,
-  relatedArtworks,
-  siblingWorlds,
-  styles,
-] = await Promise.all([
-  getMythologyById(db, realm.mythologyId),
-  getScenesForRealm(db, realm.id),
-  getCharactersForRealm(db, realm.id),
-  getArtworksForRealm(db, realm.id),
-  getRealmsForMythology(db, realm.mythologyId),
-  getStyles(db),
-]);
+export type World = {
+  id: string;
+  mythologyId: string;
+  slug: string;
+  name: string;
+  nameEn: string;
+  summary: string;
+  canonicalDesign: CanonicalDesign;
+  heroImage: ImageAsset;
+};
 ```
 
-注意：
+同步修改：
 
-- `styles` 只用于解析真实 Artwork 的 Style 元数据；
-- 不再 `styles.map()` 生成所有 Style 占位卡；
-- `Scene` 是一等展示对象；
-- Related Worlds 排除当前 Realm。
+```text
+Scene.realmId             → Scene.worldId
+Artwork.realmId           → Artwork.worldId
+Character.realmIds        → Character.worldIds
+```
 
----
+## 2.2 数据表
 
-# 16. 组件拆分建议
+正式 schema 统一：
 
-不要继续让 `[slug].astro` 单文件承担全部 World UI。
+```text
+realms                    → worlds
+realm_id                  → world_id
+character_realms          → character_worlds
+```
 
-建议新增 / 重构：
+关联关系：
+
+```text
+worlds.mythology_id
+scenes.world_id
+artworks.world_id
+character_worlds.character_id
+character_worlds.world_id
+```
+
+由于是新系统，不为旧表创建兼容 View，不保留双写，不做 runtime fallback。
+
+如果现有开发 D1 数据需要重建，优先直接重置本地/测试数据库并重新 seed，而不是引入长期兼容 migration 负担。
+
+## 2.3 Repository
+
+```text
+getRealms                 → getWorlds
+getRealmBySlug            → getWorldBySlug
+getRealmById              → getWorldById
+getRealmsForMythology     → getWorldsForMythology
+getScenesForRealm         → getScenesForWorld
+getCharactersForRealm     → getCharactersForWorld
+getArtworksForRealm       → getArtworksForWorld
+```
+
+文件：
+
+```text
+src/lib/content/repositories/realm.ts
+→ src/lib/content/repositories/world.ts
+```
+
+## 2.4 组件与页面
+
+```text
+src/pages/realm/                       → DELETE
+src/pages/world/                       →正式页面
+src/components/realm/RealmCard.astro   → src/components/world/WorldCard.astro
+```
+
+新组件目录建议：
 
 ```text
 src/components/world/
@@ -914,67 +167,381 @@ src/components/world/
   WorldHero.astro
   WorldIdentity.astro
   WorldLandmarks.astro
+  WorldCharacters.astro
   WorldArtworkGallery.astro
   RelatedWorlds.astro
 ```
 
-兼容策略：
+---
 
-- 可以把现有 `components/realm/RealmCard.astro` 移动为 `world/WorldCard.astro`；
-- 如果改动面过大，也可以第一阶段保留文件名，仅更新公开 UI / href；
-- 不强制内部组件命名和数据类型在同一 PR 全面迁移。
+# 3. 世界模块产品定位
 
-优先保证 Public API / URL 正确。
+六个一级对象职责必须清晰：
+
+```text
+Explore       = 看视觉作品
+Mythology     = 看神话文明体系
+World         = 进入并探索空间世界
+Character     = 探索角色视觉资产
+Wallpaper     = 欣赏 / 下载单张作品
+Create        = 创建自己的版本
+```
+
+World 不是“分类标签页”，也不是“神话百科地点词条”。
+
+用户进入 World 后应该产生：
+
+> **“我进入了一个地方，这个地方还有其他地点、角色和视觉形态可以继续探索。”**
 
 ---
 
-# 17. 文案体系统一
+# 4. `/world/` 世界列表 UX
 
-公开页面避免以下词直接作为主标题：
+## 4.1 目标
 
-```text
-Realm
-Canonical Design
-Style Variant
-```
+列表页定位为 **World Atlas / 神话世界入口**。
 
-推荐映射：
+页面优先级：
 
-```text
-Realm             -> World / 世界
-Canonical Design  -> World Identity / 世界印记
-Scene             -> Landmark / 地标 / 场景
-Characters        -> Inhabitants / 这里的角色
-Style Variants    -> Visual Interpretations / 视觉演绎
-```
+1. 环境视觉；
+2. 世界名称；
+3. 所属文明；
+4. 快速进入；
+5. 筛选搜索。
 
-「神域」可以作为具体内容描述使用，例如：
+不是资料卡列表。
+
+## 4.2 IA
 
 ```text
-奥林匹斯是希腊诸神居住的神域。
+Header
+
+World Atlas Intro
+  WORLDS
+  进入神话世界
+  一句说明
+
+World Toolbar
+  [全部] [中国] [希腊] [北欧] [日本] [埃及]
+  Search World
+
+Editorial World Mosaic
+
+Explore CTA
 ```
 
-但不再作为一级 IA 的统一产品名。
+## 4.3 文本效果稿
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 绘世神话     首页  探索  角色  世界  AI 创作  文明图鉴          ◯  登录      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  WORLDS                                                                     │
+│  进入神话世界                                                               │
+│  从云海天宫到奥林匹斯，每个世界都有自己的空间、角色与视觉规则。              │
+│                                                                              │
+│  [ 全部 ]  [ 中国 ]  [ 希腊 ]  [ 北欧 ]  [ 日本 ]  [ 埃及 ]        搜索 ⌕  │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ ┌─────────────────────────────────────┐ ┌─────────────────────────────────┐  │
+│ │                                     │ │                                 │  │
+│ │              三十三重天             │ │             奥林匹斯            │  │
+│ │                                     │ │                                 │  │
+│ │       云海 / 天门 / 宫阙 / 月华     │ │    神殿 / 云海 / 黄金 / 山巅    │  │
+│ │                                     │ │                                 │  │
+│ │  中国神话 · Celestial Palace   →    │ │  希腊神话 · Olympus        →    │  │
+│ └─────────────────────────────────────┘ └─────────────────────────────────┘  │
+│                                                                              │
+│ ┌───────────────────────┐ ┌───────────────────────┐ ┌────────────────────┐   │
+│ │       阿斯加德        │ │        高天原         │ │       杜阿特       │   │
+│ │ 世界树 / 极光 / 巨石  │ │ 月 / 鸟居 / 雾林     │ │ 太阳 / 黑金 / 神舟 │   │
+│ │ 北欧神话           →  │ │ 日本神话          →  │ │ 埃及神话        → │   │
+│ └───────────────────────┘ └───────────────────────┘ └────────────────────┘   │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 4.4 World Gallery
+
+不要普通固定三列卡片墙，采用可扩展的 Editorial Mosaic：
+
+```text
+第一行：2 张大型世界封面
+第二行：3 张中型世界封面
+第三行：继续 2 / 3 节奏
+```
+
+布局可以用 CSS Grid `span` 根据索引形成稳定节奏，但不能绑定具体 World slug。
+
+世界封面推荐：
+
+```text
+16:9 / 3:2
+```
+
+Card 信息控制在：
+
+- Mythology；
+- World Name；
+- English Name；
+- 3～4 个世界关键词；
+- 进入世界箭头。
+
+禁止放 Canonical anchors、材料字段、大段 Summary、Style badge 堆叠。
 
 ---
 
-# 18. 响应式要求
-
-World Page 必须验证：
+# 5. `/world/{slug}/` 世界详情最终 IA
 
 ```text
-320px
-375px
-430px
-768px
-1024px
-1440px
-1920px
+01 Immersive World Hero
+02 World Identity / 世界印记
+03 Landmarks / Scenes
+04 Inhabitants / Characters
+05 Visual Interpretations / Real Artworks
+06 Wallpapers
+07 Related Worlds
+08 AI Create CTA
 ```
 
-## Mobile
+设计原则：
 
-页面顺序不改变：
+> **Character 是“看一个人”，World 是“进入一个地方”。**
+
+因此 World Detail 要比 Character Detail 更横向、更沉浸、更少 Surface Card 感。
+
+---
+
+# 6. Section 01 — Immersive World Hero
+
+使用 full bleed 世界场景，不再使用“左文字 + 右图片”的普通详情卡。
+
+## 文本效果稿
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 绘世神话      首页  探索  角色  世界  AI 创作  文明图鉴                      │
+│                                                                              │
+│                          巨 幅 世 界 场 景                                   │
+│                                                                              │
+│             云海                    天门                  远方宫阙             │
+│                                                                              │
+│  中国神话                                                                    │
+│  三 十 三 重 天                                                              │
+│  Celestial Palace                                                            │
+│                                                                              │
+│  层叠宫阙悬于云海之上，玉阶、金阙与天门连接不同天境。                       │
+│  云海 · 天门 · 宫阙 · 月华                                                   │
+│                                                                              │
+│  [ 开始探索 ↓ ]                                [ 绘制这个世界 ]              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+Hero 只保留：
+
+- Mythology；
+- World Name / Name EN；
+- 一句 Summary；
+- 3～4 个视觉关键词；
+- 探索 CTA；
+- AI Create CTA。
+
+不在首屏展示字段面板和 Style 选择器。
+
+---
+
+# 7. Section 02 — World Identity / 世界印记
+
+内部仍可使用 `canonicalDesign` 字段名，但公开 UI 不出现 Canonical Design。
+
+```text
+WORLD IDENTITY
+世界印记
+
+无论如何重新演绎，这些空间锚点始终存在。
+
+01 层叠宫阙     02 云海中轴     03 玉阶天门     04 日月轮
+─────────────────────────────────────────────────────────
+标志材质  白玉 · 鎏金 · 云雾
+空间轮廓  宫殿群围绕中央天门逐层向高空延伸
+```
+
+设计成“世界设定页”，使用大字号编号、留白和细分隔线，不做后台配置 Card。
+
+---
+
+# 8. Section 03 — Landmarks / Scenes
+
+这是世界详情最重要的子模块，必须接入：
+
+```text
+getScenesForWorld(db, world.id)
+```
+
+世界不能只是一张 Hero 图。
+
+## 文本效果稿
+
+```text
+LANDMARKS
+探索世界
+
+三十三重天不是一张图，而是由多个可以进入的地点组成。
+
+┌────────────────────────────────────────────┐
+│                 云 海 天 门                │         01
+│                                  进入 →    │
+└────────────────────────────────────────────┘
+
+                         02      ┌──────────────────────────────┐
+                                 │            月 宫             │
+                                 │                     进入 →   │
+                                 └──────────────────────────────┘
+
+┌────────────────────────────────────────────┐
+│                 凌 霄 宝 殿                │         03
+└────────────────────────────────────────────┘
+```
+
+采用交替左右的大图章节，形成“逐步深入世界”的滚动节奏。
+
+第一版不做 WebGL / 3D 地图。内容规模足够后再评估 World Map。
+
+---
+
+# 9. Section 04 — Inhabitants / Characters
+
+标题：
+
+```text
+INHABITANTS
+谁生活在这里
+```
+
+数据：
+
+```text
+getCharactersForWorld(db, world.id)
+```
+
+复用角色重构后的 image-first CharacterCard，但在 World Detail 使用更紧凑规格。
+
+只展示：
+
+- Portrait；
+- Name；
+- Role。
+
+不要在这里重复 Character Summary / Character DNA。
+
+---
+
+# 10. Section 05 — Visual Interpretations
+
+删除现在所有：
+
+```text
+Gradient Orb + Style Name
+CSS Filter Style Preview
+```
+
+视觉演绎只能来自真实：
+
+```text
+getArtworksForWorld(world.id)
+```
+
+按真实 `styleId` 聚合。
+
+```text
+VISUAL INTERPRETATIONS
+同一个世界，不同演绎
+
+[经典神话] [电影感] [神圣] [动漫] [暗黑幻想] [赛博神话]
+
+┌─────────────────────────────┐ ┌─────────────────────────────┐
+│         真实作品 A          │ │         真实作品 B          │
+└─────────────────────────────┘ └─────────────────────────────┘
+
+没有真实作品的 Style 不制造假图。
+```
+
+---
+
+# 11. Section 06 — Wallpapers
+
+与 Visual Interpretations 的职责：
+
+```text
+Visual Interpretations = 展示世界视觉可能性
+Wallpapers             = 可消费 / 下载的设备适配作品
+```
+
+筛选第一版只需要：
+
+```text
+[全部] [PC] [Mobile]
+```
+
+只展示真实 Artwork / OutputSpec。
+
+禁止复制图片填 Grid，禁止同图套滤镜冒充不同作品。
+
+---
+
+# 12. Section 07 — Related Worlds
+
+数据：
+
+```text
+getWorldsForMythology(db, world.mythologyId)
+  .filter(item => item.id !== world.id)
+```
+
+标题：
+
+```text
+MORE WORLDS
+继续探索这个文明
+```
+
+只有真实 sibling worlds 时展示。
+
+---
+
+# 13. Section 08 — AI Create
+
+CTA：
+
+```text
+绘制我的 {world.name}
+```
+
+统一 Creator 参数：
+
+```text
+/create/?world={world.slug}
+```
+
+进入 Creator 后：
+
+- 自动选中当前 World；
+- 自动带 Mythology；
+- 用户继续选 Scene / Style / Device；
+- 不让用户重复寻找刚才的 World。
+
+---
+
+# 14. 响应式
+
+验证：
+
+```text
+320 / 375 / 430 / 768 / 1024 / 1440 / 1920
+```
+
+Mobile 顺序不变：
 
 ```text
 Hero
@@ -986,44 +553,21 @@ Hero
 → Create
 ```
 
-Mobile Hero：
-
-- 不做左右分栏；
-- 保证世界视觉仍占足够高度；
-- 文案控制在安全区；
-- CTA 可上下排列。
-
-Scene / World Card：
-
-- 单列优先；
-- 不压缩成过小的双列缩略图。
-
----
-
-# 19. 无障碍
-
 要求：
 
-- Hero / Scene / Artwork 使用真实 `<img>`；
-- alt 描述真实视觉内容；
-- 卡片整体有明确可访问名称；
-- Filter 使用可读 active state；
-- 键盘可操作；
-- focus visible；
-- 状态不能只靠颜色；
-- 不依赖 hover 才能发现核心功能；
-- reduced-motion 下关闭不必要的图片 zoom / transition。
+- Hero 不左右分栏；
+- Landmark 单列大图；
+- 世界环境图不压缩成过小双列卡；
+- CTA 可上下排列；
+- 无横向滚动。
 
 ---
 
-# 20. SEO / GEO
+# 15. SEO / GEO
 
-World Detail 是重要实体页，需要保留机器可读信息。
+World Detail 必须机器可读地明确：
 
-## 页面必须明确
-
-- World 中文名；
-- World 英文名；
+- World 中文名 / 英文名；
 - Mythology；
 - Summary；
 - Landmarks / Scenes；
@@ -1031,204 +575,31 @@ World Detail 是重要实体页，需要保留机器可读信息。
 - Related Worlds；
 - Real Artworks。
 
-## Structured Data
-
-现有 `Place` 可以暂时继续使用，但 Breadcrumb 必须改为：
+Canonical：
 
 ```text
-首页
-→ 世界 /world/
-→ {World Name}
+https://mythcanvas.space/world/{slug}/
 ```
 
-同时必须保证：
+Breadcrumb：
 
 ```text
-canonical = /world/{slug}/
+首页 → 世界 → {World Name}
 ```
 
-旧 `/realm/{slug}/` 只 redirect。
+Structured Data 可以继续使用 `Place`，但代码变量和实体模型必须使用 World。
+
+Sitemap 必须能发现 D1 中动态 World Detail。
 
 ---
 
-# 21. 埋点建议
+# 16. 全站引用更新
 
-至少预留：
+至少扫描：
 
 ```text
-world_impression
-world_click
-world_filter_change
-world_search
-world_landmark_click
-world_character_click
-world_artwork_click
-world_related_click
-world_create_entry
-```
-
-核心观察：
-
-```text
-World → Scene CTR
-World → Character CTR
-World → Artwork CTR
-World → Create CTR
-Average World Depth
-```
-
-用于验证世界是否真的成为探索中枢，而不是孤立详情页。
-
----
-
-# 22. 不在本次做的事情
-
-明确不做：
-
-- `realms` 数据表整体重命名；
-- `Realm` TypeScript 类型全量重命名；
-- 世界 3D 地图；
-- WebGL 场景浏览；
-- 虚构大量没有真实内容的数据；
-- 用生成色块代替真实视觉；
-- World / Scene 两级复杂编辑后台重写；
-- 因路径迁移破坏旧链接。
-
----
-
-# 23. 实施 Phase
-
-## Phase 1 — URL / Naming Migration（P0）
-
-完成：
-
-- 新增 `/world/`；
-- 新增 `/world/{slug}/`；
-- `/realm/*` permanent redirect；
-- Header「世界」指向 `/world/`；
-- Footer 统一「世界」；
-- RealmCard 默认链接改 `/world/`；
-- Breadcrumb / canonical / internal links 更新；
-- 更新 PRODUCT / README 中公开 URL 表述。
-
-验收：
-
-```text
-/world/ -> 200
-/world/olympus/ -> 200
-/realm/ -> permanent redirect /world/
-/realm/olympus/ -> permanent redirect /world/olympus/
-站内 UI 不再产生新的 /realm/ href
-```
-
----
-
-## Phase 2 — World Index（P0）
-
-完成：
-
-- World Atlas Hero；
-- WorldCard image-first 重构；
-- Mythology filter；
-- Search；
-- 3 / 2 / 1 column responsive gallery；
-- Empty State；
-- URL filter state。
-
-验收：
-
-- 页面第一视觉是世界图而非 UI；
-- 5 个现有世界均可访问；
-- 筛选 / 搜索可组合；
-- 手机无横向滚动。
-
----
-
-## Phase 3 — World Detail Core（P0）
-
-完成：
-
-- Immersive Hero；
-- World Identity；
-- 接入 `getScenesForRealm()`；
-- Landmarks / Scenes；
-- Characters；
-- 删除 fake Style Variant orb；
-- Visual Interpretations 仅使用真实 Artwork。
-
-验收：
-
-用户进入世界后能清楚看到：
-
-```text
-这是哪里
-属于什么文明
-有哪些地标
-有哪些角色
-有哪些真实作品
-```
-
----
-
-## Phase 4 — Artwork / Related / Create（P1）
-
-完成：
-
-- Wallpaper device filter；
-- Related Worlds；
-- Context-aware Create CTA；
-- 真实 Empty State；
-- Related exploration links。
-
----
-
-## Phase 5 — SEO / Quality（P1）
-
-完成：
-
-- canonical 回归；
-- breadcrumb；
-- sitemap 验证；
-- redirect tests；
-- mobile visual regression；
-- a11y；
-- route/link regression；
-- 埋点。
-
----
-
-# 24. 推荐文件改造清单
-
-核心：
-
-```text
-src/pages/world/index.astro                         NEW
-src/pages/world/[slug].astro                       NEW
-src/pages/realm/index.astro                        LEGACY REDIRECT
-src/pages/realm/[slug].astro                       LEGACY REDIRECT
 src/components/Header.astro
 src/components/Footer.astro
-src/components/realm/RealmCard.astro               UPDATE or MOVE
-src/lib/content/repositories/scene.ts               REUSE
-src/lib/content/repositories/realm.ts               REUSE
-src/lib/content/repositories/artwork.ts             REUSE
-src/lib/content/repositories/character.ts           REUSE
-```
-
-建议新增：
-
-```text
-src/components/world/WorldCard.astro
-src/components/world/WorldHero.astro
-src/components/world/WorldIdentity.astro
-src/components/world/WorldLandmarks.astro
-src/components/world/WorldArtworkGallery.astro
-src/components/world/RelatedWorlds.astro
-```
-
-全站引用检查：
-
-```text
 src/pages/index.astro
 src/pages/explore/**
 src/pages/mythology/**
@@ -1236,72 +607,128 @@ src/pages/character/**
 src/pages/wallpaper/**
 src/pages/search/**
 src/pages/create/**
-docs/PRODUCT.md
+src/lib/generation/**
+src/lib/content/**
+src/pages/api/**
+tests/**
+migrations/**
+docs/**
 README.md
 ```
 
+最终业务代码不得再出现：
+
+```text
+Realm
+realmId
+realm_id
+realms
+character_realms
+/realm/
+```
+
+对 migration 历史文件是否重写按项目当前初始化策略处理；如果 migration 尚未形成生产历史，建议直接 squash / 重建初始 schema，保持新系统干净。
+
 ---
 
-# 25. Definition of Done
+# 17. 实施 Phase
 
-本次重构只有同时满足以下条件才算完成：
+## Phase 1 — Domain Rename（P0）
 
-## URL / Naming
+- `Realm → World`；
+- `realms → worlds`；
+- `realm_id → world_id`；
+- `character_realms → character_worlds`；
+- Types / Repository / API / Generation / Tests 全量更新；
+- 删除 `src/pages/realm`；
+- 新建 `src/pages/world`；
+- `RealmCard → WorldCard`。
 
-- [ ] 一级导航统一使用「世界」；
-- [ ] 正式 URL 为 `/world/`；
-- [ ] Detail 为 `/world/{slug}/`；
-- [ ] `/realm/*` 永久跳转；
-- [ ] 站内不再生成新的 `/realm/*` 链接；
-- [ ] 内部 Realm model 保持兼容。
+验收：代码业务层搜索不到 Realm 旧命名。
+
+## Phase 2 — World Index（P0）
+
+- World Atlas Intro；
+- Editorial Mosaic；
+- Mythology Filter；
+- Search；
+- Responsive；
+- Empty State。
+
+## Phase 3 — World Detail Core（P0）
+
+- Full-bleed Hero；
+- World Identity；
+- `getScenesForWorld()`；
+- Landmark alternating layout；
+- Characters；
+- 删除假 Style Orb；
+- Visual Interpretations 只读真实 Artwork。
+
+## Phase 4 — Artwork / Related / Create（P1）
+
+- Wallpaper device filter；
+- Related Worlds；
+- Creator world context；
+- 真实 Empty State；
+- 探索链路完善。
+
+## Phase 5 — SEO / Quality（P1）
+
+- canonical / breadcrumb / sitemap；
+- mobile visual regression；
+- a11y；
+- route / link regression；
+- 埋点；
+- build / typecheck / tests。
+
+---
+
+# 18. Definition of Done
+
+## Domain
+
+- [ ] 正式领域类型为 `World`；
+- [ ] 表为 `worlds`；
+- [ ] 外键为 `world_id`；
+- [ ] 关联表为 `character_worlds`；
+- [ ] Repository 全部使用 World 命名；
+- [ ] `/realm` 页面目录不存在；
+- [ ] 业务代码无 Realm 双命名兼容层。
 
 ## World Index
 
-- [ ] 世界卡以环境视觉为主体；
-- [ ] 支持 Mythology Filter；
-- [ ] 支持 Search；
+- [ ] `/world/` 第一视觉是世界环境图；
+- [ ] 使用 Editorial Mosaic；
+- [ ] 支持文明筛选和搜索；
 - [ ] PC / Tablet / Mobile 正常；
-- [ ] 空状态真实。
+- [ ] Empty State 真实。
 
 ## World Detail
 
-- [ ] Hero 是沉浸式世界视觉；
-- [ ] 不再使用普通左右 Surface Hero；
-- [ ] 展示 World Identity；
-- [ ] Scene / Landmark 成为核心 Section；
+- [ ] Full-bleed 世界 Hero；
+- [ ] World Identity 不是后台字段卡；
+- [ ] Scene / Landmark 是核心 Section；
 - [ ] Characters 可继续探索；
 - [ ] Style Preview 只来自真实 Artwork；
-- [ ] 删除 gradient orb 假视觉；
-- [ ] Wallpapers 只展示真实 Artwork；
+- [ ] 删除 gradient orb / CSS filter 假视觉；
+- [ ] Wallpapers 只展示真实作品；
 - [ ] Related Worlds 有数据才展示；
 - [ ] Create 自动继承当前 World。
 
 ## Quality
 
-- [ ] canonical 全部指向 `/world/*`；
-- [ ] Breadcrumb 使用「世界」；
-- [ ] Sitemap 可发现 World Detail；
-- [ ] old route redirect tests 通过；
-- [ ] 320 / 375 / 430 / 768 / 1024 / 1440 / 1920 验证；
-- [ ] 无新增横向滚动；
-- [ ] 键盘 / focus / reduced-motion 正常；
-- [ ] build / typecheck / tests 全部通过。
+- [ ] canonical 全部为 `/world/*`；
+- [ ] Sitemap 包含 World Detail；
+- [ ] 320～1920px 无横向滚动；
+- [ ] focus / keyboard / reduced-motion 正常；
+- [ ] build / typecheck / tests 全通过。
 
 ---
 
-# 26. 最终产品判断
+# 19. 最终判断
 
-世界页面不能只是：
-
-```text
-世界名
-+ 一张图
-+ Canonical Design
-+ Style 列表
-+ 壁纸
-```
-
-它应该成为 MythCanvas 的空间探索中枢：
+世界模块必须成为 MythCanvas 的**空间探索中枢**：
 
 ```text
 文明
@@ -1317,10 +744,10 @@ README.md
 重新创造
 ```
 
-因此本次最核心的三个动作是：
+这次重构最重要的不是换一个 URL，而是一次性完成三件事：
 
-1. **公开 `/realm` 正式迁移为 `/world`；**
-2. **把 Scene / Landmark 提升为世界详情核心内容；**
-3. **彻底删除没有真实 Artwork 支撑的假 Style 视觉。**
+1. **Realm 在产品、代码、数据库中彻底统一为 World；**
+2. **Scene / Landmark 被提升为 World 的第一核心子实体；**
+3. **World 页面只展示真实视觉资产，不制造 Style 假丰富。**
 
-完成这三点后，「世界」才会真正成为区别于普通壁纸站和普通 AI 生图站的核心产品对象。
+完成后，`World` 才会成为区别于普通壁纸图库和普通 AI 生图站的核心产品对象。
