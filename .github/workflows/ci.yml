@@ -22,5 +22,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Astro site
-        run: npm run build
+      - name: Unit tests
+        run: npm test
+
+      - name: Verify D1 migrations
+        run: npm run migration:check
+
+      - name: Build, typecheck and Worker dry run
+        run: npm run check
