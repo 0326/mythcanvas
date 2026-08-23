@@ -1,4 +1,5 @@
 ---
+import { ArrowRight, Sparkles } from '@lucide/astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import MythologyCard from '../components/mythology/MythologyCard.astro';
 import RealmCard from '../components/realm/RealmCard.astro';
@@ -46,7 +47,7 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
         <p class="hero-slogan">用 AI 重现神话世界</p>
         <p class="hero-intro">从云海天宫到奥林匹斯，从诸神到神兽。探索传说中的世界，并重新绘制属于你的版本。</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="/explore/">探索神境 <span aria-hidden="true">→</span></a>
+          <a class="btn btn-primary" href="/explore/">探索神境 <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" /></a>
           <a class="btn btn-secondary" href="/create/">开始绘神</a>
         </div>
         <div class="hero-mythologies" aria-label="首发神话文明">
@@ -134,7 +135,7 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
   <section class="section create-section" id="create">
     <div class="container-wide">
       <div class="create-panel surface">
-        <div class="create-orbit" aria-hidden="true"><span>✦</span></div>
+        <div class="create-orbit" aria-hidden="true"><Sparkles size={35} strokeWidth={1.5} /></div>
         <div class="create-copy">
           <span class="eyebrow">AI Creation</span>
           <h2>不是写 Prompt，<br />是重新绘制一个神话世界。</h2>
@@ -374,6 +375,7 @@ const [featuredRealms, featuredCharacters, featuredMythologies, featuredArtworks
     aspect-ratio: 1;
     place-items: center;
     margin-inline: auto;
+    color: var(--accent);
     border: 1px solid var(--border-strong);
     border-radius: 50%;
     box-shadow:

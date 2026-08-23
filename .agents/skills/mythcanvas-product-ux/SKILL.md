@@ -156,6 +156,18 @@ Base creation on:
 - Composition
 - optional advanced free text
 
+## Icon system
+
+MythCanvas uses **Lucide** as the functional UI icon system.
+
+- Import icons from `@lucide/astro` by semantic name.
+- Do not use emoji / Unicode glyphs for functional UI.
+- Typical UI size: 16–20px; keep stroke weight visually consistent.
+- Icon-only actions require `aria-label`; decorative icons use `aria-hidden="true"`.
+- Custom SVG is reserved for MythCanvas brand marks and Civilization Visual DNA motifs that generic UI libraries should not represent.
+- Do not mix multiple general-purpose icon libraries.
+- Prefer text + icon for primary actions; use icon-only controls only when the meaning is conventional and accessible.
+
 ## Typography
 
 - major headings: modern Song/serif is allowed

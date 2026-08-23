@@ -1,4 +1,5 @@
 ---
+import { Landmark, Sparkles } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCharacters, getRealms, getStyles } from '../../lib/content/repositories';
 
@@ -80,7 +81,7 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
                 data-image={realm.heroImage.src}
                 aria-pressed="false"
               >
-                <span class="entity-glyph">◇</span>
+                <span class="entity-glyph" aria-hidden="true"><Landmark size={18} strokeWidth={1.8} /></span>
                 <span><strong>{realm.name}</strong><small>{realm.nameEn}</small></span>
               </button>
             ))}
@@ -128,7 +129,7 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
           </div>
         </div>
 
-        <button class="btn btn-primary generate-button" type="button" data-generate>开始绘神 <span aria-hidden="true">✦</span></button>
+        <button class="btn btn-primary generate-button" type="button" data-generate><span data-generate-label>开始绘神</span><Sparkles size={17} strokeWidth={1.8} aria-hidden="true" /></button>
       </form>
 
       <aside class="preview-column">
@@ -307,7 +308,8 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
       const actions = root.querySelector('[data-preview-actions]');
       if (!button) return;
       button.disabled = busy;
-      button.textContent = label;
+      const labelNode = button.querySelector('[data-generate-label]');
+      if (labelNode) labelNode.textContent = label;
       if (actions) actions.hidden = busy || !state.lastImageUrl;
     };
 
@@ -389,13 +391,13 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
         renderHistory();
 
         if (downloadBtn instanceof HTMLAnchorElement) downloadBtn.href = result.imageUrl;
-        setBusy(false, '再绘一次 ✦');
+        setBusy(false, '再绘一次');
         if (retryBtn) retryBtn.hidden = true;
       } catch (error) {
         const message = error instanceof Error ? error.message : '请稍后再试';
         if (statusTitle) statusTitle.textContent = '这次神迹没有完成';
         if (statusText) statusText.textContent = message;
-        setBusy(false, '重新绘神 ✦');
+        setBusy(false, '重新绘神');
         if (retryBtn) retryBtn.hidden = false;
       } finally {
         status.classList.remove('is-generating');
@@ -524,7 +526,7 @@ const entityTypeLabels = { character: '角色', realm: '神域' } as const;
   .composition-option > span:last-child { display: grid; }
   .composition-option strong { font-size: .78rem; }
   .composition-option small { color: var(--text-muted); font-size: .68rem; }
-  .generate-button { width: 100%; min-height: 52px; }
+  .generate-button { width: 100%; min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; }
   .generate-button:disabled { cursor: wait; opacity: .7; }
   .preview-column { position: sticky; top: calc(var(--header-height) + var(--space-6)); display: grid; gap: var(--space-4); }
   .preview-card { overflow: hidden; padding: var(--space-3); border-radius: var(--radius-xl); }
