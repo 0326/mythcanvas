@@ -1,13 +1,19 @@
 export type GenerationEntityType = 'character' | 'realm';
 export type GenerationStatus = 'queued' | 'generating' | 'succeeded' | 'failed' | 'moderated';
+export type GenerationQuality = 'low' | 'medium' | 'high' | 'auto';
 
 export type GenerationRequest = {
   entityType: GenerationEntityType;
   entityId: string;
+  /** Persistent age/costume/form state. Character-only and orthogonal to Style. */
+  variantId?: string;
   styleId: string;
   scene: string;
   composition: string;
+  /** Backward-compatible aspect ratio. Prefer outputSpecId for product flows. */
   ratio: string;
+  /** Device/resolution composition preset, e.g. mobile-wallpaper / desktop-wallpaper. */
+  outputSpecId?: string;
   description?: string;
   /** 变体：父生成 job id */
   sourceGenerationId?: string;
@@ -16,6 +22,18 @@ export type GenerationRequest = {
 export type GenerationDimensions = {
   width: number;
   height: number;
+};
+
+export type PromptLayers = {
+  purpose: string;
+  identity: string;
+  variant?: string;
+  civilization: string;
+  style: string;
+  scene: string;
+  output: string;
+  refinement?: string;
+  guardrails: string;
 };
 
 export type ResolvedGenerationContext = {
@@ -32,11 +50,34 @@ export type ResolvedGenerationContext = {
   };
   canonicalAnchors: readonly string[];
   symbols: readonly string[];
+  variant?: {
+    id: string;
+    name: string;
+    variantType: 'age' | 'costume' | 'form' | 'composite';
+    description: string;
+    identityOverrides: readonly string[];
+    promptFragment: string;
+    referenceAssetIds: readonly string[];
+  };
   styleId: string;
   styleName: string;
+  styleProfile: {
+    promptTemplate: string;
+    renderRules: readonly string[];
+    avoid: readonly string[];
+  };
   scene: string;
   composition: string;
   ratio: string;
+  outputSpec: {
+    id: string;
+    name: string;
+    deviceType: 'desktop' | 'mobile';
+    ratio: string;
+    safeZone: Readonly<Record<string, unknown>>;
+    compositionRules: readonly string[];
+    quality: GenerationQuality;
+  };
   description: string;
   dimensions: GenerationDimensions;
 };
@@ -46,12 +87,14 @@ export type ProviderGenerationRequest = {
   prompt: string;
   width: number;
   height: number;
+  quality?: GenerationQuality;
   metadata: Record<string, string>;
 };
 
 export type ProviderGenerationResult = {
   provider: string;
   providerRequestId?: string;
+  model?: string;
   bytes: Uint8Array;
   mimeType: string;
   width: number;
@@ -65,12 +108,18 @@ export type GenerationJob = {
   entityId: string;
   mythologyId: string;
   styleId: string;
+  characterVariantId?: string;
+  outputSpecId?: string;
   scene: string;
   composition: string;
   ratio: string;
   description: string;
   prompt: string;
+  promptLayers?: PromptLayers;
   provider: string;
+  generationModel?: string;
+  generationQuality?: GenerationQuality;
+  referenceAssetIds?: string[];
   providerRequestId?: string;
   assetKey?: string;
   assetMime?: string;
