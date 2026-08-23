@@ -233,7 +233,7 @@ const mythologyCards = [
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-serif);
-    font-size: clamp(3.45rem, 6.3vw, 5.6rem);
+    font-size: clamp(3.2rem, 4.8vw, 4.8rem);
     font-weight: 650;
     letter-spacing: .12em;
     line-height: .98;
@@ -258,7 +258,7 @@ const mythologyCards = [
     padding: .72rem 1.55rem;
     border: 1px solid color-mix(in srgb, var(--accent-strong) 52%, transparent);
     border-radius: 999px;
-    color: var(--button-primary-text);
+    color: var(--text-inverse);
     background: color-mix(in srgb, var(--accent) 90%, transparent);
     box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 20%, transparent);
     font-size: .86rem;
@@ -271,6 +271,7 @@ const mythologyCards = [
   .hero-cta:hover,
   .hero-cta:focus-visible {
     transform: translateY(-2px);
+    color: var(--text-inverse);
     background: var(--accent-strong);
     box-shadow: 0 14px 34px color-mix(in srgb, var(--accent) 28%, transparent);
   }
@@ -375,9 +376,9 @@ const mythologyCards = [
 
   .mythology-card {
     position: relative;
-    flex: 0 0 calc((100vw - clamp(4.2rem, 9vw, 8rem) - (var(--card-gap) * 5)) / 6);
+    flex: 0 0 clamp(148px, calc((100vw - 10rem) / 6), 203px);
     min-width: 148px;
-    max-width: 230px;
+    max-width: 203px;
     height: clamp(92px, 12.5vh, 118px);
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--border-strong) 68%, transparent);
@@ -457,11 +458,11 @@ const mythologyCards = [
   }
 
   @media (max-width: 1180px) {
-    .mythology-card { flex-basis: calc((100vw - 5.5rem - (var(--card-gap) * 4)) / 5); }
+    .mythology-card { flex-basis: calc((100vw - 5.5rem - (var(--card-gap) * 4)) / 5); max-width: none; }
   }
 
   @media (max-width: 960px) {
-    .hero-copy h1 { font-size: clamp(3rem, 8vw, 4.7rem); }
+    .hero-copy h1 { font-size: clamp(3rem, 8vw, 4.4rem); }
     .mythology-card { flex-basis: calc((100vw - 4.5rem - (var(--card-gap) * 3)) / 4); }
   }
 
