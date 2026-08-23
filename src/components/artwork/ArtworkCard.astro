@@ -5,10 +5,10 @@ import type { Artwork } from '../../lib/content/types';
 interface Props {
   artwork: Artwork;
   mythologyName?: string;
-  realmName?: string;
+  worldName?: string;
 }
 
-const { artwork, mythologyName, realmName } = Astro.props;
+const { artwork, mythologyName, worldName } = Astro.props;
 ---
 
 <article
@@ -34,7 +34,7 @@ const { artwork, mythologyName, realmName } = Astro.props;
     <div class="copy">
       <div>
         <h3>{artwork.title}</h3>
-        <p>{realmName ?? mythologyName}</p>
+        <p>{worldName ?? mythologyName}</p>
       </div>
       <span class="arrow" aria-hidden="true"><ArrowUpRight size={17} strokeWidth={1.8} /></span>
     </div>

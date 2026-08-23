@@ -1,0 +1,46 @@
+---
+import type { World } from '../../lib/content/types';
+import WorldCard from './WorldCard.astro';
+
+interface Props {
+  worlds: readonly World[];
+  mythologyName?: string;
+}
+
+const { worlds, mythologyName } = Astro.props;
+---
+
+{worlds.length > 0 && (
+  <section class="section-compact section-tint">
+    <div class="container-wide">
+      <div class="section-heading">
+        <div><span class="eyebrow">More Worlds</span><h2>继续探索这个文明</h2><p>同一个文明的更多神域，等待进入。</p></div>
+      </div>
+      <div class="world-grid">
+        {worlds.map((world) => (
+          <WorldCard world={world} mythologyName={mythologyName} key={world.id} />
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .world-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  @media (max-width: 820px) {
+    .world-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .world-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

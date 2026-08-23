@@ -40,7 +40,7 @@ q {
 /* Existing MythCanvas narrative surfaces migrated to the literary role. */
 .hero-copy > p,
 .entity-copy > p,
-.realm-hero-copy > p,
+.world-hero-copy > p,
 .character-copy .summary,
 .section-heading p,
 .mythology-heading p,
@@ -48,7 +48,7 @@ q {
 .character-card .summary,
 .hero-summary,
 .character-summary,
-.realm-summary,
+.world-summary,
 .mythology-summary {
   font-family: var(--font-literary) !important;
   font-weight: 400;
@@ -95,7 +95,7 @@ h3 {
 .literary-copy,
 .hero-summary,
 .character-summary,
-.realm-summary,
+.world-summary,
 .mythology-summary {
   line-height: 1.85;
 }

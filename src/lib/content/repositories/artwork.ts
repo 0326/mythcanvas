@@ -6,7 +6,7 @@ import type { ArtworkListQuery } from './types';
 type ArtworkRow = Record<string, unknown>;
 
 const SELECT_COLUMNS = `
-  id, slug, title, type, mythology_id, realm_id, style_id, mood_ids_json,
+  id, slug, title, type, mythology_id, world_id, style_id, mood_ids_json,
   asset_key, asset_mime, width, height, alt_text, source_type, license, creator, review_status
 `;
 
@@ -17,7 +17,7 @@ export function mapArtworkRow(row: ArtworkRow, characterIds: readonly string[] =
     title: String(row.title),
     type: String(row.type) as ArtworkType,
     mythologyId: String(row.mythology_id),
-    realmId: optionalString(row.realm_id),
+    worldId: optionalString(row.world_id),
     characterIds: characterIds.length > 0 ? characterIds : undefined,
     styleId: String(row.style_id),
     moodIds: parseStringArray(row.mood_ids_json),
@@ -58,7 +58,7 @@ function applySeedFilters(list: Artwork[], query: ArtworkListQuery): Artwork[] {
   let result = [...list];
   if (query.published !== 'all') result = result.filter((item) => item.reviewStatus === 'approved');
   if (query.mythologyId) result = result.filter((item) => item.mythologyId === query.mythologyId);
-  if (query.realmId) result = result.filter((item) => item.realmId === query.realmId);
+  if (query.worldId) result = result.filter((item) => item.worldId === query.worldId);
   if (query.characterId) result = result.filter((item) => item.characterIds?.includes(query.characterId ?? ''));
   if (query.styleId) result = result.filter((item) => item.styleId === query.styleId);
   if (query.type) result = result.filter((item) => item.type === query.type);
@@ -100,9 +100,9 @@ export async function getArtworks(db: D1Database | undefined, query: ArtworkList
     where.push('a.mythology_id = ?');
     values.push(query.mythologyId);
   }
-  if (query.realmId) {
-    where.push('a.realm_id = ?');
-    values.push(query.realmId);
+  if (query.worldId) {
+    where.push('a.world_id = ?');
+    values.push(query.worldId);
   }
   if (query.styleId) {
     where.push('a.style_id = ?');
@@ -186,12 +186,12 @@ export async function getArtworksForMythology(
   return getArtworks(db, { ...query, mythologyId });
 }
 
-export async function getArtworksForRealm(
+export async function getArtworksForWorld(
   db: D1Database | undefined,
-  realmId: string,
+  worldId: string,
   query: ArtworkListQuery = {},
 ): Promise<Artwork[]> {
-  return getArtworks(db, { ...query, realmId });
+  return getArtworks(db, { ...query, worldId });
 }
 
 export async function getArtworksForCharacter(

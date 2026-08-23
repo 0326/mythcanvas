@@ -1,4 +1,4 @@
-import type { Artwork, Character, CharacterVariant, Mythology, Realm, Scene, Style } from '../lib/content/types';
+import type { Artwork, Character, CharacterVariant, Mythology, World, Scene, Style } from '../lib/content/types';
 
 const prototypeLicense = {
   sourceType: 'prototype' as const,
@@ -78,9 +78,9 @@ export const mythologies: Mythology[] = [
   },
 ];
 
-export const realms: Realm[] = [
+export const worlds: World[] = [
   {
-    id: 'realm-heavenly-palace',
+    id: 'world-heavenly-palace',
     mythologyId: 'myth-chinese',
     slug: 'heavenly-palace',
     name: '三十三重天',
@@ -88,39 +88,39 @@ export const realms: Realm[] = [
     summary: '层叠宫阙悬于云海之上，玉阶、金阙与天门连接不同天境。',
     canonicalDesign: {
       anchors: ['层叠宫阙', '云海中轴', '月轮/日轮', '玉阶天门'],
-      silhouette: '高低错落的东方宫殿群围绕中央天门向上生长',
+      silhouette: '高低错乱的东方宫殿群围绕中央天门向上生长',
       signatureMaterials: ['白玉', '鎏金', '云雾'],
     },
     heroImage: { src: '/media/content/chinese-celestial.svg', alt: '三十三重天的云海宫阙', width: 1600, height: 900 },
   },
   {
-    id: 'realm-olympus',
+    id: 'world-olympus',
     mythologyId: 'myth-greek',
     slug: 'olympus',
     name: '奥林匹斯',
     nameEn: 'Olympus',
-    summary: '悬于高峰与云层之上的诸神居所，以白色神殿和黄金光线为核心。',
+    summary: '悬于高峰与云层之上的诸神居所，以白色天光和黄金光线为核心。',
     canonicalDesign: {
       anchors: ['白色柱廊', '高山云层', '黄金穹顶', '诸神议庭'],
       signatureMaterials: ['大理石', '黄金'],
     },
-    heroImage: { src: '/media/content/greek-olympus.jpg', alt: '奥林匹斯:高峰云层之上的诸神居所', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/greek-olympus.jpg', alt: '奥林匹斯:高峰之上云层之中的诸神居所', width: 1280, height: 720 },
   },
   {
-    id: 'realm-asgard',
+    id: 'world-asgard',
     mythologyId: 'myth-norse',
     slug: 'asgard',
     name: '阿斯加德',
     nameEn: 'Asgard',
-    summary: '由巨石、金属与彩虹桥连接的北境神域，远方世界树贯穿天际。',
+    summary: '由巨石、金属与彩虹桥连接的北境神域，远处世界树贯穿天际。',
     canonicalDesign: {
-      anchors: ['世界树', '彩虹桥', '北境宫殿', '极光天空'],
+      anchors: ['世界巨树', '彩虹桥', '北境宫殿', '极光天空'],
       signatureMaterials: ['巨石', '铁', '冰晶'],
     },
     heroImage: { src: '/media/content/norse-asgard.jpg', alt: '阿斯加德:巨石、金属与彩虹桥连接的北境神域', width: 1280, height: 720 },
   },
   {
-    id: 'realm-takamagahara',
+    id: 'world-takamagahara',
     mythologyId: 'myth-japanese',
     slug: 'takamagahara',
     name: '高天原',
@@ -133,7 +133,7 @@ export const realms: Realm[] = [
     heroImage: { src: '/media/content/japanese-takamagahara.jpg', alt: '高天原:月色与云层之间的鸟居与神社', width: 1280, height: 720 },
   },
   {
-    id: 'realm-duat',
+    id: 'world-duat',
     mythologyId: 'myth-egyptian',
     slug: 'duat',
     name: '杜阿特',
@@ -143,7 +143,7 @@ export const realms: Realm[] = [
       anchors: ['太阳圆盘', '神舟', '砂岩巨门', '星空穹顶'],
       signatureMaterials: ['砂岩', '黑石', '青金石'],
     },
-    heroImage: { src: '/media/content/egyptian-duat.jpg', alt: '杜阿特:太阳神舟穿越的冥界神域', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/egyptian-duat.jpg', alt: '杜阿特:太阳神舟在星空下跨越冥界', width: 1280, height: 720 },
   },
 ];
 
@@ -151,7 +151,7 @@ export const characters: Character[] = [
   {
     id: 'character-change',
     mythologyId: 'myth-chinese',
-    realmIds: ['realm-heavenly-palace'],
+    worldIds: ['world-heavenly-palace'],
     slug: 'chang-e',
     name: '嫦娥',
     nameEn: "Chang'e",
@@ -167,7 +167,7 @@ export const characters: Character[] = [
   {
     id: 'character-athena',
     mythologyId: 'myth-greek',
-    realmIds: ['realm-olympus'],
+    worldIds: ['world-olympus'],
     slug: 'athena',
     name: '雅典娜',
     nameEn: 'Athena',
@@ -183,7 +183,7 @@ export const characters: Character[] = [
   {
     id: 'character-freyja',
     mythologyId: 'myth-norse',
-    realmIds: ['realm-asgard'],
+    worldIds: ['world-asgard'],
     slug: 'freyja',
     name: '芙蕾雅',
     nameEn: 'Freyja',
@@ -196,7 +196,7 @@ export const characters: Character[] = [
   {
     id: 'character-kaguya',
     mythologyId: 'myth-japanese',
-    realmIds: ['realm-takamagahara'],
+    worldIds: ['world-takamagahara'],
     slug: 'kaguya',
     name: '辉夜姬',
     nameEn: 'Kaguya-hime',
@@ -209,7 +209,7 @@ export const characters: Character[] = [
   {
     id: 'character-anubis',
     mythologyId: 'myth-egyptian',
-    realmIds: ['realm-duat'],
+    worldIds: ['world-duat'],
     slug: 'anubis',
     name: '阿努比斯',
     nameEn: 'Anubis',
@@ -372,9 +372,9 @@ export const artworks: Artwork[] = [
     id: 'art-celestial-gate',
     slug: 'celestial-gate-above-clouds',
     title: '云上天门',
-    type: 'realm',
+    type: 'world',
     mythologyId: 'myth-chinese',
-    realmId: 'realm-heavenly-palace',
+    worldId: 'world-heavenly-palace',
     styleId: 'canonical',
     moodIds: ['sacred', 'dreamy', 'epic'],
     image: { src: '/media/content/chinese-celestial.svg', alt: '云海之上的金色天门和宫阙', width: 1600, height: 900 },
@@ -387,7 +387,7 @@ export const artworks: Artwork[] = [
     title: '月宫清辉',
     type: 'character',
     mythologyId: 'myth-chinese',
-    realmId: 'realm-heavenly-palace',
+    worldId: 'world-heavenly-palace',
     characterIds: ['character-change'],
     styleId: 'sacred',
     moodIds: ['moonlight', 'quiet'],
@@ -399,9 +399,9 @@ export const artworks: Artwork[] = [
     id: 'art-olympus-dawn',
     slug: 'olympus-at-dawn',
     title: '奥林匹斯晨光',
-    type: 'realm',
+    type: 'world',
     mythologyId: 'myth-greek',
-    realmId: 'realm-olympus',
+    worldId: 'world-olympus',
     styleId: 'cinematic',
     moodIds: ['sacred', 'bright'],
     image: { src: '/media/content/art-olympus-dawn.jpg', alt: '晨光中的奥林匹斯:金色光线穿过大理石柱廊', width: 720, height: 1280 },
@@ -412,9 +412,9 @@ export const artworks: Artwork[] = [
     id: 'art-asgard-aurora',
     slug: 'asgard-under-aurora',
     title: '极光阿斯加德',
-    type: 'realm',
+    type: 'world',
     mythologyId: 'myth-norse',
-    realmId: 'realm-asgard',
+    worldId: 'world-asgard',
     styleId: 'cinematic',
     moodIds: ['epic', 'cold'],
     image: { src: '/media/content/art-asgard-aurora.jpg', alt: '极光下的阿斯加德:雪崖上的金色灯火殿堂', width: 720, height: 1280 },
@@ -425,9 +425,9 @@ export const artworks: Artwork[] = [
     id: 'art-takamagahara-moon',
     slug: 'takamagahara-moon',
     title: '月下高天原',
-    type: 'realm',
+    type: 'world',
     mythologyId: 'myth-japanese',
-    realmId: 'realm-takamagahara',
+    worldId: 'world-takamagahara',
     styleId: 'sacred',
     moodIds: ['moonlight', 'quiet'],
     image: { src: '/media/content/art-takamagahara-moon.jpg', alt: '月下高天原:巨大满月与湖面鸟居', width: 720, height: 1280 },
@@ -438,9 +438,9 @@ export const artworks: Artwork[] = [
     id: 'art-duat-sun-barge',
     slug: 'duat-sun-barge',
     title: '太阳神舟',
-    type: 'realm',
+    type: 'world',
     mythologyId: 'myth-egyptian',
-    realmId: 'realm-duat',
+    worldId: 'world-duat',
     styleId: 'dark-fantasy',
     moodIds: ['mysterious', 'sacred'],
     image: { src: '/media/content/art-duat-sun-barge.jpg', alt: '太阳神舟:星空之河上的拉神金舟', width: 720, height: 1280 },
@@ -462,7 +462,7 @@ export const scenes: Scene[] = [
   {
     id: 'scene-sea-of-clouds',
     mythologyId: 'myth-chinese',
-    realmId: 'realm-heavenly-palace',
+    worldId: 'world-heavenly-palace',
     slug: 'sea-of-clouds',
     name: '云海天门',
     nameEn: 'Sea of Clouds',
@@ -473,7 +473,7 @@ export const scenes: Scene[] = [
   {
     id: 'scene-temple-of-olympus',
     mythologyId: 'myth-greek',
-    realmId: 'realm-olympus',
+    worldId: 'world-olympus',
     slug: 'temple-of-olympus',
     name: '诸神议庭',
     nameEn: 'Court of the Gods',
@@ -484,7 +484,7 @@ export const scenes: Scene[] = [
   {
     id: 'scene-world-tree-roots',
     mythologyId: 'myth-norse',
-    realmId: 'realm-asgard',
+    worldId: 'world-asgard',
     slug: 'world-tree-roots',
     name: '世界树之根',
     nameEn: 'Roots of the World Tree',
@@ -495,7 +495,7 @@ export const scenes: Scene[] = [
   {
     id: 'scene-bamboo-moon',
     mythologyId: 'myth-japanese',
-    realmId: 'realm-takamagahara',
+    worldId: 'world-takamagahara',
     slug: 'bamboo-moon',
     name: '月下竹林',
     nameEn: 'Bamboo Moon',
@@ -506,7 +506,7 @@ export const scenes: Scene[] = [
   {
     id: 'scene-river-of-stars',
     mythologyId: 'myth-egyptian',
-    realmId: 'realm-duat',
+    worldId: 'world-duat',
     slug: 'river-of-stars',
     name: '星空之河',
     nameEn: 'River of Stars',

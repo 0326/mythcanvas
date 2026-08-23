@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS mythologies (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS realms (
+CREATE TABLE IF NOT EXISTS worlds (
   id TEXT PRIMARY KEY,
   mythology_id TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -40,12 +40,12 @@ CREATE TABLE IF NOT EXISTS characters (
   FOREIGN KEY (mythology_id) REFERENCES mythologies(id)
 );
 
-CREATE TABLE IF NOT EXISTS character_realms (
+CREATE TABLE IF NOT EXISTS character_worlds (
   character_id TEXT NOT NULL,
-  realm_id TEXT NOT NULL,
-  PRIMARY KEY (character_id, realm_id),
+  world_id TEXT NOT NULL,
+  PRIMARY KEY (character_id, world_id),
   FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-  FOREIGN KEY (realm_id) REFERENCES realms(id) ON DELETE CASCADE
+  FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS styles (
@@ -61,9 +61,9 @@ CREATE TABLE IF NOT EXISTS artworks (
   id TEXT PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
   title TEXT NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('character','realm','scene','creature','architecture')),
+  type TEXT NOT NULL CHECK (type IN ('character','world','scene','creature','architecture')),
   mythology_id TEXT NOT NULL,
-  realm_id TEXT,
+  world_id TEXT,
   style_id TEXT NOT NULL,
   mood_ids_json TEXT NOT NULL DEFAULT '[]',
   asset_key TEXT NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS artworks (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (mythology_id) REFERENCES mythologies(id),
-  FOREIGN KEY (realm_id) REFERENCES realms(id),
+  FOREIGN KEY (world_id) REFERENCES worlds(id),
   FOREIGN KEY (style_id) REFERENCES styles(id)
 );
 
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS artwork_characters (
 CREATE TABLE IF NOT EXISTS generation_jobs (
   id TEXT PRIMARY KEY,
   status TEXT NOT NULL CHECK (status IN ('queued','generating','succeeded','failed','moderated')),
-  entity_type TEXT NOT NULL CHECK (entity_type IN ('character','realm')),
+  entity_type TEXT NOT NULL CHECK (entity_type IN ('character','world')),
   entity_id TEXT NOT NULL,
   mythology_id TEXT NOT NULL,
   style_id TEXT NOT NULL,
@@ -115,10 +115,10 @@ CREATE TABLE IF NOT EXISTS generation_jobs (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_realms_mythology ON realms(mythology_id);
+CREATE INDEX IF NOT EXISTS idx_worlds_mythology ON worlds(mythology_id);
 CREATE INDEX IF NOT EXISTS idx_characters_mythology ON characters(mythology_id);
 CREATE INDEX IF NOT EXISTS idx_artworks_mythology ON artworks(mythology_id);
-CREATE INDEX IF NOT EXISTS idx_artworks_realm ON artworks(realm_id);
+CREATE INDEX IF NOT EXISTS idx_artworks_world ON artworks(world_id);
 CREATE INDEX IF NOT EXISTS idx_artworks_style ON artworks(style_id);
 CREATE INDEX IF NOT EXISTS idx_artworks_review_status ON artworks(review_status);
 CREATE INDEX IF NOT EXISTS idx_generation_jobs_created_at ON generation_jobs(created_at DESC);

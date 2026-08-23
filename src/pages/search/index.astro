@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import { searchAll, type SearchResult } from '../../lib/content/search';
-import { getArtworkBySlug, getCharacters, getMythologies, getRealms } from '../../lib/content/repositories';
+import { getArtworkBySlug, getCharacters, getMythologies, getWorlds } from '../../lib/content/repositories';
 
 export const prerender = false;
 
@@ -20,30 +20,30 @@ const artworks = artworkResults.filter((item) => item != null);
 function resultPath(result: SearchResult): string {
   switch (result.type) {
     case 'mythology': return `/mythology/${result.slug}/`;
-    case 'realm': return `/realm/${result.slug}/`;
+    case 'world': return `/world/${result.slug}/`;
     case 'character': return `/character/${result.slug}/`;
     case 'artwork': return `/wallpaper/${result.slug}/`;
   }
 }
 
 function resultTypeLabel(type: string): string {
-  return { mythology: '文明', realm: '神域', character: '角色', artwork: '壁纸' }[type] ?? type;
+  return { mythology: '文明', world: '神域', character: '角色', artwork: '壁纸' }[type] ?? type;
 }
 
 async function loadEntityNames(db: D1Database | undefined) {
-  const [mythologies, realms, characters] = await Promise.all([
+  const [mythologies, worlds, characters] = await Promise.all([
     getMythologies(db),
-    getRealms(db),
+    getWorlds(db),
     getCharacters(db),
   ]);
   return {
     mythology: new Map(mythologies.map((item) => [item.id, item])),
-    realm: new Map(realms.map((item) => [item.id, item])),
+    world: new Map(worlds.map((item) => [item.id, item])),
     character: new Map(characters.map((item) => [item.id, item])),
   };
 }
 
-const entityResults = results.filter((result) => result.type !== 'artwork') as Array<SearchResult & { type: 'mythology' | 'realm' | 'character' }>;
+const entityResults = results.filter((result) => result.type !== 'artwork') as Array<SearchResult & { type: 'mythology' | 'world' | 'character' }>;
 ---
 
 <BaseLayout
@@ -109,7 +109,7 @@ const entityResults = results.filter((result) => result.type !== 'artwork') as A
                   <ArtworkCard
                     artwork={artwork}
                     mythologyName={artwork ? entityNames.mythology.get(artwork.mythologyId)?.name : undefined}
-                    realmName={artwork?.realmId ? entityNames.realm.get(artwork.realmId)?.name : undefined}
+                    worldName={artwork?.worldId ? entityNames.world.get(artwork.worldId)?.name : undefined}
                   />
                 )}
               </div>

@@ -1,0 +1,118 @@
+---
+import type { Artwork } from '../../lib/content/types';
+import ArtworkCard from '../artwork/ArtworkCard.astro';
+
+interface Props {
+  artworks: readonly Artwork[];
+}
+
+const { artworks } = Astro.props;
+
+const withDevice = artworks.map((artwork) => ({
+  artwork,
+  device: artwork.image.width > artwork.image.height ? 'pc' : 'mobile',
+}));
+const pcCount = withDevice.filter((item) => item.device === 'pc').length;
+const mobileCount = withDevice.filter((item) => item.device === 'mobile').length;
+---
+
+<section class="section-compact">
+  <div class="container-wide">
+    <div class="section-heading">
+      <div><span class="eyebrow">Wallpapers</span><h2>神域壁纸</h2><p>为设备适配的作品，可欣赏与下载。</p></div>
+    </div>
+    <div class="wallpaper-filter" role="group" aria-label="按设备筛选壁纸" data-wallpaper-filter>
+      <button class="is-active" type="button" data-device="all" aria-pressed="true">全部</button>
+      {pcCount > 0 && <button type="button" data-device="pc" aria-pressed="false">PC</button>}
+      {mobileCount > 0 && <button type="button" data-device="mobile" aria-pressed="false">Mobile</button>}
+    </div>
+    {withDevice.length > 0 ? (
+      <div class="artwork-grid">
+        {withDevice.map(({ artwork, device }) => (
+          <div class:list={['artwork-cell', { 'is-pc': device === 'pc', 'is-mobile': device === 'mobile' }]}>
+            <ArtworkCard artwork={artwork} key={artwork.id} />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state">
+        <p>还没有这个神域可消费的壁纸作品。</p>
+        <a class="btn btn-secondary" href={`/create/`}>绘制一个版本</a>
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector('[data-wallpaper-filter]');
+  if (root) {
+    const cells = Array.from(document.querySelectorAll('.artwork-cell'));
+    const buttons = Array.from(root.querySelectorAll('button'));
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const device = button.dataset.device ?? 'all';
+        buttons.forEach((b) => {
+          const active = b === button;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        cells.forEach((cell) => {
+          const isPc = cell.classList.contains('is-pc');
+          const isMobile = cell.classList.contains('is-mobile');
+          const show = device === 'all' || (device === 'pc' && isPc) || (device === 'mobile' && isMobile);
+          cell.hidden = !show;
+        });
+      });
+    });
+  }
+</script>
+
+<style>
+  .wallpaper-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  .wallpaper-filter button {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-secondary);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .wallpaper-filter button.is-active {
+    border-color: var(--accent);
+    color: var(--text-inverse);
+    background: var(--accent);
+  }
+
+  .artwork-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .empty-state {
+    padding: var(--space-10);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  .empty-state .btn {
+    margin-top: var(--space-5);
+  }
+
+  @media (max-width: 820px) {
+    .artwork-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

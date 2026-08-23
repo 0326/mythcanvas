@@ -21,6 +21,7 @@ export type LoginNonce = {
   nonceId: string;
   email: string;
   channel: LoginChannel;
+  purpose: 'register' | 'reset' | 'login';
   attempts: number;
   consumed: boolean;
   expiresAt: number; // epoch ms
@@ -51,11 +52,12 @@ export function generateMagicToken(): string {
 export async function storeOtp(
   kv: KVNamespace | undefined,
   email: string,
+  purpose: LoginNonce['purpose'] = 'login',
 ): Promise<IssuedOtp> {
   const code = generateOtpCode();
   const nonceId = `nonce_${crypto.randomUUID()}`;
   const expiresAt = Date.now() + OTP_TTL_SECONDS * 1000;
-  const nonce: LoginNonce = { nonceId, email: email.toLowerCase(), channel: 'otp', attempts: 0, consumed: false, expiresAt };
+  const nonce: LoginNonce = { nonceId, email: email.toLowerCase(), channel: 'otp', purpose, attempts: 0, consumed: false, expiresAt };
   await kv?.put(nonceKey(nonceId), JSON.stringify({ ...nonce, codeHash: await hashToken(email, code) }), {
     expirationTtl: OTP_TTL_SECONDS + 60,
   });
@@ -71,7 +73,7 @@ export async function storeMagicLink(
   const nonceId = `nonce_${crypto.randomUUID()}`;
   const token = generateMagicToken();
   const expiresAt = Date.now() + MAGIC_TTL_SECONDS * 1000;
-  const nonce: LoginNonce = { nonceId, email: email.toLowerCase(), channel: 'magic', attempts: 0, consumed: false, expiresAt };
+  const nonce: LoginNonce = { nonceId, email: email.toLowerCase(), channel: 'magic', purpose: 'login', attempts: 0, consumed: false, expiresAt };
   await kv?.put(nonceKey(nonceId), JSON.stringify({ ...nonce, codeHash: await hashToken(email, token) }), {
     expirationTtl: MAGIC_TTL_SECONDS + 60,
   });
@@ -79,7 +81,7 @@ export async function storeMagicLink(
 }
 
 export type VerifyResult =
-  | { ok: true; email: string; channel: LoginChannel }
+  | { ok: true; email: string; channel: LoginChannel; purpose: LoginNonce['purpose'] }
   | { ok: false; code: 'NOT_FOUND' | 'EXPIRED' | 'CONSUMED' | 'TOO_MANY_ATTEMPTS' | 'MISMATCH'; remainingAttempts?: number };
 
 /** 校验验证码 / magic token。成功则标记 consumed；失败则 attempts++ 并回写。 */
@@ -87,12 +89,13 @@ export async function verifyNonce(
   kv: KVNamespace | undefined,
   nonceId: string,
   candidate: string,
+  expectedPurpose?: LoginNonce['purpose'],
 ): Promise<VerifyResult> {
   if (!kv) return { ok: false, code: 'NOT_FOUND' };
   const raw = await kv.get(nonceKey(nonceId));
   if (!raw) return { ok: false, code: 'NOT_FOUND' };
 
-  let stored: { codeHash: string; email: string; channel: LoginChannel; attempts: number; consumed: boolean; expiresAt: number };
+  let stored: { codeHash: string; email: string; channel: LoginChannel; purpose?: LoginNonce['purpose']; attempts: number; consumed: boolean; expiresAt: number };
   try {
     stored = JSON.parse(raw);
   } catch {
@@ -102,6 +105,7 @@ export async function verifyNonce(
   if (stored.consumed) return { ok: false, code: 'CONSUMED' };
   if (Date.now() > stored.expiresAt) return { ok: false, code: 'EXPIRED' };
   if (stored.attempts >= MAX_ATTEMPTS) return { ok: false, code: 'TOO_MANY_ATTEMPTS' };
+  if (expectedPurpose && (stored.purpose ?? 'login') !== expectedPurpose) return { ok: false, code: 'MISMATCH' };
 
   const expected = await hashToken(stored.email, candidate);
   if (!safeEqual(expected, stored.codeHash)) {
@@ -116,7 +120,7 @@ export async function verifyNonce(
 
   // 成功：标记 consumed，保留短暂时间便于审计/排障，随后自然过期
   await kv.put(nonceKey(nonceId), JSON.stringify({ ...stored, consumed: true }), { expirationTtl: 300 });
-  return { ok: true, email: stored.email, channel: stored.channel };
+  return { ok: true, email: stored.email, channel: stored.channel, purpose: stored.purpose ?? 'login' };
 }
 
 function nonceKey(nonceId: string): string {

@@ -1,6 +1,6 @@
 export type ThemeName = 'light' | 'dark';
 
-export type ArtworkType = 'character' | 'realm' | 'scene' | 'creature' | 'architecture';
+export type ArtworkType = 'character' | 'world' | 'scene' | 'creature' | 'architecture';
 
 export type VisualDNA = {
   palette: readonly string[];
@@ -38,7 +38,7 @@ export type Mythology = {
   heroImage: ImageAsset;
 };
 
-export type Realm = {
+export type World = {
   id: string;
   mythologyId: string;
   slug: string;
@@ -52,7 +52,7 @@ export type Realm = {
 export type Character = {
   id: string;
   mythologyId: string;
-  realmIds: readonly string[];
+  worldIds: readonly string[];
   slug: string;
   name: string;
   nameEn: string;
@@ -84,7 +84,7 @@ export type Artwork = {
   title: string;
   type: ArtworkType;
   mythologyId: string;
-  realmId?: string;
+  worldId?: string;
   characterIds?: readonly string[];
   styleId: string;
   moodIds: readonly string[];
@@ -96,7 +96,7 @@ export type Artwork = {
 export type Scene = {
   id: string;
   mythologyId: string;
-  realmId?: string;
+  worldId?: string;
   slug: string;
   name: string;
   nameEn: string;

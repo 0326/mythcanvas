@@ -14,7 +14,7 @@ import ExploreArtworkCard from '../../components/artwork/ExploreArtworkCard.astr
 import {
   getArtworks,
   getMythologies,
-  getRealms,
+  getWorlds,
   getStyles,
 } from '../../lib/content/repositories';
 import type { ArtworkDevice, ArtworkSort } from '../../lib/content/repositories';
@@ -27,7 +27,7 @@ const params = Astro.url.searchParams;
 
 const contentTypes = [
   { id: 'all', name: '全部类型' },
-  { id: 'realm', name: '神域' },
+  { id: 'world', name: '神域' },
   { id: 'character', name: '角色' },
   { id: 'scene', name: '场景' },
   { id: 'creature', name: '神兽' },
@@ -56,10 +56,10 @@ const requestedSort = params.get('sort') as ArtworkSort | null;
 const initialSort: ArtworkSort = sortOptions.some((item) => item.id === requestedSort) ? requestedSort! : 'recommended';
 const initialSearch = params.get('q')?.trim() ?? '';
 
-const [mythologies, styles, realms] = await Promise.all([
+const [mythologies, styles, worlds] = await Promise.all([
   getMythologies(db),
   getStyles(db),
-  getRealms(db),
+  getWorlds(db),
 ]);
 
 const approvedArtworks = await getArtworks(db, {
@@ -73,7 +73,7 @@ const approvedArtworks = await getArtworks(db, {
 });
 
 const mythologiesById = new Map(mythologies.map((item) => [item.id, item]));
-const realmsById = new Map(realms.map((item) => [item.id, item]));
+const worldsById = new Map(worlds.map((item) => [item.id, item]));
 
 const featuredPrimary = approvedArtworks[0];
 const featuredSecondary = approvedArtworks[1];
@@ -125,7 +125,7 @@ const hasActiveFilters = initialMythology !== 'all'
           <input
             type="search"
             value={initialSearch}
-            placeholder="搜索神话、角色、世界…"
+            placeholder="搜索神话、角色、神域…"
             aria-label="搜索神话视觉作品"
             data-search-input
           />
@@ -206,7 +206,7 @@ const hasActiveFilters = initialMythology !== 'all'
               <ExploreArtworkCard
                 artwork={featuredPrimary}
                 mythologyName={mythologiesById.get(featuredPrimary.mythologyId)?.name}
-                realmName={featuredPrimary.realmId ? realmsById.get(featuredPrimary.realmId)?.name : undefined}
+                worldName={featuredPrimary.worldId ? worldsById.get(featuredPrimary.worldId)?.name : undefined}
                 variant="hero"
                 badge={sortPresentation[initialSort].badge}
               />
@@ -215,13 +215,13 @@ const hasActiveFilters = initialMythology !== 'all'
               <ExploreArtworkCard
                 artwork={featuredSecondary}
                 mythologyName={mythologiesById.get(featuredSecondary.mythologyId)?.name}
-                realmName={featuredSecondary.realmId ? realmsById.get(featuredSecondary.realmId)?.name : undefined}
+                worldName={featuredSecondary.worldId ? worldsById.get(featuredSecondary.worldId)?.name : undefined}
                 variant="side"
               />
               <ExploreArtworkCard
                 artwork={featuredTertiary}
                 mythologyName={mythologiesById.get(featuredTertiary.mythologyId)?.name}
-                realmName={featuredTertiary.realmId ? realmsById.get(featuredTertiary.realmId)?.name : undefined}
+                worldName={featuredTertiary.worldId ? worldsById.get(featuredTertiary.worldId)?.name : undefined}
                 variant="side"
               />
             </div>
@@ -242,7 +242,7 @@ const hasActiveFilters = initialMythology !== 'all'
                 <ExploreArtworkCard
                   artwork={artwork}
                   mythologyName={mythologiesById.get(artwork.mythologyId)?.name}
-                  realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined}
+                  worldName={artwork.worldId ? worldsById.get(artwork.worldId)?.name : undefined}
                 />
               ))}
             </div>

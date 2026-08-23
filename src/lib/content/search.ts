@@ -1,10 +1,10 @@
 /**
  * 全站搜索数据访问层（D1 LIKE 前缀/包含匹配，V1 MVP）。
- * 支持 Mythology / Realm / Character / Artwork 四类结果，中英文名称匹配。
+ * 支持 Mythology / World / Character / Artwork 四类结果，中英文名称匹配。
  */
 
 export type SearchResult = {
-  type: 'mythology' | 'realm' | 'character' | 'artwork';
+  type: 'mythology' | 'world' | 'character' | 'artwork';
   id: string;
   slug: string;
   name: string;
@@ -24,7 +24,7 @@ export async function searchAll(
   const results: SearchResult[] = [];
   const tasks = [
     searchMythologies(db, term).then((items) => results.push(...items)),
-    searchRealms(db, term).then((items) => results.push(...items)),
+    searchWorlds(db, term).then((items) => results.push(...items)),
     searchCharacters(db, term).then((items) => results.push(...items)),
     searchArtworks(db, term).then((items) => results.push(...items)),
   ];
@@ -74,16 +74,16 @@ async function searchMythologies(db: D1Database | undefined, term: string): Prom
   }));
 }
 
-async function searchRealms(db: D1Database | undefined, term: string): Promise<SearchResult[]> {
+async function searchWorlds(db: D1Database | undefined, term: string): Promise<SearchResult[]> {
   const termLower = term.toLowerCase();
   const like = `%${escapeLike(term)}%`;
   const rows = await queryRows(
     db,
-    `SELECT id, slug, name, name_en, summary, hero_src FROM realms WHERE publish_status='published' AND (name LIKE ? ESCAPE '\\' OR name_en LIKE ? ESCAPE '\\' OR summary LIKE ? ESCAPE '\\')`,
+    `SELECT id, slug, name, name_en, summary, hero_src FROM worlds WHERE publish_status='published' AND (name LIKE ? ESCAPE '\\' OR name_en LIKE ? ESCAPE '\\' OR summary LIKE ? ESCAPE '\\')`,
     [like, like, like],
   );
   return rows.map((row) => ({
-    type: 'realm' as const,
+    type: 'world' as const,
     id: String(row.id),
     slug: String(row.slug),
     name: String(row.name),

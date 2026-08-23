@@ -24,7 +24,7 @@ Never make the following client-only:
 
 - entity name
 - summary
-- mythology/realm relationship
+- mythology/world relationship
 - artwork title and metadata
 - related entity links
 - primary image semantics
@@ -128,7 +128,7 @@ Entity summaries should be concise and explicit enough for an LLM to extract:
 
 - what the entity is
 - which mythology it belongs to
-- related place/realm
+- related place/world
 - primary symbols/role
 - what the MythCanvas page contains
 
@@ -141,7 +141,7 @@ Avoid vague poetic prose as the only description. Pair visual copy with explicit
 Include high-value public routes:
 
 - mythology
-- realm
+- world
 - character
 - artwork/wallpaper
 - style landing pages with substantive content

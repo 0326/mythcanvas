@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import RealmCard from '../../components/realm/RealmCard.astro';
+import WorldCard from '../../components/world/WorldCard.astro';
 import CharacterCard from '../../components/character/CharacterCard.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import {
   getArtworksForMythology,
   getCharactersForMythology,
   getMythologyBySlug,
-  getRealms,
-  getRealmsForMythology,
+  getWorlds,
+  getWorldsForMythology,
 } from '../../lib/content/repositories';
 import { SITE_TITLE } from '../../consts';
 
@@ -18,11 +18,11 @@ const db = Astro.locals.runtime.env.DB;
 const { slug } = Astro.params;
 const mythology = await getMythologyBySlug(db, slug ?? '');
 if (!mythology) return Astro.redirect('/404');
-const [relatedRealms, relatedCharacters, relatedArtworks, realmsById] = await Promise.all([
-  getRealmsForMythology(db, mythology.id),
+const [relatedWorlds, relatedCharacters, relatedArtworks, worldsById] = await Promise.all([
+  getWorldsForMythology(db, mythology.id),
   getCharactersForMythology(db, mythology.id),
   getArtworksForMythology(db, mythology.id),
-  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+  getWorlds(db).then((list) => new Map(list.map((item) => [item.id, item]))),
 ]);
 ---
 
@@ -80,9 +80,9 @@ const [relatedRealms, relatedCharacters, relatedArtworks, realmsById] = await Pr
 
   <section class="section-compact">
     <div class="container-wide">
-      <div class="section-heading"><div><span class="eyebrow">Realms</span><h2>代表神域</h2></div></div>
-      <div class="realm-grid">
-        {relatedRealms.map((realm) => <RealmCard realm={realm} />)}
+      <div class="section-heading"><div><span class="eyebrow">Worlds</span><h2>代表神域</h2></div></div>
+      <div class="world-grid">
+        {relatedWorlds.map((world) => <WorldCard world={world} />)}
       </div>
     </div>
   </section>
@@ -101,7 +101,7 @@ const [relatedRealms, relatedCharacters, relatedArtworks, realmsById] = await Pr
       <div class="section-heading"><div><span class="eyebrow">Artworks</span><h2>视觉作品</h2></div></div>
       <div class="artwork-grid">
         {relatedArtworks.map((artwork) => (
-          <ArtworkCard artwork={artwork} mythologyName={mythology.name} realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined} />
+          <ArtworkCard artwork={artwork} mythologyName={mythology.name} worldName={artwork.worldId ? worldsById.get(artwork.worldId)?.name : undefined} />
         ))}
       </div>
     </div>
@@ -121,10 +121,10 @@ const [relatedRealms, relatedCharacters, relatedArtworks, realmsById] = await Pr
   .dna-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
   .dna-groups span { color: var(--accent-strong); font-size: .76rem; font-weight: 700; }
   .dna-groups p { margin: var(--space-2) 0 0; color: var(--text-secondary); font-size: .9rem; }
-  .realm-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+  .world-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
   .character-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
   .artwork-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); }
   .section-tint { border-block: 1px solid var(--border); background: color-mix(in srgb, var(--bg-secondary) 66%, transparent); }
-  @media (max-width: 900px) { .dna-panel { grid-template-columns: 1fr; } .realm-grid, .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 680px) { .entity-hero { min-height: 520px; } .character-grid, .realm-grid { grid-template-columns: 1fr; } .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dna-groups { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .dna-panel { grid-template-columns: 1fr; } .world-grid, .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 680px) { .entity-hero { min-height: 520px; } .character-grid, .world-grid { grid-template-columns: 1fr; } .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dna-groups { grid-template-columns: 1fr; } }
 </style>

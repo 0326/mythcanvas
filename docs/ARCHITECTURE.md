@@ -11,7 +11,7 @@ Current useful foundations:
 - Cloudflare Workers deployment
 - D1 / R2 / KV runtime foundations
 - Sitemap / SEO head infrastructure
-- Domain repositories for Mythology / Realm / Character / Artwork / Scene / Style
+- Domain repositories for Mythology / World / Character / Artwork / Scene / Style
 - Light / Dark semantic theme system
 - AI generation orchestration and structured character/style generation direction
 
@@ -45,7 +45,7 @@ src/
 │   ├── shell/         # Header, Footer, Navigation, PageShell
 │   ├── artwork/       # ArtworkCard, ArtworkGrid, DevicePreview
 │   ├── character/     # CharacterCard, CharacterHero, VariantRail
-│   ├── realm/         # RealmCard, RealmHero, LandmarkList
+│   ├── world/         # WorldCard, WorldHero, LandmarkList
 │   ├── mythology/     # CivilizationCard, CivilizationMark
 │   ├── myth/          # StoryCard, StoryHero, StoryRelations, StoryMeta
 │   └── create/        # Creator controls and generation states
@@ -67,7 +67,7 @@ src/
 │   ├── myth/index.astro
 │   ├── myth/[slug].astro
 │   ├── mythology/[slug].astro
-│   ├── realm/[slug].astro
+│   ├── world/[slug].astro
 │   ├── character/[slug].astro
 │   ├── wallpaper/[slug].astro
 │   ├── create/index.astro
@@ -101,14 +101,14 @@ type Mythology = {
 };
 ```
 
-`Mythology` owns cultural context and Civilization Visual DNA. It is a horizontal classification axis across Characters, Realms, Stories and Artworks.
+`Mythology` owns cultural context and Civilization Visual DNA. It is a horizontal classification axis across Characters, Worlds, Stories and Artworks.
 
 It is **not** the concrete story body of “嫦娥奔月”“诸神黄昏” etc.
 
-### 4.2 Realm — persistent mythic space
+### 4.2 World — persistent mythic space
 
 ```ts
-type Realm = {
+type World = {
   id: string;
   mythologyId: string;
   slug: string;
@@ -120,7 +120,7 @@ type Realm = {
 };
 ```
 
-User-facing navigation groups `Realm + Scene` under **神域**.
+User-facing navigation groups `World + Scene` under **神域**.
 
 ### 4.3 Scene — reusable place / event-space concept
 
@@ -128,7 +128,7 @@ User-facing navigation groups `Realm + Scene` under **神域**.
 type Scene = {
   id: string;
   mythologyId: string;
-  realmId?: string;
+  worldId?: string;
   slug: string;
   name: string;
   nameEn?: string;
@@ -137,7 +137,7 @@ type Scene = {
 };
 ```
 
-A Scene can represent a localized visual place or reusable event-space, while Realm represents the persistent higher-level world/domain.
+A Scene can represent a localized visual place or reusable event-space, while World represents the persistent higher-level world/domain.
 
 ### 4.4 Character — mythic being / named figure
 
@@ -145,7 +145,7 @@ A Scene can represent a localized visual place or reusable event-space, while Re
 type Character = {
   id: string;
   mythologyId: string;
-  realmIds: string[];
+  worldIds: string[];
   slug: string;
   name: string;
   nameEn?: string;
@@ -172,7 +172,7 @@ type MythStory = {
 
   topicIds: string[];
   characterIds: string[];
-  realmIds: string[];
+  worldIds: string[];
   sceneIds?: string[];
   artworkIds?: string[];
 
@@ -194,14 +194,14 @@ Important relationships:
 ```text
 Mythology
   ├── Character × N
-  ├── Realm × N
+  ├── World × N
   ├── Scene × N
   ├── MythStory × N
   └── Artwork × N
 
 MythStory
   ↔ Character × N
-  ↔ Realm × N
+  ↔ World × N
   ↔ Scene × N
   ↔ Artwork × N
 ```
@@ -214,9 +214,9 @@ Story and Mythology must not be collapsed into one model.
 type Artwork = {
   id: string;
   slug: string;
-  type: 'character' | 'realm' | 'scene' | 'creature' | 'architecture';
+  type: 'character' | 'world' | 'scene' | 'creature' | 'architecture';
   mythologyId: string;
-  realmId?: string;
+  worldId?: string;
   characterIds?: string[];
   styleId: string;
   moodIds: string[];
@@ -235,7 +235,7 @@ A Story may reference multiple Artworks, but Story itself is not an Artwork subt
 - **Mythology** = civilization / mythology-system context.
 - **MythStory** = concrete story / legend / narrative explanation.
 - **Visual DNA** = cultural identity owned by Mythology.
-- **Canonical Design** = identity anchors for Character / Realm.
+- **Canonical Design** = identity anchors for Character / World.
 - **Style Variant** = how a specific artwork is rendered.
 
 Never merge these concepts into one `theme`, `type` or generic content field.
@@ -255,7 +255,7 @@ Technical mapping:
 ```text
 探索     → Artwork discovery
 神灵     → Character
-神域     → Realm + Scene
+神域     → World + Scene
 神话     → MythStory
 文明     → Mythology taxonomy/filter/context
 AI 创作  → generation workflow
@@ -313,7 +313,7 @@ Story pages use the same theme system; they must not introduce separate parchmen
 - Myth story index
 - Myth story detail
 - Mythology civilization pages
-- Realm
+- World
 - Character
 - Artwork
 - Style landing pages
@@ -352,8 +352,8 @@ slug: change-flies-to-the-moon
 mythologyId: myth-chinese
 characterIds:
   - character-change
-realmIds:
-  - realm-moon-palace
+worldIds:
+  - world-moon-palace
 topicIds:
   - moon
   - love
@@ -366,7 +366,7 @@ Move dynamic entities and user actions to D1:
 
 - entities and relationships
 - Story index metadata if needed
-- users
+- accounts / account_sessions
 - favorites
 - generation records
 - download counters
@@ -401,7 +401,7 @@ Creator UI
 
 Prompt construction should be server-owned so Character identity, Visual DNA and safety rules remain consistent.
 
-Story content may provide creation context, but Story prose must not be blindly injected into generation prompts. Resolve only structured Character / Realm / Scene / Style context needed for generation.
+Story content may provide creation context, but Story prose must not be blindly injected into generation prompts. Resolve only structured Character / World / Scene / Style context needed for generation.
 
 ---
 
@@ -425,7 +425,7 @@ Every entity page must provide:
 - `datePublished` / `dateModified`
 - author/editor attribution
 - `tradition` / source notes when available
-- links to related Character / Realm / Mythology
+- links to related Character / World / Mythology
 
 Generate:
 
@@ -445,7 +445,7 @@ Do not hide mythology facts, Story body or artwork metadata behind client-only r
 - Header naming: 角色 → 神灵, 世界 → 神域, 文明图鉴 → 神话
 - Introduce `/myth/` as narrative hub
 - Keep `/mythology/{slug}` as civilization hub
-- Add Story relationships to Character / Realm UI
+- Add Story relationships to Character / World UI
 
 ### Phase B — Story MVP
 
@@ -458,8 +458,8 @@ Do not hide mythology facts, Story body or artwork metadata behind client-only r
 ### Phase C — relation graph
 
 - Character → related Stories
-- Realm → Stories that happen here
-- Story → Characters / Realms / Artworks
+- World → Stories that happen here
+- Story → Characters / Worlds / Artworks
 - Search across Story title/summary/entities
 
 ### Phase D — SEO / GEO
@@ -499,6 +499,6 @@ For Myth Story pages also require:
 
 - readable long-form typography and content width
 - Story body remains useful with JavaScript disabled
-- related Character / Realm links exist
+- related Character / World links exist
 - tradition/source ambiguity is represented when relevant
 - visual treatment remains editorial, not artwork-grid-first

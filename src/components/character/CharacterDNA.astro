@@ -1,20 +1,20 @@
 ---
-import type { Character, Mythology, Realm } from '../../lib/content/types';
+import type { Character, Mythology, World } from '../../lib/content/types';
 
 interface Props {
   character: Character;
   mythology?: Mythology;
-  realms: readonly Realm[];
+  worlds: readonly World[];
 }
 
-const { character, mythology, realms } = Astro.props;
+const { character, mythology, worlds } = Astro.props;
 
 const joinList = (items: readonly string[]) => items.join(' / ');
 
 const dnaEntries: { label: string; value: string }[] = [
   { label: '身份', value: character.role },
   { label: '所属文明', value: mythology?.name ?? '—' },
-  { label: '所在神域', value: realms.length > 0 ? realms.map((r) => r.name).join(' · ') : '—' },
+  { label: '所在神域', value: worlds.length > 0 ? worlds.map((w) => w.name).join(' · ') : '—' },
   { label: '核心符号', value: character.symbols.length > 0 ? joinList(character.symbols) : '—' },
   { label: '稳定视觉锚点', value: character.canonicalDesign.anchors.length > 0 ? joinList(character.canonicalDesign.anchors) : '—' },
 ];

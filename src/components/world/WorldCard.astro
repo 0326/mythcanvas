@@ -1,0 +1,146 @@
+---
+import { ArrowRight, Landmark } from '@lucide/astro';
+import type { World } from '../../lib/content/types';
+
+interface Props {
+  world: World;
+  mythologyName?: string;
+  className?: string;
+}
+
+const { world, mythologyName, className = '' } = Astro.props;
+const keywords = world.canonicalDesign.anchors.slice(0, 3);
+---
+
+<article class:list={['world-card', 'surface', className]}>
+  <a href={`/world/${world.slug}/`} class="world-link">
+    <div class="world-image-wrap">
+      <img
+        src={world.heroImage.src}
+        alt={world.heroImage.alt}
+        width={world.heroImage.width}
+        height={world.heroImage.height}
+        loading="lazy"
+        decoding="async"
+      />
+      <span class="world-glyph" aria-hidden="true"><Landmark size={17} strokeWidth={1.8} /></span>
+    </div>
+    <div class="world-copy">
+      <span class="small-caps">{mythologyName ? `${mythologyName} · ` : ''}World</span>
+      <h3>{world.name}</h3>
+      <p class="en">{world.nameEn}</p>
+      <ul class="keywords" aria-label={`${world.name} 神域关键词`}>
+        {keywords.map((keyword) => <li>{keyword}</li>)}
+      </ul>
+      <span class="world-action">进入神域 <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" /></span>
+    </div>
+  </a>
+</article>
+
+<style>
+  .world-card {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-fast);
+  }
+
+  .world-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .world-link {
+    display: grid;
+    height: 100%;
+    color: inherit;
+  }
+
+  .world-image-wrap {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--surface-muted);
+  }
+
+  .world-image-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, color-mix(in srgb, var(--bg-primary) 46%, transparent), transparent 58%);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .world-card:hover img,
+  .world-card:focus-within img {
+    transform: scale(1.035);
+  }
+
+  .world-glyph {
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    z-index: 1;
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    color: white;
+    background: rgba(20, 30, 36, 0.24);
+    backdrop-filter: blur(10px);
+  }
+
+  .world-copy {
+    padding: var(--space-5);
+  }
+
+  .small-caps {
+    color: var(--accent-strong);
+  }
+
+  h3 {
+    margin: var(--space-2) 0 0;
+    font-size: 1.45rem;
+  }
+
+  .en {
+    margin: 0.15rem 0 var(--space-3);
+    color: var(--text-muted);
+    font-family: Georgia, serif;
+    font-size: 0.82rem;
+  }
+
+  .keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .keywords li {
+    padding: 0.24rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+  }
+
+  .world-action {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+</style>

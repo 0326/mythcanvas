@@ -5,7 +5,7 @@ import type { Artwork } from '../../lib/content/types';
 interface Props {
   artwork: Artwork;
   mythologyName?: string;
-  realmName?: string;
+  worldName?: string;
   variant?: 'hero' | 'side' | 'tile';
   badge?: string;
 }
@@ -13,12 +13,12 @@ interface Props {
 const {
   artwork,
   mythologyName,
-  realmName,
+  worldName,
   variant = 'tile',
   badge,
 } = Astro.props;
 
-const contextName = realmName ?? mythologyName ?? '神话视觉';
+const contextName = worldName ?? mythologyName ?? '神话视觉';
 const styleName = artwork.styleId.replaceAll('-', ' ');
 const ratio = `${artwork.image.width} / ${artwork.image.height}`;
 ---

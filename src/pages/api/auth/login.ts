@@ -1,93 +1,151 @@
 import type { APIRoute } from 'astro';
-import { isValidEmail, storeMagicLink, storeOtp } from '../../../lib/auth/otp';
-import { sendMagicLinkMail, sendOtpMail } from '../../../lib/email/send';
+import { findAccountByEmail } from '../../../lib/auth/accounts';
+import { completeAccountLogin, migratedMessage } from '../../../lib/auth/flow';
+import { isValidEmail, storeOtp, verifyNonce } from '../../../lib/auth/otp';
+import { validatePassword, verifyPassword } from '../../../lib/auth/password';
+import { safeRedirect } from '../../../lib/auth/redirect';
+import { sendOtpMail } from '../../../lib/email/send';
 import { checkRateLimit, clientIp } from '../../../lib/security/rate-limit';
-import { readSessionId } from '../../../lib/auth/session';
 
 export const prerender = false;
 
-const OTP_LIMIT = 5; // 每邮箱每小时 5 次（含 magic link）
-const IP_LIMIT = 10; // 每 IP 每小时 10 次
+const OTP_LIMIT = 5;
+const IP_LIMIT = 10;
+const RESEND_COOLDOWN_SECONDS = 60;
 
+/** POST /api/auth/login — action=password|request|complete */
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
-  const kv = env.SESSION;
+  const body = await request.json().catch(() => null) as Record<string, unknown> | null;
+  const action = body?.action === 'request' || body?.action === 'complete' ? body.action : 'password';
+  const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
 
-  const payload = await request.json().catch(() => null);
-  const body = payload && typeof payload === 'object' ? (payload as Record<string, unknown>) : {};
-  const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const mode: 'otp' | 'magic' = body.mode === 'magic' ? 'magic' : 'otp';
+  if (action !== 'password') return handleOtpLogin({ action, body, email, request, env });
 
-  if (!email || !isValidEmail(email)) {
-    return json({ error: { code: 'INVALID_EMAIL', message: '请输入有效的邮箱地址。' } }, 400);
+  const password = typeof body?.password === 'string' ? body.password : '';
+  if (!isValidEmail(email) || !password) return json({ error: { code: 'INVALID_INPUT', message: '请输入有效的邮箱和密码。' } }, 400);
+  if (validatePassword(password)) return json({ error: { code: 'INVALID_PASSWORD', message: '密码至少需要 8 位。' } }, 400);
+  if (!env.DB) return json({ error: { code: 'AUTH_UNAVAILABLE', message: '账号服务暂时不可用，请稍后重试。' } }, 503);
+
+  const emailLimit = await checkRateLimit(env.SESSION, email, 10, 900, 'rl:auth-password');
+  if (!emailLimit.allowed) return json({ error: { code: 'RATE_LIMITED', message: '登录尝试过于频繁，请稍后再试。' } }, 429, undefined, emailLimit.retryAfterSeconds);
+  const ipLimit = await checkRateLimit(env.SESSION, clientIp(request), 30, 900, 'rl:auth-password-ip');
+  if (!ipLimit.allowed) return json({ error: { code: 'RATE_LIMITED', message: '当前网络登录尝试过于频繁，请稍后再试。' } }, 429, undefined, ipLimit.retryAfterSeconds);
+
+  const account = await findAccountByEmail(env.DB, email);
+  const valid = account?.passwordHash ? await verifyPassword(password, account.passwordHash) : false;
+  if (!account || !valid) {
+    return json({ error: { code: 'INVALID_CREDENTIALS', message: '邮箱或密码不正确。' } }, 401);
   }
 
-  // 限流：邮箱级 + IP 级双保险
-  const ip = clientIp(request);
-  const emailLimit = await checkRateLimit(kv, email.toLowerCase(), OTP_LIMIT, 3600, 'rl:auth-login');
-  if (!emailLimit.allowed) {
-    return json({ error: { code: 'RATE_LIMITED', message: '验证码请求过于频繁，请稍后再试。' } }, 429, emailLimit.retryAfterSeconds);
-  }
-  const ipLimit = await checkRateLimit(kv, ip, IP_LIMIT, 3600, 'rl:auth-login-ip');
-  if (!ipLimit.allowed) {
-    return json({ error: { code: 'RATE_LIMITED', message: '当前网络的请求过于频繁，请稍后再试。' } }, 429, ipLimit.retryAfterSeconds);
-  }
-
-  // 构造回跳目标：登录成功后回到来源页或我的页面
-  const sessionId = readSessionId(request);
-  const redirect = typeof body.redirect === 'string' && body.redirect.startsWith('/') ? body.redirect : '/my/';
-  const baseUrl = env.PUBLIC_BASE_URL || originFrom(request);
-
-  if (mode === 'magic') {
-    const issued = await storeMagicLink(kv, email, (nonceId, token) =>
-      `${baseUrl}/api/auth/verify?nonce=${encodeURIComponent(nonceId)}&token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(redirect)}`,
-    );
-    const sendResult = await sendMagicLinkMail(env, email, issued.url, 15);
-    return respondLogin(sendResult, sessionId, 'magic', undefined);
-  }
-
-  const issued = await storeOtp(kv, email);
-  const sendResult = await sendOtpMail(env, email, issued.code, 10);
-  return respondLogin(sendResult, sessionId, 'otp', issued.nonceId);
+  return completeLoginResponse(env, request, account, body);
 };
 
-function respondLogin(
-  sendResult: Awaited<ReturnType<typeof sendOtpMail>>,
-  _sessionId: string | null,
-  channel: 'otp' | 'magic',
-  nonceId: string | undefined,
-) {
-  if (sendResult.ok) {
+async function handleOtpLogin({
+  action,
+  body,
+  email,
+  request,
+  env,
+}: {
+  action: 'request' | 'complete';
+  body: Record<string, unknown> | null;
+  email: string;
+  request: Request;
+  env: Cloudflare.Env;
+}): Promise<Response> {
+  if (!isValidEmail(email)) return json({ error: { code: 'INVALID_EMAIL', message: '请输入有效的邮箱地址。' } }, 400);
+  if (!env.DB) return json({ error: { code: 'AUTH_UNAVAILABLE', message: '账号服务暂时不可用，请稍后重试。' } }, 503);
+
+  if (action === 'request') {
+    const cooldown = await checkCooldown(env.SESSION, email);
+    if (cooldown > 0) {
+      return json({ error: { code: 'RESEND_COOLDOWN', message: `验证码已发送，请 ${cooldown} 秒后再试。`, retryAfterSeconds: cooldown } }, 429, undefined, cooldown);
+    }
+
+    const limited = await enforceOtpRateLimit(env.SESSION, request, email);
+    if (limited) return limited;
+
+    const account = await findAccountByEmail(env.DB, email);
+    // 不暴露邮箱是否注册，避免账号枚举；未注册邮箱不会生成可用 nonce。
+    if (!account) {
+      await setCooldown(env.SESSION, email);
+      return json({ ok: true, message: '如果该邮箱已注册，验证码会发送到你的邮箱，请查收。', expiresInSeconds: 600, resendAfterSeconds: RESEND_COOLDOWN_SECONDS });
+    }
+
+    const issued = await storeOtp(env.SESSION, email, 'login');
+    const sendResult = await sendOtpMail(env, email, issued.code, 10);
+    if (!sendResult.ok && env.AUTH_DEV_FALLBACK !== 'true') {
+      return json({ error: { code: 'MAIL_SEND_FAILED', message: '邮件发送失败，请稍后重试。' } }, 502);
+    }
+    await setCooldown(env.SESSION, email);
     return json({
       ok: true,
-      channel,
-      nonceId,
-      message: channel === 'otp' ? '验证码已发送，请查收邮件（10 分钟内有效）。' : '登录链接已发送至邮箱，点击即可登录（15 分钟内有效）。',
+      nonceId: issued.nonceId,
+      expiresInSeconds: 600,
+      resendAfterSeconds: RESEND_COOLDOWN_SECONDS,
+      message: '验证码已发送，请查收邮件（10 分钟内有效）。',
+      ...(sendResult.ok || !sendResult.devFallback ? {} : { devFallback: sendResult.devFallback }),
     });
   }
-  // 本地降级：把验证码/链接直接回给前端，方便开发期无域名也能完成登录闭环
-  if (sendResult.devFallback) {
-    return json({
-      ok: true,
-      channel,
-      nonceId,
-      devFallback: sendResult.devFallback,
-      message: '邮件服务未配置，已进入开发降级模式。',
-    });
+
+  const nonceId = typeof body?.nonceId === 'string' ? body.nonceId : '';
+  const code = typeof body?.code === 'string' ? body.code.trim() : '';
+  if (!nonceId || !code) return json({ error: { code: 'INVALID_CODE', message: '请输入邮箱验证码。' } }, 400);
+
+  const verification = await verifyNonce(env.SESSION, nonceId, code, 'login');
+  if (!verification.ok || verification.channel !== 'otp' || verification.email !== email) {
+    return json({ error: { code: 'INVALID_CODE', message: '验证码不正确或已过期，请重新获取。' } }, 401);
   }
-  return json({ error: { code: 'MAIL_SEND_FAILED', message: '邮件发送失败，请稍后重试。' } }, 502);
+
+  const account = await findAccountByEmail(env.DB, email);
+  if (!account) return json({ error: { code: 'INVALID_CODE', message: '验证码不正确或已过期，请重新获取。' } }, 401);
+  return completeLoginResponse(env, request, account, body);
 }
 
-function json(body: unknown, status = 200, retryAfterSeconds?: number): Response {
+async function completeLoginResponse(env: Cloudflare.Env, request: Request, account: NonNullable<Awaited<ReturnType<typeof findAccountByEmail>>>, body: Record<string, unknown> | null): Promise<Response> {
+  const login = await completeAccountLogin(env, request, account);
+  return json({
+    ok: true,
+    user: { id: account.id, nickname: account.displayName, email: account.email, isGuest: false },
+    message: migratedMessage(login.migrated),
+    redirect: safeRedirect(body?.redirect),
+  }, 200, login.cookie);
+}
+
+async function enforceOtpRateLimit(kv: KVNamespace | undefined, request: Request, email: string): Promise<Response | null> {
+  const emailLimit = await checkRateLimit(kv, email, OTP_LIMIT, 3600, 'rl:auth-login-otp');
+  if (!emailLimit.allowed) return json({ error: { code: 'RATE_LIMITED', message: '验证码请求过于频繁，请稍后再试。' } }, 429, undefined, emailLimit.retryAfterSeconds);
+  const ipLimit = await checkRateLimit(kv, clientIp(request), IP_LIMIT, 3600, 'rl:auth-login-otp-ip');
+  if (!ipLimit.allowed) return json({ error: { code: 'RATE_LIMITED', message: '当前网络请求过于频繁，请稍后再试。' } }, 429, undefined, ipLimit.retryAfterSeconds);
+  return null;
+}
+
+async function checkCooldown(kv: KVNamespace | undefined, email: string): Promise<number> {
+  if (!kv) return 0;
+  const raw = await kv.get(cooldownKey(email));
+  if (!raw) return 0;
+  return Math.max(0, Math.ceil((Number(raw) - Date.now()) / 1000));
+}
+
+async function setCooldown(kv: KVNamespace | undefined, email: string): Promise<void> {
+  await kv?.put(cooldownKey(email), String(Date.now() + RESEND_COOLDOWN_SECONDS * 1000), { expirationTtl: RESEND_COOLDOWN_SECONDS });
+}
+
+function cooldownKey(email: string): string {
+  return `auth:cooldown:login:${email}`;
+}
+
+function json(body: unknown, status = 200, cookie?: string, retryAfterSeconds?: number): Response {
   const response = new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+      'referrer-policy': 'no-referrer',
+    },
   });
+  if (cookie) response.headers.set('set-cookie', cookie);
   if (retryAfterSeconds) response.headers.set('retry-after', String(retryAfterSeconds));
   return response;
-}
-
-function originFrom(request: Request): string {
-  const url = new URL(request.url);
-  return `${url.protocol}//${url.host}`;
 }

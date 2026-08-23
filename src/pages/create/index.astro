@@ -1,21 +1,21 @@
 ---
 import { Landmark, Monitor, Smartphone, Sparkles } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCharacters, getRealms, getStyles } from '../../lib/content/repositories';
+import { getCharacters, getWorlds, getStyles } from '../../lib/content/repositories';
 import { listCharacterVariantProfiles, listCreatorOutputSpecs } from '../../lib/generation/creator-config';
 
 export const prerender = false;
 
 const db = Astro.locals.runtime.env.DB;
-const [allCharacters, allRealms, styles, outputSpecs] = await Promise.all([
+const [allCharacters, allWorlds, styles, outputSpecs] = await Promise.all([
   getCharacters(db),
-  getRealms(db),
+  getWorlds(db),
   getStyles(db),
   listCreatorOutputSpecs(db),
 ]);
 
 const creatorCharacters = allCharacters.slice(0, 5);
-const creatorRealms = allRealms.slice(0, 5);
+const creatorWorlds = allWorlds.slice(0, 5);
 const variants = await listCharacterVariantProfiles(db, creatorCharacters.map((character) => character.id));
 const variantsByCharacter = new Map(creatorCharacters.map((character) => [
   character.id,
@@ -29,7 +29,7 @@ const quickRefines = [
   { key: 'dreamy', label: '更梦幻', hint: '梦幻光晕、柔和空气透视，增强神话缥缈感' },
   { key: 'realistic', label: '更写实', hint: '写实光影与材质，减少塑料感与通用 AI 质感' },
   { key: 'bright', label: '更明亮', hint: '提高亮度与通透感，保留层次而不过曝' },
-  { key: 'far-shot', label: '拉远镜头', hint: '扩大环境占比，强化神域与空间层次' },
+  { key: 'far-shot', label: '拉远镜头', hint: '扩大环境占比，强化世界与空间层次' },
   { key: 'divine-glow', label: '强化神光', hint: '增强克制的神性光源，不使用泛滥粒子特效' },
 ];
 const variantTypeLabels = {
@@ -82,7 +82,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
           <div class="step-head"><span>01</span><div><h2>选择创作对象</h2><p>角色会锁定 Canonical Design；神域会锁定核心空间与建筑锚点。</p></div></div>
           <div class="segmented" role="group" aria-label="创作对象类型">
             <button class="is-active" type="button" data-entity-tab="character" aria-pressed="true">角色</button>
-            <button type="button" data-entity-tab="realm" aria-pressed="false">神域</button>
+            <button type="button" data-entity-tab="world" aria-pressed="false">神域</button>
           </div>
           <div class="entity-options" data-entity-group="character">
             {creatorCharacters.map((character, index) => (
@@ -101,20 +101,21 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
               </button>
             ))}
           </div>
-          <div class="entity-options" data-entity-group="realm" hidden>
-            {creatorRealms.map((realm) => (
+          <div class="entity-options" data-entity-group="world" hidden>
+            {creatorWorlds.map((world) => (
               <button
                 class="entity-option"
                 type="button"
                 data-entity
-                data-entity-id={realm.id}
-                data-entity-type="realm"
-                data-name={realm.name}
-                data-image={realm.heroImage.src}
+                data-entity-id={world.id}
+                data-entity-type="world"
+                data-entity-slug={world.slug}
+                data-name={world.name}
+                data-image={world.heroImage.src}
                 aria-pressed="false"
               >
                 <span class="entity-glyph" aria-hidden="true"><Landmark size={18} strokeWidth={1.8} /></span>
-                <span><strong>{realm.name}</strong><small>{realm.nameEn}</small></span>
+                <span><strong>{world.name}</strong><small>{world.nameEn}</small></span>
               </button>
             ))}
           </div>
@@ -307,6 +308,18 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const loadHistory = () => { try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; } };
     const saveHistory = (list) => { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 8))); } catch { /* ignore */ } };
+
+    const preselectWorld = () => {
+      try {
+        const worldSlug = new URLSearchParams(window.location.search).get('world');
+        if (!worldSlug) return;
+        const match = root.querySelector(`[data-entity-type="world"][data-entity-slug="${CSS.escape(worldSlug)}"]`);
+        if (!match) return;
+        const tab = root.querySelector('[data-entity-tab="world"]');
+        if (tab) tab.click();
+        match.click();
+      } catch { /* ignore malformed query */ }
+    };
 
     const setPressed = (selector, active) => {
       root.querySelectorAll(selector).forEach((item) => {
@@ -573,7 +586,10 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         if (response.ok && result.favorited) {
           button.setAttribute('aria-pressed', 'true');
           button.textContent = '已收藏';
-        } else button.textContent = result.message === '请先登录后收藏' ? '登录后收藏' : '收藏';
+        } else if (response.status === 401) {
+          const redirect = `${window.location.pathname}${window.location.search}`;
+          window.location.href = `${result.loginUrl || '/login/'}?redirect=${encodeURIComponent(redirect)}`;
+        } else button.textContent = result.message || '收藏失败';
       } catch { button.textContent = '收藏失败'; }
     });
 
@@ -602,6 +618,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     if (initialOutputButton) state.device = initialOutputButton.dataset.outputDevice || 'mobile';
     refresh();
     renderHistory();
+    preselectWorld();
   })();
 </script>
 

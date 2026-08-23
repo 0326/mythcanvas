@@ -1,8 +1,8 @@
 /**
- * 基于 KV 的会话身份 + D1 账号体系。
+ * 基于 KV 的匿名/账号会话 + D1 账号体系。
  *
  * 两层身份：
- *   - 游客（guest）：无账号，user.id 形如 `guest-<uuid>`，数据挂在 user.id 上。
+ *   - 匿名 session：无账号，user.id 形如 `guest-<uuid>`，仅用于当前设备数据迁移。
  *   - 账号（account）：邮箱注册后的稳定身份，user.id = account.id（`acc-<uuid>`）。
  *
  * SessionUser 向后兼容旧字段（id / nickname / isGuest），新增 accountId / email / displayName。
@@ -26,12 +26,13 @@ const GUEST_PREFIX = 'guest';
 const KV_TTL = 60 * 60 * 24 * 180; // 180 天
 
 /** 供 Astro.cookies.set 使用的 cookie 选项（保持 HttpOnly） */
-export function sessionCookieOptions() {
+export function sessionCookieOptions(secure = false) {
   return {
     path: '/',
     httpOnly: true,
     sameSite: 'lax' as const,
     maxAge: KV_TTL,
+    secure,
   };
 }
 
@@ -42,12 +43,12 @@ export function readSessionId(request: Request): string | null {
   return decodeURIComponent(match.slice(SESSION_COOKIE.length + 1));
 }
 
-export function buildSessionCookie(sessionId: string): string {
-  return `${SESSION_COOKIE}=${encodeURIComponent(sessionId)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${KV_TTL}`;
+export function buildSessionCookie(sessionId: string, secure = false): string {
+  return `${SESSION_COOKIE}=${encodeURIComponent(sessionId)}; Path=/; HttpOnly; SameSite=Lax;${secure ? ' Secure;' : ''} Max-Age=${KV_TTL}`;
 }
 
-export function clearSessionCookie(): string {
-  return `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+export function clearSessionCookie(secure = false): string {
+  return `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax;${secure ? ' Secure;' : ''} Max-Age=0`;
 }
 
 /** 获取当前会话用户；不存在则创建一个匿名用户并持久化到 KV */
@@ -62,7 +63,7 @@ export async function getOrCreateUser(
 /** 解析已存在 session（用于需要 cookie 回写的场景） */
 export async function resolveForSession(
   kv: KVNamespace | undefined,
-  _request: Request,
+  request: Request,
   sessionId: string | null,
 ): Promise<{ user: SessionUser; cookie?: string; sessionId?: string }> {
   if (sessionId) {
@@ -80,7 +81,7 @@ export async function resolveForSession(
   const newSessionId = crypto.randomUUID();
   const user = createGuest();
   await kv?.put(sessionKey(newSessionId), JSON.stringify(user), { expirationTtl: KV_TTL });
-  return { user, cookie: buildSessionCookie(newSessionId), sessionId: newSessionId };
+  return { user, cookie: buildSessionCookie(newSessionId, new URL(request.url).protocol === 'https:'), sessionId: newSessionId };
 }
 
 /** 根据 session id 读取用户；无则返回 null（用于已登录态校验） */
@@ -95,25 +96,6 @@ export async function getUserBySessionId(
   } catch {
     return null;
   }
-}
-
-/** 为已有 session 设置昵称（轻量登录，保留同一用户 id，使生成历史跨登录延续）。 */
-export async function loginWithNickname(
-  kv: KVNamespace | undefined,
-  sessionId: string,
-  nickname: string,
-): Promise<SessionUser | null> {
-  const existing = await getUserBySessionId(kv, sessionId);
-  const user: SessionUser = {
-    id: existing ? existing.id : `${GUEST_PREFIX}-${crypto.randomUUID()}`,
-    nickname: nickname.trim().slice(0, 24) || '神话旅人',
-    isGuest: false,
-    accountId: existing?.accountId,
-    email: existing?.email,
-    displayName: existing?.displayName ?? nickname.trim().slice(0, 24),
-  };
-  await kv?.put(sessionKey(sessionId), JSON.stringify(user), { expirationTtl: KV_TTL });
-  return user;
 }
 
 /**
@@ -139,14 +121,8 @@ export async function bindSessionToAccount(
   return user;
 }
 
-/** 登出：保留同一 sessionId（cookie 不变），但把身份重置为一个全新的匿名游客。 */
-export async function resetSessionToGuest(
-  kv: KVNamespace | undefined,
-  sessionId: string,
-): Promise<SessionUser> {
-  const user = createGuest();
-  await kv?.put(sessionKey(sessionId), JSON.stringify(user), { expirationTtl: KV_TTL });
-  return user;
+export async function clearSession(kv: KVNamespace | undefined, sessionId: string): Promise<void> {
+  await kv?.delete(sessionKey(sessionId));
 }
 
 /** 构造一个全新的游客 SessionUser */
@@ -160,10 +136,12 @@ export function createGuest(): SessionUser {
 
 /** 规整历史 KV 数据：保证 id/nickname/isGuest 三字段存在，账号字段按需透传。 */
 function normalizeUser(raw: SessionUser): SessionUser {
+  const isAccount = Boolean(raw.accountId || raw.email);
   return {
     id: raw.id ?? `${GUEST_PREFIX}-${crypto.randomUUID()}`,
     nickname: raw.nickname ?? '神话旅人',
-    isGuest: raw.isGuest ?? true,
+    // Legacy nickname-only sessions are anonymous, not real accounts.
+    isGuest: isAccount ? false : true,
     accountId: raw.accountId,
     email: raw.email,
     displayName: raw.displayName,

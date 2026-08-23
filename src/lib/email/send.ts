@@ -24,16 +24,16 @@ const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 const DEFAULT_FROM_EMAIL = 'onboarding@resend.dev';
 const DEFAULT_FROM_NAME = '绘神宇宙 MythCanvas';
 
-/** 发送验证码登录邮件 */
+/** 发送邮箱验证码邮件（登录、注册、重置密码共用） */
 export async function sendOtpMail(
   env: MailEnv,
   to: string,
   code: string,
   expiresInMinutes = 10,
 ): Promise<SendResult> {
-  const subject = `【绘神宇宙】登录验证码 ${code}`;
+  const subject = `【绘神宇宙】邮箱验证码 ${code}`;
   const html = otpTemplate(code, expiresInMinutes);
-  const text = `你的绘神宇宙登录验证码是：${code}，${expiresInMinutes} 分钟内有效。若非本人操作请忽略本邮件。`;
+  const text = `你的绘神宇宙邮箱验证码是：${code}，${expiresInMinutes} 分钟内有效。若非本人操作请忽略本邮件。`;
   return doSend(env, to, subject, html, text, { otp: code });
 }
 
@@ -98,7 +98,7 @@ async function doSend(
 function otpTemplate(code: string, expiresInMinutes: number): string {
   return `<!doctype html><html lang="zh-CN"><body style="margin:0;background:#0b1320;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#e8ecf3">
   <div style="max-width:480px;margin:0 auto;padding:32px 24px">
-    <p style="font-size:13px;color:#8b97ad;margin:0 0 16px">绘神宇宙 · 登录验证码</p>
+    <p style="font-size:13px;color:#8b97ad;margin:0 0 16px">绘神宇宙 · 邮箱验证码</p>
     <div style="font-size:36px;font-weight:700;letter-spacing:8px;color:#e6c07b;text-align:center;padding:24px 0;border:1px solid #1f2c44;border-radius:10px;background:#0f1a2b">${code}</div>
     <p style="font-size:14px;line-height:1.7;color:#b8c2d4;margin:20px 0 0">验证码 <strong>${expiresInMinutes}</strong> 分钟内有效。若这不是你本人的操作，请忽略本邮件，你的账号安全如常。</p>
     <p style="font-size:12px;color:#5e6a80;margin-top:32px">— 绘神宇宙 MythCanvas</p>

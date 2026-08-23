@@ -4,7 +4,7 @@ import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import { getOrCreateUser, SESSION_COOKIE, sessionCookieOptions } from '../../lib/auth/session';
 import { listGenerationsByUser } from '../../lib/cloudflare/generation-repository';
 import { listFavorites } from '../../lib/social/favorites';
-import { getArtworkById, getCharacterById, getRealmById } from '../../lib/content/repositories';
+import { getArtworkById, getCharacterById, getWorldById } from '../../lib/content/repositories';
 
 export const prerender = false;
 
@@ -12,17 +12,17 @@ const sessionResult = await getOrCreateUser(Astro.locals.runtime.env.SESSION, As
 const user = sessionResult.user;
 // 新建 session 时通过响应头设置 cookie（保持 HttpOnly，不能走 document.cookie）
 if (sessionResult.cookie && sessionResult.sessionId) {
-  Astro.cookies.set(SESSION_COOKIE, sessionResult.sessionId, sessionCookieOptions());
+  Astro.cookies.set(SESSION_COOKIE, sessionResult.sessionId, sessionCookieOptions(Astro.url.protocol === 'https:'));
 }
 const generations = await listGenerationsByUser(Astro.locals.runtime.env.DB, user.id);
 const favorites = await listFavorites(Astro.locals.runtime.env.DB, user.id);
 
-// 预解析收藏对象（artwork/character/realm）
+// 预解析收藏对象（artwork/character/world）
 const favoriteEntities = await Promise.all(
   favorites.map(async (fav) => {
     if (fav.targetType === 'artwork') return { fav, entity: await getArtworkById(Astro.locals.runtime.env.DB, fav.targetId) };
     if (fav.targetType === 'character') return { fav, entity: await getCharacterById(Astro.locals.runtime.env.DB, fav.targetId) };
-    if (fav.targetType === 'realm') return { fav, entity: await getRealmById(Astro.locals.runtime.env.DB, fav.targetId) };
+    if (fav.targetType === 'world') return { fav, entity: await getWorldById(Astro.locals.runtime.env.DB, fav.targetId) };
     return { fav, entity: undefined };
   }),
 );
@@ -42,33 +42,20 @@ const favoriteArtworks = favoriteEntities
   <section class="section-compact">
     <div class="container-wide my-grid">
       <aside class="profile surface">
-        <div class="profile-avatar">{user.nickname.slice(0, 1)}</div>
+        <div class="profile-avatar">{user.isGuest ? '游' : user.nickname.slice(0, 1)}</div>
         <div>
           <strong data-nickname>{user.nickname}</strong>
-          <span>{user.isGuest ? '游客' : '已登录探索者'} · {generations.length} 个生成作品</span>
+          <span>{user.isGuest ? '尚未登录' : '已登录账号'} · {generations.length} 个生成作品</span>
           {user.email && <span class="profile-email" title={user.email}>{user.email}</span>}
         </div>
         {user.isGuest ? (
           <div class="profile-cta">
-            <a class="btn btn-primary" href="/login/?redirect=/my/">邮箱登录</a>
-            <p class="profile-cta-hint">登录后可永久保存作品与收藏，并在多设备间同步。</p>
-            <details class="login-form">
-              <summary>仅设置昵称（不登录）</summary>
-              <form onsubmit="return false">
-                <input type="text" maxlength="24" placeholder="输入昵称（可选）" data-profile-name />
-                <button class="btn btn-secondary" type="button" data-profile-save>保存</button>
-              </form>
-            </details>
+            <a class="btn btn-primary" href="/login/?redirect=/my/">登录账号</a>
+            <a class="btn btn-secondary" href="/register/?redirect=/my/">注册账号</a>
+            <p class="profile-cta-hint">登录后可保存作品与收藏，并在多设备间同步。</p>
           </div>
         ) : (
-          <details class="login-form">
-            <summary>修改昵称</summary>
-            <form onsubmit="return false">
-              <input type="text" maxlength="24" placeholder="输入昵称（可选）" data-profile-name />
-              <button class="btn btn-secondary" type="button" data-profile-save>保存</button>
-            </form>
-            <button class="btn btn-secondary" type="button" data-profile-logout>登出</button>
-          </details>
+          <button class="btn btn-secondary" type="button" data-profile-logout>退出登录</button>
         )}
         <a class="btn btn-primary-outline" href="/create/">开始绘神</a>
       </aside>
@@ -147,39 +134,15 @@ const favoriteArtworks = favoriteEntities
       });
     });
 
-    // nickname save
-    const nameInput = root.querySelector('[data-profile-name]');
-    if (nameInput) {
-      nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveName(); });
-    }
-    const saveBtn = root.querySelector('[data-profile-save]');
-    if (saveBtn) saveBtn.addEventListener('click', saveName);
-    async function saveName() {
-      const value = nameInput.value.trim();
-      if (!value) return;
-      try {
-        const res = await fetch('/api/user', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ nickname: value }),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          const el = root.querySelector('[data-nickname]');
-          if (el) el.textContent = data.user.nickname;
-          window.location.reload();
-        } else {
-          alert(data.error?.message || '保存失败');
-        }
-      } catch {
-        alert('网络错误，请重试');
-      }
-    }
-
     const logoutBtn = root.querySelector('[data-profile-logout]');
     if (logoutBtn) logoutBtn.addEventListener('click', async () => {
-      await fetch('/api/user', { method: 'DELETE' });
-      window.location.reload();
+      logoutBtn.disabled = true;
+      const response = await fetch('/api/user', { method: 'DELETE' }).catch(() => null);
+      if (response?.ok) window.location.assign('/login/');
+      else {
+        logoutBtn.disabled = false;
+        alert('退出失败，请重试');
+      }
     });
   })();
 </script>
@@ -197,10 +160,7 @@ const favoriteArtworks = favoriteEntities
   .profile-cta { display: grid; gap: var(--space-2); }
   .profile-cta-hint { font-size: .72rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
   .btn-primary-outline { border: 1px solid var(--accent); color: var(--accent-strong); background: transparent; }
-  .login-form summary { cursor: pointer; color: var(--accent-strong); font-size: .78rem; margin-bottom: var(--space-2); }
-  .login-form form { display: grid; gap: var(--space-2); }
-  .login-form input { min-height: 36px; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); background: var(--surface); font-size: .8rem; }
-  .login-form .btn, .profile .btn { margin-top: var(--space-1); }
+  .profile .btn { margin-top: var(--space-1); }
   .my-tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); border-bottom: 1px solid var(--border); }
   .my-tabs button { padding: var(--space-3) var(--space-4); border: 0; border-bottom: 2px solid transparent; color: var(--text-secondary); background: transparent; cursor: pointer; font-size: .86rem; }
   .my-tabs button.is-active { color: var(--text-primary); border-bottom-color: var(--accent); }

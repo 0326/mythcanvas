@@ -10,14 +10,14 @@
 
 核心任务：
 
-> 让用户通过故事理解神灵、神域和视觉作品背后的关系与意义。
+> 让用户通过故事理解神灵、世界和视觉作品背后的关系与意义。
 
 与另外两个一级内容页形成明确差异：
 
 | 页面 | 用户意图 | 主要内容 | 主体验 |
 |---|---|---|---|
 | 神灵 | 找人物、看人物 | Character | 看 |
-| 神域 | 找世界、看场景 | Realm / Scene | 看 |
+| 世界 | 找世界、看场景 | World / Scene | 看 |
 | 神话 | 读故事、理解世界观 | MythStory | 读 |
 
 因此神话页面是全站 **Text-first 的例外页面**，但仍需要保持 MythCanvas 的视觉品质。
@@ -118,7 +118,7 @@ H1：**神话**
 
 也可使用：
 
-> 阅读传说，理解神灵与神域背后的世界。
+> 阅读传说，理解神灵与世界背后的世界。
 
 ### 视觉
 
@@ -163,7 +163,7 @@ Featured Story 优先：
 
 1. 大众认知高；
 2. 人物关系明确；
-3. 能关联现有高质量神灵 / 神域 Artwork；
+3. 能关联现有高质量神灵 / 世界 Artwork；
 4. 有明显故事冲突；
 5. 适合继续进入 AI 创作。
 
@@ -238,7 +238,7 @@ Featured Story 优先：
 ...
 ```
 
-同时保留 `/mythology/chinese/` 作为 **文明聚合页**，它负责汇总该文明的神灵、神域、故事和 Visual DNA。
+同时保留 `/mythology/chinese/` 作为 **文明聚合页**，它负责汇总该文明的神灵、世界、故事和 Visual DNA。
 
 因此两者职责不同：
 
@@ -302,7 +302,7 @@ type MythStory = {
 
   topicIds: string[];
   characterIds: string[];
-  realmIds: string[];
+  worldIds: string[];
   sceneIds?: string[];
   artworkIds?: string[];
 
@@ -323,13 +323,13 @@ Story 与 Mythology 的关系是：
 
 ```text
 Mythology（文明体系）
-     ├── Character
-     ├── Realm
-     ├── Scene
+    ├── Character
+    ├── World
+    ├── Scene
      └── MythStory × N
 ```
 
-一个文明对应很多故事；一个故事又可以关联多个神灵和神域。
+一个文明对应很多故事；一个故事又可以关联多个神灵和世界。
 
 不能继续把 `Mythology.summary` 当神话正文使用。
 
@@ -408,7 +408,7 @@ Breadcrumb
 故事中的神灵
 [嫦娥] [后羿] [西王母]
 
-故事中的神域
+故事中的世界
 [月宫] [昆仑]
 
 相关视觉作品
@@ -463,7 +463,7 @@ Mobile: 16px / line-height 1.75
 - 解释人物和地点；
 - 分隔长文；
 - 提供视觉记忆；
-- 引导到 Artwork / 神灵 / 神域。
+- 引导到 Artwork / 神灵 / 世界。
 
 ### 图片不负责
 
@@ -562,7 +562,7 @@ Story 页面推荐优先级：
 相关神话
 ```
 
-神域详情页新增：
+世界详情页新增：
 
 ```text
 发生在这里的神话
@@ -573,7 +573,7 @@ Story 页面推荐优先级：
 ```text
 神话 Story
   ↔ 神灵 Character
-  ↔ 神域 Realm / Scene
+  ↔ 世界 World / Scene
   ↔ Artwork
 ```
 
@@ -602,7 +602,7 @@ Story 页面推荐优先级：
 
 #### Phase 2
 
-- 首页、神灵、神域的「读故事」入口全部指向 `/myth/`；
+- 首页、神灵、世界的「读故事」入口全部指向 `/myth/`；
 - `/mythology/` 不再进入主导航，只作为文明索引 / SEO 辅助页。
 
 #### Phase 3
@@ -675,7 +675,7 @@ Story 页面推荐优先级：
 3. 新建 `/myth/`；
 4. 完成 Featured Story + 文明筛选 + Story List；
 5. 完成 `/myth/{slug}/` Story Detail；
-6. 神灵 / 神域加入 Story 关系入口。
+6. 神灵 / 世界加入 Story 关系入口。
 
 ### P1：内容运营
 
@@ -700,10 +700,10 @@ Story 页面推荐优先级：
 重构完成后，应满足：
 
 1. 用户无需看导航说明即可理解「神话」是阅读页面；
-2. 与 Explore / 神灵 / 神域没有图片流形态重复；
+2. 与 Explore / 神灵 / 世界没有图片流形态重复；
 3. 首屏 1 个 Featured Story 明确建立阅读入口；
 4. 文明只作为筛选和内容上下文；
-5. Story 可以关联神灵、神域和 Artwork；
+5. Story 可以关联神灵、世界和 Artwork；
 6. Story Detail 在无 JS 情况下仍可完整阅读；
 7. 页面正文阅读宽度、字号、行高达到长文阅读要求；
 8. Light / Dark 均保持同一结构；

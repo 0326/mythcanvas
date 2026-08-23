@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { safeRedirect } from '../lib/auth/redirect';
+
+export const prerender = false;
+const redirectTarget = safeRedirect(Astro.url.searchParams.get('redirect'));
+---
+
+<BaseLayout
+  title="注册 · 绘神宇宙"
+  description="注册 MythCanvas 绘神宇宙账号，保存你的神话壁纸、收藏与 AI 创作。"
+>
+  <section class="auth-hero">
+    <div class="container-narrow">
+      <span class="eyebrow">创建你的账号</span>
+      <h1>开启你的神话宇宙</h1>
+      <p class="auth-sub">填写邮箱和密码，再输入邮箱验证码完成注册。以后可以直接使用密码登录。</p>
+    </div>
+  </section>
+
+  <section class="auth-section" data-redirect={redirectTarget}>
+    <div class="container-narrow">
+      <div class="surface auth-card">
+        <form class="auth-form" data-register-form>
+          <label class="field">
+            <span class="field-label">邮箱</span>
+            <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="你的邮箱地址" aria-label="邮箱地址" />
+          </label>
+          <label class="field">
+            <span class="field-label">密码</span>
+            <input type="password" name="password" autocomplete="new-password" minlength="8" required placeholder="至少 8 位密码" aria-label="密码" />
+          </label>
+          <label class="field">
+            <span class="field-label">确认密码</span>
+            <input type="password" name="confirmPassword" autocomplete="new-password" minlength="8" required placeholder="再次输入密码" aria-label="确认密码" />
+          </label>
+          <div class="code-row">
+            <label class="field">
+              <span class="field-label">邮箱验证码</span>
+              <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required placeholder="6 位数字" aria-label="邮箱验证码" />
+            </label>
+            <button class="btn btn-secondary code-button" type="button" data-send-code>发送验证码</button>
+          </div>
+          <button class="btn btn-primary" type="submit" data-submit>完成注册</button>
+          <p class="auth-legal">注册即表示你同意<a href="/terms/">服务条款</a>和<a href="/privacy/">隐私政策</a>。</p>
+          <p class="auth-switch">已有账号？<a href={`/login/?redirect=${encodeURIComponent(redirectTarget)}`}>直接登录</a></p>
+        </form>
+        <div class="auth-status" data-status role="alert" aria-live="assertive" hidden></div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector('[data-redirect]');
+  const form = document.querySelector('[data-register-form]') as HTMLFormElement | null;
+  const statusEl = root?.querySelector('[data-status]') as HTMLElement | null;
+  const sendButton = form?.querySelector('[data-send-code]') as HTMLButtonElement | null;
+  const redirectTarget = root?.getAttribute('data-redirect') ?? '/my/';
+  let nonceId = '';
+  let cooldownTimer: number | undefined;
+
+  sendButton?.addEventListener('click', async () => {
+    if (!form || !sendButton) return;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    const confirmPassword = (form.elements.namedItem('confirmPassword') as HTMLInputElement).value;
+    setStatus('正在发送验证码…', '');
+    sendButton.disabled = true;
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'request', email, password, confirmPassword }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setStatus(data?.error?.message ?? '验证码发送失败，请重试。', 'error');
+        if (data?.error?.retryAfterSeconds) startCooldown(data.error.retryAfterSeconds);
+        else sendButton.disabled = false;
+        return;
+      }
+      nonceId = data.nonceId ?? '';
+      const devCode = data.devFallback?.otp;
+      if (devCode) (form.elements.namedItem('code') as HTMLInputElement).value = devCode;
+      setStatus(devCode ? `开发模式验证码：${devCode}` : '验证码已发送，请查收邮件。', 'ok');
+      startCooldown(data.resendAfterSeconds ?? 60);
+      (form.elements.namedItem('code') as HTMLInputElement).focus();
+    } catch {
+      setStatus('网络异常，请重试。', 'error');
+      sendButton.disabled = false;
+    }
+  });
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submit = form.querySelector('[data-submit]') as HTMLButtonElement;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    const confirmPassword = (form.elements.namedItem('confirmPassword') as HTMLInputElement).value;
+    const code = (form.elements.namedItem('code') as HTMLInputElement).value.trim();
+    if (!nonceId) {
+      setStatus('请先发送邮箱验证码。', 'error');
+      return;
+    }
+    submit.disabled = true;
+    setStatus('正在创建账号…', '');
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'complete', email, password, confirmPassword, code, nonceId, redirect: redirectTarget }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setStatus(data?.error?.message ?? '注册失败，请重试。', 'error');
+        return;
+      }
+      setStatus(data.message ?? '注册成功，正在进入…', 'ok');
+      window.location.href = data.redirect || redirectTarget;
+    } catch {
+      setStatus('网络异常，请重试。', 'error');
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  function startCooldown(seconds: number) {
+    if (!sendButton) return;
+    if (cooldownTimer) window.clearInterval(cooldownTimer);
+    let remaining = Math.max(1, Math.ceil(seconds));
+    sendButton.disabled = true;
+    sendButton.textContent = `重新发送（${remaining}s）`;
+    cooldownTimer = window.setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        window.clearInterval(cooldownTimer);
+        cooldownTimer = undefined;
+        sendButton.disabled = false;
+        sendButton.textContent = '重新发送验证码';
+      } else {
+        sendButton.textContent = `重新发送（${remaining}s）`;
+      }
+    }, 1000);
+  }
+
+  function setStatus(message: string, kind: 'ok' | 'error' | '') {
+    if (!statusEl) return;
+    statusEl.hidden = !message;
+    statusEl.dataset.kind = kind;
+    statusEl.textContent = message;
+  }
+</script>
+
+<style>
+  .container-narrow { width: min(100% - 40px, 480px); margin-inline: auto; }
+  .auth-hero { padding: var(--space-16) 0 var(--space-8); text-align: center; }
+  .auth-hero h1 { margin: var(--space-3) 0 var(--space-4); font-size: clamp(1.75rem, 3vw, 2.4rem); }
+  .auth-sub { max-width: 32rem; margin: 0 auto; color: var(--text-secondary); line-height: 1.7; }
+  .auth-section { padding: var(--space-6) 0 var(--space-20); }
+  .auth-card { padding: var(--space-8); border-radius: var(--radius-lg); }
+  .auth-form { display: grid; gap: var(--space-4); }
+  .field { display: grid; gap: var(--space-2); min-width: 0; }
+  .field-label { color: var(--text-secondary); font-size: .85rem; font-weight: 650; }
+  .field input { width: 100%; min-height: 46px; padding: .7rem .8rem; border: 1px solid var(--border-strong); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface-muted); }
+  .code-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3); align-items: end; }
+  .code-button { min-width: 9.5rem; white-space: nowrap; }
+  .auth-legal, .auth-switch { margin: 0; color: var(--text-muted); font-size: .78rem; line-height: 1.6; }
+  .auth-legal a, .auth-switch a { color: var(--accent-strong); text-decoration: none; }
+  .auth-status { margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-md); color: var(--text-primary); font-size: .85rem; line-height: 1.6; }
+  .auth-status[data-kind='ok'] { background: color-mix(in srgb, var(--success) 14%, transparent); }
+  .auth-status[data-kind='error'] { background: color-mix(in srgb, var(--danger) 14%, transparent); }
+  @media (max-width: 560px) { .auth-card { padding: var(--space-6); } .code-row { grid-template-columns: 1fr; } .code-button { width: 100%; } }
+</style>

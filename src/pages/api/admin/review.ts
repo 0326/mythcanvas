@@ -75,9 +75,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     id: artworkId,
     slug,
     title: submission.title,
-    type: job.entityType === 'realm' ? 'realm' : 'character',
+    type: job.entityType === 'world' ? 'world' : 'character',
     mythologyId: job.mythologyId,
-    realmId: job.entityType === 'realm' ? job.entityId : null,
+    worldId: job.entityType === 'world' ? job.entityId : null,
     styleId: job.styleId,
     moodIdsJson: '[]',
     assetKey: job.assetKey,
@@ -126,12 +126,12 @@ async function insertArtwork(db: D1Database | undefined, input: Record<string, u
   if (!db) return;
   await db
     .prepare(
-      `INSERT INTO artworks (id, slug, title, type, mythology_id, realm_id, style_id, mood_ids_json, asset_key,
+      `INSERT INTO artworks (id, slug, title, type, mythology_id, world_id, style_id, mood_ids_json, asset_key,
         asset_mime, width, height, alt_text, source_type, license, creator, ai_model, review_status, publish_status)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', 'published')`,
     )
     .bind(
-      input.id, input.slug, input.title, input.type, input.mythologyId, input.realmId, input.styleId,
+      input.id, input.slug, input.title, input.type, input.mythologyId, input.worldId, input.styleId,
       input.moodIdsJson, input.assetKey, input.assetMime, input.width, input.height, input.altText,
       input.sourceType, input.license, input.creator, input.aiModel,
     )

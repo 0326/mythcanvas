@@ -34,11 +34,11 @@ describe('parseGenerationRequest', () => {
     ).toThrow(GenerationValidationError);
   });
 
-  it('神域不能携带角色形态', () => {
+  it('世界不能携带角色形态', () => {
     expect(() =>
       parseGenerationRequest({
-        entityType: 'realm',
-        entityId: 'realm-olympus',
+        entityType: 'world',
+        entityId: 'world-olympus',
         variantId: 'athena-mature',
         styleId: 'canonical',
         scene: '神殿',
@@ -65,7 +65,7 @@ describe('parseGenerationRequest', () => {
   it('非法比例抛错', () => {
     expect(() =>
       parseGenerationRequest({
-        entityType: 'realm',
+        entityType: 'world',
         entityId: 'x',
         styleId: 'y',
         scene: 's',

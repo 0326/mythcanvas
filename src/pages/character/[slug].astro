@@ -10,7 +10,7 @@ import CharacterArtworkGrid, {
 } from '../../components/character/CharacterArtworkGrid.astro';
 import CharacterDNA from '../../components/character/CharacterDNA.astro';
 import RelatedCharacters from '../../components/character/RelatedCharacters.astro';
-import RealmCard from '../../components/realm/RealmCard.astro';
+import WorldCard from '../../components/world/WorldCard.astro';
 import {
   getArtworksForCharacter,
   getCharacterBySlug,
@@ -18,14 +18,14 @@ import {
   getCharacterVariants,
   getMythologies,
   getMythologyById,
-  getRealms,
+  getWorlds,
 } from '../../lib/content/repositories';
 import {
   getCharacterStyle,
   normalizeCharacterStyleId,
   type CharacterStyleId,
 } from '../../lib/content/character-styles';
-import type { Artwork, ImageAsset, Realm } from '../../lib/content/types';
+import type { Artwork, ImageAsset, World } from '../../lib/content/types';
 
 export const prerender = false;
 
@@ -34,10 +34,10 @@ const { slug } = Astro.params;
 const character = await getCharacterBySlug(db, slug ?? '');
 if (!character) return Astro.redirect('/404');
 
-const [mythology, relatedArtworks, realms, variants, allCharacters, allMythologies] = await Promise.all([
+const [mythology, relatedArtworks, worlds, variants, allCharacters, allMythologies] = await Promise.all([
   getMythologyById(db, character.mythologyId),
   getArtworksForCharacter(db, character.id),
-  getRealms(db),
+  getWorlds(db),
   getCharacterVariants(db, character.id),
   getCharacters(db),
   getMythologies(db, { published: 'all' }),
@@ -45,21 +45,21 @@ const [mythology, relatedArtworks, realms, variants, allCharacters, allMythologi
 
 const mythologyById = new Map(allMythologies.map((item) => [item.id, item]));
 
-const realmsById = new Map(realms.map((item) => [item.id, item]));
-const characterRealms = character.realmIds
-  .map((id) => realmsById.get(id))
-  .filter((item): item is Realm => item != null);
+const worldsById = new Map(worlds.map((item) => [item.id, item]));
+const characterWorlds = character.worldIds
+  .map((id) => worldsById.get(id))
+  .filter((item): item is World => item != null);
 
-const sameRealm = characterRealms.length > 0
-  ? allCharacters.filter((c) => c.id !== character.id && c.realmIds.some((r) => character.realmIds.includes(r)))
+const sameWorld = characterWorlds.length > 0
+  ? allCharacters.filter((c) => c.id !== character.id && c.worldIds.some((w) => character.worldIds.includes(w)))
   : [];
 const sameMythology = allCharacters.filter(
-  (c) => c.id !== character.id && c.mythologyId === character.mythologyId && !sameRealm.includes(c),
+  (c) => c.id !== character.id && c.mythologyId === character.mythologyId && !sameWorld.includes(c),
 );
 const fallback = allCharacters.filter(
-  (c) => c.id !== character.id && !sameRealm.includes(c) && !sameMythology.includes(c),
+  (c) => c.id !== character.id && !sameWorld.includes(c) && !sameMythology.includes(c),
 );
-const relatedCharacters = [...sameRealm, ...sameMythology, ...fallback].slice(0, 6);
+const relatedCharacters = [...sameWorld, ...sameMythology, ...fallback].slice(0, 6);
 
 const requestedStyle = normalizeCharacterStyleId(Astro.url.searchParams.get('style'));
 const selectedStyle: CharacterStyleId = requestedStyle ?? 'canonical';
@@ -70,7 +70,7 @@ const selectedStyleDefinition = getCharacterStyle(selectedStyle);
 
 const fallbackImage: ImageAsset = {
   src: '/art/chinese-celestial.svg',
-  alt: '云海之上的东方神域',
+  alt: '云海之上的东方神境',
   width: 1600,
   height: 900,
 };
@@ -78,7 +78,7 @@ const fallbackImage: ImageAsset = {
 const heroImage =
   character.portrait ??
   relatedArtworks.find((artwork) => artwork.image.width >= artwork.image.height)?.image ??
-  characterRealms[0]?.heroImage ??
+  characterWorlds[0]?.heroImage ??
   mythology?.heroImage ??
   fallbackImage;
 
@@ -212,15 +212,15 @@ const buildCreateHref = (
       </div>
     </section>
 
-    <CharacterDNA character={character} mythology={mythology} realms={characterRealms} />
+    <CharacterDNA character={character} mythology={mythology} worlds={characterWorlds} />
 
-    {characterRealms.length > 0 && (
-      <section class="related-section section-compact" aria-labelledby="realm-title">
+    {characterWorlds.length > 0 && (
+      <section class="related-section section-compact" aria-labelledby="world-title">
         <div class="container-wide">
           <div class="section-heading">
-            <div><span class="eyebrow">Related Realm</span><h2 id="realm-title">所在神域</h2></div>
+            <div><span class="eyebrow">Related World</span><h2 id="world-title">所在神域</h2></div>
           </div>
-          <div class="realm-grid">{characterRealms.map((realm) => <RealmCard realm={realm} />)}</div>
+          <div class="world-grid">{characterWorlds.map((world) => <WorldCard world={world} />)}</div>
         </div>
       </section>
     )}
@@ -392,12 +392,12 @@ const buildCreateHref = (
   .back-to-forms:hover { color: var(--text-primary); }
 
   .related-section { background: var(--bg-primary); }
-  .realm-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+  .world-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
 
   .recreate { display: flex; align-items: end; justify-content: space-between; gap: var(--space-10); padding: clamp(2rem, 5vw, 4rem); border-radius: var(--radius-xl); }
   .recreate p { max-width: 42rem; margin: 0; color: var(--text-secondary); }
 
   @media (max-width: 900px) {
-    .realm-grid { grid-template-columns: 1fr; }
+    .world-grid { grid-template-columns: 1fr; }
   }
 </style>

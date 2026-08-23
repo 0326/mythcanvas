@@ -301,7 +301,7 @@ function escapeXml(value: string): string {
 function createMockSvg(input: ProviderGenerationRequest): string {
   const title = escapeXml(input.metadata.entityName ?? 'MythCanvas');
   const referenceCount = input.references?.length ?? 0;
-  const subtitle = escapeXml(`${input.metadata.styleName ?? 'Myth'} · ${input.metadata.scene ?? 'Realm'}${referenceCount ? ` · ${referenceCount} refs` : ''}`);
+  const subtitle = escapeXml(`${input.metadata.styleName ?? 'Myth'} · ${input.metadata.scene ?? 'World'}${referenceCount ? ` · ${referenceCount} refs` : ''}`);
   const wide = input.width >= input.height;
   const moonX = wide ? Math.round(input.width * 0.76) : Math.round(input.width * 0.72);
   const moonY = Math.round(input.height * 0.2);

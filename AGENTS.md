@@ -39,9 +39,9 @@ Theme switching may change semantic colors, shadows, glows, textures and theme-s
 
 Every mythology has a `Civilization Visual DNA`, but civilizations do **not** receive separate website themes.
 
-### Characters and realms are persistent assets
+### Characters and worlds are persistent assets
 
-Important Character and Realm entities have a `Canonical Design`. Style variants may change rendering style but should preserve identity anchors.
+Important Character and World entities have a `Canonical Design`. Style variants may change rendering style but should preserve identity anchors.
 
 ### Character, Variant, Style and OutputSpec are orthogonal
 
@@ -97,7 +97,7 @@ General placement:
 
 - `src/pages/`: routes only; keep page orchestration readable.
 - `src/components/ui/`: reusable visual primitives.
-- `src/components/{artwork,character,realm,mythology,create}/`: domain components.
+- `src/components/{artwork,character,world,mythology,create}/`: domain components.
 - `src/lib/`: reusable domain/service logic; no UI.
 - `src/data/`: temporary typed MVP seed data.
 - `src/content/`: editorial/static content collections.

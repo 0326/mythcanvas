@@ -1,0 +1,124 @@
+---
+import type { World } from '../../lib/content/types';
+import type { CanonicalDesign } from '../../lib/content/types';
+
+interface Props {
+  world: World;
+}
+
+const { world } = Astro.props;
+const anchors = (world.canonicalDesign as CanonicalDesign).anchors ?? [];
+const materials = (world.canonicalDesign as CanonicalDesign).signatureMaterials;
+const silhouette = (world.canonicalDesign as CanonicalDesign).silhouette;
+---
+
+<section class="section-compact">
+  <div class="container-wide identity">
+    <div class="identity-heading">
+      <span class="eyebrow">World Identity</span>
+      <h2>神域印记</h2>
+      <p>无论如何重新演绎，这些空间锚点始终存在。</p>
+    </div>
+    <div class="anchors-list">
+      {anchors.map((anchor, index) => (
+        <div class="anchor-item">
+          <span class="num">{String(index + 1).padStart(2, '0')}</span>
+          <strong>{anchor}</strong>
+        </div>
+      ))}
+    </div>
+    {(materials && materials.length > 0 || silhouette) && (
+      <div class="identity-detail surface">
+        {materials && materials.length > 0 && (
+          <div class="detail-row">
+            <span>标志材质</span>
+            <p>{materials.join(' · ')}</p>
+          </div>
+        )}
+        {silhouette && (
+          <div class="detail-row">
+            <span>空间轮廓</span>
+            <p>{silhouette}</p>
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .identity {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.7fr) 1.3fr;
+    gap: var(--space-10);
+    align-items: start;
+    padding-block: clamp(2rem, 5vw, 4rem);
+  }
+
+  .identity-heading h2 {
+    margin: var(--space-3) 0 0;
+    font-size: clamp(2rem, 3vw, 3rem);
+  }
+
+  .identity-heading p {
+    max-width: 26rem;
+    margin: var(--space-4) 0 0;
+    color: var(--text-secondary);
+  }
+
+  .anchors-list {
+    display: grid;
+    gap: 0;
+  }
+
+  .anchor-item {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: var(--space-4);
+    align-items: center;
+    padding-block: var(--space-5);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .anchor-item:first-child {
+    padding-top: 0;
+  }
+
+  .num {
+    color: var(--accent);
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .anchor-item strong {
+    font-size: clamp(1.15rem, 2vw, 1.6rem);
+    font-weight: 700;
+  }
+
+  .materials, .silhouette {
+    margin-top: var(--space-5);
+  }
+
+  .materials span,
+  .silhouette span {
+    color: var(--text-muted);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .materials p,
+  .silhouette p {
+    margin: var(--space-2) 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 820px) {
+    .identity {
+      grid-template-columns: 1fr;
+      gap: var(--space-8);
+    }
+  }
+</style>

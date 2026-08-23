@@ -292,7 +292,7 @@ MythCanvas
 /
 ├── explore/
 ├── mythology/{chinese|greek|norse|japanese|egyptian}/
-├── realm/{slug}/
+├── world/{slug}/
 ├── character/{slug}/
 ├── wallpaper/{slug}/
 ├── style/{slug}/
@@ -442,11 +442,16 @@ Tab：壁纸、角色、神域、我的绘神。
 
 ---
 
-# 19. 登录策略
+# 19. 登录与注册策略
 
-MVP 不强制注册。浏览、搜索、下载均可匿名；收藏、AI 生成、保存历史时再触发登录。
+浏览、搜索、下载均可匿名；收藏、保存生成历史和跨设备同步时要求登录。
 
-原则：**先获得价值，再要求登录。**
+- 登录：邮箱验证码或邮箱 + 密码；验证码发送后 60 秒内不可重复发送。
+- 注册：邮箱 + 密码 + 邮箱验证码，验证码发送后 60 秒内不可重复发送。
+- 忘记密码 / 老账号首次设置密码：通过邮箱验证码设置新密码。
+- 首次注册完成后，当前匿名 session 的生成记录与收藏迁移到新账号。
+
+原则：**先获得内容价值，再在需要保存时要求登录。**
 
 ---
 
@@ -514,7 +519,7 @@ Workers API
  └── AI Generation API
 ```
 
-R2 存原图、缩略图、生成图、分享图与 OG Image；D1 存 mythology、realm、character、scene、artwork、style、user、collection、generation。
+R2 存原图、缩略图、生成图、分享图与 OG Image；D1 存 mythology、world、character、scene、artwork、style、user、collection、generation。
 
 ---
 

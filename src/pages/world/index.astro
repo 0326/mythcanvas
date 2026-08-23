@@ -1,0 +1,281 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorldCard from '../../components/world/WorldCard.astro';
+import { getMythologies, getWorlds } from '../../lib/content/repositories';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const [worlds, mythologies] = await Promise.all([getWorlds(db), getMythologies(db)]);
+const mythologyById = new Map(mythologies.map((mythology) => [mythology.id, mythology]));
+const featured = worlds.slice(0, 2);
+const rest = worlds.slice(2);
+---
+
+<BaseLayout
+  title="神域"
+  description="进入 MythCanvas 神话世界：从云海天宫到奥林匹斯，探索每个神域的空间、角色与视觉形态。"
+>
+  <section class="atlas-hero">
+    <div class="container-wide">
+      <span class="eyebrow">Worlds · World Atlas</span>
+      <h1>进入神话世界</h1>
+      <p>从云海天宫到奥林匹斯，每个神域都有自己的空间、角色与视觉规则。</p>
+    </div>
+  </section>
+
+  <section class="section-compact">
+    <div class="container-wide">
+      <div class="world-toolbar" data-world-atlas>
+        <div class="mythology-filters" role="group" aria-label="按文明筛选神域">
+          <button class="is-active" type="button" data-mythology-filter="all" aria-pressed="true">全部</button>
+          {mythologies.map((mythology) => (
+            <button type="button" data-mythology-filter={mythology.slug} aria-pressed="false">{mythology.name.replace('神话', '')}</button>
+          ))}
+        </div>
+        <label class="world-search">
+          <span class="visually-hidden">搜索神域</span>
+          <input type="search" placeholder="搜索神域" data-world-search aria-label="搜索神域" />
+        </label>
+      </div>
+
+      <div class="editorial-mosaic" data-world-mosaic>
+        {featured.map((world, index) => (
+          <div class:list={['mosaic-cell mega', { 'is-odd': index % 2 === 1 }]} data-world-cell data-mythology={mythologyById.get(world.mythologyId)?.slug ?? 'all'} data-name={world.name}>
+            <WorldCard world={world} mythologyName={mythologyById.get(world.mythologyId)?.name} />
+          </div>
+        ))}
+        {rest.map((world, index) => (
+          <div class:list={['mosaic-cell standard', { 'is-odd': index % 2 === 1 }]} data-world-cell data-mythology={mythologyById.get(world.mythologyId)?.slug ?? 'all'} data-name={world.name}>
+            <WorldCard world={world} mythologyName={mythologyById.get(world.mythologyId)?.name} />
+          </div>
+        ))}
+      </div>
+
+      <div class="empty-state" data-world-empty hidden>
+        <p>没有找到匹配的神域。</p>
+        <button class="btn btn-secondary" type="button" data-reset-worlds>清除筛选</button>
+      </div>
+
+      <div class="atlas-cta">
+        <div class="atlas-cta-copy">
+          <span class="eyebrow">AI Recreate</span>
+          <h2>还没找到想进入的神域？</h2>
+          <p>从现有神话世界出发，用 AI 组合场景、画风与设备规格，创造你自己的视觉版本。</p>
+        </div>
+        <a class="btn btn-primary" href="/create/">开始绘神</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector('[data-world-atlas]');
+  const mosaic = document.querySelector('[data-world-mosaic]');
+  const empty = document.querySelector('[data-world-empty]');
+  if (root && mosaic && empty) {
+    const cells = Array.from(mosaic.querySelectorAll('[data-world-cell]'));
+    const filterButtons = Array.from(root.querySelectorAll('[data-mythology-filter]'));
+    const searchInput = root.querySelector('[data-world-search]');
+
+    const apply = () => {
+      const active = filterButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
+      const mythology = active?.dataset.mythologyFilter ?? 'all';
+      const query = (searchInput.value ?? '').trim().toLowerCase();
+      let visibleCount = 0;
+      cells.forEach((cell) => {
+        const cellMythology = cell.dataset.mythology ?? 'all';
+        const name = (cell.dataset.name ?? '').toLowerCase();
+        const matchesMythology = mythology === 'all' || cellMythology === mythology;
+        const matchesQuery = query === '' || name.includes(query);
+        const show = matchesMythology && matchesQuery;
+        cell.hidden = !show;
+        if (show) visibleCount += 1;
+      });
+      empty.hidden = visibleCount > 0;
+    };
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        filterButtons.forEach((b) => {
+          const active = b === button;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        apply();
+      });
+    });
+
+    searchInput.addEventListener('input', apply);
+
+    const reset = document.querySelector('[data-reset-worlds]');
+    if (reset) reset.addEventListener('click', () => {
+      filterButtons.forEach((b, i) => {
+        const active = i === 0;
+        b.classList.toggle('is-active', active);
+        b.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      searchInput.value = '';
+      apply();
+    });
+  }
+</script>
+
+<style>
+  .atlas-hero {
+    padding-block: clamp(4rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem);
+    border-bottom: 1px solid var(--border);
+    background: radial-gradient(circle at 82% 20%, var(--hero-ambient), transparent 28%);
+  }
+
+  .atlas-hero h1 {
+    margin: 0;
+    font-size: clamp(3rem, 6vw, 5.4rem);
+  }
+
+  .atlas-hero p {
+    max-width: 42rem;
+    margin: var(--space-5) 0 0;
+    color: var(--text-secondary);
+  }
+
+  .world-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  .mythology-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .mythology-filters button {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-secondary);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .mythology-filters button.is-active {
+    border-color: var(--accent);
+    color: var(--text-inverse);
+    background: var(--accent);
+  }
+
+  .world-search input {
+    width: min(240px, 100%);
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-primary);
+    background: var(--surface);
+    font-size: 0.85rem;
+  }
+
+  .world-search input:focus {
+    outline: 2px solid var(--focus-ring, var(--accent));
+    outline-offset: 1px;
+  }
+
+  .editorial-mosaic {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .mosaic-cell.mega {
+    grid-column: span 3;
+    aspect-ratio: 16 / 10;
+  }
+
+  .mosaic-cell.standard {
+    grid-column: span 2;
+    aspect-ratio: 3 / 2;
+  }
+
+  .mosaic-cell .world-card,
+  .mosaic-cell a {
+    height: 100%;
+  }
+
+  .mosaic-cell .world-image-wrap {
+    aspect-ratio: auto;
+    height: 100%;
+  }
+
+  .editorial-mosaic:empty,
+  .editorial-mosaic:has([hidden]) ~ .atlas-cta {
+    margin-top: var(--space-8);
+  }
+
+  .empty-state {
+    padding: var(--space-10);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  .empty-state .btn {
+    margin-top: var(--space-4);
+  }
+
+  .atlas-cta {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-10);
+    margin-top: var(--space-12, 3rem);
+    padding: clamp(2rem, 5vw, 4rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+  }
+
+  .atlas-cta h2 {
+    margin: var(--space-3) 0 0;
+  }
+
+  .atlas-cta p {
+    max-width: 44rem;
+    margin: var(--space-3) 0 0;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 900px) {
+    .editorial-mosaic {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .mosaic-cell.mega,
+    .mosaic-cell.standard {
+      grid-column: span 1;
+      aspect-ratio: 16 / 10;
+    }
+    .world-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .world-search input {
+      width: 100%;
+    }
+    .atlas-cta {
+      align-items: start;
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .editorial-mosaic {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

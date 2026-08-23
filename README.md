@@ -32,7 +32,7 @@ MythCanvas 全站只维护一套结构与组件体系：
 内容层另有两级视觉系统：
 
 1. **Civilization Visual DNA**：不同神话文明保留自己的文化识别元素；
-2. **Style Variant**：同一角色和世界支持 Cinematic、Anime、Sacred、Cyber Myth、Ink 等多种画风。
+2. **Style Variant**：同一角色和神域支持 Cinematic、Anime、Sacred、Cyber Myth、Ink 等多种画风。
 
 原则：**文化决定“是谁”，画风决定“怎么画”，主题决定“怎么展示”。**
 
@@ -46,9 +46,9 @@ MythCanvas 全站只维护一套结构与组件体系：
 - ✅ 首屏 no-flash Theme bootstrap + 用户主题记忆
 - ✅ MythCanvas Header / Footer / BaseLayout
 - ✅ Home + Explore
-- ✅ Mythology / Realm / Character / Artwork 类型模型
+- ✅ Mythology / World / Character / Artwork 类型模型
 - ✅ 5 个首发文明的 MVP seed data + Civilization Visual DNA
-- ✅ Mythology / Realm / Character / Wallpaper 实体详情路由
+- ✅ Mythology / World / Character / Wallpaper 实体详情路由
 - ✅ Canonical Design / Style Variant 产品表达
 - ✅ AI「绘神」Guided Creator
 - ✅ Device Preview
@@ -107,7 +107,7 @@ mythcanvas/
 │   │   ├── create/
 │   │   ├── explore/
 │   │   ├── mythology/
-│   │   ├── realm/
+│   │   ├── world/
 │   │   ├── character/
 │   │   └── wallpaper/
 │   └── styles/
@@ -123,7 +123,7 @@ Creator UI
   → POST /api/generate
   → validate guided request
   → resolve Civilization Visual DNA
-  → resolve Character / Realm Canonical Design
+  → resolve Character / World Canonical Design
   → compose provider-neutral prompt
   → Image Provider adapter
   → persist image to R2 when available
@@ -181,7 +181,7 @@ Node.js >= 22。
 1. ✅ Semantic Design Token + Light/Dark Theme
 2. ✅ Header / Footer / BaseLayout
 3. ✅ Home + Explore
-4. ✅ Mythology / Realm / Character 领域模型与详情页
+4. ✅ Mythology / World / Character 领域模型与详情页
 5. ✅ Artwork / Wallpaper 详情与 Device Preview
 6. ✅ AI「绘神」Guided Creator
 7. ✅ D1 schema + seed migration

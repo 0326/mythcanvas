@@ -6,7 +6,7 @@ import type { EntityListQuery } from './types';
 type SceneRow = Record<string, unknown>;
 
 const SELECT_COLUMNS = `
-  id, mythology_id, realm_id, slug, name, name_en, summary, canonical_design_json,
+  id, mythology_id, world_id, slug, name, name_en, summary, canonical_design_json,
   hero_src, hero_alt, hero_width, hero_height
 `;
 
@@ -15,7 +15,7 @@ export function mapSceneRow(row: SceneRow): Scene {
   return {
     id: String(row.id),
     mythologyId: String(row.mythology_id),
-    realmId: optionalString(row.realm_id),
+    worldId: optionalString(row.world_id),
     slug: String(row.slug),
     name: String(row.name),
     nameEn: String(row.name_en),
@@ -70,15 +70,15 @@ export async function getScenesForMythology(
   return rows.results.map(mapSceneRow);
 }
 
-export async function getScenesForRealm(
+export async function getScenesForWorld(
   db: D1Database | undefined,
-  realmId: string,
+  worldId: string,
   query: EntityListQuery = {},
 ): Promise<Scene[]> {
-  if (!db) return seedScenes.filter((item) => item.realmId === realmId);
+  if (!db) return seedScenes.filter((item) => item.worldId === worldId);
   const rows = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE realm_id = ? AND publish_status = 'published' ORDER BY name`)
-    .bind(realmId)
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE world_id = ? AND publish_status = 'published' ORDER BY name`)
+    .bind(worldId)
     .all();
   return rows.results.map(mapSceneRow);
 }

@@ -5,8 +5,8 @@
 -- ============ 1. Mythology Hero 切换 R2 ============
 UPDATE mythologies SET hero_src = REPLACE(hero_src, '/art/', '/media/content/') WHERE hero_src LIKE '/art/%';
 
--- ============ 2. Realm Hero 切换 R2 ============
-UPDATE realms SET hero_src = REPLACE(hero_src, '/art/', '/media/content/') WHERE hero_src LIKE '/art/%';
+-- ============ 2. World Hero 切换 R2 ============
+UPDATE worlds SET hero_src = REPLACE(hero_src, '/art/', '/media/content/') WHERE hero_src LIKE '/art/%';
 
 -- ============ 3. Character Portrait 切换 R2 ============
 UPDATE characters SET portrait_src = REPLACE(portrait_src, '/art/', '/media/content/') WHERE portrait_src LIKE '/art/%';

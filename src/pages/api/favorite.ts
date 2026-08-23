@@ -4,11 +4,19 @@ import { addFavorite, isFavorited, listFavorites, removeFavorite } from '../../l
 
 export const prerender = false;
 
-const TARGET_TYPES = new Set(['artwork', 'character', 'realm', 'style', 'generation']);
+const TARGET_TYPES = new Set(['artwork', 'character', 'world', 'style', 'generation']);
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const sessionResult = await getOrCreateUser(locals.runtime.env.SESSION, request);
   const user = sessionResult.user;
+
+  if (user.isGuest) {
+    return json({
+      error: 'AUTH_REQUIRED',
+      message: '请先登录后收藏。',
+      loginUrl: '/login/',
+    }, 401, sessionResult.cookie);
+  }
 
   const payload = await request.json().catch(() => null);
   const body = payload && typeof payload === 'object' ? payload as Record<string, unknown> : {};

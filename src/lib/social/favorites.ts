@@ -1,9 +1,9 @@
 /**
  * 收藏数据访问层（D1）。
- * 支持 Artwork / Character / Realm / Style 四类收藏目标。
+ * 支持 Artwork / Character / World / Style 四类收藏目标。
  */
 
-export type FavoriteTargetType = 'artwork' | 'character' | 'realm' | 'style' | 'generation';
+export type FavoriteTargetType = 'artwork' | 'character' | 'world' | 'style' | 'generation';
 
 export type Favorite = {
   userId: string;

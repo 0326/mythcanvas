@@ -11,6 +11,7 @@ declare namespace Cloudflare {
     MAIL_FROM_EMAIL?: string;
     MAIL_FROM_NAME?: string;
     PUBLIC_BASE_URL?: string;
+    AUTH_DEV_FALLBACK?: string;
   }
 }
 

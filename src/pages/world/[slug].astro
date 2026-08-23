@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorldHero from '../../components/world/WorldHero.astro';
+import WorldIdentity from '../../components/world/WorldIdentity.astro';
+import WorldLandmarks from '../../components/world/WorldLandmarks.astro';
+import WorldCharacters from '../../components/world/WorldCharacters.astro';
+import WorldVisualInterpretations from '../../components/world/WorldVisualInterpretations.astro';
+import WorldWallpapers from '../../components/world/WorldWallpapers.astro';
+import RelatedWorlds from '../../components/world/RelatedWorlds.astro';
+import {
+  getArtworksForWorld,
+  getCharactersForWorld,
+  getMythologyById,
+  getScenesForWorld,
+  getStyles,
+  getWorldBySlug,
+  getWorldsForMythology,
+} from '../../lib/content/repositories';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const { slug } = Astro.params;
+const world = await getWorldBySlug(db, slug ?? '');
+if (!world) return Astro.redirect('/404');
+
+const [mythology, scenes, characters, artworks, styles, siblingWorlds] = await Promise.all([
+  getMythologyById(db, world.mythologyId),
+  getScenesForWorld(db, world.id),
+  getCharactersForWorld(db, world.id),
+  getArtworksForWorld(db, world.id),
+  getStyles(db),
+  getWorldsForMythology(db, world.mythologyId).then((list) => list.filter((item) => item.id !== world.id)),
+]);
+const pageDescription = `${world.name} · ${world.nameEn}：${world.summary}`;
+const createHref = `/create/?world=${world.slug}`;
+---
+
+<BaseLayout
+  title={`${world.name} · ${world.nameEn} · 神域`}
+  description={pageDescription}
+  image={world.heroImage.src}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Place',
+        name: world.name,
+        alternateName: world.nameEn,
+        description: world.summary,
+        image: new URL(world.heroImage.src, Astro.site).toString(),
+        containsPlace: characters.length > 0
+          ? characters.map((character) => ({
+              '@type': 'Thing',
+              name: `${character.name} ${character.role}`,
+            }))
+          : undefined,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: new URL('/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 2, name: '神域', item: new URL('/world/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 3, name: world.name },
+        ],
+      },
+    ])} />
+    <link rel="canonical" href={new URL(`/world/${world.slug}/`, Astro.site).toString()} />
+  </Fragment>
+
+  <WorldHero world={world} mythology={mythology} />
+
+  <WorldIdentity world={world} />
+
+  {scenes.length > 0 && <WorldLandmarks scenes={scenes} />}
+
+  {characters.length > 0 && <WorldCharacters characters={characters} />}
+
+  <WorldVisualInterpretations artworks={artworks} styles={styles} />
+
+  {artworks.length > 0 && <WorldWallpapers artworks={artworks} />}
+
+  <RelatedWorlds worlds={siblingWorlds} mythologyName={mythology?.name} />
+
+  <section class="section-compact">
+    <div class="container-wide">
+      <div class="recreate surface">
+        <div>
+          <span class="eyebrow">AI Recreate</span>
+          <h2>绘制我的 {world.name}</h2>
+          <p>保留 {world.canonicalDesign.anchors.slice(0, 2).join('、')} 等空间锚点，再选择新画风、场景氛围与设备构图。</p>
+        </div>
+        <a class="btn btn-primary" href={createHref}>开始绘神</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .recreate {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-10);
+    padding: clamp(2rem, 5vw, 4rem);
+    border-radius: var(--radius-xl);
+  }
+
+  .recreate h2 {
+    margin-bottom: var(--space-3);
+  }
+
+  .recreate p {
+    max-width: 44rem;
+    margin: 0;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 680px) {
+    .recreate {
+      align-items: start;
+      flex-direction: column;
+    }
+  }
+</style>

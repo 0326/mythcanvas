@@ -17,7 +17,7 @@ export type ArtworkDevice = 'desktop' | 'mobile';
 
 export type ArtworkListQuery = Pagination & {
   mythologyId?: string;
-  realmId?: string;
+  worldId?: string;
   characterId?: string;
   styleId?: string;
   type?: ArtworkType;

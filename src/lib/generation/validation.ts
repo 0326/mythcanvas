@@ -1,6 +1,6 @@
 import type { GenerationRequest } from './types';
 
-const entityTypes = new Set(['character', 'realm']);
+const entityTypes = new Set(['character', 'world']);
 const ratios = new Set(['9:16', '16:9', '1:1', '3:4', '4:3']);
 const MAX_ID_LENGTH = 128;
 

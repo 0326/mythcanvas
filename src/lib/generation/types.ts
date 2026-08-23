@@ -1,4 +1,4 @@
-export type GenerationEntityType = 'character' | 'realm';
+export type GenerationEntityType = 'character' | 'world';
 export type GenerationStatus = 'queued' | 'generating' | 'succeeded' | 'failed' | 'moderated';
 export type GenerationQuality = 'low' | 'medium' | 'high' | 'auto';
 

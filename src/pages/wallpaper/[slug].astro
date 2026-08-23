@@ -7,7 +7,7 @@ import {
   getArtworksForMythology,
   getCharacterById,
   getMythologyById,
-  getRealms,
+  getWorlds,
 } from '../../lib/content/repositories';
 
 export const prerender = false;
@@ -16,20 +16,20 @@ const db = Astro.locals.runtime.env.DB;
 const { slug } = Astro.params;
 const artwork = await getArtworkBySlug(db, slug ?? '');
 if (!artwork) return Astro.redirect('/404');
-const [mythology, relatedCharacters, related, realmsById] = await Promise.all([
+const [mythology, relatedCharacters, related, worldsById] = await Promise.all([
   getMythologyById(db, artwork.mythologyId),
   artwork.characterIds
     ? Promise.all(artwork.characterIds.map((id) => getCharacterById(db, id))).then((list) => list.filter((item) => item != null))
     : Promise.resolve([]),
   getArtworksForMythology(db, artwork.mythologyId).then((list) => list.filter((item) => item.id !== artwork.id).slice(0, 4)),
-  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+  getWorlds(db).then((list) => new Map(list.map((item) => [item.id, item]))),
 ]);
-const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
+const world = artwork.worldId ? worldsById.get(artwork.worldId) : undefined;
 ---
 
 <BaseLayout
   title={artwork.title}
-  description={`${artwork.title} — ${mythology?.name ?? '神话视觉'} ${realm ? `· ${realm.name}` : ''}，MythCanvas 神话壁纸与视觉作品。`}
+  description={`${artwork.title} — ${mythology?.name ?? '神话视觉'} ${world ? `· ${world.name}` : ''}，MythCanvas 神话壁纸与视觉作品。`}
   image={artwork.image.src}
 >
   <Fragment slot="head">
@@ -70,7 +70,7 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
       <aside class="detail-panel">
         <div class="crumbs">
           {mythology && <a href={`/mythology/${mythology.slug}/`}>{mythology.name}</a>}
-          {realm && <><span>·</span><a href={`/realm/${realm.slug}/`}>{realm.name}</a></>}
+          {world && <><span>·</span><a href={`/world/${world.slug}/`}>{world.name}</a></>}
         </div>
         <span class="eyebrow">Artwork · {artwork.styleId.replace('-', ' ')}</span>
         <h1>{artwork.title}</h1>
@@ -141,7 +141,7 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
       <div class="container-wide">
         <div class="section-heading"><div><span class="eyebrow">Related</span><h2>继续探索这个文明</h2></div></div>
         <div class="related-grid">
-          {related.map((item) => <ArtworkCard artwork={item} mythologyName={mythology?.name} realmName={item.realmId ? realmsById.get(item.realmId)?.name : undefined} />)}
+          {related.map((item) => <ArtworkCard artwork={item} mythologyName={mythology?.name} worldName={item.worldId ? worldsById.get(item.worldId)?.name : undefined} />)}
         </div>
       </div>
     </section>
@@ -240,9 +240,11 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
           if (res.ok) {
             if (data.favorited) { favBtn.textContent = '已收藏'; favBtn.setAttribute('aria-pressed', 'true'); }
             else { favBtn.textContent = '收藏'; favBtn.setAttribute('aria-pressed', 'false'); }
+          } else if (res.status === 401) {
+            const redirect = `${window.location.pathname}${window.location.search}`;
+            window.location.href = `/login/?redirect=${encodeURIComponent(redirect)}`;
           } else {
-            favBtn.textContent = '请先设置昵称登录';
-            favBtn.disabled = true;
+            favBtn.textContent = data.message || '收藏失败';
           }
         } catch { favBtn.textContent = '收藏失败'; }
       });

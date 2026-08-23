@@ -1,6 +1,6 @@
 ---
 name: mythcanvas-content-model
-description: Use for MythCanvas domain schemas, mythology/realm/character/artwork relationships, Canonical Design, Civilization Visual DNA, Style Variants, seed data, and content/IP metadata.
+description: Use for MythCanvas domain schemas, mythology/world/character/artwork relationships, Canonical Design, Civilization Visual DNA, Style Variants, seed data, and content/IP metadata.
 ---
 
 # MythCanvas Content Model Skill
@@ -96,9 +96,9 @@ At minimum support:
 type Artwork = {
   id: string;
   slug: string;
-  type: 'character' | 'realm' | 'scene' | 'creature' | 'architecture';
+  type: 'character' | 'world' | 'scene' | 'creature' | 'architecture';
   mythologyId: string;
-  realmId?: string;
+  worldId?: string;
   characterIds?: string[];
   sceneId?: string;
   styleId: string;

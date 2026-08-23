@@ -1,4 +1,4 @@
-import { getCharacterById, getMythologyById, getRealmById, getStyleById } from '../content/repositories';
+import { getCharacterById, getMythologyById, getStyleById, getWorldById } from '../content/repositories';
 import {
   getCharacterVariantProfile,
   getOutputSpecProfile,
@@ -16,7 +16,7 @@ export async function resolveGenerationContext(
 
   const entity = request.entityType === 'character'
     ? await getCharacterById(db, request.entityId)
-    : await getRealmById(db, request.entityId);
+    : await getWorldById(db, request.entityId);
 
   if (!entity) throw new GenerationValidationError('ENTITY_NOT_FOUND', '所选角色或神域不存在。', 404);
 

@@ -1,0 +1,144 @@
+---
+import type { Character } from '../../lib/content/types';
+
+interface Props {
+  characters: readonly Character[];
+}
+
+const { characters } = Astro.props;
+const primarySymbol = (character: Character) => character.symbols[0] ?? '✦';
+---
+
+<section class="section-compact">
+  <div class="container-wide">
+    <div class="section-heading">
+      <div><span class="eyebrow">Inhabitants</span><h2>谁生活在这里</h2><p>这些角色把神域当作家园，去认识他们。</p></div>
+    </div>
+    <div class="inhabitants-grid">
+      {characters.map((character) => (
+        <article class="inhabitant">
+          <a href={`/character/${character.slug}/`} aria-label={`${character.name} · ${character.nameEn}`}>
+            <div class="inhabitant-portrait">
+              {character.portrait ? (
+                <img
+                  src={character.portrait.src}
+                  alt={`${character.name} 角色肖像`}
+                  width={character.portrait.width}
+                  height={character.portrait.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <div class="inhabitant-fallback" aria-hidden="true"><span>{primarySymbol(character)}</span></div>
+              )}
+            </div>
+            <div class="inhabitant-copy">
+              <h3>{character.name}</h3>
+              <p class="en">{character.nameEn}</p>
+              <span class="role">{character.role}</span>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .inhabitants-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .inhabitant {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-fast);
+  }
+
+  .inhabitant:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .inhabitant a {
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+  }
+
+  .inhabitant-portrait {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--surface-muted);
+  }
+
+  .inhabitant-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    transition: transform var(--transition-slow);
+  }
+
+  .inhabitant:hover .inhabitant-portrait img,
+  .inhabitant:focus-within .inhabitant-portrait img {
+    transform: scale(1.035);
+  }
+
+  .inhabitant-fallback {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    color: var(--accent-strong);
+    background: linear-gradient(155deg, var(--cloud-blue), var(--jade-soft));
+  }
+
+  .inhabitant-fallback span {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .inhabitant-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: var(--space-4);
+  }
+
+  .inhabitant-copy h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.2;
+  }
+
+  .inhabitant-copy .en {
+    margin: 0;
+    color: var(--text-muted);
+    font-family: Georgia, serif;
+    font-size: 0.74rem;
+  }
+
+  .inhabitant-copy .role {
+    margin-top: 0.3rem;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+  }
+
+  @media (max-width: 1000px) {
+    .inhabitants-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 680px) {
+    .inhabitants-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

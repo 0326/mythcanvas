@@ -1,0 +1,129 @@
+---
+import { ArrowDown, Sparkles } from '@lucide/astro';
+import type { Mythology, World } from '../../lib/content/types';
+
+interface Props {
+  world: World;
+  mythology?: Mythology;
+}
+
+const { world, mythology } = Astro.props;
+const keywords = world.canonicalDesign.anchors.slice(0, 4);
+---
+
+<section class="world-hero">
+  <img
+    src={world.heroImage.src}
+    alt={world.heroImage.alt}
+    width={world.heroImage.width}
+    height={world.heroImage.height}
+    fetchpriority="high"
+  />
+  <div class="world-hero-overlay" aria-hidden="true"></div>
+  <div class="container-wide world-hero-copy">
+    <span class="eyebrow">{mythology ? `${mythology.name} · ${mythology.nameEn}` : world.nameEn}</span>
+    <h1>{world.name}</h1>
+    <p class="en">{world.nameEn}</p>
+    <p class="summary">{world.summary}</p>
+    <ul class="keywords" aria-label={`${world.name} 神域关键词`}>
+      {keywords.map((keyword) => <li>{keyword}</li>)}
+    </ul>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#landmarks">开始探索 <ArrowDown size={15} strokeWidth={1.8} aria-hidden="true" /></a>
+      <a class="btn btn-secondary" href={`/create/?world=${world.slug}`}>绘制这个神域 <Sparkles size={15} strokeWidth={1.8} aria-hidden="true" /></a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .world-hero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: clamp(560px, 78vh, 820px);
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-inverse);
+  }
+
+  .world-hero > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .world-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--bg-primary) 2%, color-mix(in srgb, var(--bg-primary) 80%, transparent) 34%, color-mix(in srgb, var(--bg-primary) 12%, transparent) 72%),
+      linear-gradient(to right, color-mix(in srgb, var(--bg-primary) 30%, transparent), transparent 55%);
+  }
+
+  .world-hero-copy {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding-block: clamp(5rem, 10vw, 9rem) clamp(3rem, 6vw, 5rem);
+  }
+
+  .eyebrow {
+    color: var(--accent-soft);
+  }
+
+  h1 {
+    margin: var(--space-3) 0 0;
+    font-size: clamp(3rem, 7vw, 6rem);
+  }
+
+  .en {
+    margin: var(--space-2) 0 0;
+    color: color-mix(in srgb, var(--text-inverse) 78%, transparent);
+    font-family: Georgia, serif;
+    font-size: clamp(1rem, 1.6vw, 1.3rem);
+    letter-spacing: 0.04em;
+  }
+
+  .summary {
+    max-width: 40rem;
+    margin: var(--space-5) 0 0;
+    color: color-mix(in srgb, var(--text-inverse) 86%, transparent);
+    font-size: 1.05rem;
+    line-height: 1.8;
+  }
+
+  .keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .keywords li {
+    padding: 0.34rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    border-radius: var(--radius-pill);
+    color: white;
+    background: rgba(7, 17, 27, 0.18);
+    backdrop-filter: blur(10px);
+    font-size: 0.8rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-7, 1.75rem);
+  }
+
+  .hero-actions .btn-primary ::marker,
+  .hero-actions .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+</style>

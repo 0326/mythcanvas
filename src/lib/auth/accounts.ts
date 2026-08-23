@@ -2,7 +2,7 @@
  * 账号 D1 持久层 + 游客数据继承。
  *
  * 关键流程（邮箱验证通过后调用 completeLogin）：
- *   1. findOrCreateAccount(email) → 拿到稳定的 account.id。
+ *   1. findAccountByEmail/createAccount(email) → 拿到稳定的 account.id。
  *   2. bindSessionToAccount(sessionId, account) → session 绑账号、回写 KV。
  *   3. migrateGuestData(d1, oldGuestId, account.id) → 把游客期间的生成/收藏改挂到账号。
  *   4. recordAccountSession(d1, sessionId, account.id) → 多端映射。
@@ -15,36 +15,59 @@ export type Account = {
   email: string;
   displayName: string;
   avatarUrl: string | null;
+  passwordHash?: string | null;
 };
 
-/** 按邮箱查找账号，不存在则创建。返回稳定 account.id。 */
-export async function findOrCreateAccount(
+/** 按邮箱查找账号，不存在时返回 null。 */
+export async function findAccountByEmail(
   d1: D1Database,
   email: string,
-): Promise<Account> {
+): Promise<Account | null> {
   const normalized = email.toLowerCase().trim();
   const existing = await d1
-    .prepare('SELECT id, email, display_name, avatar_url FROM accounts WHERE email = ?')
+    .prepare('SELECT id, email, display_name, avatar_url, password_hash FROM accounts WHERE email = ?')
     .bind(normalized)
-    .first<{ id: string; email: string; display_name: string; avatar_url: string | null }>();
+    .first<{ id: string; email: string; display_name: string; avatar_url: string | null; password_hash: string | null }>();
 
-  if (existing) {
-    return {
-      id: existing.id,
-      email: existing.email,
-      displayName: existing.display_name,
-      avatarUrl: existing.avatar_url,
-    };
-  }
+  if (!existing) return null;
+  return {
+    id: existing.id,
+    email: existing.email,
+    displayName: existing.display_name,
+    avatarUrl: existing.avatar_url,
+    passwordHash: existing.password_hash,
+  };
+}
 
+/** 创建一个带密码的稳定邮箱账号。 */
+export async function createAccount(
+  d1: D1Database,
+  email: string,
+  passwordHash: string,
+): Promise<Account> {
+  const normalized = email.toLowerCase().trim();
   const id = `acc_${crypto.randomUUID()}`;
   const defaultName = normalized.split('@')[0].slice(0, 24) || '神话旅人';
   await d1
-    .prepare('INSERT INTO accounts (id, email, display_name, provider) VALUES (?, ?, ?, ?)')
-    .bind(id, normalized, defaultName, 'email')
+    .prepare('INSERT INTO accounts (id, email, display_name, provider, password_hash, password_updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)')
+    .bind(id, normalized, defaultName, 'email', passwordHash)
     .run();
+  return { id, email: normalized, displayName: defaultName, avatarUrl: null, passwordHash };
+}
 
-  return { id, email: normalized, displayName: defaultName, avatarUrl: null };
+export async function setAccountPassword(
+  d1: D1Database,
+  accountId: string,
+  passwordHash: string,
+): Promise<void> {
+  await d1
+    .prepare('UPDATE accounts SET password_hash = ?, password_updated_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+    .bind(passwordHash, accountId)
+    .run();
+}
+
+export async function revokeAccountSession(d1: D1Database, sessionId: string): Promise<void> {
+  await d1.prepare('DELETE FROM account_sessions WHERE session_id = ?').bind(sessionId).run();
 }
 
 /** 记录 session 与账号的映射（多端登录各自一条记录；冲突则 upsert）。 */

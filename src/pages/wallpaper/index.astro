@@ -4,16 +4,16 @@ import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import {
   getArtworks,
   getMythologies,
-  getRealms,
+  getWorlds,
 } from '../../lib/content/repositories';
 
 export const prerender = false;
 
 const db = Astro.locals.runtime.env.DB;
-const [approvedArtworks, mythologiesById, realmsById] = await Promise.all([
+const [approvedArtworks, mythologiesById, worldsById] = await Promise.all([
   getArtworks(db),
   getMythologies(db).then((list) => new Map(list.map((item) => [item.id, item]))),
-  getRealms(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+  getWorlds(db).then((list) => new Map(list.map((item) => [item.id, item]))),
 ]);
 ---
 
@@ -29,7 +29,7 @@ const [approvedArtworks, mythologiesById, realmsById] = await Promise.all([
     <div class="container-wide">
       <div class="collection-head"><span class="small-caps">All mythologies</span><span>{approvedArtworks.length} 件作品</span></div>
       <div class="artwork-grid">
-        {approvedArtworks.map((artwork) => <ArtworkCard artwork={artwork} mythologyName={mythologiesById.get(artwork.mythologyId)?.name} realmName={artwork.realmId ? realmsById.get(artwork.realmId)?.name : undefined} />)}
+        {approvedArtworks.map((artwork) => <ArtworkCard artwork={artwork} mythologyName={mythologiesById.get(artwork.mythologyId)?.name} worldName={artwork.worldId ? worldsById.get(artwork.worldId)?.name : undefined} />)}
       </div>
     </div>
   </section>

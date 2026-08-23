@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getUserBySessionId, readSessionId } from '../lib/auth/session';
+import { safeRedirect } from '../lib/auth/redirect';
 
 export const prerender = false;
 
-// 已登录用户直接跳转到「我的」页面，避免重复登录
 const sessionId = readSessionId(Astro.request);
 const currentUser = sessionId ? await getUserBySessionId(Astro.locals.runtime.env.SESSION, sessionId) : null;
-const redirectTarget = (Astro.url.searchParams.get('redirect') ?? '/my/').startsWith('/') ? Astro.url.searchParams.get('redirect') : '/my/';
-const isLoggedIn = currentUser && !currentUser.isGuest;
+const redirectTarget = safeRedirect(Astro.url.searchParams.get('redirect'));
+const isLoggedIn = Boolean(currentUser && !currentUser.isGuest);
 ---
 
 <BaseLayout
@@ -17,9 +17,9 @@ const isLoggedIn = currentUser && !currentUser.isGuest;
 >
   <section class="auth-hero">
     <div class="container-narrow">
-      <span class="eyebrow">登录 MythCanvas</span>
-      <h1>开启你的神话宇宙</h1>
-      <p class="auth-sub">输入邮箱即可登录，无需密码。我们会向你的邮箱发送验证码，也可选择用登录链接一步进入。</p>
+      <span class="eyebrow">进入 MythCanvas</span>
+      <h1>回到你的神话宇宙</h1>
+      <p class="auth-sub">可以使用邮箱验证码或邮箱密码登录。注册时只需验证一次邮箱，之后可自由选择登录方式。</p>
     </div>
   </section>
 
@@ -27,40 +27,55 @@ const isLoggedIn = currentUser && !currentUser.isGuest;
     <div class="container-narrow">
       {isLoggedIn ? (
         <div class="surface auth-card" data-state="logged-in">
-          <p class="auth-done">你已登录为 <strong>{currentUser!.email ?? currentUser!.nickname}</strong>。</p>
-          <a class="btn btn-primary" href={redirectTarget} data-go>进入我的宇宙</a>
-          <a class="auth-alt" href="/my/">查看个人中心</a>
+          <p class="auth-done">当前账号：<strong>{currentUser!.email ?? currentUser!.nickname}</strong></p>
+          <a class="btn btn-primary" href={redirectTarget}>继续进入</a>
+          <button class="auth-link-button" type="button" data-logout>退出当前账号</button>
+          <div class="auth-status" data-status role="status" aria-live="polite" hidden></div>
         </div>
       ) : (
-        <div class="surface auth-card" data-state="enter-email">
-          <form class="auth-form" data-step="email" data-auth-form>
+        <div class="surface auth-card">
+          <div class="auth-switch" role="tablist" aria-label="登录方式">
+            <button class="auth-switch-button is-active" type="button" role="tab" aria-selected="true" data-login-mode="password">密码登录</button>
+            <button class="auth-switch-button" type="button" role="tab" aria-selected="false" data-login-mode="otp">邮箱验证码登录</button>
+          </div>
+
+          <form class="auth-form" data-login-password>
             <label class="field">
               <span class="field-label">邮箱</span>
-              <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="you@example.com" data-email aria-label="邮箱地址" />
+              <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="你的邮箱地址" aria-label="邮箱地址" />
             </label>
-
-            <div class="auth-modes">
-              <button class="btn btn-primary" type="button" data-action="otp" data-send>发送验证码</button>
-              <button class="btn btn-ghost" type="button" data-action="magic" data-send>发送登录链接</button>
-            </div>
-
-            <p class="auth-hint">验证码 10 分钟内有效，登录链接 15 分钟内有效。</p>
-          </form>
-
-          <form class="auth-form auth-verify" data-step="code" data-verify-form hidden>
             <label class="field">
-              <span class="field-label">验证码 <span class="field-meta" data-code-target-email></span></span>
-              <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="6 位数字" data-code aria-label="验证码" />
+              <span class="field-label">密码</span>
+              <input type="password" name="password" autocomplete="current-password" required minlength="8" placeholder="至少 8 位密码" aria-label="密码" />
             </label>
-            <button class="btn btn-primary" type="submit">验证并登录</button>
-            <p class="auth-hint"><a href="#" data-resend>没收到？重新发送</a> · <a href="#" data-back>换个邮箱</a></p>
+            <button class="btn btn-primary" type="submit" data-submit>登录</button>
+            <div class="auth-links">
+              <a href="/register/">注册账号</a>
+              <a href="/password/">忘记密码 / 首次设置密码</a>
+            </div>
           </form>
 
-          <div class="auth-status" data-status role="status" aria-live="polite" hidden></div>
+          <form class="auth-form" data-login-otp hidden>
+            <label class="field">
+              <span class="field-label">邮箱</span>
+              <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="你的邮箱地址" aria-label="验证码登录邮箱" />
+            </label>
+            <div class="code-row">
+              <label class="field">
+                <span class="field-label">邮箱验证码</span>
+                <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required placeholder="6 位验证码" aria-label="邮箱验证码" />
+              </label>
+              <button class="btn btn-secondary code-button" type="button" data-send-code>发送验证码</button>
+            </div>
+            <p class="auth-note">验证码 10 分钟内有效，发送后 60 秒可再次获取。</p>
+            <button class="btn btn-primary" type="submit" data-otp-submit>登录</button>
+            <div class="auth-links">
+              <a href="/register/">注册账号</a>
+              <a href="/password/">设置或重置密码</a>
+            </div>
+          </form>
 
-          <noscript>
-            <p class="auth-noscript">本页面需要 JavaScript 以发送验证码。若不想启用，可联系管理员通过邮件登录链接完成登录。</p>
-          </noscript>
+          <div class="auth-status" data-status role="alert" aria-live="assertive" hidden></div>
         </div>
       )}
     </div>
@@ -68,164 +83,179 @@ const isLoggedIn = currentUser && !currentUser.isGuest;
 </BaseLayout>
 
 <script>
-  const card = document.querySelector('[data-auth-form]')?.closest('.auth-card') as HTMLElement | null;
-  if (card && card.dataset.state === 'enter-email') {
-    const emailForm = card.querySelector('[data-auth-form]') as HTMLElement;
-    const verifyForm = card.querySelector('[data-verify-form]') as HTMLElement;
-    const statusEl = card.querySelector('[data-status]') as HTMLElement;
-    const emailInput = card.querySelector('[data-email]') as HTMLInputElement;
-    const codeInput = card.querySelector('[data-code]') as HTMLInputElement;
-    const codeTargetEmail = card.querySelector('[data-code-target-email]') as HTMLElement;
-    const redirectTarget = card.closest('[data-redirect]')?.getAttribute('data-redirect') ?? '/my/';
-    let pendingNonce = '';
-    let pendingEmail = '';
+  const root = document.querySelector('[data-redirect]');
+  const statusEl = root?.querySelector('[data-status]') as HTMLElement | null;
+  const redirectTarget = root?.getAttribute('data-redirect') ?? '/my/';
+  const passwordForm = document.querySelector('[data-login-password]') as HTMLFormElement | null;
+  const otpForm = document.querySelector('[data-login-otp]') as HTMLFormElement | null;
+  const sendCodeButton = document.querySelector('[data-send-code]') as HTMLButtonElement | null;
+  let otpNonceId = '';
+  let countdownTimer = 0;
 
-    setStatus(''); // 初始清空
+  document.querySelectorAll('[data-login-mode]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const mode = button.getAttribute('data-login-mode') === 'otp' ? 'otp' : 'password';
+      document.querySelectorAll('[data-login-mode]').forEach((item) => {
+        const active = item === button;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-selected', String(active));
+      });
+      if (passwordForm) passwordForm.hidden = mode !== 'password';
+      if (otpForm) otpForm.hidden = mode !== 'otp';
+      setStatus('', '');
+    });
+  });
 
-    emailForm.querySelectorAll('[data-send]').forEach((btn) =>
-      btn.addEventListener('click', async (event) => {
-        const target = event.currentTarget as HTMLButtonElement;
-        const mode = target.dataset.action as 'otp' | 'magic';
-        const email = emailInput.value.trim();
-        if (!email) {
-          setStatus('请输入邮箱地址。', 'error');
-          emailInput.focus();
-          return;
-        }
-        target.disabled = true;
-        setStatus('发送中…');
-        try {
-          const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ email, mode, redirect: redirectTarget }),
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            setStatus(data?.error?.message ?? '发送失败，请重试。', 'error');
-            return;
-          }
-          if (mode === 'magic') {
-            if (data.devFallback?.magicUrl) {
-              setStatus(`邮件未配置（开发模式）。点击此链接登录：${data.devFallback.magicUrl}`, 'dev', data.devFallback.magicUrl);
-            } else {
-              setStatus('登录链接已发送至邮箱，点击邮件中的按钮即可登录。', 'ok');
-            }
-          } else {
-            pendingNonce = data.nonceId ?? '';
-            pendingEmail = email;
-            // 开发降级：直接展示验证码
-            if (data.devFallback?.otp) {
-              codeInput.value = data.devFallback.otp;
-              setStatus(`邮件未配置（开发模式），验证码已自动填入：${data.devFallback.otp}`, 'dev');
-            } else {
-              setStatus('验证码已发送，请查收邮件。', 'ok');
-            }
-            pendingNonce = pendingNonce || data.devFallback?.nonceId || '';
-            showVerifyStep(email);
-          }
-        } catch {
-          setStatus('网络异常，请重试。', 'error');
-        } finally {
-          target.disabled = false;
-        }
-      }),
-    );
-
-    verifyForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const code = codeInput.value.trim();
-      if (!code) {
-        setStatus('请输入验证码。', 'error');
-        codeInput.focus();
+  passwordForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const submit = form.querySelector('[data-submit]') as HTMLButtonElement;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    setStatus('登录中…', '');
+    submit.disabled = true;
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email, password, redirect: redirectTarget }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setStatus(data?.error?.message ?? '登录失败，请检查邮箱和密码。', 'error');
         return;
       }
-      const submitBtn = verifyForm.querySelector('button[type="submit"]') as HTMLButtonElement;
-      submitBtn.disabled = true;
-      setStatus('验证中…');
-      try {
-        const res = await fetch('/api/auth/verify', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email: pendingEmail, code, nonceId: pendingNonce }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          setStatus(data?.error?.message ?? '验证失败。', 'error');
-          return;
-        }
-        setStatus(data?.message ?? '登录成功，正在跳转…', 'ok');
-        window.location.href = redirectTarget;
-      } catch {
-        setStatus('网络异常，请重试。', 'error');
-      } finally {
-        submitBtn.disabled = false;
-      }
-    });
-
-    card.querySelector('[data-resend]')?.addEventListener('click', async (event) => {
-      event.preventDefault();
-      emailForm.querySelector('[data-action="otp"]')?.dispatchEvent(new Event('click'));
-    });
-    card.querySelector('[data-back]')?.addEventListener('click', (event) => {
-      event.preventDefault();
-      hideVerifyStep();
-      setStatus('');
-      codeInput.value = '';
-    });
-
-    function showVerifyStep(email: string) {
-      emailForm.hidden = true;
-      verifyForm.hidden = false;
-      codeTargetEmail.textContent = `（已发送至 ${email}）`;
-      codeInput.focus();
+      setStatus(data.message ?? '登录成功，正在进入…', 'ok');
+      window.location.href = data.redirect || redirectTarget;
+    } catch {
+      setStatus('网络异常，请重试。', 'error');
+    } finally {
+      submit.disabled = false;
     }
-    function hideVerifyStep() {
-      verifyForm.hidden = true;
-      emailForm.hidden = false;
-      emailInput.focus();
-    }
-    function setStatus(message: string, kind: 'ok' | 'error' | 'dev' | '' = '', link?: string) {
-      if (!message) {
-        statusEl.hidden = true;
-        statusEl.textContent = '';
+  });
+
+  sendCodeButton?.addEventListener('click', async () => {
+    if (!otpForm) return;
+    const emailInput = otpForm.elements.namedItem('email') as HTMLInputElement;
+    if (!emailInput.reportValidity()) return;
+    sendCodeButton.disabled = true;
+    setStatus('正在发送验证码…', '');
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'request', email: emailInput.value.trim() }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setStatus(data?.error?.message ?? '验证码发送失败，请稍后重试。', 'error');
+        sendCodeButton.disabled = false;
         return;
       }
-      statusEl.hidden = false;
-      statusEl.dataset.kind = kind;
-      if (link) {
-        statusEl.innerHTML = '';
-        const a = document.createElement('a');
-        a.href = link;
-        a.textContent = message;
-        statusEl.appendChild(a);
+      otpNonceId = data.nonceId ?? '';
+      setStatus(data.message ?? '验证码已发送，请查收邮件。', 'ok');
+      if (data.devFallback?.otp) setStatus(`开发模式验证码：${data.devFallback.otp}`, 'ok');
+      startCountdown(Number(data.resendAfterSeconds) || 60);
+    } catch {
+      setStatus('网络异常，请重试。', 'error');
+      sendCodeButton.disabled = false;
+    }
+  });
+
+  otpForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const submit = form.querySelector('[data-otp-submit]') as HTMLButtonElement;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+    const code = (form.elements.namedItem('code') as HTMLInputElement).value.trim();
+    if (!otpNonceId) {
+      setStatus('请先发送验证码。', 'error');
+      return;
+    }
+    setStatus('登录中…', '');
+    submit.disabled = true;
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'complete', email, code, nonceId: otpNonceId, redirect: redirectTarget }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setStatus(data?.error?.message ?? '登录失败，请检查验证码。', 'error');
+        return;
+      }
+      setStatus(data.message ?? '登录成功，正在进入…', 'ok');
+      window.location.href = data.redirect || redirectTarget;
+    } catch {
+      setStatus('网络异常，请重试。', 'error');
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  document.querySelector('[data-logout]')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    button.disabled = true;
+    await fetch('/api/user', { method: 'DELETE' }).catch(() => undefined);
+    window.location.reload();
+  });
+
+  function startCountdown(seconds: number) {
+    if (!sendCodeButton) return;
+    window.clearInterval(countdownTimer);
+    let remaining = Math.max(1, Math.ceil(seconds));
+    sendCodeButton.disabled = true;
+    sendCodeButton.textContent = `重新发送（${remaining}s）`;
+    countdownTimer = window.setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        window.clearInterval(countdownTimer);
+        sendCodeButton.disabled = false;
+        sendCodeButton.textContent = '重新发送验证码';
       } else {
-        statusEl.textContent = message;
+        sendCodeButton.textContent = `重新发送（${remaining}s）`;
       }
-    }
+    }, 1000);
+  }
+
+  function setStatus(message: string, kind: 'ok' | 'error' | '') {
+    if (!statusEl) return;
+    statusEl.hidden = !message;
+    statusEl.dataset.kind = kind;
+    statusEl.textContent = message;
   }
 </script>
 
 <style>
+  .container-narrow { width: min(100% - 40px, 480px); margin-inline: auto; }
   .auth-hero { padding: var(--space-16) 0 var(--space-8); text-align: center; }
-  .auth-hero h1 { font-size: clamp(1.75rem, 3vw, 2.4rem); margin: var(--space-3) 0 var(--space-4); }
-  .auth-sub { color: var(--text-secondary); max-width: 32rem; margin: 0 auto; line-height: 1.7; }
+  .auth-hero h1 { margin: var(--space-3) 0 var(--space-4); font-size: clamp(1.75rem, 3vw, 2.4rem); }
+  .auth-sub { max-width: 34rem; margin: 0 auto; color: var(--text-secondary); line-height: 1.7; }
   .auth-section { padding: var(--space-6) 0 var(--space-20); }
-  .auth-card { max-width: 26rem; margin: 0 auto; padding: var(--space-8); border-radius: 12px; }
-  .auth-form { display: flex; flex-direction: column; gap: var(--space-4); }
-  .field { display: flex; flex-direction: column; gap: var(--space-2); }
-  .field-label { font-size: .85rem; color: var(--text-secondary); font-weight: 600; }
-  .field-meta { color: var(--text-tertiary); font-weight: 400; }
-  .auth-modes { display: flex; gap: var(--space-3); flex-wrap: wrap; }
-  .auth-modes .btn { flex: 1 1 8rem; }
-  .auth-hint { font-size: .8rem; color: var(--text-tertiary); margin: 0; }
-  .auth-hint a { color: var(--accent); text-decoration: none; }
-  .auth-status { margin-top: var(--space-4); padding: var(--space-3); border-radius: 8px; font-size: .85rem; line-height: 1.6; }
-  .auth-status[data-kind='ok'] { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--text-primary); }
-  .auth-status[data-kind='error'] { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--text-primary); }
-  .auth-status[data-kind='dev'] { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--text-primary); }
-  .auth-status a { color: var(--accent); word-break: break-all; }
-  .auth-done { color: var(--text-primary); margin: 0 0 var(--space-4); }
-  .auth-alt { display: inline-block; margin-top: var(--space-3); font-size: .85rem; color: var(--text-secondary); text-decoration: none; }
-  .auth-noscript { color: var(--text-tertiary); font-size: .85rem; }
+  .auth-card { padding: var(--space-8); border-radius: var(--radius-lg); }
+  .auth-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: var(--space-6); padding: 4px; border-radius: var(--radius-md); background: var(--surface-muted); }
+  .auth-switch-button { min-height: 40px; border: 0; border-radius: calc(var(--radius-md) - 2px); color: var(--text-secondary); background: transparent; cursor: pointer; font: inherit; font-size: .88rem; }
+  .auth-switch-button.is-active { color: var(--text-primary); background: var(--surface); box-shadow: var(--shadow-sm); }
+  .auth-form { display: grid; gap: var(--space-4); }
+  .field { display: grid; gap: var(--space-2); }
+  .field-label { color: var(--text-secondary); font-size: .85rem; font-weight: 650; }
+  .field input { width: 100%; min-height: 46px; padding: .7rem .8rem; border: 1px solid var(--border-strong); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface-muted); }
+  .code-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-3); }
+  .code-button { min-height: 46px; white-space: nowrap; }
+  .auth-note { margin: calc(var(--space-2) * -1) 0 0; color: var(--text-tertiary); font-size: .78rem; line-height: 1.5; }
+  .auth-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3); font-size: .82rem; }
+  .auth-links a, .auth-link-button { color: var(--accent-strong); text-decoration: none; }
+  .auth-link-button { display: block; margin: var(--space-4) auto 0; border: 0; padding: 0; background: transparent; cursor: pointer; font-size: .82rem; }
+  .auth-status { margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-md); color: var(--text-primary); font-size: .85rem; line-height: 1.6; }
+  .auth-status[data-kind='ok'] { background: color-mix(in srgb, var(--success) 14%, transparent); }
+  .auth-status[data-kind='error'] { background: color-mix(in srgb, var(--danger) 14%, transparent); }
+  .auth-done { margin: 0; color: var(--text-primary); line-height: 1.7; }
+  .auth-done + .btn { width: 100%; margin-top: var(--space-5); }
+  @media (max-width: 560px) {
+    .auth-card { padding: var(--space-6); }
+    .auth-links { justify-content: flex-start; }
+    .code-row { grid-template-columns: 1fr; }
+    .code-button { width: 100%; }
+  }
 </style>
