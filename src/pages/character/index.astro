@@ -54,8 +54,8 @@ const searchValue = requestedQuery;
 ---
 
 <BaseLayout
-  title="角色 · MythCanvas"
-  description="探索拥有 Canonical Design 的神话角色与视觉形态，跨越中国、希腊、北欧、日本、埃及五大神话体系。"
+  title="神灵 · MythCanvas"
+  description="探索拥有 Canonical Design 的神话神灵与视觉形态，跨越中国、希腊、北欧、日本、埃及五大神话体系。"
 >
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={JSON.stringify({
@@ -63,7 +63,7 @@ const searchValue = requestedQuery;
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: '首页', item: new URL('/', Astro.site).toString() },
-        { '@type': 'ListItem', position: 2, name: '角色', item: new URL('/character/', Astro.site).toString() },
+        { '@type': 'ListItem', position: 2, name: '神灵', item: new URL('/character/', Astro.site).toString() },
       ],
     })} />
   </Fragment>
@@ -71,15 +71,15 @@ const searchValue = requestedQuery;
   <div class="character-index" data-character-index data-selected-mythology={selectedMythology}>
     <section class="collection-hero">
       <div class="container-wide">
-        <span class="eyebrow">Characters · Canonical Design</span>
+        <span class="eyebrow">Characters · 神灵视觉资产</span>
         <h1>诸神有形</h1>
-        <p>每个角色都拥有稳定的身份锚点，也可以在电影感、动漫、神圣与赛博画风中重新演绎。</p>
+        <p>每个神灵都拥有稳定的身份锚点，也可以在电影感、动漫、神圣与赛博画风中重新演绎。</p>
       </div>
     </section>
 
-    <section class="filter-section" aria-label="角色筛选">
+    <section class="filter-section" aria-label="神灵筛选">
       <div class="container-wide filter-toolbar" data-filter-toolbar>
-        <div class="filter-group mythology-filter" role="group" aria-label="按神话体系筛选">
+        <div class="filter-group mythology-filter" role="group" aria-label="按神话体系筛选神灵">
           <span class="filter-label">神话体系</span>
           <div class="filter-options">
             <a
@@ -105,10 +105,10 @@ const searchValue = requestedQuery;
             <input
               type="search"
               name="q"
-              placeholder="搜索角色中文名 / 英文名 / 神职"
+              placeholder="搜索神灵中文名 / 英文名 / 神职"
               value={searchValue}
               data-search-input
-              aria-label="搜索角色"
+              aria-label="搜索神灵"
             />
           </label>
         </div>

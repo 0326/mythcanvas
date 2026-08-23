@@ -21,7 +21,7 @@ export async function resolveGenerationContext(
   if (!entity) throw new GenerationValidationError('ENTITY_NOT_FOUND', '所选角色或神域不存在。', 404);
 
   const mythology = await getMythologyById(db, entity.mythologyId);
-  if (!mythology) throw new GenerationValidationError('MYTHOLOGY_NOT_FOUND', '对应神话文明不存在。', 404);
+  if (!mythology) throw new GenerationValidationError('MYTHOLOGY_NOT_FOUND', '对应神话体系不存在。', 404);
 
   const variant = request.entityType === 'character'
     ? await getCharacterVariantProfile(db, request.variantId, entity.id)

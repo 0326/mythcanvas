@@ -85,7 +85,7 @@ const world = artwork.worldId ? worldsById.get(artwork.worldId) : undefined;
 
         {relatedCharacters.length > 0 && (
           <div class="related-entities">
-            <span>相关角色</span>
+            <span>相关神灵</span>
             {relatedCharacters.map((character) => character && <a href={`/character/${character.slug}/`}>{character.name}</a>)}
           </div>
         )}

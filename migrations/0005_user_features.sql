@@ -11,10 +11,10 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
 
--- ============ 2. favorites：收藏（Artwork / Character / World） ============
+-- ============ 2. favorites：收藏（Artwork / Character / Realm） ============
 CREATE TABLE IF NOT EXISTS favorites (
   user_id TEXT NOT NULL,
-  target_type TEXT NOT NULL CHECK (target_type IN ('artwork','character','world','style')),
+  target_type TEXT NOT NULL CHECK (target_type IN ('artwork','character','realm','style')),
   target_id TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (user_id, target_type, target_id)

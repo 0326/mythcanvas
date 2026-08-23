@@ -28,7 +28,7 @@ const params = Astro.url.searchParams;
 const contentTypes = [
   { id: 'all', name: '全部类型' },
   { id: 'world', name: '神域' },
-  { id: 'character', name: '角色' },
+  { id: 'character', name: '神灵' },
   { id: 'scene', name: '场景' },
   { id: 'creature', name: '神兽' },
   { id: 'architecture', name: '建筑' },
@@ -125,7 +125,7 @@ const hasActiveFilters = initialMythology !== 'all'
           <input
             type="search"
             value={initialSearch}
-            placeholder="搜索神话、角色、神域…"
+            placeholder="搜索神话、神灵、神域…"
             aria-label="搜索神话视觉作品"
             data-search-input
           />

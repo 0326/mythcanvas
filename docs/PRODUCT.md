@@ -272,17 +272,17 @@ MythCanvas 的核心内容不是“图片”，而是五类对象：
 
 ```text
 MythCanvas
+├── 首页 Home
 ├── 探索 Explore
-├── 神话 Mythologies
-├── 神域 Realms
-├── 角色 Characters
-├── 绘神 Create
-└── 我的 My
+├── 神灵 Characters
+├── 神域 World + Scene
+├── 神话 Mythology
+└── AI 创作 Create
 ```
 
 右侧功能：Search、语言、主题切换、登录 / Avatar。
 
-移动 Web：探索、神域、绘神、收藏、我的。
+移动 Web：探索、神域、神灵、神话、AI 创作；我的宇宙作为账户入口。
 
 ---
 
@@ -291,6 +291,7 @@ MythCanvas
 ```text
 /
 ├── explore/
+├── mythology/
 ├── mythology/{chinese|greek|norse|japanese|egyptian}/
 ├── world/{slug}/
 ├── character/{slug}/
@@ -366,9 +367,9 @@ CTA：**探索神境** / **开始绘神**。
 
 # 12. 神话体系页 UX
 
-页面结构：Hero、Featured Realms、Featured Characters、Featured Scenes、150～300 字 Brief Story、Explore More。
+页面结构：Hero、Visual DNA、Featured Worlds、Featured Characters、Featured Artworks，以及可选的 MythStory 摘要、Explore More。
 
-目标是“进入一个文明的视觉体系”，而不是阅读百科长文。
+目标是“进入一个神话体系的视觉世界”，而不是阅读百科长文。具体故事和传说由后续 MythStory 内容承载。
 
 ---
 
@@ -382,11 +383,11 @@ CTA：**探索神境** / **开始绘神**。
 
 ---
 
-# 14. 角色详情页 UX
+# 14. 神灵详情页 UX
 
-角色是长期视觉资产。
+神灵是长期视觉资产。
 
-页面结构：Hero、Character Facts、Visual Forms、Wallpapers、Related Realm、Related Characters、AI 绘制入口。
+页面结构：Hero、Character Facts、Visual Forms、Wallpapers、Related World、Related Characters、AI 创作入口。
 
 Visual Forms 支持 Canonical、Sacred、Warrior、Dark、Cyber、Anime 等变体。
 
@@ -430,7 +431,7 @@ Visual Forms 支持 Canonical、Sacred、Warrior、Dark、Cyber、Anime 等变�
 
 页面名称使用 **我的宇宙**。
 
-Tab：壁纸、角色、神域、我的绘神。
+Tab：我的绘神、我的收藏；收藏内容可以包含作品、神灵与神域。
 
 空状态：**你的宇宙还没有第一道神迹。**
 

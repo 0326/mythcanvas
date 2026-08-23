@@ -25,7 +25,7 @@ const { character, mythology, heroImage, createHref } = Astro.props;
   <div class="container-wide character-hero-inner">
     <div class="character-copy">
       <a class="back-link" href={mythology ? `/mythology/${mythology.slug}/` : '/character/'}>
-        ← {mythology?.name ?? '返回角色'}
+        ← {mythology?.name ?? '返回神灵'}
       </a>
       <div class="character-kicker">
         <span>{mythology?.name ?? 'Mythology'}</span>
@@ -33,7 +33,7 @@ const { character, mythology, heroImage, createHref } = Astro.props;
       </div>
       <h1 id="character-title">{character.name}</h1>
       <p class="en-name">{character.nameEn}</p>
-      <div class="identity-tags" aria-label="角色识别符号">
+      <div class="identity-tags" aria-label="神灵识别符号">
         {character.symbols.slice(0, 4).map((symbol) => <span>{symbol}</span>)}
       </div>
       <p class="summary">{character.summary}</p>

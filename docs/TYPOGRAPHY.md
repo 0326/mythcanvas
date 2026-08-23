@@ -36,7 +36,7 @@ CSS Token：`--font-literary`
 
 - Hero Slogan / 氛围副标题
 - 神话体系 1–3 行简介
-- 角色 / 神域短介绍
+- 神灵 / 神域短介绍
 - 诗句、典籍引用、题记
 - 少量有叙事感的 Section Description
 

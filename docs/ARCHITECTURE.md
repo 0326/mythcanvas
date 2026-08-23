@@ -25,7 +25,7 @@ Current architecture work should continue to **evolve the Astro application, not
 2. **Islands only when needed**: search autocomplete, filters, favorites, creator, theme toggle and user state can become islands.
 3. **One application theme**: Light/Dark are semantic token variants, not separate page implementations.
 4. **Domain-first content model**: civilization context, visual entities, narrative entities and artwork must remain distinct.
-5. **Mythology is taxonomy, Story is narrative**: `Mythology` represents a civilization / mythology system; concrete myths and legends use an independent Story entity.
+5. **Mythology is a first-class system, Story is narrative**: `Mythology` represents a complete mythology system and owns its Visual DNA; concrete myths and legends use an independent `MythStory` entity.
 6. **SEO is architecture**: metadata, structured data, internal links, image semantics and sitemap generation are part of page implementation.
 7. **Cloudflare-native backend**: Workers + D1 + R2 + KV, introduced incrementally.
 8. **Image is a first-class asset**: artwork metadata and derivatives must be modeled explicitly.
@@ -47,10 +47,10 @@ src/
 │   ├── character/     # CharacterCard, CharacterHero, VariantRail
 │   ├── world/         # WorldCard, WorldHero, LandmarkList
 │   ├── mythology/     # CivilizationCard, CivilizationMark
-│   ├── myth/          # StoryCard, StoryHero, StoryRelations, StoryMeta
+│   ├── story/         # StoryCard, StoryHero, StoryRelations, StoryMeta (future)
 │   └── create/        # Creator controls and generation states
 ├── content/
-│   ├── myth/          # editorial/static myth stories during early stages
+│   ├── story/         # editorial/static MythStory content during later stages
 │   └── ...
 ├── data/              # seed data during MVP
 ├── layouts/           # BaseLayout, EntityLayout, DetailLayout, ArticleLayout
@@ -64,8 +64,8 @@ src/
 ├── pages/
 │   ├── index.astro
 │   ├── explore/index.astro
-│   ├── myth/index.astro
-│   ├── myth/[slug].astro
+│   ├── story/index.astro       # optional future MythStory hub
+│   ├── story/[slug].astro      # optional future MythStory detail
 │   ├── mythology/[slug].astro
 │   ├── world/[slug].astro
 │   ├── character/[slug].astro
@@ -81,7 +81,7 @@ src/
     └── global.css
 ```
 
-`/mythology/{slug}` remains a civilization / mythology-system aggregation route. The user-facing navigation label **神话** should ultimately point to `/myth/`, the narrative story hub.
+`/mythology/` is the canonical user-facing **神话** entry. `/mythology/{slug}` is the aggregation page for one mythology system. `MythStory` is a secondary story entity and must not replace the Mythology route.
 
 ---
 
@@ -101,9 +101,9 @@ type Mythology = {
 };
 ```
 
-`Mythology` owns cultural context and Civilization Visual DNA. It is a horizontal classification axis across Characters, Worlds, Stories and Artworks.
+`Mythology` owns cultural context and Civilization Visual DNA. It is a first-class system page and a horizontal context across Characters, Worlds, MythStories and Artworks.
 
-It is **not** the concrete story body of “嫦娥奔月”“诸神黄昏” etc.
+It is not the concrete story body of “嫦娥奔月”“诸神黄昏” etc.; those belong to `MythStory`.
 
 ### 4.2 World — persistent mythic space
 
@@ -187,7 +187,7 @@ type MythStory = {
 };
 ```
 
-`MythStory` is the content model behind the user-facing **神话** Tab.
+`MythStory` is the content model for a specific **故事 / 传说** under a Mythology system. It is not the entity behind the user-facing **神话** Tab.
 
 Important relationships:
 
@@ -256,8 +256,8 @@ Technical mapping:
 探索     → Artwork discovery
 神灵     → Character
 神域     → World + Scene
-神话     → MythStory
-文明     → Mythology taxonomy/filter/context
+神话     → Mythology
+故事/传说 → MythStory
 AI 创作  → generation workflow
 ```
 
@@ -443,15 +443,16 @@ Do not hide mythology facts, Story body or artwork metadata behind client-only r
 ### Phase A — information architecture
 
 - Header naming: 角色 → 神灵, 世界 → 神域, 文明图鉴 → 神话
-- Introduce `/myth/` as narrative hub
-- Keep `/mythology/{slug}` as civilization hub
-- Add Story relationships to Character / World UI
+- Keep `/mythology/` as the canonical Mythology entry
+- Keep `/mythology/{slug}` as the mythology-system aggregation page
+- Reserve Story / MythStory for a later `/story/` or nested story route
+- Add Mythology context to Character / World UI
 
 ### Phase B — Story MVP
 
 - Define Content Collection schema for MythStory
-- Build `/myth/`
-- Build `/myth/{slug}/`
+- Build Story / MythStory only when there is a confirmed story content requirement
+- Prefer `/story/` and `/story/{slug}/` if Story becomes a first-class route
 - Publish 15–25 initial stories
 - Add Civilization + Topic filtering
 

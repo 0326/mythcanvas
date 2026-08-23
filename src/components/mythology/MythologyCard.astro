@@ -20,10 +20,10 @@ const { mythology } = Astro.props;
       />
     </div>
     <div class="copy">
-      <span class="small-caps">Mythology</span>
+      <span class="small-caps">Mythology · 神话体系</span>
       <h3>{mythology.name}</h3>
       <p>{mythology.summary}</p>
-      <div class="dna" aria-label="文明视觉 DNA">
+      <div class="dna" aria-label="神话体系视觉 DNA">
         {mythology.visualDna.motifs.slice(0, 3).map((motif) => <span>{motif}</span>)}
       </div>
     </div>

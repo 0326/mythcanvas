@@ -136,7 +136,7 @@ const buildCreateHref = (
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: '首页', item: new URL('/', Astro.site).toString() },
-          { '@type': 'ListItem', position: 2, name: '角色', item: new URL('/character/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 2, name: '神灵', item: new URL('/character/', Astro.site).toString() },
           { '@type': 'ListItem', position: 3, name: character.name },
         ],
       },
@@ -156,13 +156,13 @@ const buildCreateHref = (
     <section class="forms-section" id="forms" aria-labelledby="forms-title">
       <div class="container-wide">
         <div class="forms-heading">
-          <span class="eyebrow">Visual Forms · 角色形态</span>
+          <span class="eyebrow">Visual Forms · 神灵形态</span>
           <h2 id="forms-title">选择形态与画风</h2>
-          <p>角色可以进入不同持续形态与艺术风格，但识别锚点保持稳定。选择后下方作品与创作入口会同步更新。</p>
+          <p>神灵可以进入不同持续形态与艺术风格，但识别锚点保持稳定。选择后下方作品与创作入口会同步更新。</p>
         </div>
 
         <div class="forms-layer">
-          <h3 class="layer-label">角色形态</h3>
+          <h3 class="layer-label">神灵形态</h3>
           <CharacterVariantSelector
             character={character}
             variants={variants}

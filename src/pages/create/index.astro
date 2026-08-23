@@ -47,17 +47,17 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
 
 <BaseLayout
   title="AI 绘神"
-  description="MythCanvas AI 绘神：组合神话角色、年龄服装形态、独立画风、场景与 PC/手机壁纸规格，生成可持续复用的神话视觉。"
+  description="MythCanvas AI 绘神：组合神话神灵、年龄服装形态、独立画风、场景与 PC/手机壁纸规格，生成可持续复用的神话视觉。"
 >
   <section class="creator-hero">
     <div class="container-wide creator-hero-inner">
       <div>
         <span class="eyebrow">AI Creator · Structured Recipe</span>
-        <h1>角色不变，形态与画风自由组合</h1>
-        <p>选择神话角色或神域，再独立组合角色形态、画风、场景与设备规格。MythCanvas 会自动带入 Canonical Design 与文明 Visual DNA。</p>
+        <h1>神灵不变，形态与画风自由组合</h1>
+        <p>选择神话神灵或神域，再独立组合神灵形态、画风、场景与设备规格。MythCanvas 会自动带入 Canonical Design 与神话体系 Visual DNA。</p>
       </div>
       <div class="recipe-principle" aria-label="绘神生成规则">
-        <span>角色</span><b>×</b><span>形态</span><b>×</b><span>画风</span><b>×</b><span>壁纸规格</span>
+        <span>神灵</span><b>×</b><span>形态</span><b>×</b><span>画风</span><b>×</b><span>壁纸规格</span>
       </div>
     </div>
   </section>
@@ -79,9 +79,9 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     >
       <form class="creator-panel surface" onsubmit="return false;">
         <div class="step-block">
-          <div class="step-head"><span>01</span><div><h2>选择创作对象</h2><p>角色会锁定 Canonical Design；神域会锁定核心空间与建筑锚点。</p></div></div>
+          <div class="step-head"><span>01</span><div><h2>选择创作对象</h2><p>神灵会锁定 Canonical Design；神域会锁定核心空间与建筑锚点。</p></div></div>
           <div class="segmented" role="group" aria-label="创作对象类型">
-            <button class="is-active" type="button" data-entity-tab="character" aria-pressed="true">角色</button>
+            <button class="is-active" type="button" data-entity-tab="character" aria-pressed="true">神灵</button>
             <button type="button" data-entity-tab="world" aria-pressed="false">神域</button>
           </div>
           <div class="entity-options" data-entity-group="character">
@@ -227,7 +227,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         <div class="recipe-card surface">
           <div class="recipe-head"><span class="small-caps">Generation Recipe</span><strong>本次绘神配方</strong></div>
           <div class="recipe-grid">
-            <div><span>对象</span><strong data-summary-entity>{initialCharacter?.name ?? '角色'}</strong></div>
+            <div><span>对象</span><strong data-summary-entity>{initialCharacter?.name ?? '神灵'}</strong></div>
             <div data-summary-variant-wrap><span>形态</span><strong data-summary-variant>经典设定</strong></div>
             <div><span>画风</span><strong data-summary-style>{initialStyle?.name ?? '经典神话'}</strong></div>
             <div><span>场景</span><strong data-summary-scene>云海</strong></div>
@@ -245,7 +245,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
               <div class="mobile-safe-zone" data-mobile-safe-zone aria-hidden="true"></div>
               <div class="preview-status" data-preview-status>
                 <span class="small-caps">Creation Preview</span>
-                <strong data-preview-title>{initialCharacter?.name ?? '角色'} · {initialStyle?.name ?? '经典神话'}</strong>
+                <strong data-preview-title>{initialCharacter?.name ?? '神灵'} · {initialStyle?.name ?? '经典神话'}</strong>
                 <p data-preview-subtitle>经典设定 · 云海 · {initialOutput?.name ?? '手机壁纸'}</p>
               </div>
             </div>

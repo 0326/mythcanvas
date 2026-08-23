@@ -27,7 +27,7 @@ function resultPath(result: SearchResult): string {
 }
 
 function resultTypeLabel(type: string): string {
-  return { mythology: '文明', world: '神域', character: '角色', artwork: '壁纸' }[type] ?? type;
+  return { mythology: '神话体系', world: '神域', character: '神灵', artwork: '作品' }[type] ?? type;
 }
 
 async function loadEntityNames(db: D1Database | undefined) {
@@ -48,14 +48,14 @@ const entityResults = results.filter((result) => result.type !== 'artwork') as A
 
 <BaseLayout
   title={query ? `搜索“${query}”` : '搜索'}
-  description={`在 MythCanvas 搜索神话文明、神域、角色与壁纸${query ? `：${query}` : ''}。`}
+  description={`在 MythCanvas 搜索神话体系、神域、神灵与视觉作品${query ? `：${query}` : ''}。`}
 >
   <section class="search-hero">
     <div class="container-wide">
       <span class="eyebrow">Search MythCanvas</span>
       <h1>探索神话</h1>
       <form class="search-bar" action="/search/" method="get" role="search">
-        <input type="search" name="q" value={query} placeholder="搜索文明、神域、角色、壁纸…" aria-label="全站搜索" autoFocus />
+        <input type="search" name="q" value={query} placeholder="搜索神话体系、神域、神灵、作品…" aria-label="全站搜索" autoFocus />
         <button class="btn btn-primary" type="submit">搜索</button>
       </form>
     </div>
@@ -67,7 +67,7 @@ const entityResults = results.filter((result) => result.type !== 'artwork') as A
         <div class="empty-state surface">
           <span aria-hidden="true">⌕</span>
           <h2>输入关键词开始探索</h2>
-          <p>可以搜索文明（中国、希腊…）、神域（月宫、奥林匹斯…）、角色（嫦娥、雅典娜…）或壁纸。</p>
+          <p>可以搜索神话体系（中国、希腊…）、神域（月宫、奥林匹斯…）、神灵（嫦娥、雅典娜…）或视觉作品。</p>
         </div>
       ) : results.length === 0 ? (
         <div class="empty-state surface">
