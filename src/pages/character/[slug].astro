@@ -178,6 +178,7 @@ const stylePreview = (styleId: CharacterStyleId) => {
                   class:list={{ 'style-preview': true, [`style-${style.id}`]: true, 'is-active': style.id === selectedStyle }}
                   href={styleHref(style.id)}
                   data-style-filter={style.id}
+                  data-style-label={style.name}
                   data-scroll-to-wallpapers
                   aria-label={`${style.name} · ${style.nameEn}`}
                   aria-pressed={style.id === selectedStyle ? 'true' : 'false'}
@@ -208,7 +209,7 @@ const stylePreview = (styleId: CharacterStyleId) => {
             <span class="filter-label">画风</span>
             <div class="filter-options">
               {characterStyles.map((style) => (
-                <a class:list={{ 'filter-option': true, 'is-active': style.id === selectedStyle }} href={styleHref(style.id)} data-style-filter={style.id} aria-pressed={style.id === selectedStyle ? 'true' : 'false'}>{style.name}</a>
+                <a class:list={{ 'filter-option': true, 'is-active': style.id === selectedStyle }} href={styleHref(style.id)} data-style-filter={style.id} data-style-label={style.name} aria-pressed={style.id === selectedStyle ? 'true' : 'false'}>{style.name}</a>
               ))}
             </div>
           </div>
@@ -306,7 +307,7 @@ const stylePreview = (styleId: CharacterStyleId) => {
     wallpaperCards.forEach((card) => { card.hidden = !(card.dataset.style === style && card.dataset.device === device); });
     styleLinks.forEach((link) => { const active = link.dataset.styleFilter === style; link.classList.toggle('is-active', active); link.setAttribute('aria-pressed', String(active)); });
     deviceLinks.forEach((link) => { const active = link.dataset.deviceFilter === device; link.classList.toggle('is-active', active); link.setAttribute('aria-pressed', String(active)); });
-    if (styleName) styleName.textContent = styleLinks.find((link) => link.dataset.styleFilter === style)?.textContent?.trim() ?? style;
+    if (styleName) styleName.textContent = styleLinks.find((link) => link.dataset.styleFilter === style)?.dataset.styleLabel ?? style;
     if (styleDescription) styleDescription.textContent = styleDescriptions[style as keyof typeof styleDescriptions] ?? '';
     if (emptyState) emptyState.hidden = wallpaperCards.some((card) => !card.hidden);
     setUrlState(style, device);
