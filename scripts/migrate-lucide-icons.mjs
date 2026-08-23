@@ -1,3 +1,4 @@
+// Temporary idempotent codemod for the Lucide migration branch.
 import fs from 'node:fs';
 
 const replacements = new Map();
