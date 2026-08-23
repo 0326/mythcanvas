@@ -1,14 +1,22 @@
-import type { GenerationJob } from '../generation/types';
+import type { GenerationJob, GenerationQuality, PromptLayers } from '../generation/types';
+
+const SELECT_COLUMNS = `
+  id, status, entity_type, entity_id, mythology_id, style_id, character_variant_id, output_spec_id,
+  scene, composition, ratio, description, prompt, prompt_layers_json, provider, generation_model,
+  generation_quality, reference_asset_ids_json, provider_request_id, asset_key, asset_mime, asset_width,
+  asset_height, error_code, error_message, source_generation_id, is_public, user_id, created_at, updated_at
+`;
 
 export async function insertGenerationJob(db: D1Database | undefined, job: GenerationJob, userId?: string): Promise<boolean> {
   if (!db) return false;
 
   await db.prepare(`
     INSERT INTO generation_jobs (
-      id, status, entity_type, entity_id, mythology_id, style_id, scene, composition, ratio,
-      description, prompt, provider, provider_request_id, asset_key, asset_mime, asset_width,
+      id, status, entity_type, entity_id, mythology_id, style_id, character_variant_id, output_spec_id,
+      scene, composition, ratio, description, prompt, prompt_layers_json, provider, generation_model,
+      generation_quality, reference_asset_ids_json, provider_request_id, asset_key, asset_mime, asset_width,
       asset_height, error_code, error_message, source_generation_id, is_public, user_id, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     job.id,
     job.status,
@@ -16,12 +24,18 @@ export async function insertGenerationJob(db: D1Database | undefined, job: Gener
     job.entityId,
     job.mythologyId,
     job.styleId,
+    job.characterVariantId ?? null,
+    job.outputSpecId ?? null,
     job.scene,
     job.composition,
     job.ratio,
     job.description,
     job.prompt,
+    JSON.stringify(job.promptLayers ?? {}),
     job.provider,
+    job.generationModel ?? null,
+    job.generationQuality ?? null,
+    JSON.stringify(job.referenceAssetIds ?? []),
     job.providerRequestId ?? null,
     job.assetKey ?? null,
     job.assetMime ?? null,
@@ -48,9 +62,7 @@ export async function listGenerationsByUser(
   if (!db) return [];
   const rows = await db
     .prepare(`
-      SELECT id, status, entity_type, entity_id, mythology_id, style_id, scene, composition, ratio,
-             description, prompt, provider, provider_request_id, asset_key, asset_mime, asset_width,
-             asset_height, error_code, error_message, source_generation_id, is_public, user_id, created_at, updated_at
+      SELECT ${SELECT_COLUMNS}
       FROM generation_jobs
       WHERE user_id = ?
       ORDER BY created_at DESC LIMIT ?
@@ -79,6 +91,7 @@ export async function completeGenerationJob(
     id: string;
     provider: string;
     providerRequestId?: string;
+    generationModel?: string;
     assetKey?: string;
     mimeType: string;
     width: number;
@@ -88,12 +101,13 @@ export async function completeGenerationJob(
   if (!db) return;
   await db.prepare(`
     UPDATE generation_jobs
-    SET status = 'succeeded', provider = ?, provider_request_id = ?, asset_key = ?, asset_mime = ?,
-        asset_width = ?, asset_height = ?, error_code = NULL, error_message = NULL, updated_at = ?
+    SET status = 'succeeded', provider = ?, provider_request_id = ?, generation_model = COALESCE(?, generation_model),
+        asset_key = ?, asset_mime = ?, asset_width = ?, asset_height = ?, error_code = NULL, error_message = NULL, updated_at = ?
     WHERE id = ?
   `).bind(
     input.provider,
     input.providerRequestId ?? null,
+    input.generationModel ?? null,
     input.assetKey ?? null,
     input.mimeType,
     input.width,
@@ -120,9 +134,7 @@ export async function failGenerationJob(
 export async function getGenerationJob(db: D1Database | undefined, id: string): Promise<GenerationJob | null> {
   if (!db) return null;
   const row = await db.prepare(`
-    SELECT id, status, entity_type, entity_id, mythology_id, style_id, scene, composition, ratio,
-           description, prompt, provider, provider_request_id, asset_key, asset_mime, asset_width,
-           asset_height, error_code, error_message, source_generation_id, is_public, user_id, created_at, updated_at
+    SELECT ${SELECT_COLUMNS}
     FROM generation_jobs
     WHERE id = ?
   `).bind(id).first<Record<string, unknown>>();
@@ -139,12 +151,18 @@ function mapJobRow(row: Record<string, unknown>): GenerationJob {
     entityId: String(row.entity_id),
     mythologyId: String(row.mythology_id),
     styleId: String(row.style_id),
+    characterVariantId: optionalString(row.character_variant_id),
+    outputSpecId: optionalString(row.output_spec_id),
     scene: String(row.scene),
     composition: String(row.composition),
     ratio: String(row.ratio),
     description: String(row.description ?? ''),
     prompt: String(row.prompt),
+    promptLayers: objectValue<PromptLayers>(row.prompt_layers_json),
     provider: String(row.provider),
+    generationModel: optionalString(row.generation_model),
+    generationQuality: optionalString(row.generation_quality) as GenerationQuality | undefined,
+    referenceAssetIds: stringArray(row.reference_asset_ids_json),
     providerRequestId: optionalString(row.provider_request_id),
     assetKey: optionalString(row.asset_key),
     assetMime: optionalString(row.asset_mime),
@@ -168,4 +186,26 @@ function optionalNumber(value: unknown): number | undefined {
   if (value == null) return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function stringArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(String);
+  if (typeof value !== 'string' || !value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+function objectValue<T extends Record<string, unknown>>(value: unknown): T | undefined {
+  if (value && typeof value === 'object' && !Array.isArray(value)) return value as T;
+  if (typeof value !== 'string' || !value) return undefined;
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as T : undefined;
+  } catch {
+    return undefined;
+  }
 }
