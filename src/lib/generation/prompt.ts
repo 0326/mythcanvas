@@ -1,4 +1,4 @@
-import { characters, mythologies, realms, styles } from '../../data/seed';
+import { getCharacterById, getMythologyById, getRealmById, getStyleById } from '../content/repositories';
 import type { GenerationRequest, ResolvedGenerationContext } from './types';
 import { GenerationValidationError } from './validation';
 
@@ -11,17 +11,20 @@ const stylePromptHints: Record<string, string> = {
   'cyber-myth': 'restrained futuristic materials and light fused with persistent mythological identity',
 };
 
-export function resolveGenerationContext(request: GenerationRequest): ResolvedGenerationContext {
-  const style = styles.find((item) => item.id === request.styleId);
+export async function resolveGenerationContext(
+  db: D1Database | undefined,
+  request: GenerationRequest,
+): Promise<ResolvedGenerationContext> {
+  const style = await getStyleById(db, request.styleId);
   if (!style) throw new GenerationValidationError('STYLE_NOT_FOUND', '所选画风不存在。', 404);
 
   const entity = request.entityType === 'character'
-    ? characters.find((item) => item.id === request.entityId)
-    : realms.find((item) => item.id === request.entityId);
+    ? await getCharacterById(db, request.entityId)
+    : await getRealmById(db, request.entityId);
 
   if (!entity) throw new GenerationValidationError('ENTITY_NOT_FOUND', '所选角色或神域不存在。', 404);
 
-  const mythology = mythologies.find((item) => item.id === entity.mythologyId);
+  const mythology = await getMythologyById(db, entity.mythologyId);
   if (!mythology) throw new GenerationValidationError('MYTHOLOGY_NOT_FOUND', '对应神话文明不存在。', 404);
 
   const canonicalAnchors = entity.canonicalDesign.anchors;

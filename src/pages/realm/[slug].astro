@@ -9,6 +9,7 @@ import {
   getRealmBySlug,
   getStyles,
 } from '../../lib/content/repositories';
+import { SITE_TITLE } from '../../consts';
 
 export const prerender = false;
 
@@ -29,6 +30,27 @@ const [mythology, relatedCharacters, relatedArtworks, styles] = await Promise.al
   description={`${realm.name} · ${realm.nameEn}：${realm.summary}`}
   image={realm.heroImage.src}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Place',
+        name: realm.name,
+        alternateName: realm.nameEn,
+        description: realm.summary,
+        image: new URL(realm.heroImage.src, Astro.site).toString(),
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: new URL('/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 2, name: '神域', item: new URL('/realm/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 3, name: realm.name },
+        ],
+      },
+    ])} />
+  </Fragment>
   <section class="realm-hero">
     <img src={realm.heroImage.src} alt={realm.heroImage.alt} width={realm.heroImage.width} height={realm.heroImage.height} fetchpriority="high" />
     <div class="realm-hero-overlay"></div>

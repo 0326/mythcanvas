@@ -10,6 +10,7 @@ import {
   getStyles,
 } from '../../lib/content/repositories';
 import type { Realm } from '../../lib/content/types';
+import { SITE_TITLE } from '../../consts';
 
 export const prerender = false;
 
@@ -33,6 +34,27 @@ const characterRealms = character.realmIds
   description={`${character.name} · ${character.nameEn}：${character.summary}`}
   image={character.portrait?.src ?? characterRealms[0]?.heroImage.src ?? mythology?.heroImage.src}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Thing',
+        name: character.name,
+        alternateName: character.nameEn,
+        description: character.summary,
+        image: character.portrait ? new URL(character.portrait.src, Astro.site).toString() : undefined,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: new URL('/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 2, name: '角色', item: new URL('/character/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 3, name: character.name },
+        ],
+      },
+    ])} />
+  </Fragment>
   <section class="character-hero">
     <div class="container-wide hero-grid">
       <div class="character-copy">

@@ -1,9 +1,17 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { characters, realms, styles } from '../../data/seed';
+import { getCharacters, getRealms, getStyles } from '../../lib/content/repositories';
 
-const creatorCharacters = characters.slice(0, 5);
-const creatorRealms = realms.slice(0, 5);
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const [allCharacters, allRealms, styles] = await Promise.all([
+  getCharacters(db),
+  getRealms(db),
+  getStyles(db),
+]);
+const creatorCharacters = allCharacters.slice(0, 5);
+const creatorRealms = allRealms.slice(0, 5);
 const scenes = ['云海', '月夜', '星空', '神殿', '山海', '遗迹', '深渊'];
 const compositions = [
   { id: 'phone-lock', name: '手机锁屏', ratio: '9:16' },
@@ -11,6 +19,15 @@ const compositions = [
   { id: 'desktop', name: '桌面壁纸', ratio: '16:9' },
   { id: 'epic', name: '史诗远景', ratio: '16:9' },
 ];
+const quickRefines = [
+  { key: 'epic', label: '更史诗', hint: '宏大构图、史诗氛围，画面更辽阔壮丽' },
+  { key: 'dreamy', label: '更梦幻', hint: '梦幻光晕、柔焦氛围，增强神话缥缈感' },
+  { key: 'realistic', label: '更写实', hint: '写实光影与材质，接近真实摄影质感' },
+  { key: 'bright', label: '更明亮', hint: '提高亮度与通透感，弱化阴影' },
+  { key: 'far-shot', label: '拉远镜头', hint: '更远的镜头距离，突出环境与空间层次' },
+  { key: 'divine-glow', label: '强化神光', hint: '强化圣光与神性氛围，突出文明象征' },
+];
+const entityTypeLabels = { character: '角色', realm: '神域' } as const;
 ---
 
 <BaseLayout
@@ -35,24 +52,21 @@ const compositions = [
             <button type="button" data-entity-tab="realm" aria-pressed="false">神域</button>
           </div>
           <div class="entity-options" data-entity-group="character">
-            {creatorCharacters.map((character, index) => {
-              const realm = realms.find((item) => character.realmIds.includes(item.id));
-              return (
-                <button
-                  class:list={{ 'entity-option': true, 'is-active': index === 0 }}
-                  type="button"
-                  data-entity
-                  data-entity-id={character.id}
-                  data-entity-type="character"
-                  data-name={character.name}
-                  data-image={character.portrait?.src ?? realm?.heroImage.src ?? '/media/content/chinese-celestial.svg'}
-                  aria-pressed={index === 0 ? 'true' : 'false'}
-                >
-                  <span class="entity-glyph">{character.symbols[0]}</span>
-                  <span><strong>{character.name}</strong><small>{character.role}</small></span>
-                </button>
-              );
-            })}
+            {creatorCharacters.map((character, index) => (
+              <button
+                class:list={{ 'entity-option': true, 'is-active': index === 0 }}
+                type="button"
+                data-entity
+                data-entity-id={character.id}
+                data-entity-type="character"
+                data-name={character.name}
+                data-image={character.portrait?.src ?? '/media/content/chinese-celestial.svg'}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
+                <span class="entity-glyph">{character.symbols[0]}</span>
+                <span><strong>{character.name}</strong><small>{character.role}</small></span>
+              </button>
+            ))}
           </div>
           <div class="entity-options" data-entity-group="realm" hidden>
             {creatorRealms.map((realm) => (
@@ -134,6 +148,27 @@ const compositions = [
             <div><span>场景</span><strong data-summary-scene>云海</strong></div>
             <div><span>构图</span><strong data-summary-composition>手机锁屏</strong></div>
           </div>
+          <div class="preview-actions" data-preview-actions hidden>
+            <a class="btn btn-secondary" data-download href="#" download>下载</a>
+            <button class="btn btn-secondary" type="button" data-publish>申请公开</button>
+            <button class="btn btn-secondary" type="button" data-retry hidden>重试</button>
+            <button class="btn btn-secondary" type="button" data-favorite aria-pressed="false">收藏</button>
+          </div>
+        </div>
+
+        <div class="refine-card surface" data-refine hidden>
+          <div class="refine-head"><span class="small-caps">Quick Refine</span><strong>快捷微调</strong></div>
+          <div class="refine-options">
+            {quickRefines.map((item) => (
+              <button class="refine-option" type="button" data-refine={item.key} title={item.hint}>{item.label}</button>
+            ))}
+          </div>
+        </div>
+
+        <div class="history-card surface" data-history>
+          <div class="history-head"><span class="small-caps">Recent</span><strong>最近的绘神</strong><button type="button" class="history-clear" data-history-clear>清空</button></div>
+          <div class="history-list" data-history-list></div>
+          <div class="history-empty" data-history-empty>还没有生成记录，开始你的第一幅神话视觉吧。</div>
         </div>
       </aside>
     </div>
@@ -155,7 +190,54 @@ const compositions = [
       scene: '云海',
       composition: '手机锁屏',
       ratio: '9:16',
+      lastJobId: null,
+      lastImageUrl: null,
     };
+
+    const HISTORY_KEY = 'mythcanvas-generations';
+    const loadHistory = () => {
+      try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
+    };
+    const saveHistory = (list) => {
+      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 8))); } catch { /* ignore */ }
+    };
+    const renderHistory = () => {
+      const list = loadHistory();
+      const listEl = root.querySelector('[data-history-list]');
+      const emptyEl = root.querySelector('[data-history-empty]');
+      if (!listEl) return;
+      listEl.innerHTML = '';
+      if (emptyEl) emptyEl.hidden = list.length !== 0;
+      list.forEach((item) => {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'history-item';
+        row.setAttribute('aria-label', `重新加载 ${item.entity} 的生成`);
+        const img = document.createElement('img');
+        img.src = item.imageUrl;
+        img.alt = '';
+        img.loading = 'lazy';
+        const span = document.createElement('span');
+        span.innerHTML = `<strong>${escapeHtml(item.entity)} · ${escapeHtml(item.style)}</strong><small>${escapeHtml(item.scene)} · ${item.ratio}</small>`;
+        row.appendChild(img);
+        row.appendChild(span);
+        row.addEventListener('click', () => {
+          state.entityId = item.entityId;
+          state.entity = item.entity;
+          state.styleId = item.styleId;
+          state.style = item.style;
+          state.scene = item.scene;
+          state.composition = item.composition;
+          state.ratio = item.ratio;
+          state.lastJobId = item.jobId || null;
+          state.lastImageUrl = item.imageUrl;
+          document.querySelector('[data-preview-image]')?.setAttribute('src', item.imageUrl);
+          refresh();
+        });
+        listEl.appendChild(row);
+      });
+    };
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
     const setPressed = (selector, active) => {
       root.querySelectorAll(selector).forEach((item) => {
@@ -220,58 +302,182 @@ const compositions = [
       });
     });
 
-    root.querySelector('[data-generate]')?.addEventListener('click', async () => {
-      const status = root.querySelector('[data-preview-status]');
+    const setBusy = (busy, label) => {
       const button = root.querySelector('[data-generate]');
+      const actions = root.querySelector('[data-preview-actions]');
+      if (!button) return;
+      button.disabled = busy;
+      button.textContent = label;
+      if (actions) actions.hidden = busy || !state.lastImageUrl;
+    };
+
+    const runGenerate = async (isRetry, refineHint) => {
+      const status = root.querySelector('[data-preview-status]');
       const image = root.querySelector('[data-preview-image]');
+      const retryBtn = root.querySelector('[data-retry]');
+      const favoriteBtn = root.querySelector('[data-favorite]');
+      const downloadBtn = root.querySelector('[data-download]');
       const description = root.querySelector('[data-description]');
-      if (!status || !button || !image) return;
+      if (!status || !image) return;
 
       const statusTitle = status.querySelector('strong');
       const statusText = status.querySelector('p');
-      button.disabled = true;
-      button.textContent = '正在绘神…';
+      setBusy(true, '正在绘神…');
       status.classList.add('is-generating');
-      if (statusTitle) statusTitle.textContent = `正在构筑 ${state.scene}`;
+      if (retryBtn) retryBtn.hidden = true;
+      if (favoriteBtn) favoriteBtn.setAttribute('aria-pressed', 'false');
+      if (statusTitle) statusTitle.textContent = isRetry ? `重新构筑 ${state.scene}` : `正在构筑 ${state.scene}`;
       if (statusText) statusText.textContent = `正在重现 ${state.entity} 的 ${state.style} 视觉…`;
+
+      let body;
+      try {
+        body = {
+          entityType: state.entityType,
+          entityId: state.entityId,
+          styleId: state.styleId,
+          scene: state.scene,
+          composition: state.composition,
+          ratio: state.ratio,
+          description: description?.value || '',
+          sourceGenerationId: state.lastJobId || undefined,
+        };
+        if (refineHint) body.description = [body.description, refineHint].filter(Boolean).join('，');
+      } catch { /* ignore */ }
 
       try {
         const response = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            entityType: state.entityType,
-            entityId: state.entityId,
-            styleId: state.styleId,
-            scene: state.scene,
-            composition: state.composition,
-            ratio: state.ratio,
-            description: description?.value || '',
-          }),
+          body: JSON.stringify(body),
         });
         const result = await response.json();
+
+        if (response.status === 429) {
+          throw new Error(result.error?.message || '绘神次数已达上限，请稍后再试。');
+        }
+        if (result.status === 'moderated') {
+          throw new Error(result.error?.message || '生成内容未通过安全审核。');
+        }
         if (!response.ok || result.status !== 'succeeded' || !result.imageUrl) {
           throw new Error(result.error?.message || '生成失败');
         }
 
+        state.lastJobId = result.id;
+        state.lastImageUrl = result.imageUrl;
         image.setAttribute('src', result.imageUrl);
         image.setAttribute('alt', `${state.entity} · ${state.style} · ${state.scene}`);
         if (statusTitle) statusTitle.textContent = `${state.entity} · ${state.style}`;
         if (statusText) statusText.textContent = result.persisted
           ? '神迹已完成并保存到 MythCanvas 内容资产中'
           : '神迹已完成 · 当前环境使用临时生成结果';
-        button.textContent = '再绘一次 ✦';
+
+        const history = loadHistory();
+        history.unshift({
+          jobId: result.id,
+          entityType: state.entityType,
+          entityId: state.entityId,
+          entity: state.entity,
+          styleId: state.styleId,
+          style: state.style,
+          scene: state.scene,
+          composition: state.composition,
+          ratio: state.ratio,
+          imageUrl: result.imageUrl,
+          createdAt: new Date().toISOString(),
+        });
+        saveHistory(history);
+        renderHistory();
+
+        if (downloadBtn instanceof HTMLAnchorElement) downloadBtn.href = result.imageUrl;
+        setBusy(false, '再绘一次 ✦');
+        if (retryBtn) retryBtn.hidden = true;
       } catch (error) {
+        const message = error instanceof Error ? error.message : '请稍后再试';
         if (statusTitle) statusTitle.textContent = '这次神迹没有完成';
-        if (statusText) statusText.textContent = error instanceof Error ? error.message : '请稍后再试';
-        button.textContent = '重新绘神 ✦';
+        if (statusText) statusText.textContent = message;
+        setBusy(false, '重新绘神 ✦');
+        if (retryBtn) retryBtn.hidden = false;
       } finally {
         status.classList.remove('is-generating');
-        button.disabled = false;
+      }
+    };
+
+    root.querySelector('[data-generate]')?.addEventListener('click', () => runGenerate(false));
+    root.querySelector('[data-retry]')?.addEventListener('click', () => runGenerate(true));
+
+    root.querySelectorAll('[data-refine]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const hint = button.title || '';
+        if (state.lastImageUrl) {
+          runGenerate(false, hint);
+        } else {
+          const description = root.querySelector('[data-description]');
+          if (description) {
+            const current = description.value.trim();
+            description.value = current ? `${current}，${button.textContent}` : button.textContent;
+          }
+          runGenerate(false);
+        }
+      });
+    });
+
+    root.querySelector('[data-favorite]')?.addEventListener('click', async (event) => {
+      const favoriteBtn = event.currentTarget;
+      if (!favoriteBtn || !state.lastJobId) return;
+      const target = favoriteBtn;
+      try {
+        const response = await fetch('/api/favorite', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ targetType: 'generation', targetId: state.lastJobId }),
+        });
+        const result = await response.json();
+        if (response.ok && result.favorited) {
+          target.setAttribute('aria-pressed', 'true');
+          target.textContent = '已收藏';
+        } else {
+          target.textContent = result.message === '请先登录后收藏' ? '登录后收藏' : '收藏';
+        }
+      } catch {
+        target.textContent = '收藏失败';
       }
     });
 
+    root.querySelector('[data-publish]')?.addEventListener('click', async (event) => {
+      const btn = event.currentTarget;
+      if (!state.lastJobId) return;
+      const defaultTitle = `${state.entity} · ${state.style} · ${state.scene}`;
+      const title = window.prompt('为这幅作品起个标题（将通过审核后发布到探索页）', defaultTitle);
+      if (title === null) return;
+      const trimmed = title.trim();
+      if (!trimmed) { alert('标题不能为空'); return; }
+      btn.disabled = true;
+      try {
+        const response = await fetch('/api/submission', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            generationId: state.lastJobId,
+            title: trimmed,
+            name: `${state.entity}`,
+          }),
+        });
+        const result = await response.json();
+        alert(result.message || '操作完成');
+      } catch {
+        alert('网络错误，请重试');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    root.querySelector('[data-history-clear]')?.addEventListener('click', () => {
+      saveHistory([]);
+      renderHistory();
+    });
+
     refresh();
+    renderHistory();
   })();
 </script>
 
@@ -333,6 +539,25 @@ const compositions = [
   .preview-summary div { display: grid; gap: 2px; }
   .preview-summary span { color: var(--text-muted); font-size: .66rem; }
   .preview-summary strong { font-size: .78rem; }
+  .preview-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); padding: var(--space-2) 0 var(--space-1); }
+  .preview-actions .btn { justify-content: center; font-size: .76rem; min-height: 36px; }
+  .refine-card, .history-card { padding: var(--space-4); border-radius: var(--radius-lg); }
+  .refine-head, .history-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
+  .refine-head strong, .history-head strong { font-size: .82rem; }
+  .refine-head .small-caps, .history-head .small-caps { margin: 0; }
+  .refine-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+  .refine-option { min-height: 34px; border: 1px solid var(--border); border-radius: var(--radius-pill); color: var(--text-secondary); background: var(--surface); cursor: pointer; font-size: .72rem; }
+  .refine-option:hover { color: var(--text-primary); border-color: var(--border-strong); }
+  .history-list { display: grid; gap: var(--space-2); }
+  .history-item { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: var(--space-3); align-items: center; padding: var(--space-2); border: 1px solid transparent; border-radius: var(--radius-md); color: var(--text-primary); background: transparent; text-align: left; cursor: pointer; }
+  .history-item:hover { border-color: var(--border); background: var(--surface-muted); }
+  .history-item img { width: 44px; height: 60px; object-fit: cover; border-radius: var(--radius-sm); }
+  .history-item strong, .history-item small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-item strong { font-size: .76rem; }
+  .history-item small { margin-top: 2px; color: var(--text-muted); font-size: .66rem; }
+  .history-empty { padding: var(--space-4) 0 var(--space-2); color: var(--text-muted); font-size: .74rem; text-align: center; }
+  .history-clear { border: 0; color: var(--text-muted); background: transparent; cursor: pointer; font-size: .68rem; }
+  .history-clear:hover { color: var(--text-primary); }
   @keyframes pulse { from { width: 36px; opacity: .45; } to { width: 120px; opacity: 1; } }
   @media (max-width: 980px) { .creator-grid { grid-template-columns: 1fr; } .preview-column { position: static; grid-row: 1; } .preview-card { max-width: 640px; margin-inline: auto; } .preview-frame { aspect-ratio: 16 / 10; } }
   @media (max-width: 620px) { .entity-options, .style-options, .composition-options { grid-template-columns: 1fr; } .preview-frame { aspect-ratio: 4 / 5; } }

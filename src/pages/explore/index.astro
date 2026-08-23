@@ -11,6 +11,14 @@ import {
 export const prerender = false;
 
 const db = Astro.locals.runtime.env.DB;
+
+// —— 从 URL query 读取初始筛选状态（R9：URL 可分享、可刷新、SEO 可见）
+const params = Astro.url.searchParams;
+const initialMythology = params.get('mythology') ?? 'all';
+const initialType = params.get('type') ?? 'all';
+const initialStyle = (params.get('style') ?? 'all').replace('+', ' ');
+const initialSearch = params.get('q') ?? '';
+
 const [approvedArtworks, mythologies, styles, mythologiesById, realmsById] = await Promise.all([
   getArtworks(db),
   getMythologies(db),
@@ -49,14 +57,14 @@ const contentTypes = [
       <div class="filter-panel surface" data-explore-filters>
         <div class="filter-search" id="search">
           <span class="small-caps">Find a myth</span>
-          <input type="search" placeholder="搜索世界、角色、传说…" aria-label="搜索世界、角色、传说" data-search-input />
+          <input type="search" placeholder="搜索作品标题…" aria-label="搜索作品标题" data-search-input value={initialSearch} />
         </div>
         <div class="filter-row">
           <span class="filter-label">文明</span>
           <div class="filter-scroll" role="group" aria-label="按神话文明筛选">
-            <button class="chip is-active" type="button" data-filter="mythology" data-value="all" aria-pressed="true">全部</button>
+            <button class:list={{ chip: true, 'is-active': initialMythology === 'all' }} type="button" data-filter="mythology" data-value="all" aria-pressed={initialMythology === 'all'}>全部</button>
             {mythologies.map((mythology) => (
-              <button class="chip" type="button" data-filter="mythology" data-value={mythology.id} aria-pressed="false">{mythology.name}</button>
+              <button class:list={{ chip: true, 'is-active': initialMythology === mythology.id }} type="button" data-filter="mythology" data-value={mythology.id} aria-pressed={initialMythology === mythology.id}>{mythology.name}</button>
             ))}
           </div>
         </div>
@@ -64,8 +72,8 @@ const contentTypes = [
         <div class="filter-row">
           <span class="filter-label">内容</span>
           <div class="filter-scroll" role="group" aria-label="按内容类型筛选">
-            {contentTypes.map((type, index) => (
-              <button class:list={{ chip: true, 'is-active': index === 0 }} type="button" data-filter="type" data-value={type.id} aria-pressed={index === 0 ? 'true' : 'false'}>{type.name}</button>
+            {contentTypes.map((type) => (
+              <button class:list={{ chip: true, 'is-active': initialType === type.id }} type="button" data-filter="type" data-value={type.id} aria-pressed={initialType === type.id}>{type.name}</button>
             ))}
           </div>
         </div>
@@ -73,9 +81,9 @@ const contentTypes = [
         <div class="filter-row">
           <span class="filter-label">画风</span>
           <div class="filter-scroll" role="group" aria-label="按视觉风格筛选">
-            <button class="chip is-active" type="button" data-filter="style" data-value="all" aria-pressed="true">全部</button>
+            <button class:list={{ chip: true, 'is-active': initialStyle === 'all' }} type="button" data-filter="style" data-value="all" aria-pressed={initialStyle === 'all'}>全部</button>
             {styles.map((style) => (
-              <button class="chip" type="button" data-filter="style" data-value={style.id} aria-pressed="false">{style.name}</button>
+              <button class:list={{ chip: true, 'is-active': initialStyle === style.id || initialStyle === style.slug }} type="button" data-filter="style" data-value={style.id} aria-pressed={initialStyle === style.id || initialStyle === style.slug}>{style.name}</button>
             ))}
           </div>
         </div>
@@ -115,10 +123,30 @@ const contentTypes = [
     const grid = document.querySelector('[data-artwork-grid]');
     if (!root || !grid) return;
 
-    const state = { mythology: 'all', type: 'all', style: 'all', search: '' };
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialSearch = urlParams.get('q') ?? '';
+    const state = {
+      mythology: urlParams.get('mythology') || 'all',
+      type: urlParams.get('type') || 'all',
+      style: decodeURIComponent(urlParams.get('style') || 'all'),
+      search: initialSearch.toLowerCase(),
+    };
+
     const cards = Array.from(grid.querySelectorAll('[data-artwork-card]'));
     const count = document.querySelector('[data-result-count]');
     const empty = document.querySelector('[data-empty-state]');
+    const searchInput = root.querySelector('[data-search-input]');
+    if (searchInput instanceof HTMLInputElement) searchInput.value = initialSearch;
+
+    const syncURL = () => {
+      const query = new URLSearchParams();
+      if (state.mythology !== 'all') query.set('mythology', state.mythology);
+      if (state.type !== 'all') query.set('type', state.type);
+      if (state.style !== 'all') query.set('style', state.style);
+      if (state.search) query.set('q', state.search);
+      const qs = query.toString();
+      window.history.replaceState(null, '', qs ? `/explore/?${qs}` : '/explore/');
+    };
 
     const apply = () => {
       let visible = 0;
@@ -133,6 +161,7 @@ const contentTypes = [
       });
       if (count) count.textContent = String(visible);
       if (empty) empty.hidden = visible !== 0;
+      syncURL();
     };
 
     root.querySelectorAll('[data-filter]').forEach((button) => {
@@ -140,7 +169,7 @@ const contentTypes = [
         const key = button.dataset.filter;
         const value = button.dataset.value;
         if (!key || !value || !(key in state)) return;
-        state[key] = value;
+        state[key] = key === 'style' ? decodeURIComponent(value) : value;
         root.querySelectorAll(`[data-filter="${key}"]`).forEach((item) => {
           const active = item === button;
           item.classList.toggle('is-active', active);
@@ -164,9 +193,28 @@ const contentTypes = [
           item.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
       });
-      const searchInput = root.querySelector('[data-search-input]');
-      if (searchInput instanceof HTMLInputElement) searchInput.value = '';
+      const sInput = root.querySelector('[data-search-input]');
+      if (sInput instanceof HTMLInputElement) sInput.value = '';
       apply();
+    });
+
+    apply();
+
+    // —— 埋点：内容点击（M11）——
+    const tracker = async (name, targetId) => {
+      try {
+        await fetch('/api/events', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ name, targetId, page: location.pathname }),
+          keepalive: true,
+        });
+      } catch { /* ignore */ }
+    };
+    grid.querySelectorAll('[data-artwork-card]').forEach((card) => {
+      card.addEventListener('click', () => {
+        void tracker('artwork_click', card.dataset.mythology || undefined);
+      });
     });
   })();
 </script>

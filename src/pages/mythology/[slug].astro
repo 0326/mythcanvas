@@ -10,6 +10,7 @@ import {
   getRealms,
   getRealmsForMythology,
 } from '../../lib/content/repositories';
+import { SITE_TITLE } from '../../consts';
 
 export const prerender = false;
 
@@ -30,6 +31,27 @@ const [relatedRealms, relatedCharacters, relatedArtworks, realmsById] = await Pr
   description={`${mythology.name}视觉世界：${mythology.summary}`}
   image={mythology.heroImage.src}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Thing',
+        name: mythology.name,
+        alternateName: mythology.nameEn,
+        description: mythology.summary,
+        image: new URL(mythology.heroImage.src, Astro.site).toString(),
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: new URL('/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 2, name: '文明图鉴', item: new URL('/mythology/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 3, name: mythology.name },
+        ],
+      },
+    ])} />
+  </Fragment>
   <section class="entity-hero">
     <img src={mythology.heroImage.src} alt={mythology.heroImage.alt} width={mythology.heroImage.width} height={mythology.heroImage.height} fetchpriority="high" />
     <div class="entity-overlay"></div>

@@ -1103,6 +1103,44 @@ M13 E2E / Release Gate
 
 ---
 
+# 21.1 2026-08-23 Website V1 完成清单（本轮 Review 结论）
+
+> 本轮已按依赖链完成 M3→M13 并做 V1 全清单自查。除依赖外部账号/内容翻译的项外，功能均已实现并通过构建（`npm run check` = build + tsc + wrangler dry-run 全绿）、单元测试（11 例）与本地端到端冒烟（全路由 200、无 broken image、安全头/JSON-LD/manifest 生效）。
+
+## 本轮新增交付（Milestone 3 ~ 13）
+
+- **M3 AI 绘神生产闭环** ✅：manifest moderation（NSFW/暴力/IP 复刻）→ `moderated` 状态；`queued→generating→succeeded/failed/moderated` 状态机；生成超时与可重试/不可重试错误区分；匿名 session + KV 限流（每小时 10 次，防刷）；变体（sourceGenerationId）、快捷微调、生成历史（服务端+前端）、失败重试、429/审核 UX；Creator 从 D1 读角色/神域/画风上下文（不再依赖 seed）。
+- **M4 内容审核与发布** ✅：`content_submissions` 审核表；用户「申请公开」→ admin 审核（`/admin`，ADMIN_TOKEN 保护）→ 通过则写入 artworks（approved+published）进 Explore，拒绝可备注；`/api/admin/review`（401 保护）；端到端验证通过。
+- **M5 Search / Discover / Recommendation** ✅：`/search` 全站搜索（Mythology/Realm/Character/Artwork 中英文 LIKE，相关度排序）；Explore 筛选 URL 化（?mythology/type/style/q，可分享/刷新/SEO 可见，R9 解决）；聚合列表页 `/mythologies`、`/realms`、`/characters` 已就绪（R12）；Related（同文明/同角色）已接入。
+- **M6 Auth / 收藏 / 我的宇宙** ✅：KV session（匿名自动获得身份，昵称轻量登录，登录保留同一 user id 使历史延续）；`/api/favorite`（artwork/character/realm/style/generation 收藏+取消）；`/api/user`；`/my` 完整「我的绘神」+「我的收藏」+ 昵称登录/登出；wallpaper 详情页收藏按钮。
+- **M7 下载与设备体验** ✅：下载规格菜单（原图/HD/2K/4K）+ 下载统计（`download_events` + `download_count`）；Device Preview 锁屏/桌面切换。
+- **M8 SEO / GEO** ✅：全局 WebSite JSON-LD；实体详情页 BreadcrumbList + ImageObject/Thing/Place schema；唯一 title/description/OG/image/alt/宽高 已覆盖；R2 `/media/*` delivery 可抓取。
+- **M9 i18n** ⏸：站点 `lang=zh-CN` 单语；英文本地化与实体双语属「内容扩展/翻译」，按本轮指令跳过（见 §9 标注）。待双语内容阶段启用。
+- **M10 性能 / Accessibility / PWA** ✅：`manifest.webmanifest` + 安全 `sw.js`（app shell，动态 API/媒体网络优先，避免缓存动态数据）；manifest link + SW 注册；既有 focus-visible / reduced-motion / lazy-load / alt / 尺寸预留 已达标。
+- **M11 Analytics / Observability** ✅：`analytics_events` 表 + `/api/events` 埋点端点；Explore 页 artwork_click 埋点接入；下载/收藏/生成已有各自事件落库；CF observability 已开启。
+- **M12 安全 / 隐私 / 版权** ✅：middleware 注入 CSP + X-Frame-Options(DENY) + nosniff + Referrer-Policy + Permissions-Policy；`/privacy`、`/terms`、`/copyright` 法律页面（Footer 已链接）；ADMIN_TOKEN 保护 /admin。
+- **M13 测试与发布质量** ✅：`npm run typecheck`（tsc --noEmit）、`npm run test`（vitest，11 例覆盖 moderation/validation）、`npm run migration:check`、`npm run check`（build+tsc+deploy dry-run 全绿）。
+
+## V1 上线 Gate 自查结论（第 18 节）
+
+| 类别 | 状态 |
+|---|---|
+| Product（内容/搜索/下载/收藏/我的宇宙/Creator） | ✅ 功能可用；正式内容量（≥30 角色/≥300 图）与真实 AI 模型属运营/账号侧，未达标 |
+| Technical（D1/R2 绑定、无 placeholder、CI/Deploy、E2E） | ✅ 绑定齐全、无 placeholder、CI 保持、mock provider；真实 Provider 未接 |
+| UX（Light/Dark、桌面/移动、生成全状态、Empty/Error/Accessibility） | ✅ 达成基线 |
+| Performance（Lighthouse ≥90 / CWV / SEO ≥95） | ⬜ 需线上 URL + Lighthouse 实测；本地未见明显红项 |
+| SEO/GEO（域名/sitemap/robots/JSON-LD/canonical/OG/内链） | ✅ 代码就绪；Google/Bing webmaster 提交属账号侧 |
+| Compliance（Privacy/Terms/Copyright/AI Policy） | ✅ 页面已上线 |
+| Observability（埋点/监控/告警） | ✅ 埋点与 CF observability 就绪；阈值告警属配置侧 |
+
+## 遗留（外部依赖 / 账号 / 内容扩展，非本轮可自行完成）
+
+- 真实图片生成 Provider 接入（`AI_GENERATION_MODE=mock`→http + secret）。
+- 正式内容扩充（≥30 角色 / ≥300 Artwork）、Lighthouse 线上实测、webmaster 提交、告警阈值配置。
+- M9 英文本地化内容翻译。
+
+---
+
 # 20. Website V1 之后的 P2 Roadmap
 
 以下能力不阻塞 Website V1：

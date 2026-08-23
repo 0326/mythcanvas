@@ -9,6 +9,8 @@ export type GenerationRequest = {
   composition: string;
   ratio: string;
   description?: string;
+  /** 变体：父生成 job id */
+  sourceGenerationId?: string;
 };
 
 export type GenerationDimensions = {
@@ -76,6 +78,8 @@ export type GenerationJob = {
   assetHeight?: number;
   errorCode?: string;
   errorMessage?: string;
+  sourceGenerationId?: string;
+  isPublic?: boolean;
   createdAt: string;
   updatedAt: string;
 };

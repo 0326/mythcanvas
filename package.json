@@ -18,6 +18,7 @@
 		"typescript": "5.9.3"
 	},
 	"devDependencies": {
+		"vitest": "^4.1.11",
 		"wrangler": "4.88.0"
 	},
 	"engines": {
@@ -29,9 +30,13 @@
 		"build": "astro build",
 		"cf-typegen": "wrangler types",
 		"check": "astro build && tsc && wrangler deploy --dry-run",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"deploy": "wrangler deploy",
 		"dev": "astro dev",
-		"preview": "astro build && wrangler dev"
+		"preview": "astro build && wrangler dev",
+		"migration:check": "wrangler d1 migrations apply mythcanvas-db --local"
 	},
 	"type": "module"
 }

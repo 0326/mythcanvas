@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  updated: string;
+}
+
+const { title, description, updated } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="legal-hero">
+    <div class="container-wide">
+      <span class="eyebrow">Legal</span>
+      <h1>{title}</h1>
+      <p class="legal-updated">最后更新：{updated}</p>
+    </div>
+  </section>
+  <section class="section-compact">
+    <div class="container-wide legal-body">
+      <slot />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-hero { padding-block: clamp(4rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem); border-bottom: 1px solid var(--border); }
+  .legal-hero h1 { margin: 0; font-size: clamp(2.8rem, 5vw, 5rem); }
+  .legal-updated { margin: var(--space-4) 0 0; color: var(--text-muted); font-size: .78rem; }
+  .legal-body { max-width: 760px; }
+</style>

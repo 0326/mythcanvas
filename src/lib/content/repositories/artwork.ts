@@ -22,7 +22,7 @@ export function mapArtworkRow(row: ArtworkRow, characterIds: readonly string[] =
     styleId: String(row.style_id),
     moodIds: parseStringArray(row.mood_ids_json),
     image: {
-      src: String(row.asset_key),
+      src: assetUrl(String(row.asset_key)),
       alt: String(row.alt_text),
       width: Number(row.width),
       height: Number(row.height),
@@ -163,4 +163,14 @@ export async function getArtworksForStyle(
   query: ArtworkListQuery = {},
 ): Promise<Artwork[]> {
   return getArtworks(db, { ...query, styleId });
+}
+
+/** 归一化 asset -> 可访问 delivery URL */
+export function assetUrl(assetKey: string): string {
+  if (!assetKey) return '';
+  // data: 或完整媒体路径直接返回
+  if (assetKey.startsWith('data:') || assetKey.startsWith('/media/')) return assetKey;
+  if (assetKey.startsWith('media/')) return `/${assetKey}`;
+  // 纯 key（generated/... 或 content/...），加 /media/ 前缀
+  return `/media/${assetKey}`;
 }

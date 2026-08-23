@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
+import { SITE_TITLE } from '../../consts';
 import {
   getArtworkBySlug,
   getArtworksForMythology,
@@ -31,6 +32,29 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
   description={`${artwork.title} — ${mythology?.name ?? '神话视觉'} ${realm ? `· ${realm.name}` : ''}，MythCanvas 神话壁纸与视觉作品。`}
   image={artwork.image.src}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ImageObject',
+        name: artwork.title,
+        contentUrl: new URL(artwork.image.src, Astro.site).toString(),
+        description: artwork.image.alt,
+        width: artwork.image.width,
+        height: artwork.image.height,
+        author: { '@type': 'Organization', name: SITE_TITLE },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: new URL('/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 2, name: '探索', item: new URL('/explore/', Astro.site).toString() },
+          { '@type': 'ListItem', position: 3, name: artwork.title },
+        ],
+      },
+    ])} />
+  </Fragment>
   <section class="artwork-detail section-compact">
     <div class="container-wide detail-grid">
       <div class="artwork-stage surface">
@@ -67,10 +91,20 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
         )}
 
         <div class="actions">
-          <a class="btn btn-primary" href={artwork.image.src} download>下载原图</a>
+          <div class="download-group">
+            <a class="btn btn-primary" href={artwork.image.src} download data-download-link data-download-variant="original">下载原图</a>
+            <button class="btn btn-primary download-toggle" type="button" data-download-toggle aria-expanded="false" aria-label="选择下载规格">▾</button>
+            <div class="download-menu" data-download-menu hidden>
+              <button type="button" data-download-option="original">原图（{artwork.image.width}×{artwork.image.height}）</button>
+              <button type="button" data-download-option="hd">HD · 1920 宽</button>
+              <button type="button" data-download-option="2k">2K · 2560 宽</button>
+              <button type="button" data-download-option="4k">4K · 3840 宽</button>
+            </div>
+          </div>
+          <button class="btn btn-secondary" type="button" data-favorite-artwork aria-pressed="false">收藏</button>
           <a class="btn btn-secondary" href="/create/">AI 重绘</a>
         </div>
-        <p class="prototype-note">当前为 MVP 原型素材，正式上线前将接入 R2 高清原图与设备尺寸派生图。</p>
+        <p class="prototype-note">HD / 2K / 4K 为设备尺寸规格；当前 R2 存原图，派生规格将随图片衍生管线上线后自动覆盖。</p>
       </aside>
     </div>
   </section>
@@ -80,13 +114,23 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
       <div>
         <span class="eyebrow">Device Preview</span>
         <h2>下载前，先看看它在屏幕上是什么样</h2>
-        <p>壁纸不是普通图片。后续会根据锁屏时间区、手机比例与 AMOLED 场景生成专用衍生版本。</p>
+        <p>切换锁屏 / 桌面，预览壁纸在设备上的真实效果，再决定下载哪个规格。</p>
+        <div class="preview-switcher" role="group" aria-label="预览设备切换">
+          <button class="is-active" type="button" data-device="phone" aria-pressed="true">手机锁屏</button>
+          <button type="button" data-device="desktop" aria-pressed="false">桌面</button>
+        </div>
       </div>
-      <div class="phone-preview surface">
-        <div class="phone-screen">
-          <img src={artwork.image.src} alt="" width={artwork.image.width} height={artwork.image.height} loading="lazy" />
-          <div class="phone-time"><strong>09:41</strong><span>八月二十三日 · 周日</span></div>
-          <div class="phone-home" aria-hidden="true"></div>
+      <div class="preview-device" data-preview-device="phone">
+        <div class="phone-preview surface">
+          <div class="phone-screen">
+            <img src={artwork.image.src} alt="" width={artwork.image.width} height={artwork.image.height} loading="lazy" />
+            <div class="phone-time"><strong>09:41</strong><span>八月二十三日 · 周日</span></div>
+            <div class="phone-home" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="desktop-preview surface" hidden>
+          <div class="desktop-bar"><div class="desktop-dots"><span></span><span></span><span></span></div></div>
+          <img src={artwork.image.src} alt="" loading="lazy" />
         </div>
       </div>
     </div>
@@ -104,6 +148,110 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
   )}
 </BaseLayout>
 
+<script is:inline>
+  (() => {
+    // —— 下载规格菜单 + 下载统计 ——
+    const toggle = document.querySelector('[data-download-toggle]');
+    const menu = document.querySelector('[data-download-menu]');
+    const link = document.querySelector('[data-download-link]');
+    const artworkId = {artwork.id};
+    if (toggle && menu) {
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const open = menu.hidden;
+        menu.hidden = !open;
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.download-group')) {
+          menu.hidden = true;
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+    if (link) {
+      link.addEventListener('click', () => { recordDownload('original'); });
+    }
+    menu?.querySelectorAll('[data-download-option]').forEach((opt) => {
+      opt.addEventListener('click', () => {
+        const variant = opt.dataset.downloadOption;
+        menu.hidden = true;
+        toggle?.setAttribute('aria-expanded', 'false');
+        if (link) {
+          link.setAttribute('data-download-variant', variant);
+          link.href = link.href.split('#')[0];
+          link.textContent = `下载 ${opt.textContent.trim()}`;
+        }
+        recordDownload(variant);
+      });
+    });
+    async function recordDownload(variant) {
+      try {
+        await fetch('/api/download', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ artworkId, variant }),
+        });
+      } catch { /* 统计失败不影响下载 */ }
+    }
+
+    // —— Device Preview 切换 ——
+    const device = document.querySelector('[data-preview-device]');
+    const swipe = document.querySelectorAll('[data-device]');
+    swipe.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.device;
+        swipe.forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        if (device) device.dataset.previewDevice = mode;
+        if (device) {
+          const phone = device.querySelector('.phone-preview');
+          const desktop = device.querySelector('.desktop-preview');
+          if (phone) phone.hidden = mode !== 'phone';
+          if (desktop) desktop.hidden = mode !== 'desktop';
+        }
+      });
+    });
+
+    // —— 收藏 ——
+    const favBtn = document.querySelector('[data-favorite-artwork]');
+    if (favBtn) {
+      const loadState = async () => {
+        try {
+          const res = await fetch('/api/favorite?type=artwork');
+          const data = await res.json();
+          if (Array.isArray(data.ids) && data.ids.includes(artworkId)) {
+            favBtn.textContent = '已收藏';
+            favBtn.setAttribute('aria-pressed', 'true');
+          }
+        } catch { /* ignore */ }
+      };
+      favBtn.addEventListener('click', async () => {
+        const favorited = favBtn.getAttribute('aria-pressed') === 'true';
+        try {
+          const res = await fetch('/api/favorite', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ targetType: 'artwork', targetId: artworkId, action: favorited ? 'remove' : 'add' }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            if (data.favorited) { favBtn.textContent = '已收藏'; favBtn.setAttribute('aria-pressed', 'true'); }
+            else { favBtn.textContent = '收藏'; favBtn.setAttribute('aria-pressed', 'false'); }
+          } else {
+            favBtn.textContent = '请先设置昵称登录';
+            favBtn.disabled = true;
+          }
+        } catch { favBtn.textContent = '收藏失败'; }
+      });
+      loadState();
+    }
+  })();
+</script>
+
 <style>
   .detail-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(320px, .65fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; }
   .artwork-stage { position: sticky; top: calc(var(--header-height) + 24px); overflow: hidden; min-height: 620px; display: grid; place-items: center; padding: clamp(1rem, 3vw, 2rem); border-radius: var(--radius-xl); }
@@ -119,11 +267,21 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
   .related-entities { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-6); }
   .related-entities > span { color: var(--text-muted); font-size: .74rem; }
   .related-entities a { padding: .28rem .58rem; border: 1px solid var(--border); border-radius: var(--radius-pill); color: var(--text-secondary); font-size: .78rem; }
-  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-8); }
+  .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); margin-top: var(--space-8); }
+  .download-group { position: relative; display: flex; }
+  .download-group .btn:first-child { flex: 1 1 auto; min-width: 0; }
+  .download-toggle { flex: 0 0 40px; padding-inline: 0; }
+  .download-menu { position: absolute; top: calc(100% + 6px); right: 0; left: 0; z-index: 20; display: grid; gap: 2px; padding: var(--space-2); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-strong); box-shadow: var(--shadow-md); }
+  .download-menu button { padding: var(--space-3) var(--space-2); border: 0; border-radius: 6px; color: var(--text-secondary); background: transparent; text-align: left; cursor: pointer; font-size: .78rem; }
+  .download-menu button:hover { color: var(--text-primary); background: var(--surface-muted); }
   .prototype-note { margin-top: var(--space-4); color: var(--text-muted); font-size: .72rem; }
   .device-section { border-block: 1px solid var(--border); background: color-mix(in srgb, var(--bg-secondary) 66%, transparent); }
   .preview-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: var(--space-12); align-items: center; }
   .preview-grid > div:first-child p { max-width: 38rem; color: var(--text-secondary); }
+  .preview-switcher { display: flex; gap: var(--space-2); margin-top: var(--space-5); }
+  .preview-switcher button { min-height: 36px; padding: 0 var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-pill); color: var(--text-secondary); background: var(--surface); cursor: pointer; font-size: .76rem; }
+  .preview-switcher button.is-active { color: var(--text-primary); border-color: var(--border-strong); background: var(--surface-strong); }
+  .preview-device { display: grid; justify-items: center; }
   .phone-preview { width: min(360px, 78vw); margin-inline: auto; padding: 12px; border-radius: 42px; }
   .phone-screen { position: relative; aspect-ratio: 9 / 19.5; overflow: hidden; border-radius: 32px; background: var(--bg-secondary); }
   .phone-screen img { width: 100%; height: 100%; object-fit: cover; }
@@ -132,6 +290,11 @@ const realm = artwork.realmId ? realmsById.get(artwork.realmId) : undefined;
   .phone-time strong { font-family: var(--font-sans); font-size: 3rem; line-height: 1; }
   .phone-time span { margin-top: var(--space-2); font-size: .7rem; }
   .phone-home { position: absolute; z-index: 2; bottom: 10px; left: 50%; width: 96px; height: 4px; border-radius: 99px; background: rgba(255,255,255,.86); transform: translateX(-50%); }
+  .desktop-preview { width: min(640px, 90vw); overflow: hidden; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+  .desktop-bar { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); background: var(--surface-strong); }
+  .desktop-dots { display: flex; gap: 6px; }
+  .desktop-dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); }
+  .desktop-preview img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
   .related-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); }
   @media (max-width: 980px) { .detail-grid { grid-template-columns: 1fr; } .artwork-stage { position: relative; top: auto; min-height: 0; } .preview-grid { grid-template-columns: 1fr; } .related-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 560px) { .actions { grid-template-columns: 1fr; } .meta-grid { grid-template-columns: 1fr; } }

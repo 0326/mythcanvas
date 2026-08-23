@@ -16,6 +16,7 @@ const { title, description, image = '/media/content/chinese-celestial.svg' } = A
 <meta name="theme-color" content="#fbf7ed" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#08131f" media="(prefers-color-scheme: dark)" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="manifest" href="/manifest.webmanifest" />
 <meta name="generator" content={Astro.generator} />
 
 <script is:inline>
@@ -29,6 +30,16 @@ const { title, description, image = '/media/content/chinese-celestial.svg' } = A
       document.documentElement.style.colorScheme = theme;
     } catch {
       document.documentElement.dataset.theme = 'light';
+    }
+  })();
+</script>
+
+<script is:inline>
+  (() => {
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
     }
   })();
 </script>

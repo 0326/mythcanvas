@@ -1,0 +1,17 @@
+{
+  "name": "绘神宇宙 MythCanvas",
+  "short_name": "MythCanvas",
+  "description": "用 AI 重现神话世界。探索神祇、神域、神兽与神话场景，收藏壁纸并创造你的神话视觉。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf7ed",
+  "theme_color": "#fbf7ed",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

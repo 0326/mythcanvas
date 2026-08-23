@@ -25,6 +25,14 @@ const pageTitle = title ? `${title} · ${SITE_TITLE}` : SITE_TITLE;
 <html lang="zh-CN">
   <head>
     <BaseHead title={pageTitle} description={description} image={image} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: SITE_TITLE,
+      url: Astro.site?.toString(),
+      description: SITE_DESCRIPTION,
+      inLanguage: 'zh-CN',
+    })} />
     <slot name="head" />
   </head>
   <body>

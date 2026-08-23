@@ -2,9 +2,11 @@ declare namespace Cloudflare {
   interface Env {
     DB?: D1Database;
     ARTWORKS?: R2Bucket;
+    SESSION?: KVNamespace;
     AI_GENERATION_MODE?: 'mock' | 'http';
     AI_PROVIDER_ENDPOINT?: string;
     AI_PROVIDER_API_KEY?: string;
+    ADMIN_TOKEN?: string;
   }
 }
 

@@ -1,14 +1,14 @@
 import type { GenerationJob } from '../generation/types';
 
-export async function insertGenerationJob(db: D1Database | undefined, job: GenerationJob): Promise<boolean> {
+export async function insertGenerationJob(db: D1Database | undefined, job: GenerationJob, userId?: string): Promise<boolean> {
   if (!db) return false;
 
   await db.prepare(`
     INSERT INTO generation_jobs (
       id, status, entity_type, entity_id, mythology_id, style_id, scene, composition, ratio,
       description, prompt, provider, provider_request_id, asset_key, asset_mime, asset_width,
-      asset_height, error_code, error_message, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      asset_height, error_code, error_message, source_generation_id, is_public, user_id, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     job.id,
     job.status,
@@ -29,11 +29,35 @@ export async function insertGenerationJob(db: D1Database | undefined, job: Gener
     job.assetHeight ?? null,
     job.errorCode ?? null,
     job.errorMessage ?? null,
+    job.sourceGenerationId ?? null,
+    job.isPublic ? 1 : 0,
+    userId ?? null,
     job.createdAt,
     job.updatedAt,
   ).run();
 
   return true;
+}
+
+/** 列出某个用户最近的生成记录（已完成 ≥ succeeded 优先，含素材） */
+export async function listGenerationsByUser(
+  db: D1Database | undefined,
+  userId: string,
+  limit = 50,
+): Promise<GenerationJob[]> {
+  if (!db) return [];
+  const rows = await db
+    .prepare(`
+      SELECT id, status, entity_type, entity_id, mythology_id, style_id, scene, composition, ratio,
+             description, prompt, provider, provider_request_id, asset_key, asset_mime, asset_width,
+             asset_height, error_code, error_message, source_generation_id, is_public, created_at, updated_at
+      FROM generation_jobs
+      WHERE user_id = ?
+      ORDER BY created_at DESC LIMIT ?
+    `)
+    .bind(userId, String(limit))
+    .all();
+  return rows.results.map(mapJobRow);
 }
 
 export async function markGenerationGenerating(
@@ -98,12 +122,16 @@ export async function getGenerationJob(db: D1Database | undefined, id: string): 
   const row = await db.prepare(`
     SELECT id, status, entity_type, entity_id, mythology_id, style_id, scene, composition, ratio,
            description, prompt, provider, provider_request_id, asset_key, asset_mime, asset_width,
-           asset_height, error_code, error_message, created_at, updated_at
+           asset_height, error_code, error_message, source_generation_id, is_public, created_at, updated_at
     FROM generation_jobs
     WHERE id = ?
   `).bind(id).first<Record<string, unknown>>();
 
   if (!row) return null;
+  return mapJobRow(row);
+}
+
+function mapJobRow(row: Record<string, unknown>): GenerationJob {
   return {
     id: String(row.id),
     status: String(row.status) as GenerationJob['status'],
@@ -124,6 +152,8 @@ export async function getGenerationJob(db: D1Database | undefined, id: string): 
     assetHeight: optionalNumber(row.asset_height),
     errorCode: optionalString(row.error_code),
     errorMessage: optionalString(row.error_message),
+    sourceGenerationId: optionalString(row.source_generation_id),
+    isPublic: Number(row.is_public) === 1,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   };
