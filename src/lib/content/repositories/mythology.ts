@@ -1,4 +1,4 @@
-import { mythologies as seedMythologies } from '../../../data/seed';
+import { mythologies as seedMythologies } from '../../../data/mythologies';
 import type { Mythology } from '../types';
 import { optionalNumber, optionalString, pageClause, parseJson } from './shared';
 import type { EntityListQuery } from './types';
@@ -6,8 +6,9 @@ import type { EntityListQuery } from './types';
 type MythologyRow = Record<string, unknown>;
 
 const SELECT_COLUMNS = `
-  id, slug, name, name_en, summary, visual_dna_json,
-  hero_src, hero_alt, hero_width, hero_height
+  id, slug, name, name_en, tagline, summary, display_order, visual_dna_json,
+  hero_src, hero_alt, hero_width, hero_height,
+  home_hero_light_src, home_hero_dark_src
 `;
 
 export function mapMythologyRow(row: MythologyRow): Mythology {
@@ -16,13 +17,19 @@ export function mapMythologyRow(row: MythologyRow): Mythology {
     slug: String(row.slug),
     name: String(row.name),
     nameEn: String(row.name_en),
+    tagline: optionalString(row.tagline) ?? '',
     summary: String(row.summary),
+    displayOrder: optionalNumber(row.display_order) ?? 999,
     visualDna: parseJson(row.visual_dna_json, { palette: [], motifs: [], materials: [], atmosphere: [] }),
     heroImage: {
-      src: String(row.hero_src ?? '/media/content/chinese-celestial.svg'),
-      alt: String(row.hero_alt ?? ''),
+      src: optionalString(row.hero_src) ?? '/art/mythology-placeholder.svg',
+      alt: optionalString(row.hero_alt) ?? '',
       width: optionalNumber(row.hero_width) ?? 1600,
       height: optionalNumber(row.hero_height) ?? 900,
+    },
+    homeHero: {
+      lightSrc: optionalString(row.home_hero_light_src),
+      darkSrc: optionalString(row.home_hero_dark_src),
     },
   };
 }
@@ -33,7 +40,7 @@ export async function getMythologies(db: D1Database | undefined, query: EntityLi
     return seedMythologies.slice(offset, offset + limit);
   }
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
-  const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM mythologies${where} ORDER BY name`).all();
+  const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM mythologies${where} ORDER BY display_order, name`).all();
   return rows.results.map(mapMythologyRow);
 }
 
