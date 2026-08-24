@@ -8,7 +8,7 @@ type MythologyRow = Record<string, unknown>;
 const SELECT_COLUMNS = `
   id, slug, name, name_en, tagline, summary, display_order, visual_dna_json,
   hero_src, hero_alt, hero_width, hero_height,
-  home_hero_light_src, home_hero_dark_src
+  home_hero_light_src, home_hero_dark_src, home_hero_focal_x, home_hero_focal_y
 `;
 
 export function mapMythologyRow(row: MythologyRow): Mythology {
@@ -30,6 +30,10 @@ export function mapMythologyRow(row: MythologyRow): Mythology {
     homeHero: {
       lightSrc: optionalString(row.home_hero_light_src),
       darkSrc: optionalString(row.home_hero_dark_src),
+      focalPoint: {
+        x: optionalNumber(row.home_hero_focal_x) ?? 0.5,
+        y: optionalNumber(row.home_hero_focal_y) ?? 0.5,
+      },
     },
   };
 }
