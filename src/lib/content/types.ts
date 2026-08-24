@@ -22,9 +22,15 @@ export type ImageAsset = {
   height: number;
 };
 
+export type ImageFocalPoint = {
+  x: number;
+  y: number;
+};
+
 export type ThemeHeroSet = {
   lightSrc?: string;
   darkSrc?: string;
+  focalPoint?: ImageFocalPoint;
 };
 
 export type LicenseMeta = {
