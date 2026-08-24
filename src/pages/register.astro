@@ -9,44 +9,56 @@ const redirectTarget = safeRedirect(Astro.url.searchParams.get('redirect'));
 <BaseLayout
   title="注册 · 绘神宇宙"
   description="注册 MythCanvas 绘神宇宙账号，保存你的神话壁纸、收藏与 AI 创作。"
+  fullBleed
+  immersiveHeader
+  hideFooter
+  image="/bg.png"
 >
-  <section class="auth-hero">
-    <div class="container-narrow">
-      <span class="eyebrow">创建你的账号</span>
-      <h1>开启你的神话宇宙</h1>
-      <p class="auth-sub">填写邮箱和密码，再输入邮箱验证码完成注册。以后可以直接使用密码登录。</p>
+  <section class="auth-page-shell" data-redirect={redirectTarget} aria-labelledby="register-title">
+    <div class="auth-page-backdrop" aria-hidden="true">
+      <img class="auth-page-backdrop-light" src="/bg.png" alt="" width="2560" height="1440" fetchpriority="high" />
+      <img class="auth-page-backdrop-dark" src="/bg-dark.png" alt="" width="2560" height="1440" />
     </div>
-  </section>
+    <div class="auth-page-veil" aria-hidden="true"></div>
 
-  <section class="auth-section" data-redirect={redirectTarget}>
-    <div class="container-narrow">
-      <div class="surface auth-card">
-        <form class="auth-form" data-register-form>
-          <label class="field">
-            <span class="field-label">邮箱</span>
-            <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="你的邮箱地址" aria-label="邮箱地址" />
-          </label>
-          <label class="field">
-            <span class="field-label">密码</span>
-            <input type="password" name="password" autocomplete="new-password" minlength="8" required placeholder="至少 8 位密码" aria-label="密码" />
-          </label>
-          <label class="field">
-            <span class="field-label">确认密码</span>
-            <input type="password" name="confirmPassword" autocomplete="new-password" minlength="8" required placeholder="再次输入密码" aria-label="确认密码" />
-          </label>
-          <div class="code-row">
+    <div class="auth-page-stage">
+      <div class="auth-page-content">
+        <div class="auth-page-panel">
+          <span class="auth-page-kicker">MYTHCANVAS · 创建账号</span>
+          <h1 id="register-title">创建账号</h1>
+          <p class="auth-page-lede">填写邮箱、密码和验证码，注册后可直接使用密码登录。</p>
+
+          <form class="auth-form" data-register-form>
             <label class="field">
-              <span class="field-label">邮箱验证码</span>
-              <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required placeholder="6 位数字" aria-label="邮箱验证码" />
+              <span class="field-label">邮箱</span>
+              <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="你的邮箱地址" aria-label="邮箱地址" />
             </label>
-            <button class="btn btn-secondary code-button" type="button" data-send-code>发送验证码</button>
-          </div>
-          <button class="btn btn-primary" type="submit" data-submit>完成注册</button>
-          <p class="auth-legal">注册即表示你同意<a href="/terms/">服务条款</a>和<a href="/privacy/">隐私政策</a>。</p>
-          <p class="auth-switch">已有账号？<a href={`/login/?redirect=${encodeURIComponent(redirectTarget)}`}>直接登录</a></p>
-        </form>
-        <div class="auth-status" data-status role="alert" aria-live="assertive" hidden></div>
+            <label class="field">
+              <span class="field-label">密码</span>
+              <input type="password" name="password" autocomplete="new-password" minlength="8" required placeholder="至少 8 位密码" aria-label="密码" />
+            </label>
+            <label class="field">
+              <span class="field-label">确认密码</span>
+              <input type="password" name="confirmPassword" autocomplete="new-password" minlength="8" required placeholder="再次输入密码" aria-label="确认密码" />
+            </label>
+            <div class="code-row">
+              <label class="field">
+                <span class="field-label">邮箱验证码</span>
+                <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required placeholder="6 位数字" aria-label="邮箱验证码" />
+              </label>
+              <button class="auth-code-button" type="button" data-send-code>发送验证码</button>
+            </div>
+            <p class="auth-note">验证码 10 分钟内有效，发送后 60 秒可再次获取。</p>
+            <button class="auth-submit" type="submit" data-submit>完成注册</button>
+            <p class="auth-legal">注册即表示你同意<a href="/terms/">服务条款</a>和<a href="/privacy/">隐私政策</a>。</p>
+            <div class="auth-links auth-links--single">
+              <a href={`/login/?redirect=${encodeURIComponent(redirectTarget)}`}>已有账号？直接登录</a>
+            </div>
+          </form>
+          <div class="auth-status" data-status role="alert" aria-live="assertive" hidden></div>
+        </div>
       </div>
+      <div class="auth-page-visual-space" aria-hidden="true"></div>
     </div>
   </section>
 </BaseLayout>
@@ -151,24 +163,3 @@ const redirectTarget = safeRedirect(Astro.url.searchParams.get('redirect'));
     statusEl.textContent = message;
   }
 </script>
-
-<style>
-  .container-narrow { width: min(100% - 40px, 480px); margin-inline: auto; }
-  .auth-hero { padding: var(--space-16) 0 var(--space-8); text-align: center; }
-  .auth-hero h1 { margin: var(--space-3) 0 var(--space-4); font-size: clamp(1.75rem, 3vw, 2.4rem); }
-  .auth-sub { max-width: 32rem; margin: 0 auto; color: var(--text-secondary); line-height: 1.7; }
-  .auth-section { padding: var(--space-6) 0 var(--space-20); }
-  .auth-card { padding: var(--space-8); border-radius: var(--radius-lg); }
-  .auth-form { display: grid; gap: var(--space-4); }
-  .field { display: grid; gap: var(--space-2); min-width: 0; }
-  .field-label { color: var(--text-secondary); font-size: .85rem; font-weight: 650; }
-  .field input { width: 100%; min-height: 46px; padding: .7rem .8rem; border: 1px solid var(--border-strong); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface-muted); }
-  .code-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3); align-items: end; }
-  .code-button { min-width: 9.5rem; white-space: nowrap; }
-  .auth-legal, .auth-switch { margin: 0; color: var(--text-muted); font-size: .78rem; line-height: 1.6; }
-  .auth-legal a, .auth-switch a { color: var(--accent-strong); text-decoration: none; }
-  .auth-status { margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-md); color: var(--text-primary); font-size: .85rem; line-height: 1.6; }
-  .auth-status[data-kind='ok'] { background: color-mix(in srgb, var(--success) 14%, transparent); }
-  .auth-status[data-kind='error'] { background: color-mix(in srgb, var(--danger) 14%, transparent); }
-  @media (max-width: 560px) { .auth-card { padding: var(--space-6); } .code-row { grid-template-columns: 1fr; } .code-button { width: 100%; } }
-</style>
