@@ -22,6 +22,11 @@ export type ImageAsset = {
   height: number;
 };
 
+export type ThemeHeroSet = {
+  lightSrc?: string;
+  darkSrc?: string;
+};
+
 export type LicenseMeta = {
   sourceType: 'prototype' | 'platform' | 'creator' | 'public-domain';
   license: string;
@@ -33,9 +38,12 @@ export type Mythology = {
   slug: string;
   name: string;
   nameEn: string;
+  tagline: string;
   summary: string;
+  displayOrder: number;
   visualDna: VisualDNA;
   heroImage: ImageAsset;
+  homeHero: ThemeHeroSet;
 };
 
 export type World = {
