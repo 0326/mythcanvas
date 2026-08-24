@@ -12,72 +12,84 @@ const isLoggedIn = Boolean(currentUser && !currentUser.isGuest);
 ---
 
 <BaseLayout
-  title="登录 · 绘神宇宙"
+  title="登录"
   description="登录 MythCanvas 绘神宇宙，保存你的神话壁纸、收藏与 AI 创作。"
+  fullBleed
+  immersiveHeader
+  hideFooter
+  image="/bg.png"
 >
-  <section class="auth-hero">
-    <div class="container-narrow">
-      <span class="eyebrow">进入 MythCanvas</span>
-      <h1>回到你的神话宇宙</h1>
-      <p class="auth-sub">可以使用邮箱验证码或邮箱密码登录。注册时只需验证一次邮箱，之后可自由选择登录方式。</p>
+  <section class="login-shell" data-redirect={redirectTarget} aria-labelledby="login-title">
+    <div class="login-backdrop" aria-hidden="true">
+      <img class="login-backdrop-light" src="/bg.png" alt="" width="2560" height="1440" fetchpriority="high" />
+      <img class="login-backdrop-dark" src="/bg-dark.png" alt="" width="2560" height="1440" />
     </div>
-  </section>
+    <div class="login-veil" aria-hidden="true"></div>
 
-  <section class="auth-section" data-redirect={redirectTarget}>
-    <div class="container-narrow">
-      {isLoggedIn ? (
-        <div class="surface auth-card" data-state="logged-in">
-          <p class="auth-done">当前账号：<strong>{currentUser!.email ?? currentUser!.nickname}</strong></p>
-          <a class="btn btn-primary" href={redirectTarget}>继续进入</a>
-          <button class="auth-link-button" type="button" data-logout>退出当前账号</button>
-          <div class="auth-status" data-status role="status" aria-live="polite" hidden></div>
-        </div>
-      ) : (
-        <div class="surface auth-card">
-          <div class="auth-switch" role="tablist" aria-label="登录方式">
-            <button class="auth-switch-button is-active" type="button" role="tab" aria-selected="true" data-login-mode="password">密码登录</button>
-            <button class="auth-switch-button" type="button" role="tab" aria-selected="false" data-login-mode="otp">邮箱验证码登录</button>
+    <div class="login-stage">
+      <div class="login-content">
+        {isLoggedIn ? (
+          <div class="login-panel" data-state="logged-in">
+            <span class="login-kicker">MYTHCANVAS · 我的宇宙</span>
+            <h1 id="login-title">欢迎回来</h1>
+            <p class="login-lede">继续探索属于你的神话世界。</p>
+            <p class="auth-done">当前账号：<strong>{currentUser!.email ?? currentUser!.nickname}</strong></p>
+            <a class="auth-submit" href={redirectTarget}>继续进入</a>
+            <button class="auth-link-button" type="button" data-logout>退出当前账号</button>
+            <div class="auth-status" data-status role="status" aria-live="polite" hidden></div>
           </div>
+        ) : (
+          <div class="login-panel">
+            <span class="login-kicker">MYTHCANVAS · 账号登录</span>
+            <h1 id="login-title">欢迎回来</h1>
+            <p class="login-lede">回到你的神话宇宙，继续探索与创作。</p>
 
-          <form class="auth-form" data-login-password>
-            <label class="field">
-              <span class="field-label">邮箱</span>
-              <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="你的邮箱地址" aria-label="邮箱地址" />
-            </label>
-            <label class="field">
-              <span class="field-label">密码</span>
-              <input type="password" name="password" autocomplete="current-password" required minlength="8" placeholder="至少 8 位密码" aria-label="密码" />
-            </label>
-            <button class="btn btn-primary" type="submit" data-submit>登录</button>
-            <div class="auth-links">
-              <a href="/register/">注册账号</a>
-              <a href="/password/">忘记密码 / 首次设置密码</a>
+            <div class="auth-switch" role="tablist" aria-label="登录方式">
+              <button class="auth-switch-button is-active" type="button" role="tab" aria-selected="true" data-login-mode="password">密码登录</button>
+              <button class="auth-switch-button" type="button" role="tab" aria-selected="false" data-login-mode="otp">邮箱验证码登录</button>
             </div>
-          </form>
 
-          <form class="auth-form" data-login-otp hidden>
-            <label class="field">
-              <span class="field-label">邮箱</span>
-              <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="你的邮箱地址" aria-label="验证码登录邮箱" />
-            </label>
-            <div class="code-row">
+            <form class="auth-form" data-login-password>
               <label class="field">
-                <span class="field-label">邮箱验证码</span>
-                <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required placeholder="6 位验证码" aria-label="邮箱验证码" />
+                <span class="field-label">邮箱</span>
+                <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="你的邮箱地址" aria-label="邮箱地址" />
               </label>
-              <button class="btn btn-secondary code-button" type="button" data-send-code>发送验证码</button>
-            </div>
-            <p class="auth-note">验证码 10 分钟内有效，发送后 60 秒可再次获取。</p>
-            <button class="btn btn-primary" type="submit" data-otp-submit>登录</button>
-            <div class="auth-links">
-              <a href="/register/">注册账号</a>
-              <a href="/password/">设置或重置密码</a>
-            </div>
-          </form>
+              <label class="field">
+                <span class="field-label">密码</span>
+                <input type="password" name="password" autocomplete="current-password" required minlength="8" placeholder="至少 8 位密码" aria-label="密码" />
+              </label>
+              <button class="auth-submit" type="submit" data-submit>登录</button>
+              <div class="auth-links">
+                <a href="/register/">注册账号</a>
+                <a href="/password/">忘记密码 / 首次设置密码</a>
+              </div>
+            </form>
 
-          <div class="auth-status" data-status role="alert" aria-live="assertive" hidden></div>
-        </div>
-      )}
+            <form class="auth-form" data-login-otp hidden>
+              <label class="field">
+                <span class="field-label">邮箱</span>
+                <input type="email" name="email" inputmode="email" autocomplete="email" required placeholder="你的邮箱地址" aria-label="验证码登录邮箱" />
+              </label>
+              <div class="code-row">
+                <label class="field">
+                  <span class="field-label">邮箱验证码</span>
+                  <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required placeholder="6 位验证码" aria-label="邮箱验证码" />
+                </label>
+                <button class="auth-code-button" type="button" data-send-code>发送验证码</button>
+              </div>
+              <p class="auth-note">验证码 10 分钟内有效，发送后 60 秒可再次获取。</p>
+              <button class="auth-submit" type="submit" data-otp-submit>登录</button>
+              <div class="auth-links">
+                <a href="/register/">注册账号</a>
+                <a href="/password/">设置或重置密码</a>
+              </div>
+            </form>
+
+            <div class="auth-status" data-status role="alert" aria-live="assertive" hidden></div>
+          </div>
+        )}
+      </div>
+      <div class="login-visual-space" aria-hidden="true"></div>
     </div>
   </section>
 </BaseLayout>
@@ -228,34 +240,187 @@ const isLoggedIn = Boolean(currentUser && !currentUser.isGuest);
 </script>
 
 <style>
-  .container-narrow { width: min(100% - 40px, 480px); margin-inline: auto; }
-  .auth-hero { padding: var(--space-16) 0 var(--space-8); text-align: center; }
-  .auth-hero h1 { margin: var(--space-3) 0 var(--space-4); font-size: clamp(1.75rem, 3vw, 2.4rem); }
-  .auth-sub { max-width: 34rem; margin: 0 auto; color: var(--text-secondary); line-height: 1.7; }
-  .auth-section { padding: var(--space-6) 0 var(--space-20); }
-  .auth-card { padding: var(--space-8); border-radius: var(--radius-lg); }
-  .auth-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: var(--space-6); padding: 4px; border-radius: var(--radius-md); background: var(--surface-muted); }
-  .auth-switch-button { min-height: 40px; border: 0; border-radius: calc(var(--radius-md) - 2px); color: var(--text-secondary); background: transparent; cursor: pointer; font: inherit; font-size: .88rem; }
-  .auth-switch-button.is-active { color: var(--text-primary); background: var(--surface); box-shadow: var(--shadow-sm); }
-  .auth-form { display: grid; gap: var(--space-4); }
-  .field { display: grid; gap: var(--space-2); }
-  .field-label { color: var(--text-secondary); font-size: .85rem; font-weight: 650; }
-  .field input { width: 100%; min-height: 46px; padding: .7rem .8rem; border: 1px solid var(--border-strong); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface-muted); }
-  .code-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-3); }
-  .code-button { min-height: 46px; white-space: nowrap; }
-  .auth-note { margin: calc(var(--space-2) * -1) 0 0; color: var(--text-tertiary); font-size: .78rem; line-height: 1.5; }
-  .auth-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3); font-size: .82rem; }
+  .login-shell {
+    position: relative;
+    min-height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--bg-primary);
+  }
+
+  .login-backdrop,
+  .login-backdrop img,
+  .login-veil {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .login-backdrop { z-index: -3; overflow: hidden; }
+  .login-backdrop img { object-fit: cover; object-position: center center; filter: saturate(1.05) contrast(1.02); }
+  .login-backdrop-dark { opacity: 0; }
+
+  .login-veil {
+    z-index: -2;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--bg-primary) 100%, transparent) 0%,
+      color-mix(in srgb, var(--bg-primary) 94%, transparent) 31%,
+      color-mix(in srgb, var(--bg-primary) 58%, transparent) 50%,
+      color-mix(in srgb, var(--bg-primary) 10%, transparent) 69%,
+      transparent 100%
+    );
+  }
+
+  :global([data-theme='dark']) .login-backdrop-light { opacity: 0; }
+  :global([data-theme='dark']) .login-backdrop-dark { opacity: 1; }
+
+  .login-stage {
+    display: grid;
+    grid-template-columns: minmax(360px, 540px) minmax(0, 1fr);
+    min-height: 100svh;
+    padding: clamp(5.6rem, 12vh, 8.5rem) clamp(1.5rem, 7.6vw, 9rem) clamp(2.5rem, 7vh, 5rem);
+  }
+
+  .login-content {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .login-panel {
+    width: min(100%, 360px);
+    padding-block: var(--space-4);
+  }
+
+  .login-kicker {
+    display: block;
+    margin-bottom: var(--space-4);
+    color: var(--accent-strong);
+    font-size: .72rem;
+    font-weight: 750;
+    letter-spacing: .18em;
+  }
+
+  .login-panel h1 {
+    margin: 0 0 var(--space-3);
+    color: var(--text-primary);
+    font-size: clamp(2.7rem, 4.8vw, 4.9rem);
+    line-height: 1.04;
+  }
+
+  .login-lede {
+    margin-bottom: clamp(1.8rem, 4vh, 3rem);
+    color: var(--text-secondary);
+    font-family: var(--font-literary);
+    font-size: clamp(.95rem, 1.2vw, 1.08rem);
+    letter-spacing: .04em;
+  }
+
+  .auth-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    width: 100%;
+    margin-bottom: clamp(1.35rem, 3.2vh, 2.4rem);
+    padding: 3px;
+    border: 1px solid color-mix(in srgb, var(--border-strong) 56%, transparent);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--surface-muted) 72%, transparent);
+  }
+
+  .auth-switch-button {
+    min-height: 42px;
+    border: 0;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    font-size: .86rem;
+    transition: color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .auth-switch-button.is-active {
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--surface-strong) 86%, transparent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .auth-form { display: grid; gap: clamp(.8rem, 1.8vh, 1.2rem); }
+  .auth-form[hidden] { display: none; }
+  .field { display: grid; gap: .45rem; }
+  .field-label { color: var(--text-secondary); font-size: .82rem; font-weight: 650; }
+  .field input {
+    width: 100%;
+    min-height: 49px;
+    padding: .7rem .85rem;
+    border: 1px solid color-mix(in srgb, var(--border-strong) 70%, transparent);
+    border-radius: 6px;
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--surface-muted) 68%, transparent);
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  }
+
+  .field input::placeholder { color: var(--text-muted); }
+  .field input:focus { border-color: var(--focus); background: color-mix(in srgb, var(--surface-strong) 62%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 16%, transparent); }
+  .auth-submit {
+    display: inline-flex;
+    width: 100%;
+    min-height: 50px;
+    align-items: center;
+    justify-content: center;
+    margin-top: .25rem;
+    border: 1px solid color-mix(in srgb, var(--accent-strong) 78%, transparent);
+    border-radius: 6px;
+    color: var(--text-inverse);
+    background: linear-gradient(105deg, var(--accent-strong), var(--accent));
+    box-shadow: 0 12px 30px color-mix(in srgb, var(--accent-strong) 20%, transparent);
+    cursor: pointer;
+    font: inherit;
+    font-size: .95rem;
+    font-weight: 750;
+    text-decoration: none;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+  }
+
+  .auth-submit:hover, .auth-submit:focus-visible { filter: saturate(1.06); box-shadow: 0 15px 34px color-mix(in srgb, var(--accent-strong) 28%, transparent); transform: translateY(-1px); }
+  .auth-submit:disabled, .auth-code-button:disabled { cursor: wait; opacity: .66; transform: none; }
+  .auth-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; margin-top: .1rem; font-size: .78rem; }
   .auth-links a, .auth-link-button { color: var(--accent-strong); text-decoration: none; }
-  .auth-link-button { display: block; margin: var(--space-4) auto 0; border: 0; padding: 0; background: transparent; cursor: pointer; font-size: .82rem; }
-  .auth-status { margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-md); color: var(--text-primary); font-size: .85rem; line-height: 1.6; }
+  .auth-links a:hover, .auth-link-button:hover { color: var(--text-primary); }
+  .auth-link-button { display: block; margin-top: var(--space-5); border: 0; padding: 0; background: transparent; cursor: pointer; font: inherit; font-size: .8rem; }
+  .code-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: .7rem; }
+  .auth-code-button { min-height: 49px; padding-inline: 1rem; border: 1px solid var(--border-strong); border-radius: 6px; color: var(--accent-strong); background: color-mix(in srgb, var(--surface-strong) 72%, transparent); cursor: pointer; font: inherit; font-size: .8rem; font-weight: 700; white-space: nowrap; }
+  .auth-note { margin: -.2rem 0 .05rem; color: var(--text-muted); font-size: .74rem; line-height: 1.5; }
+  .auth-status { margin-top: .85rem; padding: .7rem .8rem; border-radius: 6px; color: var(--text-primary); background: color-mix(in srgb, var(--surface-strong) 52%, transparent); font-size: .78rem; line-height: 1.5; }
   .auth-status[data-kind='ok'] { background: color-mix(in srgb, var(--success) 14%, transparent); }
   .auth-status[data-kind='error'] { background: color-mix(in srgb, var(--danger) 14%, transparent); }
-  .auth-done { margin: 0; color: var(--text-primary); line-height: 1.7; }
-  .auth-done + .btn { width: 100%; margin-top: var(--space-5); }
+  .auth-done { margin: 0 0 var(--space-5); color: var(--text-primary); line-height: 1.7; }
+  .login-visual-space { min-width: 0; }
+
+  @media (max-width: 820px) {
+    .login-shell { overflow: auto; }
+    .login-veil { background: linear-gradient(180deg, color-mix(in srgb, var(--bg-primary) 94%, transparent) 0%, color-mix(in srgb, var(--bg-primary) 82%, transparent) 56%, color-mix(in srgb, var(--bg-primary) 55%, transparent) 100%); }
+    .login-stage { display: block; min-height: 100svh; padding: 6.2rem 1.25rem 2.5rem; }
+    .login-content { min-height: calc(100svh - 8.7rem); align-items: center; }
+    .login-panel { width: min(100%, 540px); margin-inline: auto; }
+    .login-visual-space { display: none; }
+  }
+
   @media (max-width: 560px) {
-    .auth-card { padding: var(--space-6); }
-    .auth-links { justify-content: flex-start; }
+    .login-stage { padding-inline: 1rem; }
+    .login-panel h1 { font-size: clamp(2.45rem, 12vw, 3.4rem); }
+    .login-lede { margin-bottom: 1.5rem; }
     .code-row { grid-template-columns: 1fr; }
-    .code-button { width: 100%; }
+    .auth-code-button { width: 100%; }
+    .auth-links { justify-content: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .auth-switch-button, .field input, .auth-submit { transition: none; }
   }
 </style>
