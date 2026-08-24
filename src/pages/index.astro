@@ -2,6 +2,11 @@
 import { ChevronLeft, ChevronRight } from '@lucide/astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getMythologies } from '../lib/content/repositories';
+import {
+  cloudflareImageUrl,
+  focalPointToCss,
+  shouldUseCloudflareImageTransformations,
+} from '../lib/media/cloudflare-images';
 
 export const prerender = false;
 
@@ -14,11 +19,34 @@ const defaultMythology = mythologyCards[0];
 const heroTitleChars = [...'绘世神话'];
 const defaultCtaText = defaultMythology ? `进入${defaultMythology.name}` : '探索神话世界';
 const defaultCtaChars = [...defaultCtaText];
+const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
+const defaultFocalCss = focalPointToCss(defaultMythology?.homeHero?.focalPoint);
+const homeShellStyle = `--hero-focal-x:${defaultFocalCss.x};--hero-focal-y:${defaultFocalCss.y}`;
 
-const cardImageStyle = (lightSrc?: string, darkSrc?: string) => [
-  `--card-light-image:${lightSrc ? `url("${lightSrc}")` : 'none'}`,
-  `--card-dark-image:${darkSrc ? `url("${darkSrc}")` : 'none'}`,
-].join(';');
+const cardImageStyle = (
+  lightSrc?: string,
+  darkSrc?: string,
+  focalPoint?: { x: number; y: number },
+) => {
+  const focalCss = focalPointToCss(focalPoint);
+  const transformOptions = {
+    width: 480,
+    height: 360,
+    fit: 'cover' as const,
+    quality: 82,
+    format: 'auto' as const,
+    focalPoint,
+  };
+  const lightThumbnail = cloudflareImageUrl(lightSrc, transformOptions, useImageTransformations);
+  const darkThumbnail = cloudflareImageUrl(darkSrc, transformOptions, useImageTransformations);
+
+  return [
+    `--card-light-image:${lightThumbnail ? `url("${lightThumbnail}")` : 'none'}`,
+    `--card-dark-image:${darkThumbnail ? `url("${darkThumbnail}")` : 'none'}`,
+    `--card-focal-x:${focalCss.x}`,
+    `--card-focal-y:${focalCss.y}`,
+  ].join(';');
+};
 ---
 
 <BaseLayout
@@ -32,6 +60,7 @@ const cardImageStyle = (lightSrc?: string, darkSrc?: string) => [
     aria-labelledby="hero-title"
     data-home-shell
     data-active-mythology={defaultMythology?.slug ?? 'chinese'}
+    style={homeShellStyle}
   >
     <div class="hero-backdrop" aria-hidden="true"></div>
     <div class="hero-art" aria-hidden="true">
@@ -95,6 +124,7 @@ const cardImageStyle = (lightSrc?: string, darkSrc?: string) => [
               {mythologyCards.map((item, index) => {
                 const lightSrc = item.homeHero?.lightSrc;
                 const darkSrc = item.homeHero?.darkSrc;
+                const focalCss = focalPointToCss(item.homeHero?.focalPoint);
                 const hasImage = Boolean(lightSrc || darkSrc);
                 return (
                   <button
@@ -107,8 +137,10 @@ const cardImageStyle = (lightSrc?: string, darkSrc?: string) => [
                     data-href={`/mythology/${item.slug}/`}
                     data-light-src={lightSrc ?? ''}
                     data-dark-src={darkSrc ?? ''}
+                    data-focal-x={focalCss.x}
+                    data-focal-y={focalCss.y}
                     aria-pressed={index === 0 ? 'true' : 'false'}
-                    style={cardImageStyle(lightSrc, darkSrc)}
+                    style={cardImageStyle(lightSrc, darkSrc, item.homeHero?.focalPoint)}
                   >
                     <span class="mythology-card-visual" aria-hidden="true">
                       <span class="mythology-card-number">{String(index + 1).padStart(2, '0')}</span>
@@ -179,6 +211,8 @@ const cardImageStyle = (lightSrc?: string, darkSrc?: string) => [
 
     shell.classList.add('is-switching');
     shell.dataset.activeMythology = slug;
+    shell.style.setProperty('--hero-focal-x', card.dataset.focalX ?? '50%');
+    shell.style.setProperty('--hero-focal-y', card.dataset.focalY ?? '50%');
     cards.forEach((item) => {
       if (item instanceof HTMLButtonElement) item.setAttribute('aria-pressed', item === card ? 'true' : 'false');
     });
@@ -282,7 +316,7 @@ const cardImageStyle = (lightSrc?: string, darkSrc?: string) => [
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 42%;
+    object-position: var(--hero-focal-x, 50%) var(--hero-focal-y, 50%);
     transition: opacity var(--transition-base), transform 14s ease;
   }
 
@@ -535,7 +569,7 @@ const cardImageStyle = (lightSrc?: string, darkSrc?: string) => [
     display: grid;
     place-items: center;
     background-image: var(--card-light-image), radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--accent-soft) 42%, transparent), transparent 42%), linear-gradient(145deg, color-mix(in srgb, var(--bg-secondary) 88%, white 6%), color-mix(in srgb, var(--bg-primary) 86%, var(--bg-secondary)));
-    background-position: center;
+    background-position: var(--card-focal-x, 50%) var(--card-focal-y, 50%), center, center;
     background-size: cover;
     transition: transform 7s ease;
   }
