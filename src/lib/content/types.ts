@@ -38,12 +38,12 @@ export type Mythology = {
   slug: string;
   name: string;
   nameEn: string;
-  tagline: string;
+  tagline?: string;
   summary: string;
-  displayOrder: number;
+  displayOrder?: number;
   visualDna: VisualDNA;
   heroImage: ImageAsset;
-  homeHero: ThemeHeroSet;
+  homeHero?: ThemeHeroSet;
 };
 
 export type World = {
