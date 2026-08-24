@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Mythology visual placeholder</title>
+  <desc id="desc">Neutral atmospheric placeholder used until final mythology artwork is supplied.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e9edf1"/>
+      <stop offset="0.5" stop-color="#c9d3dc"/>
+      <stop offset="1" stop-color="#8b99a7"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="50%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.72"/>
+      <stop offset="0.45" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect width="1600" height="900" fill="url(#glow)"/>
+  <path d="M0 690C210 620 330 730 520 670C720 607 850 695 1030 650C1240 597 1390 670 1600 610V900H0Z" fill="#f7f8f9" fill-opacity="0.46"/>
+  <path d="M0 770C220 710 430 805 640 748C830 697 1030 795 1220 735C1390 681 1490 720 1600 700V900H0Z" fill="#ffffff" fill-opacity="0.34"/>
+</svg>
