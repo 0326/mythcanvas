@@ -1,0 +1,569 @@
+---
+import { ArrowRight, BookOpenText, Landmark, UserRound } from '@lucide/astro';
+import type { Character, Mythology, World } from '../../lib/content/types';
+import type { MythStoryVolume } from '../../lib/content/stories';
+
+interface Props {
+  mythology: Mythology;
+  volumes: MythStoryVolume[];
+  characters: Character[];
+  worlds: World[];
+}
+
+const { mythology, volumes, characters, worlds } = Astro.props;
+const charactersById = new Map(characters.map((item) => [item.id, item]));
+const worldsById = new Map(worlds.map((item) => [item.id, item]));
+const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
+---
+
+<section class="mythology-reader" aria-labelledby="story-reader-title">
+  <div class="container-wide reader-grid">
+    <aside class="reader-nav" aria-label={`${mythology.name}故事卷目`}>
+      <div class="reader-nav-inner">
+        <span class="eyebrow">Story Index</span>
+        <h2>神话长卷</h2>
+        <p>按主题成卷，不强造一条不存在的统一时间线。</p>
+
+        <nav class="volume-list">
+          {volumes.map((volume, volumeIndex) => (
+            <div class="volume-nav-group">
+              <a class="volume-nav-title" href={`#volume-${volume.id}`}>
+                <span>{volumeNumerals[volumeIndex] ?? String(volumeIndex + 1).padStart(2, '0')}</span>
+                <strong>{volume.title}</strong>
+              </a>
+              <div class="story-nav-list">
+                {volume.stories.map((story) => (
+                  <a href={`#story-${story.slug}`}>{story.title}</a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+      </div>
+    </aside>
+
+    <div class="reader-content">
+      <header class="reader-intro">
+        <span class="eyebrow">Illustrated Mythology</span>
+        <h2 id="story-reader-title">从故事进入 {mythology.name}</h2>
+        <p class="literary-copy">
+          神话不是一组人物卡片，也不是一条被整理得过分整齐的年表。这里以传说、典籍与后世流变为线索，用图像辅助叙事，再从故事自然进入相关神灵与神域。
+        </p>
+      </header>
+
+      {volumes.map((volume, volumeIndex) => (
+        <section class="story-volume" id={`volume-${volume.id}`} aria-labelledby={`volume-title-${volume.id}`}>
+          <header class="volume-heading">
+            <span class="volume-number">卷{volumeNumerals[volumeIndex] ?? volumeIndex + 1}</span>
+            <h2 id={`volume-title-${volume.id}`}>{volume.title}</h2>
+            <div class="volume-rule" aria-hidden="true"></div>
+          </header>
+
+          <div class="volume-stories">
+            {volume.stories.map((story, storyIndex) => {
+              const relatedCharacters = story.characterIds
+                .map((id) => charactersById.get(id))
+                .filter((item): item is Character => Boolean(item));
+              const relatedWorlds = story.worldIds
+                .map((id) => worldsById.get(id))
+                .filter((item): item is World => Boolean(item));
+
+              return (
+                <article class="story-entry" id={`story-${story.slug}`}>
+                  <header class="story-header">
+                    <div class="story-order" aria-hidden="true">{String(storyIndex + 1).padStart(2, '0')}</div>
+                    <div>
+                      <span class="story-tradition">{story.tradition ?? '神话与传说传统'}</span>
+                      <h3>{story.title}</h3>
+                      {story.titleEn && <p class="story-title-en">{story.titleEn}</p>}
+                      {story.subtitle && <p class="story-subtitle literary-copy">{story.subtitle}</p>}
+                      <p class="story-summary literary-copy">{story.summary}</p>
+                      <div class="story-meta">
+                        <span><BookOpenText size={16} strokeWidth={1.8} aria-hidden="true" />约 {story.readingMinutes ?? 4} 分钟</span>
+                        <span>{story.sourceNotes.length} 条来源 / 版本说明</span>
+                      </div>
+                    </div>
+                  </header>
+
+                  <div class="story-body">
+                    {story.blocks.map((block) => {
+                      if (block.type === 'paragraph') {
+                        return <p class="story-paragraph literary-copy">{block.text}</p>;
+                      }
+
+                      if (block.type === 'quote') {
+                        return (
+                          <blockquote class="story-quote">
+                            <p>{block.text}</p>
+                            {block.source && <cite>{block.source}</cite>}
+                          </blockquote>
+                        );
+                      }
+
+                      return (
+                        <figure class:list={['story-figure', `story-figure--${block.layout ?? 'wide'}`]}>
+                          <img
+                            src={block.image.src}
+                            alt={block.image.alt}
+                            width={block.image.width}
+                            height={block.image.height}
+                            loading="lazy"
+                          />
+                          {block.caption && <figcaption>{block.caption}</figcaption>}
+                        </figure>
+                      );
+                    })}
+                  </div>
+
+                  {(relatedCharacters.length > 0 || relatedWorlds.length > 0) && (
+                    <div class="story-relations" aria-label={`${story.title}相关神灵和神域`}>
+                      <div class="story-relations-copy">
+                        <span class="small-caps">继续进入故事中的世界</span>
+                        <p>故事负责讲述，神灵与神域负责继续展开人物和空间。</p>
+                      </div>
+                      <div class="relation-links">
+                        {relatedCharacters.map((character) => (
+                          <a href={`/character/${character.slug}/`} class="relation-link">
+                            <UserRound size={18} strokeWidth={1.7} aria-hidden="true" />
+                            <span><small>神灵</small><strong>{character.name}</strong></span>
+                            <ArrowRight size={17} strokeWidth={1.8} aria-hidden="true" />
+                          </a>
+                        ))}
+                        {relatedWorlds.map((world) => (
+                          <a href={`/world/${world.slug}/`} class="relation-link">
+                            <Landmark size={18} strokeWidth={1.7} aria-hidden="true" />
+                            <span><small>神域</small><strong>{world.name}</strong></span>
+                            <ArrowRight size={17} strokeWidth={1.8} aria-hidden="true" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <details class="source-notes">
+                    <summary>来源与版本说明</summary>
+                    <div>
+                      {story.sourceNotes.map((note) => <p>{note}</p>)}
+                    </div>
+                  </details>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .mythology-reader {
+    padding: clamp(5rem, 8vw, 8rem) 0 9rem;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--bg-primary) 92%, transparent), var(--bg-primary) 9rem),
+      var(--page-glow);
+  }
+
+  .reader-grid {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: clamp(4.5rem, 7vw, 7.5rem);
+    align-items: start;
+  }
+
+  .reader-nav {
+    position: relative;
+  }
+
+  .reader-nav-inner {
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+    padding-right: 1.75rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .reader-nav h2 {
+    margin-bottom: .9rem;
+    font-size: 2rem;
+  }
+
+  .reader-nav > *,
+  .reader-nav-inner > p {
+    color: var(--text-secondary);
+  }
+
+  .reader-nav-inner > p {
+    margin-bottom: 2.4rem;
+    font-family: var(--font-literary);
+    font-size: .92rem;
+    line-height: 1.8;
+  }
+
+  .volume-list {
+    display: grid;
+    gap: 1.6rem;
+  }
+
+  .volume-nav-group {
+    display: grid;
+    gap: .7rem;
+  }
+
+  .volume-nav-title {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: .65rem;
+    align-items: baseline;
+  }
+
+  .volume-nav-title span {
+    color: var(--accent-strong);
+    font-family: var(--font-display);
+    font-size: .82rem;
+  }
+
+  .volume-nav-title strong {
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: .95rem;
+    font-weight: 600;
+  }
+
+  .story-nav-list {
+    display: grid;
+    gap: .42rem;
+    padding-left: 2.65rem;
+  }
+
+  .story-nav-list a {
+    color: var(--text-muted);
+    font-size: .82rem;
+    line-height: 1.45;
+    transition: color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .story-nav-list a:hover {
+    color: var(--accent-strong);
+    transform: translateX(3px);
+  }
+
+  .reader-content {
+    min-width: 0;
+  }
+
+  .reader-intro {
+    max-width: 820px;
+    margin-bottom: 7rem;
+  }
+
+  .reader-intro h2 {
+    max-width: 720px;
+    margin-bottom: 1.6rem;
+    font-size: clamp(3rem, 4.6vw, 4.8rem);
+  }
+
+  .reader-intro p {
+    max-width: 720px;
+    color: var(--text-secondary);
+    font-size: 1.12rem;
+    line-height: 2;
+  }
+
+  .story-volume {
+    scroll-margin-top: calc(var(--header-height) + 2rem);
+  }
+
+  .story-volume + .story-volume {
+    margin-top: 9rem;
+  }
+
+  .volume-heading {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 1.1rem;
+    align-items: center;
+    margin-bottom: 4.8rem;
+  }
+
+  .volume-number {
+    color: var(--accent-strong);
+    font-family: var(--font-literary);
+    font-size: .84rem;
+    letter-spacing: .1em;
+  }
+
+  .volume-heading h2 {
+    margin: 0;
+    font-size: 2.15rem;
+    white-space: nowrap;
+  }
+
+  .volume-rule {
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-strong), transparent);
+  }
+
+  .volume-stories {
+    display: grid;
+    gap: 9rem;
+  }
+
+  .story-entry {
+    scroll-margin-top: calc(var(--header-height) + 2rem);
+  }
+
+  .story-header {
+    display: grid;
+    grid-template-columns: 3.25rem minmax(0, 760px);
+    gap: 1.4rem;
+    margin-bottom: 3.4rem;
+  }
+
+  .story-order {
+    padding-top: .25rem;
+    color: var(--accent-strong);
+    font-family: var(--font-display);
+    font-size: .88rem;
+    letter-spacing: .12em;
+  }
+
+  .story-tradition {
+    display: block;
+    margin-bottom: .8rem;
+    color: var(--text-muted);
+    font-size: .76rem;
+    font-weight: 650;
+    letter-spacing: .08em;
+  }
+
+  .story-header h3 {
+    margin-bottom: .5rem;
+    font-size: clamp(2.6rem, 4vw, 4.35rem);
+    line-height: 1.08;
+  }
+
+  .story-title-en {
+    margin-bottom: 1.55rem;
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    font-size: .92rem;
+    letter-spacing: .08em;
+  }
+
+  .story-subtitle {
+    margin-bottom: .9rem;
+    color: var(--accent-strong);
+    font-size: 1.12rem;
+  }
+
+  .story-summary {
+    max-width: 690px;
+    margin-bottom: 1.25rem;
+    color: var(--text-secondary);
+    font-size: 1.08rem;
+    line-height: 1.95;
+  }
+
+  .story-meta {
+    display: flex;
+    gap: 1.35rem;
+    color: var(--text-muted);
+    font-size: .78rem;
+  }
+
+  .story-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+  }
+
+  .story-body {
+    display: grid;
+    grid-template-columns: minmax(0, 760px);
+    margin-left: 4.65rem;
+  }
+
+  .story-paragraph {
+    max-width: 720px;
+    margin: 0 0 1.6rem;
+    color: var(--text-primary);
+    font-size: 1.08rem;
+    line-height: 2.08;
+    text-align: justify;
+    text-wrap: pretty;
+  }
+
+  .story-paragraph:first-child::first-letter {
+    float: left;
+    margin: .16em .16em 0 0;
+    color: var(--accent-strong);
+    font-family: var(--font-display);
+    font-size: 3.5em;
+    line-height: .82;
+  }
+
+  .story-figure {
+    margin: 2.5rem 0 3.2rem;
+  }
+
+  .story-figure img {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    object-fit: cover;
+  }
+
+  .story-figure--wide {
+    width: min(980px, calc(100vw - 430px));
+  }
+
+  .story-figure--wide img {
+    aspect-ratio: 16 / 8.6;
+  }
+
+  .story-figure--portrait {
+    width: min(470px, 64%);
+    margin-left: 5.5rem;
+  }
+
+  .story-figure--portrait img {
+    aspect-ratio: 3 / 4;
+  }
+
+  .story-figure--inset {
+    width: min(650px, 88%);
+    margin-left: 2.8rem;
+  }
+
+  .story-figure--inset img {
+    max-height: 520px;
+  }
+
+  .story-figure figcaption {
+    max-width: 640px;
+    margin-top: .85rem;
+    color: var(--text-muted);
+    font-family: var(--font-literary);
+    font-size: .82rem;
+    line-height: 1.65;
+  }
+
+  .story-quote {
+    max-width: 680px;
+    margin: 2.6rem 0 3rem 2rem;
+    padding: .6rem 0 .6rem 1.6rem;
+    border-left: 2px solid var(--accent);
+  }
+
+  .story-quote p {
+    margin-bottom: .7rem;
+    color: var(--text-secondary);
+    font-family: var(--font-literary);
+    font-size: 1.15rem;
+    line-height: 1.9;
+  }
+
+  .story-quote cite {
+    color: var(--text-muted);
+    font-size: .78rem;
+    font-style: normal;
+  }
+
+  .story-relations {
+    display: grid;
+    grid-template-columns: minmax(220px, .8fr) 1.2fr;
+    gap: 2rem;
+    margin: 3.4rem 0 0 4.65rem;
+    padding: 1.5rem 0;
+    border-block: 1px solid var(--border);
+  }
+
+  .story-relations-copy p {
+    max-width: 320px;
+    margin: .55rem 0 0;
+    color: var(--text-muted);
+    font-family: var(--font-literary);
+    font-size: .84rem;
+    line-height: 1.7;
+  }
+
+  .relation-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .8rem;
+  }
+
+  .relation-link {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: .75rem;
+    align-items: center;
+    min-height: 68px;
+    padding: .85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--surface) 72%, transparent);
+    transition: border-color var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+  }
+
+  .relation-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    background: var(--surface);
+  }
+
+  .relation-link span {
+    display: grid;
+    gap: .1rem;
+  }
+
+  .relation-link small {
+    color: var(--text-muted);
+    font-size: .68rem;
+  }
+
+  .relation-link strong {
+    font-family: var(--font-display);
+    font-size: .95rem;
+  }
+
+  .source-notes {
+    margin: 1.2rem 0 0 4.65rem;
+    color: var(--text-muted);
+  }
+
+  .source-notes summary {
+    width: fit-content;
+    cursor: pointer;
+    font-size: .8rem;
+    font-weight: 650;
+  }
+
+  .source-notes > div {
+    max-width: 720px;
+    padding-top: .85rem;
+  }
+
+  .source-notes p {
+    margin: 0 0 .5rem;
+    font-family: var(--font-literary);
+    font-size: .82rem;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 1180px) {
+    .reader-grid {
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 3.5rem;
+    }
+
+    .story-figure--wide {
+      width: 100%;
+    }
+
+    .story-relations {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
