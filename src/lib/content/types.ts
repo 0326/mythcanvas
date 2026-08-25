@@ -52,6 +52,48 @@ export type Mythology = {
   homeHero?: ThemeHeroSet;
 };
 
+export type StoryImageLayout = 'wide' | 'portrait' | 'inset';
+
+export type MythStoryBlock =
+  | {
+      type: 'paragraph';
+      text: string;
+    }
+  | {
+      type: 'quote';
+      text: string;
+      source?: string;
+    }
+  | {
+      type: 'image';
+      image: ImageAsset;
+      caption?: string;
+      layout?: StoryImageLayout;
+    };
+
+export type MythStory = {
+  id: string;
+  slug: string;
+  mythologyId: string;
+  title: string;
+  titleEn?: string;
+  subtitle?: string;
+  summary: string;
+  volumeId: string;
+  volumeTitle: string;
+  volumeOrder: number;
+  displayOrder: number;
+  tradition?: string;
+  readingMinutes?: number;
+  sourceNotes: readonly string[];
+  characterIds: readonly string[];
+  worldIds: readonly string[];
+  sceneIds: readonly string[];
+  blocks: readonly MythStoryBlock[];
+  heroImage?: ImageAsset;
+  publishStatus: 'draft' | 'published';
+};
+
 export type World = {
   id: string;
   mythologyId: string;
