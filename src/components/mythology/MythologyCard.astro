@@ -1,30 +1,84 @@
 ---
+import { ArrowUpRight } from '@lucide/astro';
 import type { Mythology } from '../../lib/content/types';
+import {
+  cloudflareImageUrl,
+  focalPointToCss,
+  shouldUseCloudflareImageTransformations,
+} from '../../lib/media/cloudflare-images';
 
 interface Props {
   mythology: Mythology;
+  index: number;
+  featured?: boolean;
 }
 
-const { mythology } = Astro.props;
+const { mythology, index, featured = false } = Astro.props;
+const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
+const focalPoint = mythology.homeHero?.focalPoint;
+const focalCss = focalPointToCss(focalPoint);
+const fallbackSrc = mythology.heroImage.src;
+const lightSrc = mythology.homeHero?.lightSrc ?? fallbackSrc;
+const darkSrc = mythology.homeHero?.darkSrc ?? lightSrc;
+const imageWidth = featured ? 1800 : 1200;
+const imageHeight = featured ? 960 : 760;
+const transformOptions = {
+  width: imageWidth,
+  height: imageHeight,
+  fit: 'cover' as const,
+  quality: 84,
+  format: 'auto' as const,
+  focalPoint,
+};
+const lightImage = cloudflareImageUrl(lightSrc, transformOptions, useImageTransformations) ?? lightSrc;
+const darkImage = cloudflareImageUrl(darkSrc, transformOptions, useImageTransformations) ?? darkSrc;
+const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
 ---
 
-<article class="myth-card surface">
-  <a href={`/mythology/${mythology.slug}/`}>
-    <div class="image-wrap">
+<article class:list={{ 'myth-card': true, 'myth-card--featured': featured }}>
+  <a href={`/mythology/${mythology.slug}/`} aria-label={`进入${mythology.name}`}>
+    <div class="myth-card-media" style={imageStyle}>
       <img
-        src={mythology.heroImage.src}
-        alt={mythology.heroImage.alt}
-        width={mythology.heroImage.width}
-        height={mythology.heroImage.height}
-        loading="lazy"
+        class="myth-card-image myth-card-image--light"
+        src={lightImage}
+        alt={mythology.heroImage.alt || `${mythology.name}神话世界`}
+        width={imageWidth}
+        height={imageHeight}
+        loading={featured && index === 0 ? 'eager' : 'lazy'}
+        fetchpriority={featured && index === 0 ? 'high' : 'auto'}
       />
+      {darkImage !== lightImage && (
+        <img
+          class="myth-card-image myth-card-image--dark"
+          src={darkImage}
+          alt=""
+          width={imageWidth}
+          height={imageHeight}
+          loading="lazy"
+          aria-hidden="true"
+        />
+      )}
+      <div class="myth-card-shade" aria-hidden="true"></div>
     </div>
-    <div class="copy">
-      <span class="small-caps">Mythology · 神话体系</span>
-      <h3>{mythology.name}</h3>
+
+    <div class="myth-card-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
+
+    <div class="myth-card-copy">
+      <div class="myth-card-kicker">
+        <span>{mythology.nameEn}</span>
+        <span class="myth-card-line" aria-hidden="true"></span>
+        <span>{mythology.tagline}</span>
+      </div>
+      <h2>{mythology.name}</h2>
       <p>{mythology.summary}</p>
-      <div class="dna" aria-label="神话体系视觉 DNA">
-        {mythology.visualDna.motifs.slice(0, 3).map((motif) => <span>{motif}</span>)}
+      <div class="myth-card-footer">
+        <div class="myth-card-dna" aria-label={`${mythology.name}视觉 DNA`}>
+          {mythology.visualDna.motifs.slice(0, 3).map((motif) => <span>{motif}</span>)}
+        </div>
+        <span class="myth-card-action" aria-hidden="true">
+          进入神域
+          <ArrowUpRight size={17} strokeWidth={1.8} />
+        </span>
       </div>
     </div>
   </a>
@@ -32,68 +86,262 @@ const { mythology } = Astro.props;
 
 <style>
   .myth-card {
+    position: relative;
+    min-width: 0;
+    min-height: clamp(360px, 34vw, 500px);
     overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--border-strong) 74%, transparent);
     border-radius: var(--radius-lg);
-    transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-fast);
+    background: var(--surface-muted);
+    box-shadow: 0 22px 64px color-mix(in srgb, var(--bg-primary) 20%, transparent);
+    isolation: isolate;
   }
 
-  .myth-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--border-strong);
-    box-shadow: var(--shadow-md);
+  .myth-card--featured {
+    grid-column: 1 / -1;
+    min-height: clamp(480px, 48vw, 700px);
   }
 
-  .image-wrap {
-    aspect-ratio: 16 / 9;
+  .myth-card > a {
+    position: absolute;
+    inset: 0;
+    display: block;
+    color: white;
+  }
+
+  .myth-card > a:hover {
+    color: white;
+  }
+
+  .myth-card-media,
+  .myth-card-shade,
+  .myth-card-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .myth-card-media {
+    z-index: -2;
     overflow: hidden;
     background: var(--surface-muted);
   }
 
-  img {
-    width: 100%;
-    height: 100%;
+  .myth-card-image {
     object-fit: cover;
-    transition: transform var(--transition-slow);
+    object-position: var(--myth-focal-x, 50%) var(--myth-focal-y, 50%);
+    transition: transform 1.15s cubic-bezier(.2, .7, .2, 1), opacity var(--transition-base), filter var(--transition-base);
   }
 
-  .myth-card:hover img {
-    transform: scale(1.035);
+  .myth-card-image--dark {
+    opacity: 0;
   }
 
-  .copy {
-    padding: var(--space-5);
+  :global([data-theme='dark']) .myth-card-image--light:has(+ .myth-card-image--dark) {
+    opacity: 0;
   }
 
-  .small-caps {
-    color: var(--accent-strong);
+  :global([data-theme='dark']) .myth-card-image--dark {
+    opacity: 1;
   }
 
-  h3 {
-    margin: var(--space-2) 0;
-    font-size: 1.4rem;
+  .myth-card-shade {
+    background:
+      linear-gradient(to top, rgba(5, 8, 13, .9) 0%, rgba(5, 8, 13, .56) 30%, rgba(5, 8, 13, .08) 68%, rgba(5, 8, 13, .02) 100%),
+      linear-gradient(to right, rgba(5, 8, 13, .36), transparent 58%);
+    transition: background var(--transition-base);
+  }
+
+  .myth-card-index {
+    position: absolute;
+    top: clamp(1.25rem, 2.5vw, 2rem);
+    right: clamp(1.25rem, 2.5vw, 2rem);
+    color: rgba(255, 255, 255, .76);
+    font-family: var(--font-serif);
+    font-size: clamp(.78rem, 1vw, .92rem);
+    letter-spacing: .18em;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, .35);
+  }
+
+  .myth-card-copy {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    gap: .8rem;
+    padding: clamp(1.45rem, 3vw, 2.5rem);
+    text-shadow: 0 2px 18px rgba(0, 0, 0, .4);
+  }
+
+  .myth-card--featured .myth-card-copy {
+    width: min(760px, 100%);
+    padding: clamp(1.75rem, 4vw, 3.5rem);
+  }
+
+  .myth-card-kicker {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: .75rem;
+    color: rgba(255, 255, 255, .72);
+    font-size: .7rem;
+    font-weight: 650;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .myth-card-kicker span:first-child,
+  .myth-card-kicker span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .myth-card-line {
+    width: 28px;
+    height: 1px;
+    flex: 0 0 auto;
+    background: color-mix(in srgb, white 54%, var(--accent));
+  }
+
+  h2 {
+    margin: 0;
+    color: white;
+    font-family: var(--font-display, var(--font-serif));
+    font-size: clamp(2rem, 3.2vw, 3.45rem);
+    font-weight: 620;
+    line-height: 1.02;
+    letter-spacing: -.02em;
+  }
+
+  .myth-card--featured h2 {
+    font-size: clamp(2.7rem, 5.3vw, 5.4rem);
   }
 
   p {
+    max-width: 46rem;
     margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.88rem;
+    color: rgba(255, 255, 255, .78);
+    font-family: var(--font-literary, var(--font-serif));
+    font-size: clamp(.88rem, 1.05vw, 1rem);
+    line-height: 1.75;
+    text-wrap: balance;
   }
 
-  .dna {
+  .myth-card:not(.myth-card--featured) p {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .myth-card-footer {
     display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: .3rem;
+  }
+
+  .myth-card-dna {
+    display: flex;
+    min-width: 0;
     flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-top: var(--space-4);
+    gap: .35rem .85rem;
+    color: rgba(255, 255, 255, .58);
+    font-size: .72rem;
+    letter-spacing: .04em;
   }
 
-  .dna span {
-    color: var(--text-muted);
-    font-size: 0.76rem;
+  .myth-card-dna span + span::before {
+    content: '·';
+    margin-right: .85rem;
+    color: color-mix(in srgb, white 52%, var(--accent));
   }
 
-  .dna span + span::before {
-    content: "·";
-    margin-right: var(--space-2);
-    color: var(--accent);
+  .myth-card-action {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: .35rem;
+    color: rgba(255, 255, 255, .88);
+    font-size: .78rem;
+    font-weight: 650;
+    letter-spacing: .08em;
+    transition: transform var(--transition-fast), color var(--transition-fast);
+  }
+
+  .myth-card:hover .myth-card-image {
+    transform: scale(1.035);
+  }
+
+  .myth-card:hover .myth-card-action {
+    color: white;
+    transform: translate(2px, -2px);
+  }
+
+  .myth-card:focus-within {
+    border-color: var(--focus);
+  }
+
+  @media (max-width: 900px) {
+    .myth-card,
+    .myth-card--featured {
+      grid-column: 1 / -1;
+      min-height: clamp(390px, 68vw, 540px);
+    }
+
+    .myth-card--featured h2 {
+      font-size: clamp(2.5rem, 8vw, 4rem);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .myth-card,
+    .myth-card--featured {
+      min-height: 410px;
+      border-radius: var(--radius-md);
+    }
+
+    .myth-card-copy,
+    .myth-card--featured .myth-card-copy {
+      padding: 1.35rem;
+    }
+
+    .myth-card-kicker {
+      gap: .55rem;
+      font-size: .62rem;
+    }
+
+    .myth-card-line {
+      width: 18px;
+    }
+
+    h2,
+    .myth-card--featured h2 {
+      font-size: clamp(2.15rem, 11vw, 3.2rem);
+    }
+
+    p {
+      font-size: .84rem;
+      line-height: 1.65;
+    }
+
+    .myth-card-dna {
+      display: none;
+    }
+
+    .myth-card-footer {
+      justify-content: flex-end;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .myth-card-image,
+    .myth-card-action {
+      transition: none;
+    }
   }
 </style>
