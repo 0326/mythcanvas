@@ -10,11 +10,24 @@ const mythologies = (await getMythologies(db)).toSorted(
   (a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999),
 );
 const mythologyCount = String(mythologies.length).padStart(2, '0');
+const mythologyHeroImage = '/media/content/mythology-civilizations-banner.webp';
 ---
 
-<BaseLayout title="神话" description="进入中国、希腊、北欧、日本与埃及等神话体系，穿越诸神、神域与各自独特的视觉文明。">
-  <section class="mythology-hero" aria-labelledby="mythology-title">
-    <div class="mythology-hero-watermark" aria-hidden="true">MYTHOLOGIES</div>
+<BaseLayout
+  title="神话"
+  description="进入中国、希腊、北欧、日本与埃及等神话体系，穿越诸神、神域与各自独特的视觉文明。"
+  immersiveHeader
+  fullBleed
+>
+  <section class="mythology-hero" aria-labelledby="mythology-title" data-mythology-hero>
+    <div
+      class="mythology-hero-art"
+      data-mythology-parallax
+      style={`--mythology-hero-image: url("${mythologyHeroImage}")`}
+      aria-hidden="true"
+    ></div>
+    <div class="mythology-hero-overlay" aria-hidden="true"></div>
+
     <div class="container-wide mythology-hero-inner">
       <div class="mythology-hero-copy">
         <span class="eyebrow">Mythologies · 神话文明</span>
@@ -34,11 +47,6 @@ const mythologyCount = String(mythologies.length).padStart(2, '0');
 
   <section class="mythology-collection" aria-label="神话体系列表">
     <div class="container-wide">
-      <div class="collection-heading">
-        <span>诸神文明</span>
-        <p>选择一方神话，进入它的角色、神域与视觉世界。</p>
-      </div>
-
       <div class="collection-grid">
         {mythologies.map((mythology, index) => (
           <MythologyCard
@@ -52,66 +60,87 @@ const mythologyCount = String(mythologies.length).padStart(2, '0');
   </section>
 </BaseLayout>
 
+<script>
+  const hero = document.querySelector('[data-mythology-hero]');
+  const parallax = document.querySelector('[data-mythology-parallax]');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (hero instanceof HTMLElement && parallax instanceof HTMLElement && !reducedMotion.matches) {
+    let ticking = false;
+
+    const renderParallax = () => {
+      const rect = hero.getBoundingClientRect();
+      const heroHeight = hero.offsetHeight;
+
+      if (rect.bottom > 0 && rect.top < window.innerHeight) {
+        const travelled = Math.min(Math.max(-rect.top, 0), heroHeight);
+        const offset = Math.min(travelled * 0.16, 96);
+        parallax.style.setProperty('--parallax-y', `${offset}px`);
+      }
+
+      ticking = false;
+    };
+
+    const requestParallax = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(renderParallax);
+    };
+
+    window.addEventListener('scroll', requestParallax, { passive: true });
+    window.addEventListener('resize', requestParallax);
+    renderParallax();
+  }
+</script>
+
 <style>
   .mythology-hero {
     position: relative;
-    min-height: clamp(500px, 61vh, 680px);
+    min-height: clamp(620px, 78svh, 820px);
     overflow: hidden;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 64%, transparent);
     background:
-      radial-gradient(circle at 78% 24%, color-mix(in srgb, var(--hero-ambient) 86%, transparent), transparent 25%),
-      radial-gradient(circle at 14% 78%, color-mix(in srgb, var(--accent-soft) 36%, transparent), transparent 32%),
-      linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 42%, var(--bg-primary)), var(--bg-primary));
+      radial-gradient(circle at 70% 24%, color-mix(in srgb, var(--hero-ambient) 72%, transparent), transparent 30%),
+      linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 58%, var(--bg-primary)), var(--bg-primary));
     isolation: isolate;
   }
 
-  .mythology-hero::before,
-  .mythology-hero::after {
-    content: '';
+  .mythology-hero-art,
+  .mythology-hero-overlay {
     position: absolute;
-    border-radius: 50%;
     pointer-events: none;
   }
 
-  .mythology-hero::before {
-    top: 9%;
-    right: 10%;
-    width: clamp(170px, 22vw, 320px);
-    aspect-ratio: 1;
-    border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
-    box-shadow:
-      0 0 0 24px color-mix(in srgb, var(--accent) 3%, transparent),
-      0 0 90px color-mix(in srgb, var(--accent) 12%, transparent);
+  .mythology-hero-art {
+    --parallax-y: 0px;
+    z-index: -3;
+    inset: -9% 0;
+    background-image: var(--mythology-hero-image);
+    background-repeat: no-repeat;
+    background-position: 66% 48%;
+    background-size: cover;
+    filter: saturate(.88) contrast(1.02);
+    transform: translate3d(0, var(--parallax-y), 0) scale(1.06);
+    transform-origin: center center;
+    will-change: transform;
   }
 
-  .mythology-hero::after {
-    right: 18%;
-    bottom: 13%;
-    width: 7px;
-    height: 7px;
-    background: var(--accent);
-    box-shadow:
-      68px -112px 0 -2px color-mix(in srgb, var(--accent) 64%, transparent),
-      -114px -36px 0 -2px color-mix(in srgb, var(--accent) 48%, transparent),
-      124px 52px 0 -2px color-mix(in srgb, var(--accent) 42%, transparent);
-    opacity: .58;
+  .mythology-hero-overlay {
+    z-index: -2;
+    inset: 0;
+    background:
+      linear-gradient(to right, color-mix(in srgb, var(--bg-primary) 93%, transparent) 0%, color-mix(in srgb, var(--bg-primary) 74%, transparent) 34%, color-mix(in srgb, var(--bg-primary) 20%, transparent) 68%, color-mix(in srgb, var(--bg-primary) 32%, transparent) 100%),
+      linear-gradient(to bottom, color-mix(in srgb, var(--bg-primary) 54%, transparent) 0%, transparent 23%, transparent 66%, color-mix(in srgb, var(--bg-primary) 80%, transparent) 100%);
   }
 
-  .mythology-hero-watermark {
-    position: absolute;
-    z-index: -1;
-    right: -1.5vw;
-    bottom: -.15em;
-    color: transparent;
-    font-family: var(--font-serif);
-    font-size: clamp(5.5rem, 15vw, 14rem);
-    font-weight: 700;
-    line-height: .8;
-    letter-spacing: -.055em;
-    -webkit-text-stroke: 1px color-mix(in srgb, var(--text-primary) 8%, transparent);
-    opacity: .9;
-    user-select: none;
-    white-space: nowrap;
+  :global([data-theme='dark']) .mythology-hero-art {
+    filter: saturate(.82) brightness(.8) contrast(1.06);
+  }
+
+  :global([data-theme='dark']) .mythology-hero-overlay {
+    background:
+      linear-gradient(to right, color-mix(in srgb, var(--bg-primary) 94%, transparent) 0%, color-mix(in srgb, var(--bg-primary) 76%, transparent) 32%, color-mix(in srgb, var(--bg-primary) 18%, transparent) 68%, color-mix(in srgb, var(--bg-primary) 38%, transparent) 100%),
+      linear-gradient(to bottom, color-mix(in srgb, var(--bg-primary) 62%, transparent) 0%, transparent 25%, transparent 62%, color-mix(in srgb, var(--bg-primary) 86%, transparent) 100%);
   }
 
   .mythology-hero-inner {
@@ -120,26 +149,31 @@ const mythologyCount = String(mythologies.length).padStart(2, '0');
     min-height: inherit;
     flex-direction: column;
     justify-content: center;
-    padding-block: clamp(6rem, 12vh, 9rem) clamp(2.5rem, 6vh, 4rem);
+    padding-block: clamp(8.5rem, 17vh, 12rem) clamp(4rem, 8vh, 6.5rem);
   }
 
   .mythology-hero-copy {
-    width: min(800px, 72%);
+    width: min(800px, 64%);
+  }
+
+  .mythology-hero-copy :global(.eyebrow) {
+    text-shadow: 0 2px 20px color-mix(in srgb, var(--bg-primary) 72%, transparent);
   }
 
   .mythology-hero-copy h1 {
     max-width: 760px;
     margin: 0;
     font-family: var(--font-display, var(--font-serif));
-    font-size: clamp(3.8rem, 7.8vw, 7.4rem);
+    font-size: clamp(4rem, 7.8vw, 7.5rem);
     font-weight: 620;
-    line-height: .98;
+    line-height: .96;
     letter-spacing: -.055em;
     text-wrap: balance;
+    text-shadow: 0 5px 34px color-mix(in srgb, var(--bg-primary) 72%, transparent);
   }
 
   .mythology-hero-copy p {
-    max-width: 680px;
+    max-width: 660px;
     margin: clamp(1.5rem, 3vw, 2.2rem) 0 0;
     color: var(--text-secondary);
     font-family: var(--font-literary, var(--font-serif));
@@ -147,12 +181,13 @@ const mythologyCount = String(mythologies.length).padStart(2, '0');
     line-height: 1.9;
     letter-spacing: .025em;
     text-wrap: balance;
+    text-shadow: 0 2px 18px color-mix(in srgb, var(--bg-primary) 84%, transparent);
   }
 
   .mythology-hero-foot {
     position: absolute;
     right: 0;
-    bottom: clamp(2.2rem, 5vw, 3.5rem);
+    bottom: clamp(2.2rem, 5vw, 3.6rem);
     left: 0;
     display: flex;
     align-items: center;
@@ -161,44 +196,21 @@ const mythologyCount = String(mythologies.length).padStart(2, '0');
     font-size: .67rem;
     font-weight: 650;
     letter-spacing: .15em;
+    text-shadow: 0 1px 12px color-mix(in srgb, var(--bg-primary) 88%, transparent);
   }
 
   .hero-foot-line {
     width: clamp(36px, 6vw, 84px);
     height: 1px;
-    background: var(--border-strong);
+    background: color-mix(in srgb, var(--accent) 42%, var(--border-strong));
   }
 
   .mythology-collection {
     position: relative;
-    padding-block: clamp(4rem, 8vw, 7rem) clamp(5rem, 10vw, 9rem);
+    padding-block: clamp(1.5rem, 3.5vw, 3rem) clamp(5rem, 10vw, 9rem);
     background:
-      linear-gradient(to bottom, color-mix(in srgb, var(--bg-secondary) 20%, transparent), transparent 18rem),
+      linear-gradient(to bottom, color-mix(in srgb, var(--bg-primary) 96%, transparent), var(--bg-primary) 12rem),
       var(--bg-primary);
-  }
-
-  .collection-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: clamp(2rem, 4vw, 3.2rem);
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .collection-heading > span {
-    color: var(--text-primary);
-    font-family: var(--font-serif);
-    font-size: clamp(1.2rem, 1.8vw, 1.65rem);
-    font-weight: 620;
-  }
-
-  .collection-heading p {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: .82rem;
-    letter-spacing: .035em;
   }
 
   .collection-grid {
@@ -209,16 +221,15 @@ const mythologyCount = String(mythologies.length).padStart(2, '0');
 
   @media (max-width: 900px) {
     .mythology-hero {
-      min-height: 580px;
+      min-height: 680px;
+    }
+
+    .mythology-hero-art {
+      background-position: 62% 50%;
     }
 
     .mythology-hero-copy {
-      width: min(680px, 90%);
-    }
-
-    .mythology-hero-watermark {
-      right: -4vw;
-      font-size: clamp(5rem, 18vw, 9rem);
+      width: min(680px, 84%);
     }
 
     .collection-grid {
@@ -228,24 +239,25 @@ const mythologyCount = String(mythologies.length).padStart(2, '0');
 
   @media (max-width: 560px) {
     .mythology-hero {
-      min-height: 540px;
+      min-height: 620px;
     }
 
-    .mythology-hero::before {
-      top: 18%;
-      right: -8%;
-      width: 180px;
+    .mythology-hero-art {
+      inset: -7% -30%;
+      background-position: 62% 50%;
+      transform: translate3d(0, calc(var(--parallax-y) * .45), 0) scale(1.04);
     }
 
-    .mythology-hero-watermark {
-      right: -10vw;
-      bottom: .18em;
-      font-size: 5.4rem;
+    .mythology-hero-overlay {
+      background:
+        linear-gradient(to right, color-mix(in srgb, var(--bg-primary) 92%, transparent) 0%, color-mix(in srgb, var(--bg-primary) 60%, transparent) 72%, color-mix(in srgb, var(--bg-primary) 34%, transparent) 100%),
+        linear-gradient(to bottom, color-mix(in srgb, var(--bg-primary) 48%, transparent), transparent 22%, transparent 60%, color-mix(in srgb, var(--bg-primary) 86%, transparent));
     }
 
     .mythology-hero-inner {
       justify-content: flex-start;
-      padding-top: 7.4rem;
+      padding-top: 8.8rem;
+      padding-bottom: 4.8rem;
     }
 
     .mythology-hero-copy {
@@ -253,19 +265,19 @@ const mythologyCount = String(mythologies.length).padStart(2, '0');
     }
 
     .mythology-hero-copy h1 {
-      max-width: 340px;
-      font-size: clamp(3.2rem, 17vw, 4.4rem);
+      max-width: 350px;
+      font-size: clamp(3.3rem, 17vw, 4.5rem);
       line-height: .95;
     }
 
     .mythology-hero-copy p {
-      max-width: 92%;
+      max-width: 94%;
       font-size: .92rem;
       line-height: 1.78;
     }
 
     .mythology-hero-foot {
-      bottom: 1.7rem;
+      bottom: 1.8rem;
       gap: .65rem;
       font-size: .58rem;
       letter-spacing: .1em;
@@ -275,18 +287,15 @@ const mythologyCount = String(mythologies.length).padStart(2, '0');
       width: 24px;
     }
 
-    .collection-heading {
-      display: block;
-      margin-bottom: 1.6rem;
-    }
-
-    .collection-heading p {
-      margin-top: .5rem;
-      line-height: 1.6;
-    }
-
     .mythology-collection {
-      padding-block: 3rem 5rem;
+      padding-block: 1rem 5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mythology-hero-art {
+      transform: scale(1.03);
+      will-change: auto;
     }
   }
 </style>
