@@ -1,16 +1,13 @@
 ---
+import { ArrowDown, ArrowRight, BookOpenText, Landmark, UserRound } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import WorldCard from '../../components/world/WorldCard.astro';
-import CharacterCard from '../../components/character/CharacterCard.astro';
-import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
+import MythologyStoryReader from '../../components/mythology/MythologyStoryReader.astro';
 import {
-  getArtworksForMythology,
   getCharactersForMythology,
   getMythologyBySlug,
-  getWorlds,
   getWorldsForMythology,
 } from '../../lib/content/repositories';
-import { SITE_TITLE } from '../../consts';
+import { getStoriesForMythology, groupStoriesByVolume } from '../../lib/content/stories';
 
 export const prerender = false;
 
@@ -18,28 +15,40 @@ const db = Astro.locals.runtime.env.DB;
 const { slug } = Astro.params;
 const mythology = await getMythologyBySlug(db, slug ?? '');
 if (!mythology) return Astro.redirect('/404');
-const [relatedWorlds, relatedCharacters, relatedArtworks, worldsById] = await Promise.all([
+
+const [relatedWorlds, relatedCharacters] = await Promise.all([
   getWorldsForMythology(db, mythology.id),
   getCharactersForMythology(db, mythology.id),
-  getArtworksForMythology(db, mythology.id),
-  getWorlds(db).then((list) => new Map(list.map((item) => [item.id, item]))),
 ]);
+const stories = getStoriesForMythology(mythology.id);
+const volumes = groupStoriesByVolume(stories);
+const heroImage = mythology.homeHero?.lightSrc || mythology.heroImage.src;
+const storyCountLabel = `${stories.length} 篇故事 · ${volumes.length} 卷`;
 ---
 
 <BaseLayout
   title={mythology.name}
-  description={`${mythology.name}视觉世界：${mythology.summary}`}
-  image={mythology.heroImage.src}
+  description={`${mythology.name}图文故事：从传说、典籍与版本流变进入这个神话体系。`}
+  image={heroImage}
+  fullBleed
+  immersiveHeader
 >
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={JSON.stringify([
       {
         '@context': 'https://schema.org',
-        '@type': 'Thing',
+        '@type': 'CollectionPage',
         name: mythology.name,
         alternateName: mythology.nameEn,
         description: mythology.summary,
-        image: new URL(mythology.heroImage.src, Astro.site).toString(),
+        image: new URL(heroImage, Astro.site).toString(),
+        hasPart: stories.map((story) => ({
+          '@type': 'CreativeWork',
+          name: story.title,
+          alternateName: story.titleEn,
+          description: story.summary,
+          inLanguage: 'zh-CN',
+        })),
       },
       {
         '@context': 'https://schema.org',
@@ -52,79 +61,363 @@ const [relatedWorlds, relatedCharacters, relatedArtworks, worldsById] = await Pr
       },
     ])} />
   </Fragment>
-  <section class="entity-hero">
-    <img src={mythology.heroImage.src} alt={mythology.heroImage.alt} width={mythology.heroImage.width} height={mythology.heroImage.height} fetchpriority="high" />
-    <div class="entity-overlay"></div>
-    <div class="container-wide entity-copy">
-      <span class="eyebrow">{mythology.nameEn}</span>
-      <h1>{mythology.name}</h1>
-      <p>{mythology.summary}</p>
-      <a class="btn btn-primary" href={`/explore/#${mythology.slug}`}>探索作品</a>
+
+  <section class="mythology-hero" aria-labelledby="mythology-title">
+    <img
+      class="mythology-hero-image"
+      src={heroImage}
+      alt={mythology.heroImage.alt}
+      width={mythology.heroImage.width}
+      height={mythology.heroImage.height}
+      fetchpriority="high"
+    />
+    <div class="mythology-hero-overlay" aria-hidden="true"></div>
+
+    <nav class="container-wide mythology-breadcrumb" aria-label="面包屑">
+      <a href="/">首页</a>
+      <span>/</span>
+      <a href="/mythology/">神话</a>
+      <span>/</span>
+      <span aria-current="page">{mythology.name}</span>
+    </nav>
+
+    <div class="container-wide mythology-hero-content">
+      <span class="hero-kicker">{mythology.nameEn}</span>
+      <h1 id="mythology-title">{mythology.name}</h1>
+      <p class="mythology-deck literary-copy">{mythology.summary}</p>
+      <div class="hero-actions">
+        <a class="read-action" href="#stories">
+          <BookOpenText size={18} strokeWidth={1.8} aria-hidden="true" />
+          <span>从故事开始</span>
+          <ArrowDown size={17} strokeWidth={1.8} aria-hidden="true" />
+        </a>
+        <span class="story-count">{storyCountLabel}</span>
+      </div>
+    </div>
+
+    <div class="container-wide volume-preview" aria-label="故事卷目">
+      {volumes.map((volume, index) => (
+        <a href={`#volume-${volume.id}`}>
+          <span>{String(index + 1).padStart(2, '0')}</span>
+          <strong>{volume.title}</strong>
+          <small>{volume.stories.length} 篇</small>
+        </a>
+      ))}
     </div>
   </section>
 
-  <section class="section-compact">
-    <div class="container-wide dna-panel surface">
-      <div>
-        <span class="eyebrow">Civilization Visual DNA</span>
-        <h2>这个文明如何被看见</h2>
-      </div>
-      <div class="dna-groups">
-        <div><span>色彩</span><p>{mythology.visualDna.palette.join(' · ')}</p></div>
-        <div><span>纹样</span><p>{mythology.visualDna.motifs.join(' · ')}</p></div>
-        <div><span>材质</span><p>{mythology.visualDna.materials.join(' · ')}</p></div>
-        <div><span>气质</span><p>{mythology.visualDna.atmosphere.join(' · ')}</p></div>
-      </div>
-    </div>
-  </section>
+  <div id="stories">
+    <MythologyStoryReader
+      mythology={mythology}
+      volumes={volumes}
+      characters={relatedCharacters}
+      worlds={relatedWorlds}
+    />
+  </div>
 
-  <section class="section-compact">
-    <div class="container-wide">
-      <div class="section-heading"><div><span class="eyebrow">Worlds</span><h2>代表神域</h2></div></div>
-      <div class="world-grid">
-        {relatedWorlds.map((world) => <WorldCard world={world} />)}
-      </div>
-    </div>
-  </section>
+  {(relatedCharacters.length > 0 || relatedWorlds.length > 0) && (
+    <section class="related-universe" aria-labelledby="related-universe-title">
+      <div class="container-wide related-universe-inner">
+        <header>
+          <span class="eyebrow">Beyond the Stories</span>
+          <h2 id="related-universe-title">故事之外，继续进入这个世界</h2>
+          <p class="literary-copy">神话在这里负责讲述；神灵与神域继续展开人物、形态与空间视觉。</p>
+        </header>
 
-  <section class="section-compact section-tint">
-    <div class="container-wide">
-      <div class="section-heading"><div><span class="eyebrow">Characters</span><h2>代表角色</h2></div></div>
-      <div class="character-grid">
-        {relatedCharacters.map((character) => <CharacterCard character={character} />)}
-      </div>
-    </div>
-  </section>
+        <div class="related-columns">
+          {relatedCharacters.length > 0 && (
+            <div class="related-column">
+              <div class="related-column-title">
+                <UserRound size={19} strokeWidth={1.7} aria-hidden="true" />
+                <span>相关神灵</span>
+              </div>
+              {relatedCharacters.map((character) => (
+                <a href={`/character/${character.slug}/`}>
+                  <span><strong>{character.name}</strong><small>{character.role}</small></span>
+                  <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" />
+                </a>
+              ))}
+            </div>
+          )}
 
-  <section class="section-compact">
-    <div class="container-wide">
-      <div class="section-heading"><div><span class="eyebrow">Artworks</span><h2>视觉作品</h2></div></div>
-      <div class="artwork-grid">
-        {relatedArtworks.map((artwork) => (
-          <ArtworkCard artwork={artwork} mythologyName={mythology.name} worldName={artwork.worldId ? worldsById.get(artwork.worldId)?.name : undefined} />
-        ))}
+          {relatedWorlds.length > 0 && (
+            <div class="related-column">
+              <div class="related-column-title">
+                <Landmark size={19} strokeWidth={1.7} aria-hidden="true" />
+                <span>相关神域</span>
+              </div>
+              {relatedWorlds.map((world) => (
+                <a href={`/world/${world.slug}/`}>
+                  <span><strong>{world.name}</strong><small>{world.nameEn}</small></span>
+                  <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 </BaseLayout>
 
 <style>
-  .entity-hero { position: relative; min-height: 620px; display: grid; align-items: end; overflow: hidden; border-bottom: 1px solid var(--border); }
-  .entity-hero > img, .entity-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .entity-hero > img { object-fit: cover; }
-  .entity-overlay { background: linear-gradient(to top, var(--bg-primary) 3%, color-mix(in srgb, var(--bg-primary) 86%, transparent) 35%, color-mix(in srgb, var(--bg-primary) 18%, transparent) 78%); }
-  .entity-copy { position: relative; z-index: 1; padding-bottom: clamp(3.5rem, 7vw, 6rem); }
-  .entity-copy h1 { margin: 0; }
-  .entity-copy p { max-width: 42rem; margin: var(--space-5) 0 var(--space-6); color: var(--text-secondary); font-size: 1.05rem; }
-  .dna-panel { display: grid; grid-template-columns: minmax(250px, .8fr) 1.4fr; gap: var(--space-10); padding: clamp(2rem, 5vw, 4rem); border-radius: var(--radius-xl); }
-  .dna-panel h2 { margin: 0; font-size: clamp(2rem, 3vw, 3rem); }
-  .dna-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
-  .dna-groups span { color: var(--accent-strong); font-size: .76rem; font-weight: 700; }
-  .dna-groups p { margin: var(--space-2) 0 0; color: var(--text-secondary); font-size: .9rem; }
-  .world-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
-  .character-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
-  .artwork-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); }
-  .section-tint { border-block: 1px solid var(--border); background: color-mix(in srgb, var(--bg-secondary) 66%, transparent); }
-  @media (max-width: 900px) { .dna-panel { grid-template-columns: 1fr; } .world-grid, .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 680px) { .entity-hero { min-height: 520px; } .character-grid, .world-grid { grid-template-columns: 1fr; } .artwork-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dna-groups { grid-template-columns: 1fr; } }
+  .mythology-hero {
+    position: relative;
+    min-height: max(760px, 88vh);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    overflow: hidden;
+    color: #fff;
+    background: #17202b;
+  }
+
+  .mythology-hero-image,
+  .mythology-hero-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .mythology-hero-image {
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1.015);
+    animation: mythology-hero-breathe 18s ease-in-out infinite alternate;
+  }
+
+  .mythology-hero-overlay {
+    background:
+      linear-gradient(180deg, rgba(7, 13, 20, .32) 0%, rgba(7, 13, 20, .05) 30%, rgba(7, 13, 20, .45) 70%, rgba(7, 13, 20, .82) 100%),
+      linear-gradient(90deg, rgba(7, 13, 20, .58) 0%, rgba(7, 13, 20, .08) 60%, rgba(7, 13, 20, .15) 100%);
+  }
+
+  .mythology-breadcrumb,
+  .mythology-hero-content,
+  .volume-preview {
+    position: relative;
+    z-index: 1;
+  }
+
+  .mythology-breadcrumb {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+    padding-top: calc(var(--header-height) + 2rem);
+    color: rgba(255, 255, 255, .68);
+    font-size: .76rem;
+  }
+
+  .mythology-breadcrumb a:hover {
+    color: #fff;
+  }
+
+  .mythology-hero-content {
+    align-self: end;
+    max-width: 1360px;
+    padding-bottom: 4rem;
+  }
+
+  .hero-kicker {
+    display: block;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, .72);
+    font-size: .76rem;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+  }
+
+  .mythology-hero h1 {
+    max-width: 850px;
+    margin-bottom: 1.2rem;
+    color: #fff;
+    font-size: clamp(4.8rem, 8vw, 8.5rem);
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-shadow: 0 8px 34px rgba(0, 0, 0, .24);
+  }
+
+  .mythology-deck {
+    max-width: 700px;
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, .8);
+    font-size: 1.1rem;
+    line-height: 1.9;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .read-action {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+    min-height: 46px;
+    padding: 0 1rem;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 6px;
+    color: #fff;
+    background: rgba(12, 19, 27, .28);
+    backdrop-filter: blur(10px);
+    font-size: .88rem;
+    font-weight: 650;
+    transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .read-action:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, .7);
+    background: rgba(12, 19, 27, .5);
+    transform: translateY(-1px);
+  }
+
+  .story-count {
+    color: rgba(255, 255, 255, .6);
+    font-size: .78rem;
+  }
+
+  .volume-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    border-top: 1px solid rgba(255, 255, 255, .18);
+  }
+
+  .volume-preview a {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: .85rem;
+    align-items: center;
+    min-height: 74px;
+    padding: 0 1.25rem;
+    border-right: 1px solid rgba(255, 255, 255, .14);
+    color: rgba(255, 255, 255, .8);
+    background: rgba(10, 16, 23, .24);
+    backdrop-filter: blur(10px);
+  }
+
+  .volume-preview a:first-child {
+    padding-left: 0;
+  }
+
+  .volume-preview a:last-child {
+    border-right: 0;
+  }
+
+  .volume-preview a:hover {
+    color: #fff;
+    background: rgba(10, 16, 23, .4);
+  }
+
+  .volume-preview span {
+    color: rgba(255, 255, 255, .45);
+    font-family: var(--font-display);
+    font-size: .75rem;
+  }
+
+  .volume-preview strong {
+    font-family: var(--font-display);
+    font-size: .92rem;
+    font-weight: 600;
+  }
+
+  .volume-preview small {
+    color: rgba(255, 255, 255, .48);
+    font-size: .7rem;
+  }
+
+  #stories {
+    scroll-margin-top: var(--header-height);
+  }
+
+  .related-universe {
+    padding: 7rem 0 8rem;
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg-secondary) 72%, var(--bg-primary));
+  }
+
+  .related-universe-inner {
+    display: grid;
+    grid-template-columns: minmax(320px, .8fr) 1.2fr;
+    gap: 6rem;
+  }
+
+  .related-universe header h2 {
+    max-width: 520px;
+    margin-bottom: 1.25rem;
+    font-size: clamp(2.6rem, 4vw, 4.2rem);
+  }
+
+  .related-universe header p {
+    max-width: 520px;
+    color: var(--text-secondary);
+    line-height: 1.9;
+  }
+
+  .related-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.2rem;
+  }
+
+  .related-column {
+    display: grid;
+    align-content: start;
+  }
+
+  .related-column-title {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    margin-bottom: .8rem;
+    padding-bottom: .85rem;
+    border-bottom: 1px solid var(--border-strong);
+    color: var(--text-secondary);
+    font-size: .8rem;
+    font-weight: 700;
+  }
+
+  .related-column > a {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    min-height: 72px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .related-column > a span {
+    display: grid;
+    gap: .15rem;
+  }
+
+  .related-column strong {
+    font-family: var(--font-display);
+    font-size: 1rem;
+  }
+
+  .related-column small {
+    color: var(--text-muted);
+    font-size: .74rem;
+  }
+
+  @keyframes mythology-hero-breathe {
+    from { transform: scale(1.015); }
+    to { transform: scale(1.055); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mythology-hero-image {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 1180px) {
+    .related-universe-inner {
+      gap: 3.5rem;
+    }
+  }
 </style>
