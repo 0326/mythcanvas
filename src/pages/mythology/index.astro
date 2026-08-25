@@ -6,29 +6,287 @@ import { getMythologies } from '../../lib/content/repositories';
 export const prerender = false;
 
 const db = Astro.locals.runtime.env.DB;
-const mythologies = await getMythologies(db);
+const mythologies = (await getMythologies(db)).toSorted(
+  (a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999),
+);
+const mythologyCount = String(mythologies.length).padStart(2, '0');
 ---
 
-<BaseLayout title="神话" description="进入中国、希腊、北欧、日本与埃及的神话体系，认识其中的神灵、神域与视觉 DNA。">
-  <section class="collection-hero">
-    <div class="container-wide">
-      <span class="eyebrow">Mythologies · 神话体系</span>
-      <h1>神话</h1>
-      <p>从云海天宫、大理石神殿到极光北境，进入每个神话体系，认识它的神灵、神域与视觉规则。</p>
+<BaseLayout title="神话" description="进入中国、希腊、北欧、日本与埃及等神话体系，穿越诸神、神域与各自独特的视觉文明。">
+  <section class="mythology-hero" aria-labelledby="mythology-title">
+    <div class="mythology-hero-watermark" aria-hidden="true">MYTHOLOGIES</div>
+    <div class="container-wide mythology-hero-inner">
+      <div class="mythology-hero-copy">
+        <span class="eyebrow">Mythologies · 神话文明</span>
+        <h1 id="mythology-title">进入诸神的世界</h1>
+        <p>
+          从云海天宫、大理石神殿，到极光北境与太阳圣城。每一种神话，都拥有独立的诸神、神域与视觉秩序。
+        </p>
+      </div>
+
+      <div class="mythology-hero-foot" aria-label={`共收录 ${mythologies.length} 个神话体系`}>
+        <span>{mythologyCount} MYTHOLOGIES</span>
+        <span class="hero-foot-line" aria-hidden="true"></span>
+        <span>EXPLORE THE DIVINE WORLDS</span>
+      </div>
     </div>
   </section>
-  <section class="section-compact">
-    <div class="container-wide collection-grid">
-      {mythologies.map((mythology) => <MythologyCard mythology={mythology} />)}
+
+  <section class="mythology-collection" aria-label="神话体系列表">
+    <div class="container-wide">
+      <div class="collection-heading">
+        <span>诸神文明</span>
+        <p>选择一方神话，进入它的角色、神域与视觉世界。</p>
+      </div>
+
+      <div class="collection-grid">
+        {mythologies.map((mythology, index) => (
+          <MythologyCard
+            mythology={mythology}
+            index={index}
+            featured={index === 0 || index === mythologies.length - 1}
+          />
+        ))}
+      </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .collection-hero { padding-block: clamp(4rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem); border-bottom: 1px solid var(--border); background: radial-gradient(circle at 82% 20%, var(--hero-ambient), transparent 28%); }
-  h1 { margin: 0; font-size: clamp(3rem, 6vw, 5.4rem); }
-  .collection-hero p { max-width: 42rem; margin: var(--space-5) 0 0; color: var(--text-secondary); }
-  .collection-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
-  @media (max-width: 800px) { .collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 560px) { .collection-grid { grid-template-columns: 1fr; } }
+  .mythology-hero {
+    position: relative;
+    min-height: clamp(500px, 61vh, 680px);
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    background:
+      radial-gradient(circle at 78% 24%, color-mix(in srgb, var(--hero-ambient) 86%, transparent), transparent 25%),
+      radial-gradient(circle at 14% 78%, color-mix(in srgb, var(--accent-soft) 36%, transparent), transparent 32%),
+      linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 42%, var(--bg-primary)), var(--bg-primary));
+    isolation: isolate;
+  }
+
+  .mythology-hero::before,
+  .mythology-hero::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .mythology-hero::before {
+    top: 9%;
+    right: 10%;
+    width: clamp(170px, 22vw, 320px);
+    aspect-ratio: 1;
+    border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+    box-shadow:
+      0 0 0 24px color-mix(in srgb, var(--accent) 3%, transparent),
+      0 0 90px color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .mythology-hero::after {
+    right: 18%;
+    bottom: 13%;
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    box-shadow:
+      68px -112px 0 -2px color-mix(in srgb, var(--accent) 64%, transparent),
+      -114px -36px 0 -2px color-mix(in srgb, var(--accent) 48%, transparent),
+      124px 52px 0 -2px color-mix(in srgb, var(--accent) 42%, transparent);
+    opacity: .58;
+  }
+
+  .mythology-hero-watermark {
+    position: absolute;
+    z-index: -1;
+    right: -1.5vw;
+    bottom: -.15em;
+    color: transparent;
+    font-family: var(--font-serif);
+    font-size: clamp(5.5rem, 15vw, 14rem);
+    font-weight: 700;
+    line-height: .8;
+    letter-spacing: -.055em;
+    -webkit-text-stroke: 1px color-mix(in srgb, var(--text-primary) 8%, transparent);
+    opacity: .9;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .mythology-hero-inner {
+    position: relative;
+    display: flex;
+    min-height: inherit;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: clamp(6rem, 12vh, 9rem) clamp(2.5rem, 6vh, 4rem);
+  }
+
+  .mythology-hero-copy {
+    width: min(800px, 72%);
+  }
+
+  .mythology-hero-copy h1 {
+    max-width: 760px;
+    margin: 0;
+    font-family: var(--font-display, var(--font-serif));
+    font-size: clamp(3.8rem, 7.8vw, 7.4rem);
+    font-weight: 620;
+    line-height: .98;
+    letter-spacing: -.055em;
+    text-wrap: balance;
+  }
+
+  .mythology-hero-copy p {
+    max-width: 680px;
+    margin: clamp(1.5rem, 3vw, 2.2rem) 0 0;
+    color: var(--text-secondary);
+    font-family: var(--font-literary, var(--font-serif));
+    font-size: clamp(1rem, 1.25vw, 1.16rem);
+    line-height: 1.9;
+    letter-spacing: .025em;
+    text-wrap: balance;
+  }
+
+  .mythology-hero-foot {
+    position: absolute;
+    right: 0;
+    bottom: clamp(2.2rem, 5vw, 3.5rem);
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-muted);
+    font-size: .67rem;
+    font-weight: 650;
+    letter-spacing: .15em;
+  }
+
+  .hero-foot-line {
+    width: clamp(36px, 6vw, 84px);
+    height: 1px;
+    background: var(--border-strong);
+  }
+
+  .mythology-collection {
+    position: relative;
+    padding-block: clamp(4rem, 8vw, 7rem) clamp(5rem, 10vw, 9rem);
+    background:
+      linear-gradient(to bottom, color-mix(in srgb, var(--bg-secondary) 20%, transparent), transparent 18rem),
+      var(--bg-primary);
+  }
+
+  .collection-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: clamp(2rem, 4vw, 3.2rem);
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .collection-heading > span {
+    color: var(--text-primary);
+    font-family: var(--font-serif);
+    font-size: clamp(1.2rem, 1.8vw, 1.65rem);
+    font-weight: 620;
+  }
+
+  .collection-heading p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: .82rem;
+    letter-spacing: .035em;
+  }
+
+  .collection-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.75rem);
+  }
+
+  @media (max-width: 900px) {
+    .mythology-hero {
+      min-height: 580px;
+    }
+
+    .mythology-hero-copy {
+      width: min(680px, 90%);
+    }
+
+    .mythology-hero-watermark {
+      right: -4vw;
+      font-size: clamp(5rem, 18vw, 9rem);
+    }
+
+    .collection-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .mythology-hero {
+      min-height: 540px;
+    }
+
+    .mythology-hero::before {
+      top: 18%;
+      right: -8%;
+      width: 180px;
+    }
+
+    .mythology-hero-watermark {
+      right: -10vw;
+      bottom: .18em;
+      font-size: 5.4rem;
+    }
+
+    .mythology-hero-inner {
+      justify-content: flex-start;
+      padding-top: 7.4rem;
+    }
+
+    .mythology-hero-copy {
+      width: 100%;
+    }
+
+    .mythology-hero-copy h1 {
+      max-width: 340px;
+      font-size: clamp(3.2rem, 17vw, 4.4rem);
+      line-height: .95;
+    }
+
+    .mythology-hero-copy p {
+      max-width: 92%;
+      font-size: .92rem;
+      line-height: 1.78;
+    }
+
+    .mythology-hero-foot {
+      bottom: 1.7rem;
+      gap: .65rem;
+      font-size: .58rem;
+      letter-spacing: .1em;
+    }
+
+    .hero-foot-line {
+      width: 24px;
+    }
+
+    .collection-heading {
+      display: block;
+      margin-bottom: 1.6rem;
+    }
+
+    .collection-heading p {
+      margin-top: .5rem;
+      line-height: 1.6;
+    }
+
+    .mythology-collection {
+      padding-block: 3rem 5rem;
+    }
+  }
 </style>
