@@ -32,6 +32,7 @@ const transformOptions = {
 };
 const lightImage = cloudflareImageUrl(lightSrc, transformOptions, useImageTransformations) ?? lightSrc;
 const darkImage = cloudflareImageUrl(darkSrc, transformOptions, useImageTransformations) ?? darkSrc;
+const hasDarkImage = darkImage !== lightImage;
 const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
 ---
 
@@ -39,15 +40,19 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
   <a href={`/mythology/${mythology.slug}/`} aria-label={`进入${mythology.name}`}>
     <div class="myth-card-media" style={imageStyle}>
       <img
-        class="myth-card-image myth-card-image--light"
+        class:list={{
+          'myth-card-image': true,
+          'myth-card-image--light': true,
+          'myth-card-image--has-dark': hasDarkImage,
+        }}
         src={lightImage}
-        alt={mythology.heroImage.alt || `${mythology.name}神话世界`}
+        alt={`${mythology.name}神话世界封面`}
         width={imageWidth}
         height={imageHeight}
         loading={featured && index === 0 ? 'eager' : 'lazy'}
         fetchpriority={featured && index === 0 ? 'high' : 'auto'}
       />
-      {darkImage !== lightImage && (
+      {hasDarkImage && (
         <img
           class="myth-card-image myth-card-image--dark"
           src={darkImage}
@@ -138,7 +143,7 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
     opacity: 0;
   }
 
-  :global([data-theme='dark']) .myth-card-image--light:has(+ .myth-card-image--dark) {
+  :global([data-theme='dark']) .myth-card-image--light.myth-card-image--has-dark {
     opacity: 0;
   }
 
