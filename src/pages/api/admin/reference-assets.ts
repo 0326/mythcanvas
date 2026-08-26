@@ -1,6 +1,9 @@
 import type { APIRoute } from 'astro';
 import { getCharacterById } from '../../../lib/content/repositories';
-import { getCharacterVariantProfile } from '../../../lib/generation/config-repository';
+import {
+  getCharacterInterpretationProfile,
+  getCharacterVariantProfile,
+} from '../../../lib/generation/config-repository';
 import {
   appendVariantReferenceAsset,
   archiveReferenceAsset,
@@ -29,19 +32,27 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const url = new URL(request.url);
   const characterId = url.searchParams.get('characterId')?.trim() ?? '';
   const variantId = url.searchParams.get('variantId')?.trim() || undefined;
+  const interpretationId = url.searchParams.get('interpretationId')?.trim() || undefined;
   if (!characterId) return json({ error: { code: 'MISSING_CHARACTER', message: '请选择角色。' } }, 400);
 
   const character = await getCharacterById(locals.runtime.env.DB, characterId);
   if (!character) return json({ error: { code: 'CHARACTER_NOT_FOUND', message: '角色不存在。' } }, 404);
+  if (interpretationId) {
+    try {
+      await getCharacterInterpretationProfile(locals.runtime.env.DB, interpretationId, characterId);
+    } catch {
+      return json({ error: { code: 'INTERPRETATION_NOT_FOUND', message: '传统版本不存在。' } }, 404);
+    }
+  }
   if (variantId) {
     try {
-      await getCharacterVariantProfile(locals.runtime.env.DB, variantId, characterId);
+      await getCharacterVariantProfile(locals.runtime.env.DB, variantId, characterId, interpretationId);
     } catch {
       return json({ error: { code: 'VARIANT_NOT_FOUND', message: '角色形态不存在。' } }, 404);
     }
   }
 
-  const items = await listReferenceAssetRecords(locals.runtime.env.DB, characterId, variantId);
+  const items = await listReferenceAssetRecords(locals.runtime.env.DB, characterId, variantId, interpretationId);
   return json({
     items: items.map((item) => ({ ...item, imageUrl: `/media/${item.assetKey}` })),
   });
@@ -62,6 +73,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const form = await request.formData();
   const characterId = stringField(form, 'characterId');
   const variantId = stringField(form, 'variantId') || undefined;
+  const interpretationId = stringField(form, 'interpretationId') || undefined;
   const assetType = stringField(form, 'assetType');
   const altText = stringField(form, 'altText').slice(0, 240);
   const file = form.get('file');
@@ -74,9 +86,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const character = await getCharacterById(locals.runtime.env.DB, characterId);
   if (!character) return json({ error: { code: 'CHARACTER_NOT_FOUND', message: '角色不存在。' } }, 404);
+  if (interpretationId) {
+    try {
+      await getCharacterInterpretationProfile(locals.runtime.env.DB, interpretationId, characterId);
+    } catch {
+      return json({ error: { code: 'INTERPRETATION_NOT_FOUND', message: '传统版本不存在。' } }, 404);
+    }
+  }
   if (variantId) {
     try {
-      await getCharacterVariantProfile(locals.runtime.env.DB, variantId, characterId);
+      await getCharacterVariantProfile(locals.runtime.env.DB, variantId, characterId, interpretationId);
     } catch {
       return json({ error: { code: 'VARIANT_NOT_FOUND', message: '角色形态不存在。' } }, 404);
     }
@@ -88,7 +107,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const id = `ref-${crypto.randomUUID()}`;
-  const scope = variantId ?? 'canonical';
+  const scope = variantId ?? interpretationId ?? 'canonical';
   const extension = extensionForMime(file.type);
   const assetKey = `references/${safeSegment(characterId)}/${safeSegment(scope)}/${assetType}-${id}.${extension}`;
   const bytes = await file.arrayBuffer();
@@ -98,6 +117,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     customMetadata: {
       characterId,
       variantId: variantId ?? '',
+      interpretationId: interpretationId ?? '',
       assetType,
       referenceId: id,
     },
@@ -108,6 +128,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       id,
       ownerType: variantId ? 'character_variant' : 'character',
       ownerId: variantId ?? characterId,
+      characterInterpretationId: interpretationId,
       assetType,
       assetKey,
       mimeType: file.type,
@@ -128,6 +149,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       id,
       ownerType: variantId ? 'character_variant' : 'character',
       ownerId: variantId ?? characterId,
+      characterInterpretationId: interpretationId,
       assetType,
       assetKey,
       mimeType: file.type,

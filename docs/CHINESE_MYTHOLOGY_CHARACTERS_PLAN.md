@@ -556,7 +556,8 @@ Character
 ```ts
 type CharacterRelation = {
   fromCharacterId: string;
-  toCharacterId: string;
+  toCharacterId?: string;
+  toConceptId?: string;
   relationType:
     | 'parent'
     | 'child'
@@ -570,9 +571,12 @@ type CharacterRelation = {
     | 'serves'
     | 'rules-over'
     | 'syncretized-with'
-    | 'literary-identity-of';
+    | 'associated-with'
+    | 'created'
+    | 'transformed-into';
 
-  interpretationId?: string;
+  fromInterpretationId?: string;
+  toInterpretationId?: string;
   sourceRefs: SourceRef[];
   confidence: 'high' | 'medium' | 'contested';
 };
@@ -581,8 +585,9 @@ type CharacterRelation = {
 这样才能表达：
 
 ```text
-二郎神 ↔ 杨戬
-relation = literary-identity-of
+二郎神（Character）
+└── 明清神魔小说解释层（CharacterInterpretation）
+    └── 杨戬（CharacterName，name_kind = literary-identity）
 source = 明清神魔小说层
 
 炎帝 ↔ 神农
@@ -590,13 +595,15 @@ relation = syncretized-with
 confidence = contested / tradition-dependent
 ```
 
-而不是简单粗暴做 alias。
+这里的关键不是建立第二个 Character 的 relation，也不是给二郎神添加无来源的全局 alias；而是把 `杨戬`做成解释层限定的名称。
 
 ---
 
-# 8. 来源可信度等级
+# 8. 来源层与证据可信度
 
-内容生产建议使用 5 级 Source Tier。
+内容生产建议使用 5 级 Source Tier。Tier 只描述来源的时代与材料类型，不等同于“真伪评分”：早期文本不自动覆盖所有后世宗教或文学传统，文学材料也不自动低可信。
+
+每个具体的身份、关系、称谓或图像学主张都同时保存 `sourceRefs` 和独立的 `confidence`（`high` / `medium` / `contested`）。这样可以区分“这是明清文学层的直接记载”与“这是一个跨传统推断、仍有争议的结论”。
 
 ## S0 — 早期 / 一手经典文本
 
@@ -1210,12 +1217,13 @@ type Character = {
 };
 ```
 
-随后 P1 正式引入：
+第一期已通过 `0020_character_interpretations.sql` 正式引入：
 
 ```text
 character_interpretations
+character_names
 character_relations
-character_source_refs
+content_concepts
 ```
 
 不要把这些全部塞进 `canonical_design_json`。
@@ -1238,12 +1246,14 @@ type SourceRef = {
   section?: string;
   author?: string;
   period?: string;
+  edition?: string;
+  locator?: string;
   url?: string;
   note?: string;
 };
 ```
 
-每一个“有争议的关系 / 神职 / 形象”都应该能追到来源。
+`SourceRef.type` / `period` 用于表达来源层；`confidence` 附在 CharacterInterpretation、CharacterName、CharacterRelation 等具体主张上。每一个“有争议的关系 / 神职 / 形象”都应该能追到来源。
 
 ---
 

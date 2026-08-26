@@ -1,7 +1,8 @@
 ---
 import { ArrowRight, BookOpenText, Landmark, UserRound } from '@lucide/astro';
-import type { Character, Mythology, World } from '../../lib/content/types';
+import type { Character, MythStoryKind, Mythology, World } from '../../lib/content/types';
 import type { MythStoryVolume } from '../../lib/content/stories';
+import { getStoryIllustrationById } from '../../data/story-illustrations';
 
 interface Props {
   mythology: Mythology;
@@ -14,32 +15,51 @@ const { mythology, volumes, characters, worlds } = Astro.props;
 const charactersById = new Map(characters.map((item) => [item.id, item]));
 const worldsById = new Map(worlds.map((item) => [item.id, item]));
 const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
+const storyKindLabels: Record<MythStoryKind, string> = {
+  myth: '神话传统',
+  'folk-legend': '民间传说',
+  'religious-tradition': '宗教传统',
+  'literary-fantasy': '文学幻想',
+};
+
+const sourceTypeLabels = {
+  'primary-text': '原始文本',
+  translation: '译本',
+  'scholarly-reference': '学术参考',
+  'oral-tradition': '口传传统',
+} as const;
 ---
 
 <section class="mythology-reader" aria-labelledby="story-reader-title">
   <div class="container-wide reader-grid">
     <aside class="reader-nav" aria-label={`${mythology.name}故事卷目`}>
-      <div class="reader-nav-inner">
-        <span class="eyebrow">Story Index</span>
-        <h2>神话长卷</h2>
-        <p>按主题成卷，不强造一条不存在的统一时间线。</p>
+      <details class="reader-nav-disclosure" open>
+        <summary>
+          <span>故事目录</span>
+          <span aria-hidden="true">展开</span>
+        </summary>
+        <div class="reader-nav-inner">
+          <span class="eyebrow">Story Index</span>
+          <h2>神话长卷</h2>
+          <p>按主题成卷，不强造一条不存在的统一时间线。</p>
 
-        <nav class="volume-list">
-          {volumes.map((volume, volumeIndex) => (
-            <div class="volume-nav-group">
-              <a class="volume-nav-title" href={`#volume-${volume.id}`}>
-                <span>{volumeNumerals[volumeIndex] ?? String(volumeIndex + 1).padStart(2, '0')}</span>
-                <strong>{volume.title}</strong>
-              </a>
-              <div class="story-nav-list">
-                {volume.stories.map((story) => (
-                  <a href={`#story-${story.slug}`}>{story.title}</a>
-                ))}
+          <nav class="volume-list">
+            {volumes.map((volume, volumeIndex) => (
+              <div class="volume-nav-group">
+                <a class="volume-nav-title" href={`#volume-${volume.id}`}>
+                  <span>{volumeNumerals[volumeIndex] ?? String(volumeIndex + 1).padStart(2, '0')}</span>
+                  <strong>{volume.title}</strong>
+                </a>
+                <div class="story-nav-list">
+                  {volume.stories.map((story) => (
+                    <a href={`#story-${story.slug}`}>{story.title}</a>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </nav>
-      </div>
+            ))}
+          </nav>
+        </div>
+      </details>
     </aside>
 
     <div class="reader-content">
@@ -73,14 +93,17 @@ const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
                   <header class="story-header">
                     <div class="story-order" aria-hidden="true">{String(storyIndex + 1).padStart(2, '0')}</div>
                     <div>
-                      <span class="story-tradition">{story.tradition ?? '神话与传说传统'}</span>
+                      <div class="story-classification">
+                        <span class="story-kind">{storyKindLabels[story.kind]}</span>
+                        <span class="story-tradition">{story.tradition ?? '神话与传说传统'}</span>
+                      </div>
                       <h3>{story.title}</h3>
                       {story.titleEn && <p class="story-title-en">{story.titleEn}</p>}
                       {story.subtitle && <p class="story-subtitle literary-copy">{story.subtitle}</p>}
                       <p class="story-summary literary-copy">{story.summary}</p>
                       <div class="story-meta">
                         <span><BookOpenText size={16} strokeWidth={1.8} aria-hidden="true" />约 {story.readingMinutes ?? 4} 分钟</span>
-                        <span>{story.sourceNotes.length} 条来源 / 版本说明</span>
+                        <span>{story.sources.length} 条参考来源</span>
                       </div>
                     </div>
                   </header>
@@ -89,6 +112,12 @@ const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
                     {story.blocks.map((block) => {
                       if (block.type === 'paragraph') {
                         return <p class="story-paragraph literary-copy">{block.text}</p>;
+                      }
+
+                      if (block.type === 'heading') {
+                        return block.level === 2
+                          ? <h4 id={block.id} class="story-section-heading">{block.text}</h4>
+                          : <h5 id={block.id} class="story-subsection-heading">{block.text}</h5>;
                       }
 
                       if (block.type === 'quote') {
@@ -100,13 +129,16 @@ const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
                         );
                       }
 
+                      const asset = getStoryIllustrationById(block.assetId);
+                      if (!asset) return null;
+
                       return (
                         <figure class:list={['story-figure', `story-figure--${block.layout ?? 'wide'}`]}>
                           <img
-                            src={block.image.src}
-                            alt={block.image.alt}
-                            width={block.image.width}
-                            height={block.image.height}
+                            src={asset.image.src}
+                            alt={asset.image.alt}
+                            width={asset.image.width}
+                            height={asset.image.height}
                             loading="lazy"
                           />
                           {block.caption && <figcaption>{block.caption}</figcaption>}
@@ -143,6 +175,17 @@ const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
                   <details class="source-notes">
                     <summary>来源与版本说明</summary>
                     <div>
+                      <ol class="story-source-list">
+                        {story.sources.map((source) => (
+                          <li>
+                            <strong>{source.title}</strong>
+                            <span>{sourceTypeLabels[source.sourceType]}</span>
+                            {[source.tradition, source.period].filter(Boolean).join(' · ') && <small>{[source.tradition, source.period].filter(Boolean).join(' · ')}</small>}
+                            {source.note && <p>{source.note}</p>}
+                            {source.url && <a href={source.url} rel="noreferrer">查看来源</a>}
+                          </li>
+                        ))}
+                      </ol>
                       {story.sourceNotes.map((note) => <p>{note}</p>)}
                     </div>
                   </details>
@@ -173,11 +216,23 @@ const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
 
   .reader-nav {
     position: relative;
+    min-width: 0;
+  }
+
+  .reader-nav-disclosure {
+    margin: 0;
+  }
+
+  .reader-nav-disclosure > summary {
+    display: none;
   }
 
   .reader-nav-inner {
     position: sticky;
     top: calc(var(--header-height) + 2rem);
+    max-height: calc(100svh - var(--header-height) - 3.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding-right: 1.75rem;
     border-right: 1px solid var(--border);
   }
@@ -328,12 +383,26 @@ const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
   }
 
   .story-tradition {
-    display: block;
-    margin-bottom: .8rem;
+    display: inline;
     color: var(--text-muted);
     font-size: .76rem;
     font-weight: 650;
     letter-spacing: .08em;
+  }
+
+  .story-classification {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem .85rem;
+    align-items: center;
+    margin-bottom: .8rem;
+  }
+
+  .story-kind {
+    color: var(--accent-strong);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
   }
 
   .story-header h3 {
@@ -400,6 +469,24 @@ const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
     font-family: var(--font-display);
     font-size: 3.5em;
     line-height: .82;
+  }
+
+  .story-section-heading,
+  .story-subsection-heading {
+    max-width: 720px;
+    margin: 3.6rem 0 1.15rem;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    line-height: 1.25;
+    scroll-margin-top: calc(var(--header-height) + 2rem);
+  }
+
+  .story-section-heading {
+    font-size: clamp(1.45rem, 2.3vw, 2rem);
+  }
+
+  .story-subsection-heading {
+    font-size: 1.2rem;
   }
 
   .story-figure {
@@ -545,6 +632,45 @@ const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
     padding-top: .85rem;
   }
 
+  .story-source-list {
+    display: grid;
+    gap: .85rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .story-source-list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: .7rem;
+    align-items: baseline;
+  }
+
+  .story-source-list strong {
+    color: var(--text-secondary);
+    font-family: var(--font-literary);
+    font-size: .86rem;
+    font-weight: 650;
+  }
+
+  .story-source-list span,
+  .story-source-list small {
+    color: var(--text-muted);
+    font-size: .72rem;
+  }
+
+  .story-source-list p,
+  .story-source-list a {
+    grid-column: 1 / -1;
+  }
+
+  .story-source-list a {
+    width: fit-content;
+    color: var(--accent-strong);
+    font-size: .76rem;
+  }
+
   .source-notes p {
     margin: 0 0 .5rem;
     font-family: var(--font-literary);
@@ -564,6 +690,197 @@ const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
 
     .story-relations {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 820px) {
+    .mythology-reader {
+      padding: 4rem 0 5rem;
+    }
+
+    .reader-grid {
+      display: block;
+    }
+
+    .reader-nav {
+      margin-bottom: 3.5rem;
+    }
+
+    .reader-nav-disclosure {
+      border-block: 1px solid var(--border);
+    }
+
+    .reader-nav-disclosure > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 56px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 650;
+      list-style: none;
+    }
+
+    .reader-nav-disclosure > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .reader-nav-disclosure > summary span:last-child {
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: .72rem;
+      font-weight: 500;
+    }
+
+    .reader-nav-disclosure[open] > summary span:last-child {
+      font-size: 0;
+    }
+
+    .reader-nav-disclosure[open] > summary span:last-child::after {
+      content: '收起';
+      font-size: .72rem;
+    }
+
+    .reader-nav-inner {
+      position: static;
+      max-height: min(48svh, 28rem);
+      margin-bottom: 1.2rem;
+      padding: 0 .15rem 1.2rem;
+      border: 0;
+    }
+
+    .reader-nav h2,
+    .reader-nav-inner > p {
+      display: none;
+    }
+
+    .volume-list {
+      gap: 1rem;
+    }
+
+    .volume-nav-group {
+      gap: .5rem;
+    }
+
+    .story-nav-list {
+      gap: .55rem;
+      padding-left: 2.65rem;
+    }
+
+    .reader-intro {
+      margin-bottom: 4.5rem;
+    }
+
+    .reader-intro h2 {
+      font-size: clamp(2.55rem, 12vw, 3.65rem);
+    }
+
+    .reader-intro p {
+      font-size: 1rem;
+      line-height: 1.9;
+    }
+
+    .story-volume + .story-volume {
+      margin-top: 5.5rem;
+    }
+
+    .volume-heading {
+      grid-template-columns: auto 1fr;
+      gap: .75rem;
+      margin-bottom: 3rem;
+    }
+
+    .volume-heading h2 {
+      font-size: 1.8rem;
+      white-space: normal;
+    }
+
+    .volume-rule {
+      display: none;
+    }
+
+    .volume-stories {
+      gap: 5.5rem;
+    }
+
+    .story-header {
+      grid-template-columns: 1fr;
+      gap: .85rem;
+      margin-bottom: 2.25rem;
+    }
+
+    .story-order {
+      padding: 0;
+    }
+
+    .story-header h3 {
+      font-size: clamp(2.3rem, 12vw, 3.45rem);
+    }
+
+    .story-summary,
+    .story-paragraph {
+      font-size: 1rem;
+      line-height: 1.95;
+      text-align: start;
+    }
+
+    .story-meta {
+      flex-wrap: wrap;
+      gap: .6rem 1rem;
+    }
+
+    .story-body,
+    .story-relations,
+    .source-notes {
+      margin-left: 0;
+    }
+
+    .story-body {
+      display: block;
+    }
+
+    .story-figure,
+    .story-figure--wide,
+    .story-figure--portrait,
+    .story-figure--inset {
+      width: 100%;
+      margin-inline: 0;
+    }
+
+    .story-figure {
+      margin-block: 2.1rem 2.65rem;
+    }
+
+    .story-figure--portrait img {
+      max-width: min(100%, 430px);
+    }
+
+    .story-quote {
+      margin-left: 0;
+      padding-left: 1.1rem;
+    }
+
+    .story-relations {
+      gap: 1.4rem;
+      margin-top: 2.7rem;
+    }
+
+    .relation-links {
+      grid-template-columns: 1fr;
+    }
+
+    .story-source-list li {
+      grid-template-columns: 1fr;
+      gap: .22rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-nav-list a,
+    .relation-link {
+      transition: none;
     }
   }
 </style>

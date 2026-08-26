@@ -8,7 +8,8 @@ MythCanvas 不把角色出图做成“角色名 + 一段 Prompt”。生产模�
 
 ```text
 Character（画谁）
-+ CharacterVariant（角色处于什么年龄/服装/形态）
++ CharacterInterpretation（选择哪个有来源的历史、宗教、民间或文学版本）
++ CharacterVariant（该版本下角色处于什么年龄/服装/形态）
 + Mythology Visual DNA（文化身份）
 + Style（怎么画）
 + Scene / Composition（在哪里、怎么构图）
@@ -19,6 +20,7 @@ Character（画谁）
 ### 正交关系
 
 - Character 不包含画风。
+- CharacterInterpretation 只承载有来源的身份、称谓、关系与图像学差异；它不是第二个 Character，也不是 Variant。
 - Style 不包含角色、年龄、服装、文明、设备尺寸。
 - CharacterVariant 只描述持久角色状态，不描述 Cinematic / Anime 等渲染方式。
 - Theme 只表示网站 Light / Dark，不进入作品 Style。
@@ -67,7 +69,19 @@ Chang'e × canonical × Cyber Myth × desktop
 
 ---
 
-## 3. CharacterVariant
+## 3. CharacterInterpretation
+
+`character_interpretations` 承载同一 Character 在不同来源层的、不能简单视作换装的身份差异；`character_names` 允许称谓限定在一个 Interpretation 中。
+
+```text
+二郎神（一个 Character）
+└── 明清文学解释层（一个 CharacterInterpretation）
+    └── 杨戬（该解释层的 literary-identity 名称）
+```
+
+因此，`杨戬`不会作为第二个角色或全局别名污染其他二郎神传统。解释层的 `source_refs_json`、置信度和可视身份锚点必须一起保存。
+
+## 4. CharacterVariant
 
 新增 `character_variants`。
 
@@ -83,7 +97,7 @@ composite
 示例：
 
 ```text
-Athena
+Athena（Character）
 ├── canonical（characters 主记录，不需要 variant 行）
 ├── young-adult            [age]
 ├── mature-adult           [age]
@@ -99,7 +113,7 @@ Athena
 
 ---
 
-## 4. Style 数据模型
+## 5. Style 数据模型
 
 `styles` 从简单的 `prompt_hint` 升级成独立生产配置：
 
@@ -134,7 +148,7 @@ status
 
 ---
 
-## 5. Reference Pack
+## 6. Reference Pack
 
 大量持续生成时，仅依赖文本 Canonical Anchors 会逐渐产生角色漂移。
 
@@ -150,7 +164,7 @@ expression-sheet
 signature-props
 ```
 
-角色 Variant 可以有自己的补充 Reference Assets，例如新的礼服或觉醒形态。
+角色 Interpretation 与 Variant 可以有自己的补充 Reference Assets，例如文学版本的专属图像锚点、新的礼服或觉醒形态。
 
 ### 存储
 
@@ -168,6 +182,7 @@ GPT Image 2 支持高保真图像输入。后续角色一致性生产应优先�
 
 ```text
 Canonical Reference 1–2 张
++ Interpretation Reference 0–1 张
 + Variant Reference 0–1 张
 + Style Reference 0–1 张（可选）
 ```
@@ -178,7 +193,7 @@ Canonical Reference 1–2 张
 
 ---
 
-## 6. OutputSpec
+## 7. OutputSpec
 
 首发只定义两套主规格，避免无限尺寸组合。
 
@@ -213,7 +228,7 @@ draft: 720 × 1280
 
 ---
 
-## 7. GPT Image 2 Prompt Composer
+## 8. GPT Image 2 Prompt Composer
 
 Production 模型目标为 `gpt-image-2`。
 

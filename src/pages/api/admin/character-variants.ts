@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getCharacterById } from '../../../lib/content/repositories';
 import { listCharacterVariantProfiles } from '../../../lib/generation/creator-config';
+import { getCharacterInterpretationProfile } from '../../../lib/generation/config-repository';
 
 export const prerender = false;
 
@@ -12,7 +13,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   if (!characterId) return json({ error: { code: 'MISSING_CHARACTER', message: '请选择角色。' } }, 400);
   const character = await getCharacterById(locals.runtime.env.DB, characterId);
   if (!character) return json({ error: { code: 'CHARACTER_NOT_FOUND', message: '角色不存在。' } }, 404);
-  const items = await listCharacterVariantProfiles(locals.runtime.env.DB, [characterId]);
+  const items = await listCharacterVariantProfiles(locals.runtime.env.DB, [characterId], true);
   return json({ items });
 };
 
@@ -37,6 +38,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (action !== 'create') return json({ error: { code: 'INVALID_ACTION', message: '操作无效。' } }, 400);
 
   const characterId = stringValue(body.characterId);
+  const interpretationId = stringValue(body.interpretationId) || undefined;
   const name = stringValue(body.name).slice(0, 80);
   const requestedSlug = stringValue(body.slug).slice(0, 80);
   const variantType = stringValue(body.variantType);
@@ -49,18 +51,26 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
   const character = await getCharacterById(locals.runtime.env.DB, characterId);
   if (!character) return json({ error: { code: 'CHARACTER_NOT_FOUND', message: '角色不存在。' } }, 404);
+  if (interpretationId) {
+    try {
+      await getCharacterInterpretationProfile(locals.runtime.env.DB, interpretationId, characterId);
+    } catch {
+      return json({ error: { code: 'INTERPRETATION_NOT_FOUND', message: '传统版本不存在。' } }, 404);
+    }
+  }
 
   const id = `variant-${crypto.randomUUID()}`;
   const slug = requestedSlug || `${slugify(name)}-${id.slice(-8)}`;
   try {
     await locals.runtime.env.DB.prepare(`
       INSERT INTO character_variants (
-        id, character_id, slug, name, variant_type, description,
+        id, character_id, character_interpretation_id, slug, name, variant_type, description,
         traits_json, identity_overrides_json, prompt_fragment, reference_pack_json, status
-      ) VALUES (?, ?, ?, ?, ?, ?, '{}', ?, ?, '[]', 'active')
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, '{}', ?, ?, '[]', 'active')
     `).bind(
       id,
       characterId,
+      interpretationId ?? null,
       slug,
       name,
       variantType,
@@ -78,6 +88,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     item: {
       id,
       characterId,
+      interpretationId,
       name,
       variantType,
       description,

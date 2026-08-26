@@ -1,5 +1,6 @@
 import { getCharacterById, getMythologyById, getStyleById, getWorldById } from '../content/repositories';
 import {
+  getCharacterInterpretationProfile,
   getCharacterVariantProfile,
   getOutputSpecProfile,
   getStyleGenerationProfile,
@@ -23,8 +24,11 @@ export async function resolveGenerationContext(
   const mythology = await getMythologyById(db, entity.mythologyId);
   if (!mythology) throw new GenerationValidationError('MYTHOLOGY_NOT_FOUND', '对应神话体系不存在。', 404);
 
+  const interpretation = request.entityType === 'character'
+    ? await getCharacterInterpretationProfile(db, request.interpretationId, entity.id)
+    : undefined;
   const variant = request.entityType === 'character'
-    ? await getCharacterVariantProfile(db, request.variantId, entity.id)
+    ? await getCharacterVariantProfile(db, request.variantId, entity.id, interpretation?.id)
     : undefined;
   const styleProfile = await getStyleGenerationProfile(db, style.id);
   const outputSpec = await getOutputSpecProfile(db, request.outputSpecId, request.ratio);
@@ -48,6 +52,7 @@ export async function resolveGenerationContext(
     visualDna: mythology.visualDna,
     canonicalAnchors,
     symbols,
+    interpretation,
     variant,
     styleId: style.id,
     styleName: style.name,
@@ -90,6 +95,28 @@ export function composeGenerationPromptLayers(context: ResolvedGenerationContext
     context.symbols.length ? `Stable symbols and attributes: ${context.symbols.join('; ')}.` : '',
     'These identity anchors take priority over rendering-style variation.',
   ].filter(Boolean).join(' ');
+
+  const interpretation = context.interpretation
+    ? [
+        `Use the approved source-scoped interpretation “${context.interpretation.name}”.`,
+        context.interpretation.role ? `Role in this interpretation: ${context.interpretation.role}.` : '',
+        context.interpretation.summary ? `${context.interpretation.summary}.` : '',
+        context.interpretation.traditionTags.length
+          ? `Tradition context: ${context.interpretation.traditionTags.join('; ')}.`
+          : '',
+        context.interpretation.sourcePeriods.length
+          ? `Source-period context: ${context.interpretation.sourcePeriods.join('; ')}.`
+          : '',
+        context.interpretation.identityAnchors.length
+          ? `Interpretation-specific identity anchors: ${context.interpretation.identityAnchors.join('; ')}.`
+          : '',
+        context.interpretation.symbols.length
+          ? `Interpretation-specific symbols: ${context.interpretation.symbols.join('; ')}.`
+          : '',
+        context.interpretation.promptFragment,
+        'Apply these details only within the selected interpretation; do not project them onto every tradition of the character.',
+      ].filter(Boolean).join(' ')
+    : undefined;
 
   const variant = context.variant
     ? [
@@ -142,6 +169,7 @@ export function composeGenerationPromptLayers(context: ResolvedGenerationContext
 
   const guardrails = [
     'Create an original MythCanvas interpretation from mythological/public-domain source material.',
+    'Do not silently combine identity, relationship, costume, or iconographic claims from different historical or literary interpretations.',
     'Do not imitate the specific face, costume, logo, card frame, UI, or character design of a modern anime, game, film, or other commercial adaptation.',
     'Do not add text, watermark, signature, interface chrome, or brand logos inside the artwork.',
     'Do not introduce extra duplicate characters, limbs, weapons, or symbols unless the scene explicitly requires them.',
@@ -150,6 +178,7 @@ export function composeGenerationPromptLayers(context: ResolvedGenerationContext
   return {
     purpose,
     identity,
+    interpretation,
     variant,
     civilization,
     style,

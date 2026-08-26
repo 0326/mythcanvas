@@ -1,7 +1,8 @@
 import type { GenerationJob, GenerationQuality, PromptLayers } from '../generation/types';
 
 const SELECT_COLUMNS = `
-  id, status, entity_type, entity_id, mythology_id, style_id, character_variant_id, output_spec_id,
+  id, status, entity_type, entity_id, mythology_id, style_id, character_interpretation_id,
+  character_variant_id, output_spec_id,
   scene, composition, ratio, description, prompt, prompt_layers_json, provider, generation_model,
   generation_quality, reference_asset_ids_json, provider_request_id, asset_key, asset_mime, asset_width,
   asset_height, error_code, error_message, source_generation_id, is_public, user_id, created_at, updated_at
@@ -12,11 +13,12 @@ export async function insertGenerationJob(db: D1Database | undefined, job: Gener
 
   await db.prepare(`
     INSERT INTO generation_jobs (
-      id, status, entity_type, entity_id, mythology_id, style_id, character_variant_id, output_spec_id,
+      id, status, entity_type, entity_id, mythology_id, style_id, character_interpretation_id,
+      character_variant_id, output_spec_id,
       scene, composition, ratio, description, prompt, prompt_layers_json, provider, generation_model,
       generation_quality, reference_asset_ids_json, provider_request_id, asset_key, asset_mime, asset_width,
       asset_height, error_code, error_message, source_generation_id, is_public, user_id, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     job.id,
     job.status,
@@ -24,6 +26,7 @@ export async function insertGenerationJob(db: D1Database | undefined, job: Gener
     job.entityId,
     job.mythologyId,
     job.styleId,
+    job.characterInterpretationId ?? null,
     job.characterVariantId ?? null,
     job.outputSpecId ?? null,
     job.scene,
@@ -151,6 +154,7 @@ function mapJobRow(row: Record<string, unknown>): GenerationJob {
     entityId: String(row.entity_id),
     mythologyId: String(row.mythology_id),
     styleId: String(row.style_id),
+    characterInterpretationId: optionalString(row.character_interpretation_id),
     characterVariantId: optionalString(row.character_variant_id),
     outputSpecId: optionalString(row.output_spec_id),
     scene: String(row.scene),

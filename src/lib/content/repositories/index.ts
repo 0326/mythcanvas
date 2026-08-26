@@ -4,6 +4,7 @@ export * from './mythology';
 export * from './world';
 export * from './character';
 export * from './character-variant';
+export * from './character-interpretation';
 export * from './artwork';
 export * from './scene';
 export * from './style';

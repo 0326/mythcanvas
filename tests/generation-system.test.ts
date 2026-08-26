@@ -32,7 +32,7 @@ describe('structured generation system', () => {
     expect(specs.map((spec) => spec.deviceType)).toEqual(['mobile', 'desktop']);
   });
 
-  it('keeps Character, Variant, Style and OutputSpec in separate prompt layers', () => {
+  it('keeps Character, Interpretation, Variant, Style and OutputSpec in separate prompt layers', () => {
     const context: ResolvedGenerationContext = {
       entityType: 'character',
       entityId: 'character-athena',
@@ -47,6 +47,19 @@ describe('structured generation system', () => {
       },
       canonicalAnchors: ['poised warrior-goddess silhouette', 'Aegis shield'],
       symbols: ['spear', 'owl'],
+      interpretation: {
+        id: 'athena-classical-polis',
+        name: '古典城邦守护神解释层',
+        role: '城邦与理性秩序的守护神',
+        summary: '以城市守护与智慧秩序为核心的古典传统版本',
+        traditionTags: ['古典希腊'],
+        sourcePeriods: ['古典时期'],
+        identityAnchors: ['olive branch and civic armor'],
+        symbols: ['owl on a bronze crest'],
+        canonicalDesignOverrides: {},
+        promptFragment: 'Keep civic, not imperial, ceremonial cues.',
+        confidence: 'high',
+      },
       variant: {
         id: 'athena-mature-ceremonial',
         name: '成熟礼仪战甲',
@@ -81,6 +94,7 @@ describe('structured generation system', () => {
 
     const layers = composeGenerationPromptLayers(context);
     expect(layers.identity).toContain('Aegis shield');
+    expect(layers.interpretation).toContain('古典城邦守护神解释层');
     expect(layers.variant).toContain('成熟礼仪战甲');
     expect(layers.style).toContain('Cyber Myth');
     expect(layers.output).toContain('1440×2560');
@@ -88,6 +102,8 @@ describe('structured generation system', () => {
 
     const prompt = composeGenerationPrompt(context);
     expect(prompt.indexOf('established MythCanvas identity')).toBeLessThan(prompt.indexOf('Additional user direction'));
+    expect(prompt.indexOf('established MythCanvas identity')).toBeLessThan(prompt.indexOf('古典城邦守护神解释层'));
+    expect(prompt.indexOf('古典城邦守护神解释层')).toBeLessThan(prompt.indexOf('成熟礼仪战甲'));
     expect(prompt).toContain('Do not imitate');
   });
 

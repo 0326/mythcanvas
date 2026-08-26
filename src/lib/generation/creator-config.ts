@@ -4,6 +4,7 @@ import { getOutputSpecProfile } from './config-repository';
 export async function listCharacterVariantProfiles(
   db: D1Database | undefined,
   characterIds: string[],
+  includeInterpretationSpecific = false,
 ): Promise<CharacterVariantProfile[]> {
   if (!db || characterIds.length === 0) return [];
 
@@ -11,9 +12,10 @@ export async function listCharacterVariantProfiles(
   try {
     const rows = await db.prepare(`
       SELECT id, character_id, name, variant_type, description,
-             identity_overrides_json, prompt_fragment, reference_pack_json
+             identity_overrides_json, prompt_fragment, reference_pack_json, character_interpretation_id
       FROM character_variants
       WHERE status = 'active' AND character_id IN (${placeholders})
+        ${includeInterpretationSpecific ? '' : 'AND character_interpretation_id IS NULL'}
       ORDER BY character_id,
         CASE variant_type
           WHEN 'age' THEN 1
@@ -27,6 +29,7 @@ export async function listCharacterVariantProfiles(
     return rows.results.map((row) => ({
       id: String(row.id),
       characterId: String(row.character_id),
+      interpretationId: row.character_interpretation_id == null ? undefined : String(row.character_interpretation_id),
       name: String(row.name),
       variantType: String(row.variant_type) as CharacterVariantProfile['variantType'],
       description: String(row.description ?? ''),

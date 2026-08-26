@@ -6,13 +6,14 @@ type CharacterVariantRow = Record<string, unknown>;
 
 const SELECT_COLUMNS = `
   id, character_id, slug, name, variant_type, description, traits_json,
-  identity_overrides_json, reference_pack_json
+  identity_overrides_json, reference_pack_json, character_interpretation_id
 `;
 
 export function mapCharacterVariantRow(row: CharacterVariantRow): CharacterVariant {
   return {
     id: String(row.id),
     characterId: String(row.character_id),
+    interpretationId: row.character_interpretation_id == null ? undefined : String(row.character_interpretation_id),
     slug: String(row.slug),
     name: String(row.name),
     variantType: String(row.variant_type) as CharacterVariantType,

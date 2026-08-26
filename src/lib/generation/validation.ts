@@ -24,6 +24,7 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
   const body = input as Record<string, unknown>;
   const entityType = stringValue(body.entityType);
   const entityId = stringValue(body.entityId);
+  const interpretationId = stringValue(body.interpretationId, true);
   const variantId = stringValue(body.variantId, true);
   const styleId = stringValue(body.styleId);
   const scene = stringValue(body.scene);
@@ -38,6 +39,12 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
   }
   if (!entityId || entityId.length > MAX_ID_LENGTH) {
     throw new GenerationValidationError('MISSING_ENTITY', '请选择要绘制的角色或神域。');
+  }
+  if (interpretationId && entityType !== 'character') {
+    throw new GenerationValidationError('INVALID_INTERPRETATION', '传统版本只能用于角色生成。');
+  }
+  if (interpretationId.length > MAX_ID_LENGTH) {
+    throw new GenerationValidationError('INVALID_INTERPRETATION', '传统版本参数无效。');
   }
   if (variantId && entityType !== 'character') {
     throw new GenerationValidationError('INVALID_VARIANT', '角色形态只能用于角色生成。');
@@ -62,6 +69,7 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
   return {
     entityType: entityType as GenerationRequest['entityType'],
     entityId,
+    interpretationId: interpretationId || undefined,
     variantId: variantId || undefined,
     styleId,
     scene,

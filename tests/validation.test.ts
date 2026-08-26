@@ -6,6 +6,7 @@ describe('parseGenerationRequest', () => {
     const req = parseGenerationRequest({
       entityType: 'character',
       entityId: 'character-change',
+      interpretationId: 'change-later-literary',
       variantId: 'change-mature-moon-robe',
       styleId: 'canonical',
       scene: '云海',
@@ -15,6 +16,7 @@ describe('parseGenerationRequest', () => {
       sourceGenerationId: 'parent-job',
     });
     expect(req.entityType).toBe('character');
+    expect(req.interpretationId).toBe('change-later-literary');
     expect(req.variantId).toBe('change-mature-moon-robe');
     expect(req.outputSpecId).toBe('mobile-wallpaper');
     expect(req.sourceGenerationId).toBe('parent-job');
@@ -46,6 +48,20 @@ describe('parseGenerationRequest', () => {
         ratio: '16:9',
       }),
     ).toThrow(/角色形态/);
+  });
+
+  it('世界不能携带角色传统版本', () => {
+    expect(() =>
+      parseGenerationRequest({
+        entityType: 'world',
+        entityId: 'world-olympus',
+        interpretationId: 'athena-classical-polis',
+        styleId: 'canonical',
+        scene: '神殿',
+        composition: '桌面壁纸',
+        ratio: '16:9',
+      }),
+    ).toThrow(/传统版本/);
   });
 
   it('超长描述抛错', () => {

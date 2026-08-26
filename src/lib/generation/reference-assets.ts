@@ -2,6 +2,7 @@ export type ReferenceAssetRecord = {
   id: string;
   ownerType: 'character' | 'character_variant' | 'style';
   ownerId: string;
+  characterInterpretationId?: string;
   assetType: string;
   assetKey: string;
   mimeType: string;
@@ -33,19 +34,27 @@ export async function listReferenceAssetRecords(
   db: D1Database | undefined,
   characterId: string,
   variantId?: string,
+  interpretationId?: string,
   includeArchived = false,
 ): Promise<ReferenceAssetRecord[]> {
   if (!db) return [];
 
   const clauses = [
-    `(owner_type = 'character' AND owner_id = ?)`,
+    `(owner_type = 'character' AND owner_id = ? AND character_interpretation_id IS NULL)`,
+    ...(interpretationId
+      ? [`(owner_type = 'character' AND owner_id = ? AND character_interpretation_id = ?)`]
+      : []),
     ...(variantId ? [`(owner_type = 'character_variant' AND owner_id = ?)`] : []),
   ];
-  const params = variantId ? [characterId, variantId] : [characterId];
+  const params = [
+    characterId,
+    ...(interpretationId ? [characterId, interpretationId] : []),
+    ...(variantId ? [variantId] : []),
+  ];
 
   try {
     const rows = await db.prepare(`
-      SELECT id, owner_type, owner_id, asset_type, asset_key, asset_mime,
+      SELECT id, owner_type, owner_id, character_interpretation_id, asset_type, asset_key, asset_mime,
              width, height, alt_text, status, created_at
       FROM reference_assets
       WHERE (${clauses.join(' OR ')}) ${includeArchived ? '' : `AND status = 'active'`}
@@ -72,16 +81,17 @@ export async function loadGenerationReferenceImages(
   bucket: R2Bucket | undefined,
   characterId: string,
   variantId?: string,
-  maxImages = 6,
+  interpretationId?: string,
+  maxImages = 4,
 ): Promise<GenerationReferenceImage[]> {
   if (!db || !bucket) return [];
 
-  const records = await listReferenceAssetRecords(db, characterId, variantId);
+  const records = await listReferenceAssetRecords(db, characterId, variantId, interpretationId);
   if (!records.length) return [];
 
   // Variant-specific references should override equivalent canonical slots while
   // canonical references continue to anchor identity for slots the variant does not replace.
-  const ordered = dedupeReferenceSlots(records, variantId).slice(0, maxImages);
+  const ordered = dedupeReferenceSlots(records, variantId, interpretationId).slice(0, maxImages);
   const loaded: GenerationReferenceImage[] = [];
 
   for (const record of ordered) {
@@ -111,13 +121,14 @@ export async function insertReferenceAsset(
 
   await db.prepare(`
     INSERT INTO reference_assets (
-      id, owner_type, owner_id, asset_type, asset_key, asset_mime,
+      id, owner_type, owner_id, character_interpretation_id, asset_type, asset_key, asset_mime,
       width, height, alt_text, source_type, license, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
   `).bind(
     input.id,
     input.ownerType,
     input.ownerId,
+    input.characterInterpretationId ?? null,
     input.assetType,
     input.assetKey,
     input.mimeType,
@@ -167,15 +178,21 @@ export async function removeVariantReferenceAsset(
   `).bind(JSON.stringify(next), variantId).run();
 }
 
-function dedupeReferenceSlots(records: ReferenceAssetRecord[], variantId?: string): ReferenceAssetRecord[] {
-  const bySlot = new Map<string, ReferenceAssetRecord>();
+function dedupeReferenceSlots(
+  records: ReferenceAssetRecord[],
+  variantId?: string,
+  interpretationId?: string,
+): ReferenceAssetRecord[] {
+  const bySlot = new Map<string, { record: ReferenceAssetRecord; rank: number }>();
   for (const record of records) {
-    const existing = bySlot.get(record.assetType);
     const isVariant = variantId && record.ownerType === 'character_variant' && record.ownerId === variantId;
-    if (!existing || isVariant) bySlot.set(record.assetType, record);
+    const isInterpretation = interpretationId && record.characterInterpretationId === interpretationId;
+    const rank = isVariant ? 3 : isInterpretation ? 2 : 1;
+    const existing = bySlot.get(record.assetType);
+    if (!existing || rank >= existing.rank) bySlot.set(record.assetType, { record, rank });
   }
 
-  return [...bySlot.values()].sort((a, b) => {
+  return [...bySlot.values()].map(({ record }) => record).sort((a, b) => {
     const aIndex = referencePriority.indexOf(a.assetType as (typeof referencePriority)[number]);
     const bIndex = referencePriority.indexOf(b.assetType as (typeof referencePriority)[number]);
     return (aIndex < 0 ? 999 : aIndex) - (bIndex < 0 ? 999 : bIndex);
@@ -187,6 +204,7 @@ function mapReferenceAssetRow(row: Record<string, unknown>): ReferenceAssetRecor
     id: String(row.id),
     ownerType: String(row.owner_type) as ReferenceAssetRecord['ownerType'],
     ownerId: String(row.owner_id),
+    characterInterpretationId: optionalString(row.character_interpretation_id),
     assetType: String(row.asset_type),
     assetKey: String(row.asset_key),
     mimeType: String(row.asset_mime),
@@ -213,4 +231,8 @@ function optionalNumber(value: unknown): number | undefined {
   if (value == null) return undefined;
   const number = Number(value);
   return Number.isFinite(number) ? number : undefined;
+}
+
+function optionalString(value: unknown): string | undefined {
+  return value == null ? undefined : String(value);
 }

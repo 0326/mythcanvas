@@ -96,11 +96,33 @@ async function searchWorlds(db: D1Database | undefined, term: string): Promise<S
 async function searchCharacters(db: D1Database | undefined, term: string): Promise<SearchResult[]> {
   const termLower = term.toLowerCase();
   const like = `%${escapeLike(term)}%`;
-  const rows = await queryRows(
-    db,
-    `SELECT id, slug, name, name_en, role, portrait_src FROM characters WHERE publish_status='published' AND (name LIKE ? ESCAPE '\\' OR name_en LIKE ? ESCAPE '\\' OR role LIKE ? ESCAPE '\\' OR summary LIKE ? ESCAPE '\\')`,
-    [like, like, like, like],
-  );
+  let rows: Record<string, unknown>[];
+  try {
+    // An interpretation-scoped name resolves to its one persistent Character.
+    // For example, a search for “杨戬” returns the 二郎神 entity rather than
+    // manufacturing a duplicate Character search result.
+    rows = await queryRows(
+      db,
+      `SELECT c.id, c.slug, c.name, c.name_en, c.role, c.portrait_src,
+              GROUP_CONCAT(n.name, '|') AS matched_names
+       FROM characters AS c
+       LEFT JOIN character_names AS n
+         ON n.character_id = c.id AND n.status = 'active'
+       WHERE c.publish_status = 'published'
+         AND (c.name LIKE ? ESCAPE '\\' OR c.name_en LIKE ? ESCAPE '\\' OR c.role LIKE ? ESCAPE '\\'
+              OR c.summary LIKE ? ESCAPE '\\' OR n.name LIKE ? ESCAPE '\\')
+       GROUP BY c.id, c.slug, c.name, c.name_en, c.role, c.portrait_src`,
+      [like, like, like, like, like],
+    );
+  } catch {
+    // Deploy the additive migration before relying on aliases; keep existing
+    // Character search available during a rolling schema rollout.
+    rows = await queryRows(
+      db,
+      `SELECT id, slug, name, name_en, role, portrait_src FROM characters WHERE publish_status='published' AND (name LIKE ? ESCAPE '\\' OR name_en LIKE ? ESCAPE '\\' OR role LIKE ? ESCAPE '\\' OR summary LIKE ? ESCAPE '\\')`,
+      [like, like, like, like],
+    );
+  }
   return rows.map((row) => ({
     type: 'character' as const,
     id: String(row.id),
@@ -108,7 +130,11 @@ async function searchCharacters(db: D1Database | undefined, term: string): Promi
     name: String(row.name),
     subtitle: String(row.role),
     image: String(row.portrait_src ?? ''),
-    score: scoreName([String(row.name)], String(row.name_en), termLower),
+    score: scoreName(
+      [String(row.name), ...String(row.matched_names ?? '').split('|').filter(Boolean)],
+      String(row.name_en),
+      termLower,
+    ),
   }));
 }
 

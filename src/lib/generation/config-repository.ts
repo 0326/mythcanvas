@@ -1,8 +1,27 @@
 import { GenerationValidationError } from './validation';
+import { getCharacterInterpretationById } from '../content/repositories';
+import type { SourceRef } from '../content/types';
+
+export type CharacterInterpretationProfile = {
+  id: string;
+  characterId: string;
+  name: string;
+  role: string;
+  summary: string;
+  traditionTags: string[];
+  sourcePeriods: string[];
+  sourceRefs: SourceRef[];
+  identityAnchors: string[];
+  symbols: string[];
+  canonicalDesignOverrides: Record<string, unknown>;
+  promptFragment: string;
+  confidence: 'high' | 'medium' | 'contested';
+};
 
 export type CharacterVariantProfile = {
   id: string;
   characterId: string;
+  interpretationId?: string;
   name: string;
   variantType: 'age' | 'costume' | 'form' | 'composite';
   description: string;
@@ -113,6 +132,7 @@ export async function getCharacterVariantProfile(
   db: D1Database | undefined,
   variantId: string | undefined,
   characterId: string,
+  interpretationId?: string,
 ): Promise<CharacterVariantProfile | undefined> {
   if (!variantId) return undefined;
   if (!db) throw new GenerationValidationError('VARIANT_NOT_FOUND', '所选角色形态不存在。', 404);
@@ -121,10 +141,11 @@ export async function getCharacterVariantProfile(
   try {
     row = await db.prepare(`
       SELECT id, character_id, name, variant_type, description, identity_overrides_json,
-             prompt_fragment, reference_pack_json
+             prompt_fragment, reference_pack_json, character_interpretation_id
       FROM character_variants
       WHERE id = ? AND character_id = ? AND status = 'active'
-    `).bind(variantId, characterId).first<Record<string, unknown>>();
+        AND (character_interpretation_id IS NULL OR character_interpretation_id = ?)
+    `).bind(variantId, characterId, interpretationId ?? null).first<Record<string, unknown>>();
   } catch {
     throw new GenerationValidationError('VARIANT_NOT_FOUND', '角色形态数据尚未就绪。', 404);
   }
@@ -134,6 +155,7 @@ export async function getCharacterVariantProfile(
   return {
     id: String(row.id),
     characterId: String(row.character_id),
+    interpretationId: row.character_interpretation_id == null ? undefined : String(row.character_interpretation_id),
     name: String(row.name),
     variantType: String(row.variant_type) as CharacterVariantProfile['variantType'],
     description: String(row.description ?? ''),
@@ -141,6 +163,40 @@ export async function getCharacterVariantProfile(
     promptFragment: String(row.prompt_fragment ?? ''),
     referenceAssetIds: stringArray(row.reference_pack_json),
   };
+}
+
+export async function getCharacterInterpretationProfile(
+  db: D1Database | undefined,
+  interpretationId: string | undefined,
+  characterId: string,
+): Promise<CharacterInterpretationProfile | undefined> {
+  if (!interpretationId) return undefined;
+  if (!db) throw new GenerationValidationError('INTERPRETATION_NOT_FOUND', '所选传统版本不存在。', 404);
+
+  try {
+    const interpretation = await getCharacterInterpretationById(db, interpretationId, characterId);
+    if (!interpretation) {
+      throw new GenerationValidationError('INTERPRETATION_NOT_FOUND', '所选传统版本不存在。', 404);
+    }
+    return {
+      id: interpretation.id,
+      characterId: interpretation.characterId,
+      name: interpretation.name,
+      role: interpretation.role,
+      summary: interpretation.summary,
+      traditionTags: [...interpretation.traditionTags],
+      sourcePeriods: [...interpretation.sourcePeriods],
+      sourceRefs: [...interpretation.sourceRefs],
+      identityAnchors: [...interpretation.identityAnchors],
+      symbols: [...interpretation.symbols],
+      canonicalDesignOverrides: interpretation.canonicalDesignOverrides,
+      promptFragment: interpretation.promptFragment,
+      confidence: interpretation.confidence,
+    };
+  } catch (error) {
+    if (error instanceof GenerationValidationError) throw error;
+    throw new GenerationValidationError('INTERPRETATION_NOT_FOUND', '传统版本数据尚未就绪。', 404);
+  }
 }
 
 export async function getStyleGenerationProfile(

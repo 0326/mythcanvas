@@ -15,6 +15,31 @@ export type CanonicalDesign = {
   signatureMaterials?: readonly string[];
 };
 
+export type SourceRefType =
+  | 'primary-text'
+  | 'religious-canon'
+  | 'historical-record'
+  | 'local-cult-record'
+  | 'literature'
+  | 'academic-secondary';
+
+/** A source attached to a concrete claim, identity, relation, or name. */
+export type SourceRef = {
+  type: SourceRefType;
+  title: string;
+  section?: string;
+  author?: string;
+  period?: string;
+  edition?: string;
+  locator?: string;
+  url?: string;
+  note?: string;
+};
+
+export type CharacterInterpretationConfidence = 'high' | 'medium' | 'contested';
+
+export type CharacterNameKind = 'primary' | 'alias' | 'title' | 'literary-identity';
+
 export type ImageAsset = {
   src: string;
   alt: string;
@@ -54,10 +79,51 @@ export type Mythology = {
 
 export type StoryImageLayout = 'wide' | 'portrait' | 'inset';
 
+/** Editorial category. It is displayed to readers and must not be inferred from a volume title. */
+export type MythStoryKind = 'myth' | 'folk-legend' | 'religious-tradition' | 'literary-fantasy';
+
+export type MythStorySourceType = 'primary-text' | 'translation' | 'scholarly-reference' | 'oral-tradition';
+
+/** A source that identifies the textual, oral, or scholarly basis of a MythStory. */
+export type MythStorySource = {
+  title: string;
+  sourceType: MythStorySourceType;
+  tradition?: string;
+  period?: string;
+  note?: string;
+  url?: string;
+};
+
+export type StoryIllustrationProvenance = {
+  sourceType: 'original' | 'ai' | 'public-domain' | 'licensed';
+  creator?: string;
+  sourceUrl?: string;
+  licenseName?: string;
+  model?: string;
+  promptRecipeId?: string;
+};
+
+/**
+ * An editorial illustration used in a Story. It may point to a reusable Artwork,
+ * but retains its own provenance instead of treating a bare image URL as content.
+ */
+export type StoryIllustrationAsset = {
+  id: string;
+  image: ImageAsset;
+  provenance: StoryIllustrationProvenance;
+  artworkId?: string;
+};
+
 export type MythStoryBlock =
   | {
       type: 'paragraph';
       text: string;
+    }
+  | {
+      type: 'heading';
+      id: string;
+      text: string;
+      level: 2 | 3;
     }
   | {
       type: 'quote';
@@ -66,7 +132,7 @@ export type MythStoryBlock =
     }
   | {
       type: 'image';
-      image: ImageAsset;
+      assetId: string;
       caption?: string;
       layout?: StoryImageLayout;
     };
@@ -83,15 +149,19 @@ export type MythStory = {
   volumeTitle: string;
   volumeOrder: number;
   displayOrder: number;
+  kind: MythStoryKind;
   tradition?: string;
   readingMinutes?: number;
+  sources: readonly MythStorySource[];
   sourceNotes: readonly string[];
   characterIds: readonly string[];
   worldIds: readonly string[];
   sceneIds: readonly string[];
   blocks: readonly MythStoryBlock[];
-  heroImage?: ImageAsset;
+  heroAssetId?: string;
   publishStatus: 'draft' | 'published';
+  publishedAt: string;
+  updatedAt: string;
 };
 
 export type World = {
@@ -116,8 +186,66 @@ export type Character = {
   summary: string;
   symbols: readonly string[];
   canonicalDesign: CanonicalDesign;
+  characterType?: string;
+  traditionTags?: readonly string[];
+  sourcePeriods?: readonly string[];
+  sourceRefs?: readonly SourceRef[];
+  editorialCollections?: readonly string[];
+  canonicality?: 'primary' | 'layered' | 'literary' | 'contested';
   /** Canonical Design 肖像视觉,缺失时 UI 回退到符号意象占位 */
   portrait?: ImageAsset;
+};
+
+/** A source-scoped historical, religious, folk, or literary identity of one Character. */
+export type CharacterInterpretation = {
+  id: string;
+  characterId: string;
+  slug: string;
+  name: string;
+  role: string;
+  summary: string;
+  traditionTags: readonly string[];
+  sourcePeriods: readonly string[];
+  sourceRefs: readonly SourceRef[];
+  identityAnchors: readonly string[];
+  symbols: readonly string[];
+  canonicalDesignOverrides: Record<string, unknown>;
+  promptFragment: string;
+  confidence: CharacterInterpretationConfidence;
+};
+
+/** A stable or interpretation-scoped name; not a second Character by default. */
+export type CharacterName = {
+  id: string;
+  characterId: string;
+  interpretationId?: string;
+  name: string;
+  nameEn?: string;
+  nameKind: CharacterNameKind;
+  isPrimaryForScope: boolean;
+  sourceRefs: readonly SourceRef[];
+  confidence: CharacterInterpretationConfidence;
+};
+
+export type ContentConcept = {
+  id: string;
+  mythologyId: string;
+  slug: string;
+  name: string;
+  summary: string;
+  sourceRefs: readonly SourceRef[];
+};
+
+export type CharacterRelation = {
+  id: string;
+  fromCharacterId: string;
+  toCharacterId?: string;
+  toConceptId?: string;
+  fromInterpretationId?: string;
+  toInterpretationId?: string;
+  relationType: string;
+  sourceRefs: readonly SourceRef[];
+  confidence: CharacterInterpretationConfidence;
 };
 
 export type CharacterVariantType = 'age' | 'costume' | 'form' | 'composite';
@@ -125,6 +253,7 @@ export type CharacterVariantType = 'age' | 'costume' | 'form' | 'composite';
 export type CharacterVariant = {
   id: string;
   characterId: string;
+  interpretationId?: string;
   slug: string;
   name: string;
   variantType: CharacterVariantType;

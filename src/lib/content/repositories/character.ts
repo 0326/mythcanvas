@@ -1,5 +1,5 @@
 import { characters as seedCharacters } from '../../../data/seed';
-import type { Character } from '../types';
+import type { Character, SourceRef } from '../types';
 import { optionalNumber, optionalString, pageClause, parseJson, parseStringArray } from './shared';
 import type { EntityListQuery } from './types';
 
@@ -7,7 +7,8 @@ type CharacterRow = Record<string, unknown>;
 
 const SELECT_COLUMNS = `
   id, mythology_id, slug, name, name_en, role, summary, symbols_json, canonical_design_json,
-  portrait_src, portrait_alt, portrait_width, portrait_height
+  portrait_src, portrait_alt, portrait_width, portrait_height, character_type, tradition_tags_json,
+  source_periods_json, source_refs_json, editorial_collections_json, canonicality
 `;
 
 export function mapCharacterRow(row: CharacterRow, worldIds: readonly string[] = []): Character {
@@ -22,6 +23,12 @@ export function mapCharacterRow(row: CharacterRow, worldIds: readonly string[] =
     summary: String(row.summary),
     symbols: parseStringArray(row.symbols_json),
     canonicalDesign: parseJson(row.canonical_design_json, { anchors: [] }),
+    characterType: optionalString(row.character_type),
+    traditionTags: parseStringArray(row.tradition_tags_json),
+    sourcePeriods: parseStringArray(row.source_periods_json),
+    sourceRefs: parseJson<SourceRef[]>(row.source_refs_json, []),
+    editorialCollections: parseStringArray(row.editorial_collections_json),
+    canonicality: optionalString(row.canonicality) as Character['canonicality'],
     portrait: row.portrait_src
       ? {
           src: String(row.portrait_src),
@@ -110,7 +117,8 @@ export async function getCharactersForWorld(
     .prepare(`
       SELECT c.id, c.mythology_id, c.slug, c.name, c.name_en, c.role, c.summary,
              c.symbols_json, c.canonical_design_json, c.portrait_src, c.portrait_alt,
-             c.portrait_width, c.portrait_height
+             c.portrait_width, c.portrait_height, c.character_type, c.tradition_tags_json,
+             c.source_periods_json, c.source_refs_json, c.editorial_collections_json, c.canonicality
       FROM characters c
       JOIN character_worlds cr ON cr.character_id = c.id
       WHERE cr.world_id = ? AND c.publish_status = 'published'

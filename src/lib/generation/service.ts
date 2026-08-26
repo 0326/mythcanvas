@@ -24,6 +24,8 @@ export const NON_RETRYABLE_CODES = new Set([
   'STYLE_NOT_FOUND',
   'ENTITY_NOT_FOUND',
   'MYTHOLOGY_NOT_FOUND',
+  'INTERPRETATION_NOT_FOUND',
+  'INVALID_INTERPRETATION',
   'VARIANT_NOT_FOUND',
   'INVALID_VARIANT',
   'INVALID_OUTPUT_SPEC',
@@ -57,6 +59,7 @@ export async function generateArtwork(
       entityId: request.entityId,
       mythologyId: '',
       styleId: request.styleId,
+      characterInterpretationId: request.interpretationId,
       characterVariantId: request.variantId,
       outputSpecId: request.outputSpecId,
       scene: request.scene,
@@ -127,7 +130,13 @@ export async function generateArtwork(
   // reference-image editing when an approved Canonical/Variant Reference Pack exists.
   // Missing D1/R2/reference assets must never make the Creator unusable.
   const references = context.entityType === 'character'
-    ? await loadGenerationReferenceImages(env.DB, env.ARTWORKS, context.entityId, context.variant?.id)
+    ? await loadGenerationReferenceImages(
+        env.DB,
+        env.ARTWORKS,
+        context.entityId,
+        context.variant?.id,
+        context.interpretation?.id,
+      )
     : [];
   const referenceAssetIds = references.map((reference) => reference.id);
 
@@ -138,6 +147,7 @@ export async function generateArtwork(
     entityId: context.entityId,
     mythologyId: context.mythologyId,
     styleId: context.styleId,
+    characterInterpretationId: context.interpretation?.id,
     characterVariantId: context.variant?.id,
     outputSpecId: context.outputSpec.id,
     scene: context.scene,
@@ -174,6 +184,8 @@ export async function generateArtwork(
           entityName: context.entityName,
           mythologyId: context.mythologyId,
           mythologyName: context.mythologyName,
+          interpretationId: context.interpretation?.id ?? '',
+          interpretationName: context.interpretation?.name ?? '',
           variantId: context.variant?.id ?? '',
           variantName: context.variant?.name ?? '',
           styleId: context.styleId,

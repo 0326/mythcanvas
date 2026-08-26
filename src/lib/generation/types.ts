@@ -5,6 +5,8 @@ export type GenerationQuality = 'low' | 'medium' | 'high' | 'auto';
 export type GenerationRequest = {
   entityType: GenerationEntityType;
   entityId: string;
+  /** Historical/religious/literary identity of a Character, never a rendering Style. */
+  interpretationId?: string;
   /** Persistent age/costume/form state. Character-only and orthogonal to Style. */
   variantId?: string;
   styleId: string;
@@ -27,6 +29,7 @@ export type GenerationDimensions = {
 export type PromptLayers = {
   purpose: string;
   identity: string;
+  interpretation?: string;
   variant?: string;
   civilization: string;
   style: string;
@@ -50,10 +53,24 @@ export type ResolvedGenerationContext = {
   };
   canonicalAnchors: readonly string[];
   symbols: readonly string[];
+  interpretation?: {
+    id: string;
+    name: string;
+    role: string;
+    summary: string;
+    traditionTags: readonly string[];
+    sourcePeriods: readonly string[];
+    identityAnchors: readonly string[];
+    symbols: readonly string[];
+    canonicalDesignOverrides: Readonly<Record<string, unknown>>;
+    promptFragment: string;
+    confidence: 'high' | 'medium' | 'contested';
+  };
   variant?: {
     id: string;
     name: string;
     variantType: 'age' | 'costume' | 'form' | 'composite';
+    interpretationId?: string;
     description: string;
     identityOverrides: readonly string[];
     promptFragment: string;
@@ -116,6 +133,7 @@ export type GenerationJob = {
   entityId: string;
   mythologyId: string;
   styleId: string;
+  characterInterpretationId?: string;
   characterVariantId?: string;
   outputSpecId?: string;
   scene: string;
