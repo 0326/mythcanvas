@@ -1,6 +1,6 @@
 ---
 name: mythcanvas-character-production
-description: Use when producing, curating, reviewing, naming, importing, or publishing MythCanvas character images. Orchestrates Canonical master generation, reference-pack promotion, style derivatives, QA, simple asset naming, zero-config R2/D1 import, and website-ready publication without requiring a production-management UI.
+description: Use when producing, curating, reviewing, naming, importing, updating, or publishing MythCanvas character images. Orchestrates Canonical master generation, reference-pack promotion, style derivatives, QA, simple asset naming, natural-language R2/D1 import, and website-ready publication without requiring a production-management UI.
 ---
 
 # MythCanvas Character Production
@@ -18,11 +18,36 @@ Character Design
 → Selected Style Derivatives
 → QA
 → Simple Naming
-→ One-command Import
+→ Natural-language Import
 → Website presentation
 ```
 
 The production process is agent/skill-driven. **Do not build an admin/production page unless explicitly requested.** Website pages only read and present approved assets/data.
+
+## User interaction rule
+
+The user should not need to remember or type shell commands.
+
+Natural-language requests are the primary interface, for example:
+
+```text
+把雅典娜图片导入项目
+先检查雅典娜图片，没问题再导入
+把芙蕾雅和阿努比斯的图片一起导入项目
+把已经准备好的全部角色图片导入
+雅典娜换了新版 canonical_m_02，更新网站主图
+只验证雅典娜图片，不写入线上数据
+```
+
+Interpret intent as follows:
+
+- `导入 / 发布 / 更新网站图片` → validate first, then execute the remote R2 + D1 import if validation passes
+- `检查 / 验证 / 看看有没有问题` → validation only; do not write R2/D1
+- `全部角色` → operate on all staged character directories
+- named characters → operate only on those character directories
+- `本地验证 / 本地导入` → use local Wrangler storage rather than production resources
+
+The implementation may invoke `scripts/import-character-artworks.mjs` internally. **Do not ask the user to run the underlying CLI unless they explicitly request command-line usage.**
 
 ## Read first
 
@@ -142,16 +167,23 @@ Rules:
 - rendering-only refs → `owner_type='style'`
 - never use a Style image as Character identity
 - never mix conflicting canonical faces/costumes
-- reference records should point to the same approved R2 object; do not duplicate image bytes
+- reference records point to the same approved R2 object; do not duplicate image bytes
 
-The zero-config importer automatically promotes `canonical_m_01` to:
+The importer automatically selects the **highest-sequence canonical mobile image** as the current primary Canonical asset:
+
+```text
+canonical_m_01.png
+canonical_m_02.png  ← current primary because 02 is newer
+```
+
+The current primary is promoted to:
 
 ```text
 characters.portrait_*
 reference_assets(asset_type='portrait-three-quarter')
 ```
 
-Other images are not automatically promoted to Character references.
+Superseded `portrait-three-quarter` references are archived, not silently reused.
 
 # Phase 3 — Style derivatives
 
@@ -215,14 +247,6 @@ Allow derivatives to change:
 - action
 - environmental coverage
 - contextually optional symbols
-
-Failure pattern:
-
-```text
-canonical standing pose
-→ sacred standing pose
-→ cinematic standing pose
-```
 
 Each Style should have a role-appropriate pose vocabulary.
 
@@ -405,11 +429,26 @@ NN               → sequence
 
 Do not put character name, variant, scene, resolution, date, provider, model, prompt or approval state into the filename.
 
+## Published-image version rule
+
+The `/media/` route and R2 objects use long-lived immutable caching. Therefore:
+
+> Once a filename has been published, do not replace it with different pixels under the same filename.
+
+Use the next sequence instead:
+
+```text
+canonical_m_01.png  old published image
+canonical_m_02.png  new replacement image
+```
+
+Because the importer chooses the highest canonical-mobile sequence, importing `canonical_m_02` automatically updates the website portrait/reference without reusing a cached `_01` URL.
+
 # Zero-config import contract
 
 **There is no `manifest.json`.**
 
-The local staging directory contains image files only:
+The staging directory contains image files only:
 
 ```text
 imports/characters/<character-slug>/
@@ -445,7 +484,7 @@ Import-folder rule:
 
 > Only put images that have already passed manual production QA into `imports/characters/<character-slug>/`.
 
-Therefore the importer defaults every staged image to:
+Therefore every staged image defaults to:
 
 ```text
 review_status = approved
@@ -472,65 +511,31 @@ imports/characters/athena/anime_pc_01.png
 → characters/athena/styles/anime/desktop-wallpaper/anime_pc_01.png
 ```
 
-Cyber Myth:
-
-```text
-imports/characters/athena/cyber-myth_m_01.png
-→ characters/athena/styles/cyber-myth/mobile-wallpaper/cyber-myth_m_01.png
-```
-
 Website URL is always:
 
 ```text
 /media/<R2-key>
 ```
 
-## Automatic canonical behavior
+## Automatic website behavior
 
-`canonical_m_01` has special production meaning:
+After a successful remote import:
 
-1. imported as an approved/published Artwork
-2. linked through `artwork_characters`
-3. set as `characters.portrait_*`
-4. registered as the active `portrait-three-quarter` Character reference using the same R2 object
+1. every staged image becomes an approved/published `artworks` record
+2. every artwork is linked to its character through `artwork_characters`
+3. the highest-sequence `canonical_m_NN` becomes `characters.portrait_*`
+4. that same image becomes the active `portrait-three-quarter` Character reference
+5. character listing cards automatically read the new portrait
+6. character detail Hero automatically prefers the new portrait
+7. the character artwork gallery automatically receives the imported style/device artworks
 
-`canonical_pc_01` remains a normal approved canonical Artwork; it is not automatically added to Reference Pack because framing cannot be inferred safely from a filename.
+No Astro page edit is required for normal character-image replacement or gallery expansion.
 
-## Import command
+If a folder contains no `canonical_m_NN`, importing style derivatives updates the gallery but **does not replace the existing character portrait/Hero**.
 
-Single character:
+## Import validation
 
-```bash
-npm run artwork:import -- athena
-```
-
-Multiple characters:
-
-```bash
-npm run artwork:import -- athena freyja
-```
-
-All staged character folders:
-
-```bash
-npm run artwork:import -- --all
-```
-
-Validate local files without modifying Cloudflare:
-
-```bash
-npm run artwork:import -- athena --dry-run
-```
-
-Use local Wrangler storage:
-
-```bash
-npm run artwork:import -- athena --local
-```
-
-Remote Cloudflare is the default.
-
-The importer must fail closed when:
+The importer fails closed when:
 
 - character folder slug does not resolve in D1
 - style is not in the active production portfolio
@@ -542,7 +547,7 @@ The importer must fail closed when:
 - image bytes cannot be parsed
 - Wrangler R2/D1 operations fail
 
-R2 uploads happen before the transactional D1 write. Re-running is idempotent: the same R2 keys are overwritten and deterministic D1 IDs are upserted.
+R2 uploads happen before the transactional D1 write. Re-running with the same files is idempotent at the database level.
 
 # Website presentation contract
 
@@ -571,14 +576,13 @@ Website components must not:
 2. Generate canonical mobile candidates
 3. Approve canonical direction
 4. Generate canonical desktop
-5. Promote canonical_m_01 through importer/reference rule
+5. Stage approved images under imports/characters/<character-slug>/
 6. Select useful active styles only
 7. For each new style: mobile candidates → select → desktop
 8. Run identity/style/anatomy/prop/output QA
-9. Put only approved images under imports/characters/<character-slug>/
-10. Rename each image to <style>_<pc|m>_<NN>.<ext>
-11. Run npm run artwork:import -- <character-slug>
-12. Verify website presentation
+9. Rename retained images to <style>_<pc|m>_<NN>.<ext>
+10. Ask the character-production skill in natural language to validate/import the character images
+11. Verify website presentation after import
 ```
 
 Do not optimize for image count. Optimize for a small coherent asset library.
@@ -600,7 +604,9 @@ Do not optimize for image count. Optimize for a small coherent asset library.
 - [ ] parent directory resolves to valid character slug
 - [ ] style resolves to active D1 Style
 - [ ] importer derives dimensions/output/R2 paths automatically
-- [ ] canonical_m_01 promotes portrait + Character reference
+- [ ] highest canonical mobile sequence promotes portrait + Character reference
+- [ ] published replacement images use a new sequence instead of overwriting cached URLs
 - [ ] public assets are linked in `artworks` + `artwork_characters`
 - [ ] website only reads/presents approved published assets
+- [ ] user can operate the import workflow through natural-language Skill requests
 - [ ] no production-management UI was introduced without explicit need
