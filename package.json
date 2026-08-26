@@ -30,7 +30,7 @@
     "astro": "astro",
     "build": "astro build",
     "cf-typegen": "wrangler types",
-    "check": "astro build && tsc && wrangler deploy --dry-run",
+    "check": "node --check scripts/import-character-artworks.mjs && astro build && tsc && wrangler deploy --dry-run",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
