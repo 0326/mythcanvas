@@ -1,13 +1,13 @@
 ---
 name: mythcanvas-character-production
-description: Use when producing, curating, reviewing, naming, importing, or publishing MythCanvas character images. Orchestrates Canonical master generation, reference-pack promotion, style derivatives, QA, simple asset naming, R2/D1 persistence, and website-ready publication without requiring a production-management UI.
+description: Use when producing, curating, reviewing, naming, importing, or publishing MythCanvas character images. Orchestrates Canonical master generation, reference-pack promotion, style derivatives, QA, simple asset naming, zero-config R2/D1 import, and website-ready publication without requiring a production-management UI.
 ---
 
 # MythCanvas Character Production
 
 ## Goal
 
-Turn a mythology character definition into a durable, reusable image asset library.
+Turn a mythology character definition into a small, coherent, reusable image asset library.
 
 This skill owns the production lifecycle, not character identity, rendering style, or website UI.
 
@@ -18,11 +18,11 @@ Character Design
 → Selected Style Derivatives
 → QA
 → Simple Naming
-→ Approved Artwork
+→ One-command Import
 → Website presentation
 ```
 
-The production process is agent/skill-driven. **Do not build an admin/production page unless explicitly requested.** Website pages only read and present approved data/assets.
+The production process is agent/skill-driven. **Do not build an admin/production page unless explicitly requested.** Website pages only read and present approved assets/data.
 
 ## Read first
 
@@ -48,8 +48,6 @@ Never move production-state logic into Astro presentation components.
 
 ## Existing storage contract
 
-Use the existing model instead of inventing a parallel asset system.
-
 ### D1
 
 - `characters` — identity, `canonical_design_json`, website portrait fields
@@ -63,43 +61,22 @@ Use the existing model instead of inventing a parallel asset system.
 
 Stores image bytes. D1 stores keys, metadata, relationships, provenance and publication state.
 
-## Production states
+# Standard production workflow
 
-```text
-UNREADY
-  Canonical Design incomplete
-
-ANCHORING
-  generating/selecting canonical identity candidates
-
-EXPANDING
-  approved identity anchor exists; producing selected style/output derivatives
-
-PUBLISHABLE
-  approved artwork exists and website-facing asset pointers are valid
-```
-
-These are workflow concepts; do not add a database enum solely for them.
-
-# Standard character production workflow
-
-## Phase 0 — preflight
+## Phase 0 — Preflight
 
 Before generating:
 
 1. resolve stable `characterId`
-2. verify generation-grade Canonical Design
-3. verify `canonicalPrompt`
-4. verify Civilization Visual DNA
-5. resolve current active Style portfolio from `mythcanvas-style-system`
-6. reject modern commercial adaptation copying
-7. identify the first output target
+2. verify generation-grade Canonical Design + `canonicalPrompt`
+3. verify Civilization Visual DNA
+4. resolve current active Style portfolio
+5. reject modern commercial adaptation copying
+6. choose the first output target
 
-If identity is weak, return to Character Design. Do not compensate by making the prompt longer.
+If identity is weak, return to Character Design. Do not compensate with a longer scene prompt.
 
 ## Phase 1 — Canonical Master
-
-Generate identity-first candidates.
 
 Recommended first pass:
 
@@ -107,10 +84,10 @@ Recommended first pass:
 2–3 mobile canonical candidates
 → review identity / props / anatomy
 → select one canonical direction
-→ generate desktop canonical from that approved direction
+→ generate desktop canonical from that direction
 ```
 
-For a recurring humanoid character, the Canonical Master should establish:
+Canonical establishes:
 
 - face language
 - silhouette
@@ -121,14 +98,12 @@ For a recurring humanoid character, the Canonical Master should establish:
 
 Do not approve an attractive image if a core mythological prop is wrong.
 
-Example learned from Athena:
+Athena pilot lesson:
 
 ```text
 wrong: owl used as the primary shield emblem
-approved canonical direction: physical Gorgoneion / Medusa-head shield; owl remains an optional Athena symbol
+approved: physical Gorgoneion / Medusa-head shield; owl remains optional and scene-dependent
 ```
-
-A symbol may be historically associated with a character without belonging on every prop.
 
 ## Canonical approval gate
 
@@ -137,8 +112,8 @@ A symbol may be historically associated with a character without belonging on ev
 - face/silhouette coherent
 - role and temperament readable
 - culturally grounded costume vocabulary
-- primary signature props historically/mythologically coherent
-- no recognizable modern franchise leakage
+- core props mythologically coherent
+- no modern franchise leakage
 
 ### Technical
 
@@ -152,42 +127,35 @@ A symbol may be historically associated with a character without belonging on ev
 
 ### Reusability
 
-- face and major silhouette visible enough for future references
-- not dependent on a one-off VFX gimmick
+- face and silhouette visible enough for future reference use
+- not dependent on one-off VFX
 - not over-stylized as the sole identity anchor
 
 ## Phase 2 — Reference Pack
 
-Promote approved R2 assets into `reference_assets`.
-
-Useful types:
-
-```text
-portrait-front
-portrait-three-quarter
-fullbody-front
-fullbody-three-quarter
-turnaround
-expression-sheet
-signature-props
-```
-
-Start small. One strong 3/4 identity anchor plus one strong full-body anchor is often better than many conflicting references.
+Start small. One strong canonical 3/4 identity anchor is enough to begin; add another reference only when it improves consistency.
 
 Rules:
 
 - character identity refs → `owner_type='character'`
 - persistent variant refs → `owner_type='character_variant'`
 - rendering-only refs → `owner_type='style'`
-- never use a style reference as character identity
+- never use a Style image as Character identity
 - never mix conflicting canonical faces/costumes
-- prefer `reference_assets` pointing at an existing approved R2 object; do not duplicate image bytes merely to create a reference copy
+- reference records should point to the same approved R2 object; do not duplicate image bytes
 
-# Phase 3 — Style derivative production
+The zero-config importer automatically promotes `canonical_m_01` to:
+
+```text
+characters.portrait_*
+reference_assets(asset_type='portrait-three-quarter')
+```
+
+Other images are not automatically promoted to Character references.
+
+# Phase 3 — Style derivatives
 
 ## Active default portfolio
-
-Current validated production order:
 
 ```text
 1. canonical
@@ -197,28 +165,24 @@ Current validated production order:
 5. cyber-myth
 ```
 
-`dark-fantasy` is deprecated and removed from the default derivative matrix because the Athena pilot did not produce enough visual differentiation from canonical/cinematic. See `mythcanvas-style-system`.
+`dark-fantasy` is deprecated and excluded from the default derivative matrix because the Athena pilot did not produce enough visual differentiation from canonical/cinematic.
 
-Do not generate every possible style/variant combination by default.
+## Per-style candidate workflow
 
-## Recommended per-style workflow
-
-When a style direction is not yet proven on a character:
+For an unproven style direction:
 
 ```text
 2 mobile candidates
-→ choose one direction
+→ select one direction
 → generate one matched desktop image
-→ review pair
+→ review the pair
 ```
 
-This is preferred over blindly generating mobile + desktop + several candidates at once.
+Do not generate every Cartesian combination by default.
 
 ## Device isolation
 
 **Mobile and desktop are always separate deliverables and separate generation jobs.**
-
-Never request both inside one model canvas.
 
 Forbidden unless explicitly asked for a design board:
 
@@ -229,15 +193,11 @@ Forbidden unless explicitly asked for a design board:
 - comparison poster
 - aspect-ratio mockup board
 
-“Batch generate mobile + PC” means execute two standalone generations, not create a combined image.
+“Batch generate mobile + PC” means two standalone images, not one combined canvas.
 
 # Lessons from Athena pilot
 
-The Athena pilot is the reference implementation for failure handling, not a character-specific exception.
-
-## Lesson 1 — Canonical consistency is not pose duplication
-
-Lock identity, not the whole screenshot.
+## 1. Canonical consistency is not pose duplication
 
 Keep stable:
 
@@ -264,29 +224,19 @@ canonical standing pose
 → cinematic standing pose
 ```
 
-This creates “same image, different background” content and defeats Style expansion.
+Each Style should have a role-appropriate pose vocabulary.
 
-Production rule:
+## 2. Symbol lists are not mandatory checklists
 
-> Each Style should have a role-appropriate pose vocabulary. A war deity should actually fight or command in Cinematic; Sacred may be ceremonial; Cyber Myth may be tactical/strategic.
+Use scene logic. For Athena:
 
-## Lesson 2 — Canonical symbol lists are not mandatory checklists
+- owl works in quiet canonical/sacred scenes
+- owl usually disappears in close combat
+- spear + Gorgoneion shield are stronger combat anchors
 
-Do not force every symbol into every scene.
+## 3. Style must change visual grammar, not color grading
 
-For Athena:
-
-- owl works in canonical/sacred quiet scenes
-- owl should usually disappear in active close combat
-- Gorgoneion shield and spear remain much higher-priority combat anchors
-
-Use scene logic over mechanical checklist completion.
-
-## Lesson 3 — Style must alter visual grammar, not color grading
-
-A darker palette, ruined temple, smoke and weathering did not make Athena meaningfully Dark Fantasy.
-
-Before producing a style pair, verify the style differs from the nearest existing style in at least three meaningful dimensions such as:
+A style should differ from the nearest existing style across at least three meaningful dimensions:
 
 - rendering medium/surface
 - material treatment
@@ -296,13 +246,11 @@ Before producing a style pair, verify the style differs from the nearest existin
 - environment treatment
 - costume-surface transformation
 
-If the result is only “Canonical but darker/brighter/more neon”, reject the Style recipe before publishing.
+“Canonical but darker/brighter/more neon” is not a sufficient new style.
 
-## Lesson 4 — “High-end” is not “maximum detail”
+## 4. High-end is not maximum detail
 
-Several Anime attempts accumulated too many chains, gems, filigree and fabric intersections. This created obvious AI-generated texture noise and also made anatomy harder to inspect.
-
-Production target:
+Use detail hierarchy:
 
 ```text
 large forms first
@@ -310,27 +258,23 @@ large forms first
 → limited selected micro-detail
 ```
 
-Reject images where every surface competes for attention.
+Reject AI ornament overload: endless chains, gems, filigree, floating shards and unrelated micro-texture.
 
-## Lesson 5 — Anime and Cyber Myth must not collapse together
-
-Current approved distinction:
+## 5. Anime and Cyber Myth must remain distinct
 
 ```text
 Anime
 = premium 2D commercial game key art
-= material layers + character-selling illustration + commercial lighting
+= strong character-selling illustration + material layers + commercial lighting
 
 Cyber Myth
 = premium stylized 3D anime / 3D game-cinematic rendering
-= bold future-Olympus transformation + dimensional material response
+= bold future-myth transformation + dimensional material response
 ```
 
-Cyber Myth cannot be just Anime with blue/purple holograms.
+Cyber Myth cannot be Anime plus purple/blue holograms.
 
-## Lesson 6 — Anatomy must be traced, not glanced at
-
-High visual quality can hide structural mistakes.
+## 6. Anatomy must be traced, not glanced at
 
 Before approval, mentally trace:
 
@@ -341,21 +285,17 @@ weapon shaft → grip → full trajectory
 shield → forearm/hand relationship
 ```
 
-Reject ambiguous anatomy caused by garment slits, overlapping ribbons, armor or perspective.
+Known failures:
 
-Known pilot failures included:
+- displaced-looking leg under garment openings
+- spear shaft passing through arm
+- malformed weapon perspective
 
-- leg region appearing displaced under layered garment openings
-- spear shaft visually passing through an arm
-- weapon perspective becoming malformed
+Do not hide structural errors with VFX. Change pose/angle or regenerate.
 
-Do not fix these by hiding the area with VFX. Change pose/angle or regenerate locally.
+## 7. Full body is optional
 
-## Lesson 7 — Full body is optional
-
-Do not force a full-body composition if it increases anatomy/crop risk without adding value.
-
-Valid choices:
+Valid framing:
 
 - portrait
 - medium shot
@@ -363,108 +303,70 @@ Valid choices:
 - knee-up
 - full body
 
-Choose based on the style's selling point and OutputSpec.
+Choose based on the Style and output composition, not habit.
 
-Sacred in particular often benefits from medium/3Q framing rather than repetitive full-body standing poses.
-
-## Lesson 8 — Candidate-first beats broad batch generation
-
-When defining a new style direction for a character:
+## 8. Candidate-first beats broad batch generation
 
 ```text
-produce 2 mobile candidates
-select direction
-then generate PC
+2 mobile candidates
+→ select direction
+→ then PC
 ```
 
-Advantages:
+This reduces drift, bad assets and wasted generations.
 
-- cheaper iteration
-- clearer style decisions
-- less mobile/desktop drift
-- fewer bad assets
-- easier reference selection
-
-## Lesson 9 — Correct one dimension at a time
-
-When a result is close, use targeted correction.
-
-Examples:
+## 9. Correct one dimension at a time
 
 ```text
-shield symbol wrong → keep face/costume/scene; correct shield only
-spear intersects arm → keep style/scene; change grip and spear angle
-Cyber looks too 2D → keep design; change rendering language to stylized 3D
-pose too repetitive → keep identity/style; change action and expression
+shield wrong → keep face/costume/scene; fix shield only
+spear intersects arm → keep style/scene; change grip/angle
+Cyber too 2D → keep design; switch rendering language to stylized 3D
+pose repetitive → keep identity/style; change action/expression
 AI detail overload → keep large design; simplify ornament/VFX
 ```
 
-Do not regenerate the entire art direction unless the Style itself failed.
-
-# Per-style production intent
+# Per-style intent
 
 ## Canonical
 
-Purpose: stable identity anchor.
-
+- stable identity anchor
 - clean mythology-first design
-- readable signature props
+- readable core props
 - restrained effects
-- identity over spectacle
 
 ## Sacred
 
-Purpose: ceremonial/divine presentation.
-
+- ceremonial/divine presentation
 - luminous sacred environment
-- composed or dignified expression
-- ceremonial posture
-- medium/3Q framing allowed
-- may include quiet companion symbols when scene-appropriate
-
-Do not make it merely canonical with stronger bloom.
+- dignified expression
+- medium/3Q framing is valid
+- quiet companion symbols only when scene-appropriate
 
 ## Cinematic
 
-Purpose: action and narrative spectacle.
-
-For war/strategy characters, vary action meaningfully:
-
-- thrust
-- shield impact
-- advancing defense
-- battlefield command
-
-Avoid repeated idle standing and avoid forcing companion symbols into active combat.
+- action and narrative spectacle
+- war/strategy characters should fight or command
+- avoid repetitive idle standing
 
 ## Anime
 
-Purpose: premium 2D commercial game key art.
-
+- premium 2D commercial game key art
 - strong character-selling silhouette
 - readable costume layers/materials
 - commercial lighting
 - controlled detail density
-- anatomically clear garment openings
-
-Do not equate “二游高完成度” with infinite filigree/chains/gems.
 
 ## Cyber Myth
 
-Purpose: bold future mythology reinterpretation while retaining identity.
-
 - stylized 3D anime / 3D game-cinematic rendering
 - stronger material transformation than Anime
-- physically dimensional skin/metal/textile
-- Greek/future-Olympus architecture rather than generic neon city
-- restrained but confident adult glamour is acceptable when character is clearly adult
-- no extreme exposure
+- dimensional skin/metal/textile
+- future-myth architecture, not generic neon city
+- restrained adult glamour is allowed when clearly adult; no extreme exposure
 
-# Character artwork filename convention
+# Filename convention
 
-Keep local naming deliberately simple. **The parent character directory supplies character identity; the filename supplies only Style, device and sequence.** The importer/agent derives the R2 path and normalized metadata.
-
-## Canonical grammar
+The parent directory supplies the character. The filename supplies only Style, device and sequence.
 
 ```text
 <style>_<device>_<NN>.<ext>
@@ -485,11 +387,7 @@ cyber-myth_m_01.png
 cyber-myth_pc_01.png
 ```
 
-Do not put the character name, variant, concept, resolution, approval state, date, model, or prompt information in the filename.
-
-## Parser contract
-
-Accepted filename pattern:
+Accepted parser grammar:
 
 ```regex
 ^(?<style>[a-z0-9]+(?:-[a-z0-9]+)*)_(?<device>pc|m)_(?<sequence>[0-9]{2})\.(?<ext>png|jpg|jpeg|webp)$
@@ -498,22 +396,23 @@ Accepted filename pattern:
 Parse as:
 
 ```text
-style       → styleId
-m           → outputSpecId: mobile-wallpaper
-pc          → outputSpecId: desktop-wallpaper
-NN          → sequence/version number
-parent dir  → characterSlug
+parent directory → characterSlug
+style            → styleId
+m                → mobile-wallpaper
+pc               → desktop-wallpaper
+NN               → sequence
 ```
 
-The importer must resolve `characterSlug` to `characterId` from D1 or the canonical character registry. Do not require the user to repeat the character in every filename.
+Do not put character name, variant, scene, resolution, date, provider, model, prompt or approval state into the filename.
 
-## Directory is authoritative for character identity
+# Zero-config import contract
 
-Preferred staging layout:
+**There is no `manifest.json`.**
+
+The local staging directory contains image files only:
 
 ```text
 imports/characters/<character-slug>/
-├── manifest.json
 ├── canonical_m_01.png
 ├── canonical_pc_01.png
 ├── sacred_m_01.png
@@ -526,172 +425,135 @@ imports/characters/<character-slug>/
 └── cyber-myth_pc_01.png
 ```
 
-Example:
-
-```text
-imports/characters/athena/anime_m_01.png
-```
-
-means:
-
-```text
-characterSlug = athena
-styleId = anime
-outputSpecId = mobile-wallpaper
-sequence = 1
-```
-
-## Sequence rules
-
-Sequence is scoped to the same character + style + device.
-
-```text
-anime_m_01.png
-anime_m_02.png
-anime_m_03.png
-```
-
-If a generated image is replaced with different pixels, prefer the next sequence rather than silently overwriting an already reviewed/imported asset.
-
-Once only one approved image is retained, it is fine for the folder to contain just `_01`.
-
-## Variant and concept do not belong in the filename
-
-Persistent variant is manifest metadata:
-
-```json
-{
-  "file": "anime_m_01.png",
-  "variantId": "athena-battle-armor"
-}
-```
-
-Scene/action/concept is also manifest/provenance metadata, not filename structure.
-
-This keeps manual image preparation fast while D1 retains the richer semantic model.
-
-## Minimal manifest contract
-
-Filename-derived fields must **not** be duplicated manually in the manifest.
-
-Derived automatically:
+The importer derives:
 
 ```text
 characterSlug / characterId
+mythologyId
 styleId
 outputSpecId
 sequence
-file extension
+mime type
+real image width/height
 R2 key
+public /media URL
+artwork id/slug/title/alt
+review/publish defaults
 ```
 
-Manifest stores only data that cannot be safely inferred from the path/name, such as:
+Import-folder rule:
+
+> Only put images that have already passed manual production QA into `imports/characters/<character-slug>/`.
+
+Therefore the importer defaults every staged image to:
 
 ```text
-variantId
-concept / scene / action when useful
-alt
-role
-reviewStatus
-publishStatus
-promoteToReference
-referenceType
-setAsPortrait
+review_status = approved
+publish_status = published
+source_type = ai
+license = MythCanvas AI-generated original
 ```
 
-Use `.agents/skills/mythcanvas-character-production/references/asset-manifest.example.json` as the template.
+No sidecar metadata file is required.
 
-# Asset lifecycle
+## R2 path derivation
 
-## Generation candidate
-
-Every provider call creates/updates a `generation_jobs` record containing:
-
-```text
-character/entity id
-variant id
-mythology id
-style id
-scene/action/composition
-output spec
-final prompt + prompt layers
-provider/model/quality
-reference ids
-R2 asset key
-source generation id when edited
-```
-
-A successful generation is a candidate, not automatically website content.
-
-After an image is retained for review, rename it to the simple `<style>_<device>_<NN>.<ext>` form before staging/import.
-
-## Approved artwork
-
-When an image passes Character QA + Style QA + Anatomy/Prop QA + Output QA:
-
-- keep bytes in R2
-- insert/update `artworks`
-- set `type='character'`
-- link through `artwork_characters`
-- preserve style/output dimensions and provenance
-- set `review_status='approved'`
-- set `publish_status='published'` only when public
-
-## Canonical portrait
-
-When one approved asset becomes the website portrait:
-
-- update `characters.portrait_src/alt/width/height`
-- keep the canonical source/provenance in R2 + artwork/reference records
-- do not duplicate image bytes solely for the portrait field
-
-# R2 path derivation
-
-The user does **not** manually construct R2 paths. The importer/agent derives them from parent character directory + filename + manifest variant metadata.
-
-No persistent variant:
-
-```text
-style == canonical
-→ characters/<character-slug>/canonical/<output-spec-id>/<filename>
-
-style != canonical
-→ characters/<character-slug>/styles/<style-id>/<output-spec-id>/<filename>
-```
-
-Persistent variant present:
-
-```text
-characters/<character-slug>/variants/<variant-slug>/<style-id>/<output-spec-id>/<filename>
-```
-
-Examples:
+Canonical:
 
 ```text
 imports/characters/athena/canonical_m_01.png
 → characters/athena/canonical/mobile-wallpaper/canonical_m_01.png
+```
 
+Style derivative:
+
+```text
 imports/characters/athena/anime_pc_01.png
 → characters/athena/styles/anime/desktop-wallpaper/anime_pc_01.png
+```
 
+Cyber Myth:
+
+```text
 imports/characters/athena/cyber-myth_m_01.png
 → characters/athena/styles/cyber-myth/mobile-wallpaper/cyber-myth_m_01.png
 ```
 
-Reference Pack records should normally point to the same approved R2 object instead of duplicating image bytes.
+Website URL is always:
+
+```text
+/media/<R2-key>
+```
+
+## Automatic canonical behavior
+
+`canonical_m_01` has special production meaning:
+
+1. imported as an approved/published Artwork
+2. linked through `artwork_characters`
+3. set as `characters.portrait_*`
+4. registered as the active `portrait-three-quarter` Character reference using the same R2 object
+
+`canonical_pc_01` remains a normal approved canonical Artwork; it is not automatically added to Reference Pack because framing cannot be inferred safely from a filename.
+
+## Import command
+
+Single character:
+
+```bash
+npm run artwork:import -- athena
+```
+
+Multiple characters:
+
+```bash
+npm run artwork:import -- athena freyja
+```
+
+All staged character folders:
+
+```bash
+npm run artwork:import -- --all
+```
+
+Validate local files without modifying Cloudflare:
+
+```bash
+npm run artwork:import -- athena --dry-run
+```
+
+Use local Wrangler storage:
+
+```bash
+npm run artwork:import -- athena --local
+```
+
+Remote Cloudflare is the default.
+
+The importer must fail closed when:
+
+- character folder slug does not resolve in D1
+- style is not in the active production portfolio
+- style does not resolve to an active D1 Style
+- image filename is malformed
+- duplicate style/device/sequence exists
+- `m` image is not portrait
+- `pc` image is not landscape
+- image bytes cannot be parsed
+- Wrangler R2/D1 operations fail
+
+R2 uploads happen before the transactional D1 write. Re-running is idempotent: the same R2 keys are overwritten and deterministic D1 IDs are upserted.
 
 # Website presentation contract
 
 Website code only consumes approved published assets.
-
-Typical read path:
 
 ```text
 characters
 → portrait
 → artwork_characters
 → artworks(review_status='approved', publish_status='published')
-→ style/output metadata as needed
+→ styles/output metadata as needed
 ```
 
 Website components must not:
@@ -700,26 +562,23 @@ Website components must not:
 - mutate review state
 - create reference packs
 - run generation
-- reconstruct production provenance from filenames
+- infer production provenance from filenames
 
 # Batch onboarding
-
-After the pilot pattern is stable, each major character follows:
 
 ```text
 1. Validate Canonical Design
 2. Generate canonical mobile candidates
 3. Approve canonical direction
 4. Generate canonical desktop
-5. Promote reference pack
+5. Promote canonical_m_01 through importer/reference rule
 6. Select useful active styles only
 7. For each new style: mobile candidates → select → desktop
 8. Run identity/style/anatomy/prop/output QA
-9. Put retained images under imports/characters/<character-slug>/
+9. Put only approved images under imports/characters/<character-slug>/
 10. Rename each image to <style>_<pc|m>_<NN>.<ext>
-11. Add only non-inferable metadata to manifest.json
-12. Importer derives R2 path + style/output metadata and promotes approved images
-13. Update website portrait if appropriate
+11. Run npm run artwork:import -- <character-slug>
+12. Verify website presentation
 ```
 
 Do not optimize for image count. Optimize for a small coherent asset library.
@@ -727,22 +586,21 @@ Do not optimize for image count. Optimize for a small coherent asset library.
 # Completion checklist
 
 - [ ] Canonical Design is generation-grade
-- [ ] canonical identity and primary props are historically/mythologically coherent
+- [ ] canonical identity and primary props are coherent
 - [ ] mobile/desktop are separate generation jobs
-- [ ] no composite/contact-sheet output was accepted accidentally
-- [ ] canonical reference pack contains coherent high-signal assets
-- [ ] active Style comes from current validated portfolio
-- [ ] derivative pose/expression is meaningfully style/scene-specific
-- [ ] optional symbols were selected contextually
+- [ ] no composite/contact-sheet output was accepted
+- [ ] active Style comes from the validated portfolio
+- [ ] derivative pose/expression is style/scene-specific
 - [ ] Style differentiation gate passed
-- [ ] detail hierarchy avoids generic AI ornament overload
+- [ ] detail hierarchy avoids AI ornament overload
 - [ ] anatomy continuity passed
 - [ ] weapon/hand/shield intersections passed
-- [ ] retained image filenames follow `<style>_<pc|m>_<NN>.<ext>`
-- [ ] parent directory resolves to a valid character slug
-- [ ] style parsed from filename resolves to an active Style
-- [ ] importer derives output spec and R2 key instead of asking the user to duplicate them
-- [ ] approved assets retain prompt/model/reference provenance
+- [ ] retained images use `<style>_<pc|m>_<NN>.<ext>`
+- [ ] no `manifest.json` or sidecar metadata is required
+- [ ] parent directory resolves to valid character slug
+- [ ] style resolves to active D1 Style
+- [ ] importer derives dimensions/output/R2 paths automatically
+- [ ] canonical_m_01 promotes portrait + Character reference
 - [ ] public assets are linked in `artworks` + `artwork_characters`
 - [ ] website only reads/presents approved published assets
 - [ ] no production-management UI was introduced without explicit need
