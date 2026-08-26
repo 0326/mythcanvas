@@ -45,6 +45,19 @@ describe('structured generation system', () => {
         materials: ['marble', 'bronze'],
         atmosphere: ['high-altitude sacred light'],
       },
+      canonicalDesign: {
+        anchors: ['poised warrior-goddess silhouette', 'Aegis shield'],
+        silhouette: 'tall poised adult warrior-goddess with a strong spear-and-shield profile',
+        appearance: {
+          face: ['calm strategic adult gaze'],
+          body: ['athletic adult proportions'],
+        },
+        costumeLanguage: ['bronze-and-ivory armor layered over Greek textile'],
+        paletteCues: ['ivory', 'bronze', 'deep olive'],
+        temperament: ['calm', 'strategic', 'authoritative'],
+        avoid: ['generic medieval fantasy costume'],
+        canonicalPrompt: 'Depict Athena as an original MythCanvas strategist-warrior while preserving her Aegis, spear and owl identity.',
+      },
       canonicalAnchors: ['poised warrior-goddess silhouette', 'Aegis shield'],
       symbols: ['spear', 'owl'],
       variant: {
@@ -81,6 +94,9 @@ describe('structured generation system', () => {
 
     const layers = composeGenerationPromptLayers(context);
     expect(layers.identity).toContain('Aegis shield');
+    expect(layers.identity).toContain('Canonical character direction');
+    expect(layers.identity).toContain('bronze-and-ivory armor');
+    expect(layers.identity).toContain('generic medieval fantasy costume');
     expect(layers.variant).toContain('成熟礼仪战甲');
     expect(layers.style).toContain('Cyber Myth');
     expect(layers.output).toContain('1440×2560');
