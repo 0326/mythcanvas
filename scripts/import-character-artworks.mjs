@@ -30,7 +30,7 @@ async function main() {
 
   const characterSlugs = resolveCharacterSlugs(options.characterSlugs, options.all);
   if (!characterSlugs.length) {
-    throw new Error('No character folders found. Use `npm run artwork:import -- athena` or `npm run artwork:import -- --all`.');
+    throw new Error('No character folders found. Use the character-production skill to import one or more staged character folders.');
   }
 
   const candidates = [];
@@ -39,6 +39,7 @@ async function main() {
   }
 
   if (!candidates.length) throw new Error('No importable images found. Expected names like canonical_m_01.png or anime_pc_01.png.');
+  markPrimaryCanonicals(candidates);
 
   const invalidStyle = candidates.find((item) => !ACTIVE_PRODUCTION_STYLES.has(item.styleId));
   if (invalidStyle) {
@@ -47,7 +48,7 @@ async function main() {
 
   console.log(`\nFound ${candidates.length} image(s) for ${characterSlugs.length} character(s).`);
   for (const item of candidates) {
-    console.log(`  ${item.relativeFile} -> ${item.r2Key} (${item.width}x${item.height})`);
+    console.log(`  ${item.relativeFile} -> ${item.r2Key} (${item.width}x${item.height})${item.isPrimaryCanonical ? ' [primary canonical]' : ''}`);
   }
 
   if (options.dryRun) {
@@ -79,8 +80,8 @@ async function main() {
 
   console.log(`\nImported ${candidates.length} artwork(s) successfully.`);
   console.log('Website records: approved + published.');
-  if (candidates.some((item) => item.isPrimaryCanonical)) {
-    console.log('canonical_m_01 was also promoted to character portrait + Canonical Reference Pack.');
+  for (const item of candidates.filter((candidate) => candidate.isPrimaryCanonical)) {
+    console.log(`${item.characterSlug}/${item.filename} was promoted to character portrait + Canonical Reference Pack.`);
   }
 }
 
@@ -100,7 +101,7 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log(`MythCanvas character artwork importer\n\nUsage:\n  npm run artwork:import -- athena\n  npm run artwork:import -- athena freyja\n  npm run artwork:import -- --all\n\nOptions:\n  --dry-run   Parse/validate local filenames and image dimensions only\n  --local     Use local Wrangler D1/R2 storage\n  --remote    Use remote Cloudflare resources (default)\n  --all       Import every character directory under imports/characters\n\nExpected layout:\n  imports/characters/athena/canonical_m_01.png\n  imports/characters/athena/canonical_pc_01.png\n  imports/characters/athena/anime_m_01.png\n  imports/characters/athena/anime_pc_01.png\n\nFilename grammar:\n  <style>_<m|pc>_<NN>.<png|jpg|jpeg|webp>\n`);
+  console.log(`MythCanvas character artwork importer\n\nThis is an implementation detail of the mythcanvas-character-production skill.\nPrefer invoking the skill in natural language rather than asking users to remember CLI syntax.\n\nExpected layout:\n  imports/characters/athena/canonical_m_01.png\n  imports/characters/athena/canonical_pc_01.png\n  imports/characters/athena/anime_m_01.png\n  imports/characters/athena/anime_pc_01.png\n\nFilename grammar:\n  <style>_<m|pc>_<NN>.<png|jpg|jpeg|webp>\n`);
 }
 
 function resolveCharacterSlugs(explicit, all) {
@@ -167,11 +168,21 @@ function scanCharacterFolder(characterSlug) {
       mimeType: mimeForExtension(ext),
       r2Key,
       publicUrl: `/media/${r2Key}`,
-      isPrimaryCanonical: styleId === 'canonical' && device === 'm' && sequence === 1,
+      isPrimaryCanonical: false,
     });
   }
 
   return items.sort((a, b) => a.filename.localeCompare(b.filename));
+}
+
+function markPrimaryCanonicals(candidates) {
+  const latestByCharacter = new Map();
+  for (const item of candidates) {
+    if (item.styleId !== 'canonical' || item.device !== 'm') continue;
+    const current = latestByCharacter.get(item.characterSlug);
+    if (!current || item.sequence > current.sequence) latestByCharacter.set(item.characterSlug, item);
+  }
+  for (const item of latestByCharacter.values()) item.isPrimaryCanonical = true;
 }
 
 function loadCharacters(slugs, modeFlag) {
@@ -275,11 +286,12 @@ ON CONFLICT(artwork_id, character_id) DO NOTHING;
 `);
 
     if (item.isPrimaryCanonical) {
-      const refId = `ref-${item.characterSlug}-canonical-m-01`;
+      const refId = `ref-${item.characterSlug}-canonical-primary`;
       const generationMeta = JSON.stringify({
         importedBy: 'scripts/import-character-artworks.mjs',
         sourceArtworkId: artworkId,
         sourceFile: item.filename,
+        sequence: item.sequence,
       });
       statements.push(`
 UPDATE characters
@@ -289,6 +301,13 @@ SET portrait_src=${sqlQuote(item.publicUrl)},
     portrait_height=${item.height},
     updated_at=CURRENT_TIMESTAMP
 WHERE id=${sqlQuote(character.id)};
+
+UPDATE reference_assets
+SET status='archived', updated_at=CURRENT_TIMESTAMP
+WHERE owner_type='character'
+  AND owner_id=${sqlQuote(character.id)}
+  AND asset_type='portrait-three-quarter'
+  AND id != ${sqlQuote(refId)};
 
 INSERT INTO reference_assets (
   id, owner_type, owner_id, asset_type, asset_key, asset_mime,
