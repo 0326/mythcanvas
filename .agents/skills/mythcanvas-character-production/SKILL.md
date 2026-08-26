@@ -1,6 +1,6 @@
 ---
 name: mythcanvas-character-production
-description: Use when producing, curating, reviewing, naming, importing, or publishing MythCanvas character images. Orchestrates Canonical master generation, reference-pack promotion, style derivatives, QA, deterministic asset naming, R2/D1 persistence, and website-ready publication without requiring a production-management UI.
+description: Use when producing, curating, reviewing, naming, importing, or publishing MythCanvas character images. Orchestrates Canonical master generation, reference-pack promotion, style derivatives, QA, simple asset naming, R2/D1 persistence, and website-ready publication without requiring a production-management UI.
 ---
 
 # MythCanvas Character Production
@@ -17,7 +17,7 @@ Character Design
 → Canonical Reference Pack
 → Selected Style Derivatives
 → QA
-→ Deterministic Naming
+→ Simple Naming
 → Approved Artwork
 → Website presentation
 ```
@@ -365,7 +365,7 @@ Valid choices:
 
 Choose based on the style's selling point and OutputSpec.
 
-Sacred in particular often benefits from medium/3/4 framing rather than repetitive full-body standing poses.
+Sacred in particular often benefits from medium/3Q framing rather than repetitive full-body standing poses.
 
 ## Lesson 8 — Candidate-first beats broad batch generation
 
@@ -462,225 +462,134 @@ Purpose: bold future mythology reinterpretation while retaining identity.
 
 # Character artwork filename convention
 
-Every saved generation that may be reviewed, imported, referenced, or published must be renamed immediately. Never keep provider defaults such as `imagegen.png`, Chinese free-form filenames, `final.png`, or `new-2.png` as durable asset names.
+Keep local naming deliberately simple. **The parent character directory supplies character identity; the filename supplies only Style, device and sequence.** The importer/agent derives the R2 path and normalized metadata.
 
 ## Canonical grammar
 
 ```text
-<character>__<style>__<device>__<variant>__<concept>__vNN.<ext>
+<style>_<device>_<NN>.<ext>
 ```
 
-Example:
+Examples:
 
 ```text
-athena__canonical__mobile__base__olympus-dawn__v01.png
-athena__canonical__desktop__base__olympus-dawn__v01.png
-athena__sacred__mobile__base__temple-rite__v01.png
-athena__cinematic__desktop__base__battle-thrust__v02.png
-athena__anime__mobile__base__battle-command__v01.png
-athena__cyber-myth__desktop__base__tactical-guard__v01.png
+canonical_m_01.png
+canonical_pc_01.png
+sacred_m_01.png
+sacred_pc_01.png
+cinematic_m_01.png
+cinematic_pc_01.png
+anime_m_01.png
+anime_pc_01.png
+cyber-myth_m_01.png
+cyber-myth_pc_01.png
 ```
 
-The double underscore `__` is the field separator. Individual field values use lowercase kebab-case.
+Do not put the character name, variant, concept, resolution, approval state, date, model, or prompt information in the filename.
 
-## Field rules
+## Parser contract
 
-### `character`
+Accepted filename pattern:
 
-Use the canonical `characters.slug` exactly.
+```regex
+^(?<style>[a-z0-9]+(?:-[a-z0-9]+)*)_(?<device>pc|m)_(?<sequence>[0-9]{2})\.(?<ext>png|jpg|jpeg|webp)$
+```
+
+Parse as:
 
 ```text
-athena
-anubis
-freyja
-amaterasu
+style       → styleId
+m           → outputSpecId: mobile-wallpaper
+pc          → outputSpecId: desktop-wallpaper
+NN          → sequence/version number
+parent dir  → characterSlug
 ```
 
-Character slugs are already globally unique; do not duplicate mythology in the filename.
+The importer must resolve `characterSlug` to `characterId` from D1 or the canonical character registry. Do not require the user to repeat the character in every filename.
 
-### `style`
+## Directory is authoritative for character identity
 
-Use the actual stable Style ID/slug, never an ad-hoc visual description.
-
-Current active examples:
-
-```text
-canonical
-sacred
-cinematic
-anime
-cyber-myth
-```
-
-### `device`
-
-Only:
-
-```text
-mobile   → outputSpecId: mobile-wallpaper
-desktop  → outputSpecId: desktop-wallpaper
-```
-
-Do not use `pc`, `phone`, `vertical`, `horizontal`, `9x16`, or resolution numbers as aliases.
-
-### `variant`
-
-Use:
-
-```text
-base
-```
-
-when there is no persistent CharacterVariant.
-
-Otherwise use the stable variant slug, for example:
-
-```text
-ceremonial
-battle-armor
-mature
-```
-
-A temporary pose, lighting change, scene, or expression is not a variant.
-
-### `concept`
-
-Use a short 1–4 word kebab-case concept slug representing the scene/action idea.
-
-Good:
-
-```text
-olympus-dawn
-temple-rite
-battle-thrust
-battle-command
-tactical-guard
-moonlit-court
-```
-
-Bad:
-
-```text
-beautiful-image
-final-approved
-very-cool-athena
-cyber-purple-version
-```
-
-Do not repeat metadata already encoded by other fields.
-
-### `vNN`
-
-Two-digit immutable generation/revision sequence for the same first five fields:
-
-```text
-v01
-v02
-v03
-```
-
-If visual pixels change through regeneration or edit, create the next version. Preserve `source_generation_id`/provenance in metadata.
-
-Do not overwrite `v01` with a different image.
-
-## Character set and separators
-
-Durable filenames must use:
-
-```text
-ASCII lowercase letters
-numbers when required
-hyphen inside fields
-exactly two underscores between fields
-lowercase file extension
-```
-
-Do not use:
-
-- Chinese/Japanese/Korean characters
-- spaces
-- parentheses
-- timestamps
-- random UUIDs as the human-facing filename
-- `final`, `final2`, `new`, `ok`, `selected`, `approved`
-- model/provider names such as `gpt-image-2`
-
-## Metadata intentionally excluded from filenames
-
-Do not encode these because they are mutable, redundant, or belong in D1/manifest metadata:
-
-- approval/review status
-- publish status
-- prompt text
-- model/provider
-- generation ID
-- exact width/height
-- file size
-- creation date
-- alt text
-- reference-pack role
-
-The filename is a durable human/machine index, not the database.
-
-## Candidate and approved naming
-
-Candidate status is **not** part of the filename.
-
-For example, if two mobile Anime candidates are generated from the same concept:
-
-```text
-athena__anime__mobile__base__battle-command__v01.png
-athena__anime__mobile__base__battle-command__v02.png
-```
-
-If `v02` is approved, keep that filename. Do not rename it to `approved` or `final`.
-
-## Local import staging
-
-Preferred local staging layout:
+Preferred staging layout:
 
 ```text
 imports/characters/<character-slug>/
 ├── manifest.json
-├── <character>__<style>__<device>__<variant>__<concept>__vNN.png
-└── ...
+├── canonical_m_01.png
+├── canonical_pc_01.png
+├── sacred_m_01.png
+├── sacred_pc_01.png
+├── cinematic_m_01.png
+├── cinematic_pc_01.png
+├── anime_m_01.png
+├── anime_pc_01.png
+├── cyber-myth_m_01.png
+└── cyber-myth_pc_01.png
 ```
 
 Example:
 
 ```text
-imports/characters/athena/
-├── manifest.json
-├── athena__canonical__mobile__base__olympus-dawn__v01.png
-├── athena__canonical__desktop__base__olympus-dawn__v01.png
-├── athena__sacred__mobile__base__temple-rite__v01.png
-├── athena__sacred__desktop__base__temple-rite__v01.png
-├── athena__cinematic__mobile__base__battle-thrust__v01.png
-├── athena__cinematic__desktop__base__battle-thrust__v01.png
-├── athena__anime__mobile__base__battle-command__v01.png
-├── athena__anime__desktop__base__battle-command__v01.png
-├── athena__cyber-myth__mobile__base__tactical-guard__v01.png
-└── athena__cyber-myth__desktop__base__tactical-guard__v01.png
+imports/characters/athena/anime_m_01.png
 ```
 
-Use `.agents/skills/mythcanvas-character-production/references/asset-manifest.example.json` as the manifest template.
-
-## Manifest contract
-
-The importer/agent must validate that filename fields agree with manifest metadata:
+means:
 
 ```text
-character ↔ characterSlug / characterId
-style ↔ styleId
-device ↔ outputSpecId
-variant ↔ variantId
-concept ↔ concept
-vNN ↔ version
+characterSlug = athena
+styleId = anime
+outputSpecId = mobile-wallpaper
+sequence = 1
 ```
 
-The manifest remains authoritative for data that does not belong in the filename:
+## Sequence rules
+
+Sequence is scoped to the same character + style + device.
 
 ```text
+anime_m_01.png
+anime_m_02.png
+anime_m_03.png
+```
+
+If a generated image is replaced with different pixels, prefer the next sequence rather than silently overwriting an already reviewed/imported asset.
+
+Once only one approved image is retained, it is fine for the folder to contain just `_01`.
+
+## Variant and concept do not belong in the filename
+
+Persistent variant is manifest metadata:
+
+```json
+{
+  "file": "anime_m_01.png",
+  "variantId": "athena-battle-armor"
+}
+```
+
+Scene/action/concept is also manifest/provenance metadata, not filename structure.
+
+This keeps manual image preparation fast while D1 retains the richer semantic model.
+
+## Minimal manifest contract
+
+Filename-derived fields must **not** be duplicated manually in the manifest.
+
+Derived automatically:
+
+```text
+characterSlug / characterId
+styleId
+outputSpecId
+sequence
+file extension
+R2 key
+```
+
+Manifest stores only data that cannot be safely inferred from the path/name, such as:
+
+```text
+variantId
+concept / scene / action when useful
 alt
 role
 reviewStatus
@@ -690,7 +599,7 @@ referenceType
 setAsPortrait
 ```
 
-Fail closed on mismatch. Do not silently import a file under conflicting metadata.
+Use `.agents/skills/mythcanvas-character-production/references/asset-manifest.example.json` as the template.
 
 # Asset lifecycle
 
@@ -714,7 +623,7 @@ source generation id when edited
 
 A successful generation is a candidate, not automatically website content.
 
-After the image is retained for review, assign its deterministic filename before moving it into the import staging directory.
+After an image is retained for review, rename it to the simple `<style>_<device>_<NN>.<ext>` form before staging/import.
 
 ## Approved artwork
 
@@ -736,23 +645,21 @@ When one approved asset becomes the website portrait:
 - keep the canonical source/provenance in R2 + artwork/reference records
 - do not duplicate image bytes solely for the portrait field
 
-# R2 convention
+# R2 path derivation
 
-Use the deterministic filename unchanged as the R2 leaf name.
+The user does **not** manually construct R2 paths. The importer/agent derives them from parent character directory + filename + manifest variant metadata.
 
-Canonical base assets:
-
-```text
-characters/<character-slug>/canonical/<output-spec-id>/<filename>
-```
-
-Style derivatives:
+No persistent variant:
 
 ```text
-characters/<character-slug>/styles/<style-id>/<output-spec-id>/<filename>
+style == canonical
+→ characters/<character-slug>/canonical/<output-spec-id>/<filename>
+
+style != canonical
+→ characters/<character-slug>/styles/<style-id>/<output-spec-id>/<filename>
 ```
 
-Persistent variants:
+Persistent variant present:
 
 ```text
 characters/<character-slug>/variants/<variant-slug>/<style-id>/<output-spec-id>/<filename>
@@ -761,20 +668,17 @@ characters/<character-slug>/variants/<variant-slug>/<style-id>/<output-spec-id>/
 Examples:
 
 ```text
-characters/athena/canonical/mobile-wallpaper/athena__canonical__mobile__base__olympus-dawn__v01.png
-characters/athena/styles/anime/desktop-wallpaper/athena__anime__desktop__base__battle-command__v01.png
-characters/athena/variants/battle-armor/sacred/mobile-wallpaper/athena__sacred__mobile__battle-armor__temple-rite__v01.png
+imports/characters/athena/canonical_m_01.png
+→ characters/athena/canonical/mobile-wallpaper/canonical_m_01.png
+
+imports/characters/athena/anime_pc_01.png
+→ characters/athena/styles/anime/desktop-wallpaper/anime_pc_01.png
+
+imports/characters/athena/cyber-myth_m_01.png
+→ characters/athena/styles/cyber-myth/mobile-wallpaper/cyber-myth_m_01.png
 ```
 
-Reference Pack records should normally point to the same approved R2 object instead of duplicating bytes into a separate `references/` folder.
-
-If a production-only reference sheet is itself a distinct image asset, use:
-
-```text
-references/<character-slug>/<reference-type>/<character-slug>__ref-<reference-type>__vNN.<ext>
-```
-
-Such production-only reference sheets are not normal website artworks.
+Reference Pack records should normally point to the same approved R2 object instead of duplicating image bytes.
 
 # Website presentation contract
 
@@ -811,10 +715,11 @@ After the pilot pattern is stable, each major character follows:
 6. Select useful active styles only
 7. For each new style: mobile candidates → select → desktop
 8. Run identity/style/anatomy/prop/output QA
-9. Rename retained files using the deterministic filename grammar
-10. Build/validate manifest
-11. Promote approved images to R2 + artworks
-12. Update website portrait if appropriate
+9. Put retained images under imports/characters/<character-slug>/
+10. Rename each image to <style>_<pc|m>_<NN>.<ext>
+11. Add only non-inferable metadata to manifest.json
+12. Importer derives R2 path + style/output metadata and promotes approved images
+13. Update website portrait if appropriate
 ```
 
 Do not optimize for image count. Optimize for a small coherent asset library.
@@ -833,8 +738,10 @@ Do not optimize for image count. Optimize for a small coherent asset library.
 - [ ] detail hierarchy avoids generic AI ornament overload
 - [ ] anatomy continuity passed
 - [ ] weapon/hand/shield intersections passed
-- [ ] retained image filenames follow the deterministic grammar
-- [ ] filename metadata agrees with manifest metadata
+- [ ] retained image filenames follow `<style>_<pc|m>_<NN>.<ext>`
+- [ ] parent directory resolves to a valid character slug
+- [ ] style parsed from filename resolves to an active Style
+- [ ] importer derives output spec and R2 key instead of asking the user to duplicate them
 - [ ] approved assets retain prompt/model/reference provenance
 - [ ] public assets are linked in `artworks` + `artwork_characters`
 - [ ] website only reads/presents approved published assets
