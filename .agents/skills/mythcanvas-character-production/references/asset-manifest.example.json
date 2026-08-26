@@ -3,12 +3,9 @@
   "characterSlug": "athena",
   "files": [
     {
-      "file": "athena__canonical__mobile__base__olympus-dawn__v01.png",
-      "styleId": "canonical",
-      "outputSpecId": "mobile-wallpaper",
+      "file": "canonical_m_01.png",
       "variantId": null,
       "concept": "olympus-dawn",
-      "version": 1,
       "role": "canonical-master",
       "alt": "雅典娜持长矛与戈耳工盾立于奥林匹斯神殿",
       "reviewStatus": "approved",
@@ -18,12 +15,9 @@
       "setAsPortrait": true
     },
     {
-      "file": "athena__canonical__desktop__base__olympus-dawn__v01.png",
-      "styleId": "canonical",
-      "outputSpecId": "desktop-wallpaper",
+      "file": "canonical_pc_01.png",
       "variantId": null,
       "concept": "olympus-dawn",
-      "version": 1,
       "role": "canonical-companion",
       "alt": "奥林匹斯神殿中的雅典娜横版壁纸",
       "reviewStatus": "approved",
@@ -33,12 +27,9 @@
       "setAsPortrait": false
     },
     {
-      "file": "athena__sacred__mobile__base__temple-rite__v01.png",
-      "styleId": "sacred",
-      "outputSpecId": "mobile-wallpaper",
+      "file": "sacred_m_01.png",
       "variantId": null,
       "concept": "temple-rite",
-      "version": 1,
       "role": "derivative",
       "alt": "圣光神殿中的雅典娜",
       "reviewStatus": "approved",
