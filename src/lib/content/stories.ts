@@ -8,6 +8,18 @@ export type MythStoryVolume = {
   stories: MythStory[];
 };
 
+/**
+ * Below this count, keeping the complete reader on its Mythology page gives a
+ * better first-reading experience. The route also turns on when product work
+ * explicitly adds independent sharing, search, or ongoing Story operations.
+ */
+export const MYTH_STORY_DETAIL_ROUTE_THRESHOLD = 8;
+
+export const shouldUseMythStoryDetailRoutes = (
+  publishedStoryCount: number,
+  requiresIndependentStoryUrl = false,
+): boolean => publishedStoryCount >= MYTH_STORY_DETAIL_ROUTE_THRESHOLD || requiresIndependentStoryUrl;
+
 export const getStoriesForMythology = (mythologyId: string): MythStory[] =>
   mythStories
     .filter((story) => story.mythologyId === mythologyId && story.publishStatus === 'published')

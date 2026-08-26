@@ -3,6 +3,7 @@ import { mythStories } from '../src/data/stories';
 import { storyIllustrations } from '../src/data/story-illustrations';
 import { characters, mythologies, scenes, worlds } from '../src/data/seed';
 import { validateMythStories } from '../src/lib/content/story-validation';
+import { MYTH_STORY_DETAIL_ROUTE_THRESHOLD, shouldUseMythStoryDetailRoutes } from '../src/lib/content/stories';
 
 describe('MythStory editorial content', () => {
   it('keeps all published stories sourced, categorized, related and backed by attributable image assets', () => {
@@ -18,5 +19,11 @@ describe('MythStory editorial content', () => {
     expect(issues).toEqual([]);
     expect(mythStories).toHaveLength(15);
     expect(mythStories.every((story) => story.sources.length > 0 && story.sourceNotes.length > 0)).toBe(true);
+  });
+
+  it('keeps the complete reader on small Mythology collections and exposes the documented route threshold', () => {
+    expect(shouldUseMythStoryDetailRoutes(3)).toBe(false);
+    expect(shouldUseMythStoryDetailRoutes(MYTH_STORY_DETAIL_ROUTE_THRESHOLD)).toBe(true);
+    expect(shouldUseMythStoryDetailRoutes(1, true)).toBe(true);
   });
 });

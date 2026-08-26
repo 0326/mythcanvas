@@ -43,17 +43,23 @@ export function mapCharacterRow(row: CharacterRow, worldIds: readonly string[] =
 /** 批量加载 character_worlds，返回 characterId -> worldIds 映射 */
 async function loadWorldIds(db: D1Database, characterIds: readonly string[]): Promise<Map<string, string[]>> {
   if (characterIds.length === 0) return new Map();
-  const placeholders = characterIds.map(() => '?').join(',');
-  const rows = await db
-    .prepare(`SELECT character_id, world_id FROM character_worlds WHERE character_id IN (${placeholders})`)
-    .bind(...characterIds)
-    .all();
   const map = new Map<string, string[]>();
-  for (const row of rows.results) {
-    const characterId = String(row.character_id);
-    const list = map.get(characterId) ?? [];
-    list.push(String(row.world_id));
-    map.set(characterId, list);
+  // D1/SQLite limits the number of bound variables. Character catalogs can
+  // easily exceed that limit, so load relationship rows in safe batches.
+  const batchSize = 50;
+  for (let start = 0; start < characterIds.length; start += batchSize) {
+    const batch = characterIds.slice(start, start + batchSize);
+    const placeholders = batch.map(() => '?').join(',');
+    const rows = await db
+      .prepare(`SELECT character_id, world_id FROM character_worlds WHERE character_id IN (${placeholders})`)
+      .bind(...batch)
+      .all();
+    for (const row of rows.results) {
+      const characterId = String(row.character_id);
+      const list = map.get(characterId) ?? [];
+      list.push(String(row.world_id));
+      map.set(characterId, list);
+    }
   }
   return map;
 }

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CharacterHero from '../../components/character/CharacterHero.astro';
+import CharacterInterpretationSelector from '../../components/character/CharacterInterpretationSelector.astro';
 import CharacterVariantSelector from '../../components/character/CharacterVariantSelector.astro';
 import CharacterStyleSelector from '../../components/character/CharacterStyleSelector.astro';
 import CharacterArtworkGrid, {
@@ -14,6 +15,8 @@ import WorldCard from '../../components/world/WorldCard.astro';
 import {
   getArtworksForCharacter,
   getCharacterBySlug,
+  getCharacterInterpretations,
+  getCharacterNames,
   getCharacters,
   getCharacterVariants,
   getMythologies,
@@ -34,11 +37,13 @@ const { slug } = Astro.params;
 const character = await getCharacterBySlug(db, slug ?? '');
 if (!character) return Astro.redirect('/404');
 
-const [mythology, relatedArtworks, worlds, variants, allCharacters, allMythologies] = await Promise.all([
+const [mythology, relatedArtworks, worlds, variants, interpretations, names, allCharacters, allMythologies] = await Promise.all([
   getMythologyById(db, character.mythologyId),
   getArtworksForCharacter(db, character.id),
   getWorlds(db),
   getCharacterVariants(db, character.id),
+  getCharacterInterpretations(db, character.id),
+  getCharacterNames(db, character.id),
   getCharacters(db),
   getMythologies(db, { published: 'all' }),
 ]);
@@ -64,6 +69,12 @@ const relatedCharacters = [...sameWorld, ...sameMythology, ...fallback].slice(0,
 const requestedStyle = normalizeCharacterStyleId(Astro.url.searchParams.get('style'));
 const selectedStyle: CharacterStyleId = requestedStyle ?? 'canonical';
 const selectedVariantSlug = Astro.url.searchParams.get('variant') ?? '';
+const requestedInterpretationSlug = Astro.url.searchParams.get('interpretation') ?? '';
+const selectedInterpretation = interpretations.find((item) => item.slug === requestedInterpretationSlug);
+const selectedInterpretationSlug = selectedInterpretation?.slug ?? '';
+const availableVariants = variants.filter(
+  (variant) => !variant.interpretationId || variant.interpretationId === selectedInterpretation?.id,
+);
 const requestedDevice = Astro.url.searchParams.get('device');
 const selectedDevice: DeviceFilter = requestedDevice === 'pc' ? 'pc' : requestedDevice === 'mobile' ? 'mobile' : 'all';
 const selectedStyleDefinition = getCharacterStyle(selectedStyle);
@@ -104,9 +115,11 @@ const buildCreateHref = (
   styleId: CharacterStyleId = selectedStyle,
   variantSlug: string = selectedVariantSlug,
   device: WallpaperDevice = selectedDevice === 'all' ? 'pc' : selectedDevice,
+  interpretationSlug: string = selectedInterpretationSlug,
 ) => {
   const params = new URLSearchParams();
   params.set('character', character.slug);
+  if (interpretationSlug) params.set('interpretation', interpretationSlug);
   if (variantSlug) params.set('variant', variantSlug);
   params.set('style', styleId);
   params.set('output', device === 'mobile' ? 'mobile-wallpaper' : 'desktop-wallpaper');
@@ -127,7 +140,7 @@ const buildCreateHref = (
         '@context': 'https://schema.org',
         '@type': 'Person',
         name: character.name,
-        alternateName: character.nameEn,
+        alternateName: [character.nameEn, ...names.map((name) => name.name)],
         description: character.summary,
         image: heroImage ? new URL(heroImage.src, Astro.site).toString() : undefined,
       },
@@ -149,6 +162,7 @@ const buildCreateHref = (
     data-character-slug={character.slug}
     data-selected-style={selectedStyle}
     data-selected-variant={selectedVariantSlug}
+    data-selected-interpretation={selectedInterpretationSlug}
     data-selected-device={selectedDevice}
   >
     <CharacterHero character={character} mythology={mythology} heroImage={heroImage} createHref={buildCreateHref()} />
@@ -158,14 +172,29 @@ const buildCreateHref = (
         <div class="forms-heading">
           <span class="eyebrow">Visual Forms · 神灵形态</span>
           <h2 id="forms-title">选择形态与画风</h2>
-          <p>神灵可以进入不同持续形态与艺术风格，但识别锚点保持稳定。选择后下方作品与创作入口会同步更新。</p>
+          <p>先选择有来源的传统版本，再选择持续形态与艺术风格；各层信息不会被静默混写。</p>
         </div>
+
+        {interpretations.length > 0 && (
+          <div class="forms-layer" id="interpretations">
+            <h3 class="layer-label">传统版本与来源</h3>
+            <CharacterInterpretationSelector
+              character={character}
+              interpretations={interpretations}
+              names={names}
+              selectedInterpretationSlug={selectedInterpretationSlug}
+              selectedVariantSlug={selectedVariantSlug}
+              selectedStyleId={selectedStyle}
+            />
+          </div>
+        )}
 
         <div class="forms-layer">
           <h3 class="layer-label">神灵形态</h3>
           <CharacterVariantSelector
             character={character}
-            variants={variants}
+            variants={availableVariants}
+            selectedInterpretationSlug={selectedInterpretationSlug}
             selectedVariantSlug={selectedVariantSlug}
             selectedStyleId={selectedStyle}
           />
@@ -176,6 +205,7 @@ const buildCreateHref = (
           <CharacterStyleSelector
             character={character}
             selectedStyleId={selectedStyle}
+            selectedInterpretationSlug={selectedInterpretationSlug}
             selectedVariantSlug={selectedVariantSlug}
           />
           <p class="layer-description" data-selected-style-description>{selectedStyleDefinition.description}</p>
@@ -206,6 +236,7 @@ const buildCreateHref = (
           selectedStyle={selectedStyle}
           selectedStyleName={selectedStyleDefinition.name}
           selectedDevice={selectedDevice}
+          selectedInterpretationSlug={selectedInterpretationSlug}
           selectedVariantSlug={selectedVariantSlug}
           emptyCreateHref={buildCreateHref()}
         />

@@ -8,13 +8,15 @@ import {
 interface Props {
   character: Character;
   selectedStyleId: CharacterStyleId;
+  selectedInterpretationSlug?: string;
   selectedVariantSlug: string;
 }
 
-const { character, selectedStyleId, selectedVariantSlug } = Astro.props;
+const { character, selectedStyleId, selectedInterpretationSlug = '', selectedVariantSlug } = Astro.props;
 
 const styleHref = (styleId: CharacterStyleId) => {
   const params = new URLSearchParams();
+  if (selectedInterpretationSlug) params.set('interpretation', selectedInterpretationSlug);
   if (selectedVariantSlug) params.set('variant', selectedVariantSlug);
   if (styleId !== 'canonical') params.set('style', styleId);
   const query = params.toString();

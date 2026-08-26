@@ -64,9 +64,8 @@ src/
 ├── pages/
 │   ├── index.astro
 │   ├── explore/index.astro
-│   ├── story/index.astro       # optional future MythStory hub
-│   ├── story/[slug].astro      # optional future MythStory detail
 │   ├── mythology/[slug].astro
+│   ├── mythology/[mythologySlug]/[storySlug].astro  # enabled at Story route threshold
 │   ├── world/[slug].astro
 │   ├── character/[slug].astro
 │   ├── wallpaper/[slug].astro
@@ -168,22 +167,46 @@ type MythStory = {
   title: string;
   subtitle?: string;
   summary: string;
-  body: string;
+  kind: 'myth' | 'folk-legend' | 'religious-tradition' | 'literary-fantasy';
+  volumeId: string;
+  volumeTitle: string;
+  blocks: MythStoryBlock[];
 
-  topicIds: string[];
   characterIds: string[];
   worldIds: string[];
   sceneIds?: string[];
-  artworkIds?: string[];
 
   readingMinutes?: number;
   tradition?: string;
-  sourceNotes?: string[];
+  sources: MythStorySource[];
+  sourceNotes: string[];
 
-  heroImage?: ImageAsset;
+  heroAssetId?: string;
   publishStatus: 'draft' | 'published';
-  publishedAt?: string;
+  publishedAt: string;
   updatedAt: string;
+};
+
+type MythStoryBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'heading'; id: string; text: string; level: 2 | 3 }
+  | { type: 'quote'; text: string; source?: string }
+  | { type: 'image'; assetId: string; caption?: string; layout?: 'wide' | 'portrait' | 'inset' };
+
+type MythStorySource = {
+  title: string;
+  sourceType: 'primary-text' | 'translation' | 'scholarly-reference' | 'oral-tradition';
+  tradition?: string;
+  period?: string;
+  note?: string;
+  url?: string;
+};
+
+type StoryIllustrationAsset = {
+  id: string;
+  image: ImageAsset;
+  provenance: { sourceType: 'original' | 'ai' | 'public-domain' | 'licensed'; creator?: string; licenseName?: string; model?: string };
+  artworkId?: string;
 };
 ```
 
@@ -320,7 +343,7 @@ Story pages use the same theme system; they must not introduce separate parchmen
 
 These pages must include meaningful content without JavaScript.
 
-Story body, source/tradition notes and related entity links are core crawlable content and must not depend on client hydration.
+Story body, category/source notes, editorial image semantics and related entity links are core crawlable content and must not depend on client hydration. Story prose must not be blindly injected into generation prompts; resolve only reviewed Character / World / Scene / Style context.
 
 ### Islands
 
@@ -445,14 +468,14 @@ Do not hide mythology facts, Story body or artwork metadata behind client-only r
 - Header naming: 角色 → 神灵, 世界 → 神域, 文明图鉴 → 神话
 - Keep `/mythology/` as the canonical Mythology entry
 - Keep `/mythology/{slug}` as the mythology-system aggregation page
-- Reserve Story / MythStory for a later `/story/` or nested story route
+- Use a nested Story route `/mythology/{mythologySlug}/{storySlug}` once a Mythology has 8+ published Stories, or a Story needs independent sharing, search or ongoing editorial updates
 - Add Mythology context to Character / World UI
 
 ### Phase B — Story MVP
 
 - Define Content Collection schema for MythStory
 - Build Story / MythStory only when there is a confirmed story content requirement
-- Prefer `/story/` and `/story/{slug}/` if Story becomes a first-class route
+- Do not create a global `/story/` hub without a confirmed cross-Mythology discovery task; prefer the nested Story route to retain context and avoid slug collisions
 - Publish 15–25 initial stories
 - Add Civilization + Topic filtering
 

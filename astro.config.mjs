@@ -4,11 +4,24 @@ import sitemap from "@astrojs/sitemap";
 
 import cloudflare from "@astrojs/cloudflare";
 
+const site = "https://mythcanvas.space";
+const sitemapExcludedPrefixes = ["/admin/", "/login/", "/password/", "/register/", "/my/", "/search/"];
+const mythologySitemapPages = ["chinese", "greek", "norse", "japanese", "egyptian"]
+	.map((slug) => new URL(`/mythology/${slug}/`, site).toString());
+
 // https://astro.build/config
 export default defineConfig({
-	site: "https://mythcanvas.space",
+	site,
 	output: "server",
-	integrations: [sitemap()],
+	integrations: [
+		sitemap({
+			customPages: mythologySitemapPages,
+			filter: (page) => {
+				const pathname = new URL(page).pathname;
+				return !sitemapExcludedPrefixes.some((prefix) => pathname.startsWith(prefix));
+			},
+		}),
+	],
 	adapter: cloudflare({
 		platformProxy: {
 			enabled: true,

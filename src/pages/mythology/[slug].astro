@@ -23,7 +23,9 @@ const [relatedWorlds, relatedCharacters] = await Promise.all([
 ]);
 const stories = getStoriesForMythology(mythology.id);
 const volumes = groupStoriesByVolume(stories);
-const heroImage = mythology.homeHero?.lightSrc || mythology.heroImage.src;
+// Story pages must retain a valid, crawlable hero image even when an optional
+// theme-specific home campaign derivative has not been published locally.
+const heroImage = mythology.heroImage.src;
 const storyCountLabel = `${stories.length} 篇故事 · ${volumes.length} 卷`;
 const storyCreativeWorks = stories.map((story) => {
   const illustration = story.heroAssetId ? getStoryIllustrationById(story.heroAssetId) : undefined;

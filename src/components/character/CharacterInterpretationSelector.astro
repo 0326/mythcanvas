@@ -1,0 +1,104 @@
+---
+import type { Character, CharacterInterpretation, CharacterName, SourceRef } from '../../lib/content/types';
+
+interface Props {
+  character: Character;
+  interpretations: readonly CharacterInterpretation[];
+  names: readonly CharacterName[];
+  selectedInterpretationSlug: string;
+  selectedVariantSlug: string;
+  selectedStyleId: string;
+}
+
+const {
+  character,
+  interpretations,
+  names,
+  selectedInterpretationSlug,
+  selectedVariantSlug,
+  selectedStyleId,
+} = Astro.props;
+
+const interpretationHref = (interpretationSlug: string) => {
+  const params = new URLSearchParams();
+  if (interpretationSlug) params.set('interpretation', interpretationSlug);
+  if (selectedVariantSlug) params.set('variant', selectedVariantSlug);
+  if (selectedStyleId && selectedStyleId !== 'canonical') params.set('style', selectedStyleId);
+  const query = params.toString();
+  return `/character/${character.slug}/${query ? `?${query}` : ''}#interpretations`;
+};
+
+const namesFor = (interpretationId: string) => names.filter((name) => name.interpretationId === interpretationId);
+const periodLabel = (interpretation: CharacterInterpretation) => interpretation.sourcePeriods.join(' · ');
+const sourceLabel = (source: SourceRef) => {
+  const locator = source.locator || source.section;
+  return locator ? `${source.title} · ${locator}` : source.title;
+};
+---
+
+<div class="interpretation-selector" role="list" aria-label={`${character.name} 的传统版本`}>
+  <article class:list={{ 'interpretation-card': true, 'is-active': selectedInterpretationSlug === '' }} role="listitem">
+    <a class="interpretation-main" href={interpretationHref('')} data-interpretation-filter="" aria-current={selectedInterpretationSlug === '' ? 'true' : 'false'}>
+      <span class="interpretation-eyebrow">跨传统基础</span>
+      <strong>经典设定</strong>
+      <p>使用角色主实体的稳定身份锚点；不把地方信仰、宗教或文学层的细节默认混在一起。</p>
+    </a>
+  </article>
+
+  {interpretations.map((interpretation) => {
+    const scopedNames = namesFor(interpretation.id);
+    return (
+      <article class:list={{ 'interpretation-card': true, 'is-active': interpretation.slug === selectedInterpretationSlug }} role="listitem">
+        <a
+          class="interpretation-main"
+          href={interpretationHref(interpretation.slug)}
+          data-interpretation-filter={interpretation.slug}
+          aria-current={interpretation.slug === selectedInterpretationSlug ? 'true' : 'false'}
+        >
+          <span class="interpretation-eyebrow">{periodLabel(interpretation) || '来源解释层'}</span>
+          <strong>{interpretation.name}</strong>
+          <p>{interpretation.summary}</p>
+          {scopedNames.length > 0 && (
+            <span class="scoped-names">{scopedNames.map((name) => `${name.nameKind === 'literary-identity' ? '文学身份' : '称谓'}：${name.name}`).join(' · ')}</span>
+          )}
+          <span class="tradition-tags">{interpretation.traditionTags.join(' · ')}</span>
+        </a>
+        {interpretation.sourceRefs.length > 0 && (
+          <div class="source-list" aria-label={`${interpretation.name} 的来源`}>
+            <span>来源</span>
+            <ul>
+              {interpretation.sourceRefs.map((source) => (
+                <li>
+                  {source.url
+                    ? <a href={source.url} target="_blank" rel="noreferrer">{sourceLabel(source)}</a>
+                    : <span>{sourceLabel(source)}</span>}
+                  {source.note && <small>{source.note}</small>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </article>
+    );
+  })}
+</div>
+
+<style>
+  .interpretation-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--space-4); }
+  .interpretation-card { overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+  .interpretation-card.is-active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow-sm); }
+  .interpretation-main { display: grid; gap: .45rem; padding: var(--space-4); color: inherit; text-decoration: none; }
+  .interpretation-main:hover, .interpretation-main:focus-visible { background: var(--surface-strong); }
+  .interpretation-eyebrow { color: var(--accent-strong); font-size: .65rem; font-weight: 700; letter-spacing: .06em; }
+  .interpretation-main strong { font-size: .96rem; }
+  .interpretation-main p { margin: 0; color: var(--text-secondary); font-size: .75rem; line-height: 1.65; }
+  .scoped-names, .tradition-tags { color: var(--text-muted); font-size: .66rem; line-height: 1.5; }
+  .scoped-names { color: var(--accent-strong); }
+  .source-list { padding: .65rem var(--space-4) var(--space-4); border-top: 1px solid var(--border); }
+  .source-list > span { color: var(--text-muted); font-size: .62rem; font-weight: 700; letter-spacing: .05em; }
+  .source-list ul { display: grid; gap: .35rem; margin: .38rem 0 0; padding: 0; list-style: none; }
+  .source-list li { display: grid; gap: .12rem; }
+  .source-list a, .source-list li > span { color: var(--text-secondary); font-size: .67rem; line-height: 1.45; }
+  .source-list a:hover { color: var(--accent-strong); }
+  .source-list small { color: var(--text-muted); font-size: .6rem; line-height: 1.45; }
+</style>

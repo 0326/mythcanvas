@@ -337,7 +337,7 @@ type MythStory = {
   sceneIds: string[];
 
   blocks: MythStoryBlock[];
-  heroImage?: ImageAsset;
+  heroAssetId?: string;
   readingMinutes?: number;
   publishStatus: 'draft' | 'published';
   publishedAt?: string;

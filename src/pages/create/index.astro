@@ -2,7 +2,11 @@
 import { Landmark, Monitor, Smartphone, Sparkles } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCharacters, getWorlds, getStyles } from '../../lib/content/repositories';
-import { listCharacterVariantProfiles, listCreatorOutputSpecs } from '../../lib/generation/creator-config';
+import {
+  listCharacterInterpretationProfiles,
+  listCharacterVariantProfiles,
+  listCreatorOutputSpecs,
+} from '../../lib/generation/creator-config';
 
 export const prerender = false;
 
@@ -14,12 +18,25 @@ const [allCharacters, allWorlds, styles, outputSpecs] = await Promise.all([
   listCreatorOutputSpecs(db),
 ]);
 
-const creatorCharacters = allCharacters.slice(0, 5);
+const featuredCharacterIds = ['character-change', 'character-erlang-shen'];
+const creatorCharacters = [
+  ...featuredCharacterIds
+    .map((id) => allCharacters.find((character) => character.id === id))
+    .filter((character): character is NonNullable<typeof character> => character != null),
+  ...allCharacters.filter((character) => !featuredCharacterIds.includes(character.id)),
+].slice(0, 5);
 const creatorWorlds = allWorlds.slice(0, 5);
-const variants = await listCharacterVariantProfiles(db, creatorCharacters.map((character) => character.id));
+const [variants, interpretations] = await Promise.all([
+  listCharacterVariantProfiles(db, creatorCharacters.map((character) => character.id)),
+  listCharacterInterpretationProfiles(db, creatorCharacters.map((character) => character.id)),
+]);
 const variantsByCharacter = new Map(creatorCharacters.map((character) => [
   character.id,
   variants.filter((variant) => variant.characterId === character.id),
+]));
+const interpretationsByCharacter = new Map(creatorCharacters.map((character) => [
+  character.id,
+  interpretations.filter((interpretation) => interpretation.characterId === character.id),
 ]));
 
 const scenes = ['云海', '月夜', '星空', '神殿', '山海', '遗迹', '深渊'];
@@ -54,10 +71,10 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       <div>
         <span class="eyebrow">AI Creator · Structured Recipe</span>
         <h1>神灵不变，形态与画风自由组合</h1>
-        <p>选择神话神灵或神域，再独立组合神灵形态、画风、场景与设备规格。MythCanvas 会自动带入 Canonical Design 与神话体系 Visual DNA。</p>
+        <p>选择神话神灵或神域；复杂人物可先选有来源的传统版本，再独立组合形态、画风、场景与设备规格。MythCanvas 会自动带入 Canonical Design 与神话体系 Visual DNA。</p>
       </div>
       <div class="recipe-principle" aria-label="绘神生成规则">
-        <span>神灵</span><b>×</b><span>形态</span><b>×</b><span>画风</span><b>×</b><span>壁纸规格</span>
+        <span>神灵</span><b>×</b><span>传统版本</span><b>×</b><span>形态</span><b>×</b><span>画风</span><b>×</b><span>壁纸规格</span>
       </div>
     </div>
   </section>
@@ -92,6 +109,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
                 data-entity
                 data-entity-id={character.id}
                 data-entity-type="character"
+                data-entity-slug={character.slug}
                 data-name={character.name}
                 data-image={character.portrait?.src ?? '/media/content/chinese-celestial.svg'}
                 aria-pressed={index === 0 ? 'true' : 'false'}
@@ -121,8 +139,39 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
           </div>
         </div>
 
+        <div class="step-block" data-interpretation-step>
+          <div class="step-head"><span>02</span><div><h2>选择传统版本</h2><p>传统、宗教、民间与文学身份有来源地并存；不把它们当作换装或第二个角色。</p></div></div>
+          {creatorCharacters.map((character, characterIndex) => (
+            <div class="interpretation-options" data-interpretation-group={character.id} hidden={characterIndex !== 0}>
+              <button
+                class="interpretation-option is-active"
+                type="button"
+                data-interpretation-id=""
+                data-interpretation-name="跨传统经典设定"
+                aria-pressed="true"
+              >
+                <span class="variant-meta"><small>BASE</small><strong>经典设定</strong></span>
+                <span>只使用跨传统稳定身份锚点，不混入具体文学或地方信仰细节。</span>
+              </button>
+              {(interpretationsByCharacter.get(character.id) ?? []).map((interpretation) => (
+                <button
+                  class="interpretation-option"
+                  type="button"
+                  data-interpretation-id={interpretation.id}
+                  data-interpretation-slug={interpretation.slug}
+                  data-interpretation-name={interpretation.name}
+                  aria-pressed="false"
+                >
+                  <span class="variant-meta"><small>{interpretation.sourcePeriods[0] ?? '来源'}</small><strong>{interpretation.name}</strong></span>
+                  <span>{interpretation.summary}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+
         <div class="step-block" data-variant-step>
-          <div class="step-head"><span>02</span><div><h2>选择角色形态</h2><p>年龄、服装和神性形态属于角色 Variant，不属于画风。</p></div></div>
+          <div class="step-head"><span data-step-variant>03</span><div><h2>选择角色形态</h2><p>年龄、服装和神性形态属于角色 Variant，不属于画风。</p></div></div>
           {creatorCharacters.map((character, characterIndex) => (
             <div class="variant-options" data-variant-group={character.id} hidden={characterIndex !== 0}>
               <button
@@ -141,6 +190,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
                   class="variant-option"
                   type="button"
                   data-variant-id={variant.id}
+                data-variant-slug={variant.slug}
                   data-variant-name={variant.name}
                   data-variant-type={variant.variantType}
                   aria-pressed="false"
@@ -157,7 +207,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         </div>
 
         <div class="step-block">
-          <div class="step-head"><span data-step-style>03</span><div><h2>选择独立画风</h2><p>画风只定义“怎么画”，不会静默改写角色年龄、服装或身份。</p></div></div>
+          <div class="step-head"><span data-step-style>04</span><div><h2>选择独立画风</h2><p>画风只定义“怎么画”，不会静默改写角色年龄、服装或身份。</p></div></div>
           <div class="style-options">
             {styles.map((style, index) => (
               <button
@@ -175,7 +225,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         </div>
 
         <div class="step-block">
-          <div class="step-head"><span data-step-scene>04</span><div><h2>场景与镜头</h2><p>场景、镜头和临时氛围只影响这一张作品，不写回角色主设。</p></div></div>
+          <div class="step-head"><span data-step-scene>05</span><div><h2>场景与镜头</h2><p>场景、镜头和临时氛围只影响这一张作品，不写回角色主设。</p></div></div>
           <div class="field-label">场景</div>
           <div class="chip-options">
             {scenes.map((scene, index) => <button class:list={{ chip: true, 'is-active': index === 0 }} type="button" data-scene={scene} aria-pressed={index === 0 ? 'true' : 'false'}>{scene}</button>)}
@@ -191,7 +241,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         </div>
 
         <div class="step-block">
-          <div class="step-head"><span data-step-output>05</span><div><h2>选择壁纸规格</h2><p>只提供主流 PC 与手机规格，并自动加入对应安全区和构图约束。</p></div></div>
+          <div class="step-head"><span data-step-output>06</span><div><h2>选择壁纸规格</h2><p>只提供主流 PC 与手机规格，并自动加入对应安全区和构图约束。</p></div></div>
           <div class="output-options">
             {outputSpecs.map((spec, index) => (
               <button
@@ -228,6 +278,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
           <div class="recipe-head"><span class="small-caps">Generation Recipe</span><strong>本次绘神配方</strong></div>
           <div class="recipe-grid">
             <div><span>对象</span><strong data-summary-entity>{initialCharacter?.name ?? '神灵'}</strong></div>
+            <div data-summary-interpretation-wrap><span>传统</span><strong data-summary-interpretation>跨传统经典设定</strong></div>
             <div data-summary-variant-wrap><span>形态</span><strong data-summary-variant>经典设定</strong></div>
             <div><span>画风</span><strong data-summary-style>{initialStyle?.name ?? '经典神话'}</strong></div>
             <div><span>场景</span><strong data-summary-scene>云海</strong></div>
@@ -288,6 +339,8 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       entityId: root.dataset.initialEntityId || '',
       entity: root.dataset.initialEntityName || '',
       image: root.dataset.initialImage || '',
+      interpretationId: '',
+      interpretation: '跨传统经典设定',
       variantId: '',
       variant: '经典设定',
       styleId: root.dataset.initialStyleId || 'canonical',
@@ -309,15 +362,31 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     const loadHistory = () => { try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; } };
     const saveHistory = (list) => { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 8))); } catch { /* ignore */ } };
 
-    const preselectWorld = () => {
+    const preselectFromQuery = () => {
       try {
-        const worldSlug = new URLSearchParams(window.location.search).get('world');
-        if (!worldSlug) return;
-        const match = root.querySelector(`[data-entity-type="world"][data-entity-slug="${CSS.escape(worldSlug)}"]`);
+        const params = new URLSearchParams(window.location.search);
+        const characterSlug = params.get('character');
+        const worldSlug = params.get('world');
+        const entityType = characterSlug ? 'character' : 'world';
+        const entitySlug = characterSlug || worldSlug;
+        if (!entitySlug) return;
+        const match = root.querySelector(`[data-entity-type="${entityType}"][data-entity-slug="${CSS.escape(entitySlug)}"]`);
         if (!match) return;
-        const tab = root.querySelector('[data-entity-tab="world"]');
+        const tab = root.querySelector(`[data-entity-tab="${entityType}"]`);
         if (tab) tab.click();
         match.click();
+        const interpretationSlug = params.get('interpretation');
+        if (entityType === 'character' && interpretationSlug) {
+          root.querySelector(`[data-interpretation-group="${state.entityId}"] [data-interpretation-slug="${CSS.escape(interpretationSlug)}"]`)?.click();
+        }
+        const variantSlug = params.get('variant');
+        if (entityType === 'character' && variantSlug) {
+          root.querySelector(`[data-variant-group="${state.entityId}"] [data-variant-slug="${CSS.escape(variantSlug)}"]`)?.click();
+        }
+        const styleId = params.get('style');
+        if (styleId) root.querySelector(`[data-style-id="${CSS.escape(styleId)}"]`)?.click();
+        const outputId = params.get('output');
+        if (outputId) root.querySelector(`[data-output-spec-id="${CSS.escape(outputId)}"]`)?.click();
       } catch { /* ignore malformed query */ }
     };
 
@@ -337,22 +406,33 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       if (base) setPressed(`[data-variant-group="${state.entityId}"] [data-variant-id]`, base);
     };
 
+    const selectBaseInterpretation = () => {
+      state.interpretationId = '';
+      state.interpretation = '跨传统经典设定';
+      const group = root.querySelector(`[data-interpretation-group="${state.entityId}"]`);
+      const base = group?.querySelector('[data-interpretation-id=""]');
+      if (base) setPressed(`[data-interpretation-group="${state.entityId}"] [data-interpretation-id]`, base);
+    };
+
     const refresh = () => {
       const image = root.querySelector('[data-preview-image]');
       if (image && !state.lastImageUrl && image.getAttribute('src') !== state.image) image.setAttribute('src', state.image);
       root.querySelector('[data-preview-title]').textContent = `${state.entity} · ${state.style}`;
-      root.querySelector('[data-preview-subtitle]').textContent = `${state.entityType === 'character' ? state.variant + ' · ' : ''}${state.scene} · ${state.outputName}`;
+      root.querySelector('[data-preview-subtitle]').textContent = `${state.entityType === 'character' ? state.interpretation + ' · ' + state.variant + ' · ' : ''}${state.scene} · ${state.outputName}`;
       root.querySelector('[data-summary-entity]').textContent = state.entity;
       root.querySelector('[data-summary-style]').textContent = state.style;
       root.querySelector('[data-summary-scene]').textContent = state.scene;
       root.querySelector('[data-summary-composition]').textContent = state.composition;
       root.querySelector('[data-summary-output]').textContent = `${state.outputName} · ${state.ratio}`;
       root.querySelector('[data-summary-variant]').textContent = state.variant;
+      root.querySelector('[data-summary-interpretation]').textContent = state.interpretation;
       const variantWrap = root.querySelector('[data-summary-variant-wrap]');
       if (variantWrap) variantWrap.hidden = state.entityType !== 'character';
+      const interpretationWrap = root.querySelector('[data-summary-interpretation-wrap]');
+      if (interpretationWrap) interpretationWrap.hidden = state.entityType !== 'character';
       const identityMessage = root.querySelector('[data-identity-message]');
       if (identityMessage) identityMessage.textContent = state.entityType === 'character'
-        ? `Canonical Design 已锁定；${state.variant} 与 ${state.style} 正交组合。`
+        ? `Canonical Design 已锁定；${state.interpretation}、${state.variant} 与 ${state.style} 分层组合。`
         : '神域 Canonical Design 与文明 Visual DNA 已锁定。';
       const stage = root.querySelector('[data-preview-stage]');
       if (stage) stage.dataset.device = state.device;
@@ -371,9 +451,11 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         root.querySelectorAll('[data-entity-group]').forEach((group) => { group.hidden = group.dataset.entityGroup !== type; });
         const variantStep = root.querySelector('[data-variant-step]');
         if (variantStep) variantStep.hidden = type !== 'character';
-        root.querySelector('[data-step-style]').textContent = type === 'character' ? '03' : '02';
-        root.querySelector('[data-step-scene]').textContent = type === 'character' ? '04' : '03';
-        root.querySelector('[data-step-output]').textContent = type === 'character' ? '05' : '04';
+        const interpretationStep = root.querySelector('[data-interpretation-step]');
+        if (interpretationStep) interpretationStep.hidden = type !== 'character';
+        root.querySelector('[data-step-style]').textContent = type === 'character' ? '04' : '02';
+        root.querySelector('[data-step-scene]').textContent = type === 'character' ? '05' : '03';
+        root.querySelector('[data-step-output]').textContent = type === 'character' ? '06' : '04';
         const first = root.querySelector(`[data-entity-group="${type}"] [data-entity]`);
         if (first) first.click();
       });
@@ -387,7 +469,22 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         state.lastImageUrl = null;
         setPressed(`[data-entity-type="${button.dataset.entityType}"]`, button);
         root.querySelectorAll('[data-variant-group]').forEach((group) => { group.hidden = group.dataset.variantGroup !== state.entityId; });
-        if (state.entityType === 'character') selectBaseVariant();
+        root.querySelectorAll('[data-interpretation-group]').forEach((group) => { group.hidden = group.dataset.interpretationGroup !== state.entityId; });
+        if (state.entityType === 'character') {
+          selectBaseInterpretation();
+          selectBaseVariant();
+        }
+        refresh();
+      });
+    });
+
+    root.querySelectorAll('[data-interpretation-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (state.entityType !== 'character') return;
+        state.interpretationId = button.dataset.interpretationId || '';
+        state.interpretation = button.dataset.interpretationName || '跨传统经典设定';
+        setPressed(`[data-interpretation-group="${state.entityId}"] [data-interpretation-id]`, button);
+        selectBaseVariant();
         refresh();
       });
     });
@@ -466,12 +563,13 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       if (retryBtn) retryBtn.hidden = true;
       if (favoriteBtn) favoriteBtn.setAttribute('aria-pressed', 'false');
       if (statusTitle) statusTitle.textContent = isRetry ? '正在重新构筑' : '正在组合绘神配方';
-      if (statusText) statusText.textContent = `${state.entity}${state.entityType === 'character' ? ' · ' + state.variant : ''} · ${state.style} · ${state.outputName}`;
+      if (statusText) statusText.textContent = `${state.entity}${state.entityType === 'character' ? ' · ' + state.interpretation + ' · ' + state.variant : ''} · ${state.style} · ${state.outputName}`;
 
       const baseDescription = description?.value || '';
       const body = {
         entityType: state.entityType,
         entityId: state.entityId,
+        interpretationId: state.entityType === 'character' && state.interpretationId ? state.interpretationId : undefined,
         variantId: state.entityType === 'character' && state.variantId ? state.variantId : undefined,
         styleId: state.styleId,
         scene: state.scene,
@@ -496,7 +594,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         state.lastJobId = result.id;
         state.lastImageUrl = result.imageUrl;
         image.setAttribute('src', result.imageUrl);
-        image.setAttribute('alt', `${state.entity} · ${state.variant} · ${state.style} · ${state.scene}`);
+        image.setAttribute('alt', `${state.entity} · ${state.interpretation} · ${state.variant} · ${state.style} · ${state.scene}`);
         if (statusTitle) statusTitle.textContent = `${state.entity} · ${state.style}`;
         if (statusText) statusText.textContent = result.persisted ? '神迹已完成，并保存生成配方与资产溯源。' : '神迹已完成 · 当前环境使用临时生成结果。';
 
@@ -506,6 +604,8 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
           entityType: state.entityType,
           entityId: state.entityId,
           entity: state.entity,
+          interpretationId: state.interpretationId,
+          interpretation: state.interpretation,
           variantId: state.variantId,
           variant: state.variant,
           styleId: state.styleId,
@@ -556,7 +656,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         img.alt = '';
         img.loading = 'lazy';
         const span = document.createElement('span');
-        span.innerHTML = `<strong>${escapeHtml(item.entity)} · ${escapeHtml(item.style)}</strong><small>${escapeHtml(item.variant || '经典设定')} · ${escapeHtml(item.outputName || item.ratio)}</small>`;
+        span.innerHTML = `<strong>${escapeHtml(item.entity)} · ${escapeHtml(item.style)}</strong><small>${escapeHtml(item.interpretation || item.variant || '经典设定')} · ${escapeHtml(item.variant || '经典设定')} · ${escapeHtml(item.outputName || item.ratio)}</small>`;
         row.appendChild(img);
         row.appendChild(span);
         row.addEventListener('click', () => {
@@ -618,7 +718,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     if (initialOutputButton) state.device = initialOutputButton.dataset.outputDevice || 'mobile';
     refresh();
     renderHistory();
-    preselectWorld();
+    preselectFromQuery();
   })();
 </script>
 
@@ -642,14 +742,14 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
   .segmented button.is-active { color: var(--text-primary); background: var(--surface-strong); box-shadow: var(--shadow-sm); }
   .entity-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
   .entity-option { display: flex; align-items: center; gap: var(--space-3); min-height: 68px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); text-align: left; background: var(--surface); cursor: pointer; }
-  .entity-option.is-active, .variant-option.is-active, .style-option.is-active, .output-option.is-active { border-color: var(--border-strong); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); background: var(--surface-strong); }
+  .entity-option.is-active, .interpretation-option.is-active, .variant-option.is-active, .style-option.is-active, .output-option.is-active { border-color: var(--border-strong); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); background: var(--surface-strong); }
   .entity-glyph { display: grid; width: 40px; height: 40px; place-items: center; flex: 0 0 auto; border-radius: 50%; color: var(--accent-strong); background: var(--surface-muted); font-family: var(--font-serif); font-size: .7rem; }
   .entity-option > span:last-child { display: grid; min-width: 0; }
   .entity-option strong, .output-option strong { font-size: .82rem; }
   .entity-option small, .output-option small { margin-top: 2px; overflow: hidden; color: var(--text-muted); font-size: .67rem; text-overflow: ellipsis; white-space: nowrap; }
-  .variant-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-  .variant-option { display: grid; gap: .45rem; min-height: 92px; padding: .8rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); text-align: left; background: var(--surface); cursor: pointer; }
-  .variant-option > span:last-child { color: var(--text-muted); font-size: .7rem; line-height: 1.5; }
+  .interpretation-options, .variant-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .interpretation-option, .variant-option { display: grid; gap: .45rem; min-height: 92px; padding: .8rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); text-align: left; background: var(--surface); cursor: pointer; }
+  .interpretation-option > span:last-child, .variant-option > span:last-child { color: var(--text-muted); font-size: .7rem; line-height: 1.5; }
   .variant-meta { display: flex; gap: .55rem; align-items: center; }
   .variant-meta small { padding: .18rem .35rem; border-radius: 4px; color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .58rem; }
   .variant-meta strong { color: var(--text-primary); font-size: .78rem; }
@@ -731,7 +831,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     .creator-hero h1 { font-size: 2.15rem; }
     .recipe-principle { display: none; }
     .creator-panel { padding: .85rem; }
-    .entity-options, .variant-options, .output-options { grid-template-columns: 1fr; }
+    .entity-options, .interpretation-options, .variant-options, .output-options { grid-template-columns: 1fr; }
     .style-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .recipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .preview-stage[data-device='mobile'] .preview-frame { width: min(62%, 270px); }

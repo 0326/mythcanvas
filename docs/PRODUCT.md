@@ -367,9 +367,11 @@ CTA：**探索神境** / **开始绘神**。
 
 # 12. 神话体系页 UX
 
-页面结构：Hero、Visual DNA、Featured Worlds、Featured Characters、Featured Artworks，以及可选的 MythStory 摘要、Explore More。
+页面结构：Mythology Hero、按主题编排的 Story 卷目、图文 Story Reader、Story 内的 Character / 神域关系入口，以及体系级的继续探索。
 
-目标是“进入一个神话体系的视觉世界”，而不是阅读百科长文。具体故事和传说由后续 MythStory 内容承载。
+目标是“进入一个神话体系的视觉世界”，而不是实体卡片 Grid 或百科字段表。具体故事和传说由独立的 `MythStory` 承载；每篇必须显式区分神话、民间传说、宗教传统或文学幻想，并提供来源与版本说明。
+
+内容规模在 1–7 篇已发布 Story 时可在体系页完整服务端渲染；达到 8 篇、单篇分享/搜索或持续运营需求时，体系页保留卷目与精选全文，其余完整正文启用 `/mythology/{mythologySlug}/{storySlug}/` 的稳定阅读 URL。Story 正文不能依赖客户端请求，也不能把整篇文章直接当作 AI Prompt。
 
 ---
 

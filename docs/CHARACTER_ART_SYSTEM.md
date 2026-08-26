@@ -239,13 +239,14 @@ Production 模型目标为 `gpt-image-2`。
 ```text
 1. MythCanvas / 作品用途
 2. Character Canonical Identity
-3. CharacterVariant delta
-4. Civilization Visual DNA
-5. Style
-6. Scene / Camera / Composition
-7. OutputSpec
-8. 用户补充描述
-9. Guardrails
+3. CharacterInterpretation（可选的来源限定身份）
+4. CharacterVariant delta
+5. Civilization Visual DNA
+6. Style
+7. Scene / Camera / Composition
+8. OutputSpec
+9. 用户补充描述
+10. Guardrails
 ```
 
 ### 示例结构
@@ -254,6 +255,7 @@ Production 模型目标为 `gpt-image-2`。
 Create one original premium MythCanvas mobile wallpaper featuring Athena...
 
 Preserve her established identity: ...
+Use the selected source-scoped interpretation: ... Do not import details from other traditions.
 Use the mature ceremonial variant: ... Preserve all other canonical anchors.
 
 Ground the image in Greek Visual DNA: ...
@@ -266,7 +268,7 @@ Additional direction: ...
 No text, watermark, signature, UI, logo, or imitation of a specific modern commercial Athena design.
 ```
 
-用户自由输入永远放在系统拥有的 Character / Variant / Style 定义之后，避免自由文本静默覆盖 Canonical Design。
+用户自由输入永远放在系统拥有的 Character / Interpretation / Variant / Style 定义之后，避免自由文本静默覆盖 Canonical Design。
 
 ---
 
@@ -302,6 +304,7 @@ OPENAI_IMAGE_QUALITY=high             # 可选
 
 ```text
 character_id
+character_interpretation_id
 character_variant_id
 mythology_id
 style_id

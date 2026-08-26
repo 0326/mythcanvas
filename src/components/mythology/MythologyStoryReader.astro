@@ -33,7 +33,7 @@ const sourceTypeLabels = {
 <section class="mythology-reader" aria-labelledby="story-reader-title">
   <div class="container-wide reader-grid">
     <aside class="reader-nav" aria-label={`${mythology.name}故事卷目`}>
-      <details class="reader-nav-disclosure" open>
+      <details class="reader-nav-disclosure">
         <summary>
           <span>故事目录</span>
           <span aria-hidden="true">展开</span>
@@ -225,6 +225,10 @@ const sourceTypeLabels = {
 
   .reader-nav-disclosure > summary {
     display: none;
+  }
+
+  .reader-nav-disclosure:not([open]) > .reader-nav-inner {
+    display: block;
   }
 
   .reader-nav-inner {
@@ -502,7 +506,7 @@ const sourceTypeLabels = {
   }
 
   .story-figure--wide {
-    width: min(980px, calc(100vw - 430px));
+    width: min(980px, 100%);
   }
 
   .story-figure--wide img {
@@ -749,6 +753,10 @@ const sourceTypeLabels = {
       margin-bottom: 1.2rem;
       padding: 0 .15rem 1.2rem;
       border: 0;
+    }
+
+    .reader-nav-disclosure:not([open]) > .reader-nav-inner {
+      display: none;
     }
 
     .reader-nav h2,

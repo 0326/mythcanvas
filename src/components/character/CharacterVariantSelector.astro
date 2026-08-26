@@ -4,11 +4,12 @@ import type { Character, CharacterVariant, CharacterVariantType, ImageAsset } fr
 interface Props {
   character: Character;
   variants: readonly CharacterVariant[];
+  selectedInterpretationSlug?: string;
   selectedVariantSlug: string;
   selectedStyleId: string;
 }
 
-const { character, variants, selectedVariantSlug, selectedStyleId } = Astro.props;
+const { character, variants, selectedInterpretationSlug = '', selectedVariantSlug, selectedStyleId } = Astro.props;
 
 const variantTypeLabels: Record<CharacterVariantType, string> = {
   age: '年龄形态',
@@ -19,6 +20,7 @@ const variantTypeLabels: Record<CharacterVariantType, string> = {
 
 const variantHref = (variantSlug: string) => {
   const params = new URLSearchParams();
+  if (selectedInterpretationSlug) params.set('interpretation', selectedInterpretationSlug);
   if (variantSlug) params.set('variant', variantSlug);
   if (selectedStyleId && selectedStyleId !== 'canonical') params.set('style', selectedStyleId);
   const query = params.toString();

@@ -1,10 +1,11 @@
 import { GenerationValidationError } from './validation';
-import { getCharacterInterpretationById } from '../content/repositories';
-import type { SourceRef } from '../content/types';
+import { getCharacterInterpretationById, getCharacterInterpretations } from '../content/repositories';
+import type { CharacterInterpretation, SourceRef } from '../content/types';
 
 export type CharacterInterpretationProfile = {
   id: string;
   characterId: string;
+  slug: string;
   name: string;
   role: string;
   summary: string;
@@ -21,6 +22,7 @@ export type CharacterInterpretationProfile = {
 export type CharacterVariantProfile = {
   id: string;
   characterId: string;
+  slug: string;
   interpretationId?: string;
   name: string;
   variantType: 'age' | 'costume' | 'form' | 'composite';
@@ -140,7 +142,7 @@ export async function getCharacterVariantProfile(
   let row: Record<string, unknown> | null = null;
   try {
     row = await db.prepare(`
-      SELECT id, character_id, name, variant_type, description, identity_overrides_json,
+      SELECT id, character_id, slug, name, variant_type, description, identity_overrides_json,
              prompt_fragment, reference_pack_json, character_interpretation_id
       FROM character_variants
       WHERE id = ? AND character_id = ? AND status = 'active'
@@ -155,6 +157,7 @@ export async function getCharacterVariantProfile(
   return {
     id: String(row.id),
     characterId: String(row.character_id),
+    slug: String(row.slug),
     interpretationId: row.character_interpretation_id == null ? undefined : String(row.character_interpretation_id),
     name: String(row.name),
     variantType: String(row.variant_type) as CharacterVariantProfile['variantType'],
@@ -178,25 +181,47 @@ export async function getCharacterInterpretationProfile(
     if (!interpretation) {
       throw new GenerationValidationError('INTERPRETATION_NOT_FOUND', '所选传统版本不存在。', 404);
     }
-    return {
-      id: interpretation.id,
-      characterId: interpretation.characterId,
-      name: interpretation.name,
-      role: interpretation.role,
-      summary: interpretation.summary,
-      traditionTags: [...interpretation.traditionTags],
-      sourcePeriods: [...interpretation.sourcePeriods],
-      sourceRefs: [...interpretation.sourceRefs],
-      identityAnchors: [...interpretation.identityAnchors],
-      symbols: [...interpretation.symbols],
-      canonicalDesignOverrides: interpretation.canonicalDesignOverrides,
-      promptFragment: interpretation.promptFragment,
-      confidence: interpretation.confidence,
-    };
+    return toCharacterInterpretationProfile(interpretation);
   } catch (error) {
     if (error instanceof GenerationValidationError) throw error;
     throw new GenerationValidationError('INTERPRETATION_NOT_FOUND', '传统版本数据尚未就绪。', 404);
   }
+}
+
+/** Lists source-scoped identities for the guided Creator without exposing D1 rows to UI code. */
+export async function listCharacterInterpretationProfiles(
+  db: D1Database | undefined,
+  characterIds: string[],
+): Promise<CharacterInterpretationProfile[]> {
+  if (!db || characterIds.length === 0) return [];
+  try {
+    const groups = await Promise.all(characterIds.map((characterId) => getCharacterInterpretations(db, characterId)));
+    return groups.flat().map(toCharacterInterpretationProfile);
+  } catch {
+    // Keep the Creator usable while the additive interpretation migration rolls out.
+    return [];
+  }
+}
+
+function toCharacterInterpretationProfile(
+  interpretation: CharacterInterpretation,
+): CharacterInterpretationProfile {
+  return {
+    id: interpretation.id,
+    characterId: interpretation.characterId,
+    slug: interpretation.slug,
+    name: interpretation.name,
+    role: interpretation.role,
+    summary: interpretation.summary,
+    traditionTags: [...interpretation.traditionTags],
+    sourcePeriods: [...interpretation.sourcePeriods],
+    sourceRefs: [...interpretation.sourceRefs],
+    identityAnchors: [...interpretation.identityAnchors],
+    symbols: [...interpretation.symbols],
+    canonicalDesignOverrides: interpretation.canonicalDesignOverrides,
+    promptFragment: interpretation.promptFragment,
+    confidence: interpretation.confidence,
+  };
 }
 
 export async function getStyleGenerationProfile(
