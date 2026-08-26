@@ -37,7 +37,8 @@
     "deploy": "wrangler deploy",
     "dev": "astro dev",
     "preview": "astro build && wrangler dev",
-    "migration:check": "wrangler d1 migrations apply mythcanvas-db --local"
+    "migration:check": "wrangler d1 migrations apply mythcanvas-db --local",
+    "artwork:import": "node scripts/import-character-artworks.mjs"
   },
   "type": "module"
 }
