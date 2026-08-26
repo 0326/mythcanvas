@@ -1,3 +1,5 @@
+import type { CanonicalDesign } from '../content/types';
+
 export type GenerationEntityType = 'character' | 'world';
 export type GenerationStatus = 'queued' | 'generating' | 'succeeded' | 'failed' | 'moderated';
 export type GenerationQuality = 'low' | 'medium' | 'high' | 'auto';
@@ -51,6 +53,8 @@ export type ResolvedGenerationContext = {
     materials: readonly string[];
     atmosphere: readonly string[];
   };
+  /** Full structured identity profile. Optional for backward compatibility with old jobs/tests. */
+  canonicalDesign?: CanonicalDesign;
   canonicalAnchors: readonly string[];
   symbols: readonly string[];
   interpretation?: {

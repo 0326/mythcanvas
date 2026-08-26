@@ -9,10 +9,28 @@ export type VisualDNA = {
   atmosphere: readonly string[];
 };
 
+export type CanonicalAppearance = {
+  face?: readonly string[];
+  hair?: readonly string[];
+  body?: readonly string[];
+};
+
 export type CanonicalDesign = {
   anchors: readonly string[];
   silhouette?: string;
+  appearance?: CanonicalAppearance;
+  costumeLanguage?: readonly string[];
+  paletteCues?: readonly string[];
   signatureMaterials?: readonly string[];
+  temperament?: readonly string[];
+  /** Source-grounded identity facts for audit/research; not blindly injected into image prompts. */
+  mythologicalFacts?: readonly string[];
+  /** MythCanvas-owned visual interpretation choices, kept separate from source facts. */
+  originalDesignChoices?: readonly string[];
+  /** Character-specific design failures/confusions that generation should avoid. */
+  avoid?: readonly string[];
+  /** Character-owned GPT Image prompt fragment. Style/scene/output instructions are composed later. */
+  canonicalPrompt?: string;
 };
 
 export type SourceRefType =

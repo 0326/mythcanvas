@@ -50,6 +50,7 @@ export async function resolveGenerationContext(
     mythologyId: mythology.id,
     mythologyName: mythology.name,
     visualDna: mythology.visualDna,
+    canonicalDesign: entity.canonicalDesign,
     canonicalAnchors,
     symbols,
     interpretation,
@@ -89,11 +90,15 @@ export function composeGenerationPromptLayers(context: ResolvedGenerationContext
 
   const identity = [
     `Preserve the established MythCanvas identity of ${context.entityName}.`,
+    context.canonicalDesign?.canonicalPrompt
+      ? `Canonical character direction: ${context.canonicalDesign.canonicalPrompt}`
+      : '',
     context.canonicalAnchors.length
       ? `Canonical identity anchors: ${context.canonicalAnchors.join('; ')}.`
       : '',
     context.symbols.length ? `Stable symbols and attributes: ${context.symbols.join('; ')}.` : '',
-    'These identity anchors take priority over rendering-style variation.',
+    ...canonicalDesignDirections(context),
+    'These identity anchors and character-owned design rules take priority over rendering-style variation.',
   ].filter(Boolean).join(' ');
 
   const interpretation = context.interpretation
@@ -187,6 +192,26 @@ export function composeGenerationPromptLayers(context: ResolvedGenerationContext
     refinement,
     guardrails,
   };
+}
+
+function canonicalDesignDirections(context: ResolvedGenerationContext): string[] {
+  const design = context.canonicalDesign;
+  if (!design) return [];
+
+  const appearance = [
+    ...(design.appearance?.face ?? []),
+    ...(design.appearance?.hair ?? []),
+    ...(design.appearance?.body ?? []),
+  ];
+
+  return [
+    design.silhouette ? `Canonical silhouette: ${design.silhouette}.` : '',
+    appearance.length ? `Appearance constraints: ${appearance.join('; ')}.` : '',
+    design.costumeLanguage?.length ? `Character costume language: ${design.costumeLanguage.join('; ')}.` : '',
+    design.paletteCues?.length ? `Character palette cues: ${design.paletteCues.join(', ')}.` : '',
+    design.temperament?.length ? `Temperament and posture language: ${design.temperament.join(', ')}.` : '',
+    design.avoid?.length ? `Avoid character-design drift: ${design.avoid.join('; ')}.` : '',
+  ].filter(Boolean);
 }
 
 function safeZoneDirection(safeZone: Readonly<Record<string, unknown>>): string {
