@@ -15,6 +15,7 @@ import {
   getMythologies,
   getMythologyById,
   getWorlds,
+  incrementCharacterView,
 } from '../../lib/content/repositories';
 import {
   getCharacterStyle,
@@ -29,6 +30,8 @@ const db = Astro.locals.runtime.env.DB;
 const { slug } = Astro.params;
 const character = await getCharacterBySlug(db, slug ?? '');
 if (!character) return Astro.redirect('/404');
+
+await incrementCharacterView(db, character.id);
 
 const [mythology, relatedArtworks, worlds, names, allCharacters, allMythologies] = await Promise.all([
   getMythologyById(db, character.mythologyId),

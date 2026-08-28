@@ -49,15 +49,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .bind(crypto.randomUUID(), name, targetId ?? null, sessionResult.user.id, page ?? null, extraJson)
       .run()
       .catch(() => undefined);
-
-    // 角色热度与角色入口点击保持一致；D1 的自增更新是原子的。
-    if (name === 'character_click' && targetId) {
-      await db
-        .prepare("UPDATE characters SET click_count = click_count + 1 WHERE id = ? AND publish_status = 'published'")
-        .bind(targetId)
-        .run()
-        .catch(() => undefined);
-    }
   }
 
   return json({ ok: true }, 200, sessionResult.cookie);

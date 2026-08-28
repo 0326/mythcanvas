@@ -49,6 +49,8 @@ Interpret intent as follows:
 
 The implementation may invoke `scripts/import-character-artworks.mjs` internally. **Do not ask the user to run the underlying CLI unless they explicitly request command-line usage.**
 
+For a normal import request, finish once the importer reports successful R2 uploads and D1 publication. Do not download every uploaded object for byte-for-byte comparison unless the user explicitly requests an integrity audit or the upload result is ambiguous.
+
 ## Read first
 
 - `.agents/skills/mythcanvas-character-design/SKILL.md`
@@ -226,6 +228,8 @@ Forbidden unless explicitly asked for a design board:
 - aspect-ratio mockup board
 
 “Batch generate mobile + PC” means two standalone images, not one combined canvas.
+
+This generation rule does not prohibit importing an intentionally prepared design board, contact sheet, comparison board, or other composite artwork. Import policy is defined separately below.
 
 # Lessons from Athena pilot
 
@@ -484,6 +488,10 @@ Import-folder rule:
 
 > Only put images that have already passed manual production QA into `imports/characters/<character-slug>/`.
 
+Treat files deliberately staged in this directory as approved import candidates. A design board, contact sheet, comparison board, character sheet, or other multi-panel composition may be uploaded and published when it follows the normal filename and orientation contract. Do not reject or silently exclude a staged file solely because it contains multiple panels, labels, reference views, or a presentation layout.
+
+The standalone-image rule governs default generation requests; it is not an import rejection rule. A staged board named `canonical_pc_NN` is a desktop canonical artwork record, but it does not replace the character portrait because portrait promotion only considers `canonical_m_NN`.
+
 Therefore every staged image defaults to:
 
 ```text
@@ -549,6 +557,8 @@ The importer fails closed when:
 
 R2 uploads happen before the transactional D1 write. Re-running with the same files is idempotent at the database level.
 
+Successful Wrangler upload output plus successful D1 publication is sufficient completion evidence for an ordinary import. Avoid redundant R2 byte-download verification by default.
+
 # Website presentation contract
 
 Website code only consumes approved published assets.
@@ -592,7 +602,7 @@ Do not optimize for image count. Optimize for a small coherent asset library.
 - [ ] Canonical Design is generation-grade
 - [ ] canonical identity and primary props are coherent
 - [ ] mobile/desktop are separate generation jobs
-- [ ] no composite/contact-sheet output was accepted
+- [ ] standalone generation remains the default, while intentionally staged composite/contact-sheet artworks are allowed to import
 - [ ] active Style comes from the validated portfolio
 - [ ] derivative pose/expression is style/scene-specific
 - [ ] Style differentiation gate passed

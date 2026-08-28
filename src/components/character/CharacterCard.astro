@@ -1,6 +1,10 @@
 ---
 import { Flame } from '@lucide/astro';
 import type { Character, Mythology } from '../../lib/content/types';
+import {
+  cloudflareImageUrl,
+  shouldUseCloudflareImageTransformations,
+} from '../../lib/media/cloudflare-images';
 
 interface Props {
   character: Character;
@@ -10,6 +14,22 @@ interface Props {
 const { character, mythology } = Astro.props;
 const primarySymbol = character.symbols[0] ?? '✦';
 const clickCount = Math.max(0, Math.floor(character.clickCount ?? 0));
+const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
+const portraitImage = character.portrait
+  ? cloudflareImageUrl(
+      character.portrait.src,
+      {
+        width: 480,
+        height: 853,
+        fit: 'cover',
+        quality: 78,
+        format: 'auto',
+        // Cards keep the subject's face toward the upper part of the portrait.
+        focalPoint: { x: 0.5, y: 0.2 },
+      },
+      useImageTransformations,
+    )
+  : undefined;
 ---
 
 <article class="character-card surface" data-character-card data-character-id={character.id}>
@@ -17,10 +37,10 @@ const clickCount = Math.max(0, Math.floor(character.clickCount ?? 0));
     <div class="portrait">
       {character.portrait ? (
         <img
-          src={character.portrait.src}
+          src={portraitImage ?? character.portrait.src}
           alt={`${character.name} 角色肖像`}
-          width={character.portrait.width}
-          height={character.portrait.height}
+          width="480"
+          height="853"
           loading="lazy"
           decoding="async"
         />

@@ -17,7 +17,9 @@ function isMissingClickCountColumnError(error: unknown): boolean {
 }
 
 function withoutClickCountColumn(sql: string): string {
-  return sql.replace(/\b(?:c\.)?click_count,\s*/g, '');
+  return sql
+    .replace(/\b(?:c\.)?click_count,\s*/g, '')
+    .replace(/ORDER BY\s+(?:c\.)?click_count\s+DESC\s*,\s*/i, 'ORDER BY ');
 }
 
 async function getCharacterRows(db: D1Database, sql: string, ...bindings: unknown[]) {
@@ -68,6 +70,27 @@ export function mapCharacterRow(row: CharacterRow, worldIds: readonly string[] =
   };
 }
 
+function sortCharactersByHeat(items: readonly Character[]): Character[] {
+  return [...items].sort((a, b) =>
+    (b.clickCount ?? 0) - (a.clickCount ?? 0)
+    || a.name.localeCompare(b.name, 'zh-CN')
+    || a.id.localeCompare(b.id),
+  );
+}
+
+/** 记录一次已发布角色详情页访问；D1 自增更新是原子的。 */
+export async function incrementCharacterView(
+  db: D1Database | undefined,
+  characterId: string,
+): Promise<void> {
+  if (!db || !characterId) return;
+  await db
+    .prepare("UPDATE characters SET click_count = click_count + 1 WHERE id = ? AND publish_status = 'published'")
+    .bind(characterId)
+    .run()
+    .catch(() => undefined);
+}
+
 /** 批量加载 character_worlds，返回 characterId -> worldIds 映射 */
 async function loadWorldIds(db: D1Database, characterIds: readonly string[]): Promise<Map<string, string[]>> {
   if (characterIds.length === 0) return new Map();
@@ -95,10 +118,10 @@ async function loadWorldIds(db: D1Database, characterIds: readonly string[]): Pr
 export async function getCharacters(db: D1Database | undefined, query: EntityListQuery = {}): Promise<Character[]> {
   if (!db) {
     const { limit, offset } = pageClause(query);
-    return seedCharacters.slice(offset, offset + limit);
+    return sortCharactersByHeat(seedCharacters).slice(offset, offset + limit);
   }
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
-  const rows = await getCharacterRows(db, `SELECT ${SELECT_COLUMNS} FROM characters${where} ORDER BY name`);
+  const rows = await getCharacterRows(db, `SELECT ${SELECT_COLUMNS} FROM characters${where} ORDER BY click_count DESC, name COLLATE NOCASE, id`);
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
   return rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
 }
@@ -132,11 +155,14 @@ export async function getCharactersForMythology(
   mythologyId: string,
   query: EntityListQuery = {},
 ): Promise<Character[]> {
-  if (!db) return seedCharacters.filter((item) => item.mythologyId === mythologyId);
+  if (!db) {
+    const { limit, offset } = pageClause(query);
+    return sortCharactersByHeat(seedCharacters.filter((item) => item.mythologyId === mythologyId)).slice(offset, offset + limit);
+  }
   const { limit, offset } = pageClause(query);
   const rows = await getCharacterRows(
     db,
-    `SELECT ${SELECT_COLUMNS} FROM characters WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name LIMIT ? OFFSET ?`,
+    `SELECT ${SELECT_COLUMNS} FROM characters WHERE mythology_id = ? AND publish_status = 'published' ORDER BY click_count DESC, name COLLATE NOCASE, id LIMIT ? OFFSET ?`,
     mythologyId,
     limit,
     offset,
@@ -150,7 +176,10 @@ export async function getCharactersForWorld(
   worldId: string,
   query: EntityListQuery = {},
 ): Promise<Character[]> {
-  if (!db) return seedCharacters.filter((item) => item.worldIds.includes(worldId));
+  if (!db) {
+    const { limit, offset } = pageClause(query);
+    return sortCharactersByHeat(seedCharacters.filter((item) => item.worldIds.includes(worldId))).slice(offset, offset + limit);
+  }
   const { limit, offset } = pageClause(query);
   const rows = await getCharacterRows(db, `
       SELECT c.id, c.mythology_id, c.slug, c.name, c.name_en, c.role, c.click_count, c.summary,
@@ -160,7 +189,7 @@ export async function getCharactersForWorld(
       FROM characters c
       JOIN character_worlds cr ON cr.character_id = c.id
       WHERE cr.world_id = ? AND c.publish_status = 'published'
-      ORDER BY c.name LIMIT ? OFFSET ?
+      ORDER BY c.click_count DESC, c.name COLLATE NOCASE, c.id LIMIT ? OFFSET ?
     `, worldId, limit, offset);
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
   return rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
