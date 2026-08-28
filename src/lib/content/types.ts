@@ -201,6 +201,8 @@ export type Character = {
   name: string;
   nameEn: string;
   role: string;
+  /** Number of character-card/detail entry clicks used for popularity display. */
+  clickCount?: number;
   summary: string;
   symbols: readonly string[];
   canonicalDesign: CanonicalDesign;

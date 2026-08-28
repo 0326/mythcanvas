@@ -1,5 +1,5 @@
 ---
-import { Landmark, Monitor, Smartphone, Sparkles } from '@lucide/astro';
+import { ChevronDown, Sparkles } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCharacters, getWorlds, getStyles } from '../../lib/content/repositories';
 import {
@@ -64,22 +64,10 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
 
 <BaseLayout
   title="AI 绘神"
-  description="MythCanvas AI 绘神：组合神话神灵、年龄服装形态、独立画风、场景与 PC/手机壁纸规格，生成可持续复用的神话视觉。"
+  description="MythCanvas AI 绘神：选择神话神灵或神域、形态、画风、场景与壁纸规格，生成个性化神话视觉。"
+  hideFooter
 >
-  <section class="creator-hero">
-    <div class="container-wide creator-hero-inner">
-      <div>
-        <span class="eyebrow">AI Creator · Structured Recipe</span>
-        <h1>神灵不变，形态与画风自由组合</h1>
-        <p>选择神话神灵或神域；复杂人物可先选有来源的传统版本，再独立组合形态、画风、场景与设备规格。MythCanvas 会自动带入 Canonical Design 与神话体系 Visual DNA。</p>
-      </div>
-      <div class="recipe-principle" aria-label="绘神生成规则">
-        <span>神灵</span><b>×</b><span>传统版本</span><b>×</b><span>形态</span><b>×</b><span>画风</span><b>×</b><span>壁纸规格</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="creator-section section-compact">
+  <section class="creator-workspace">
     <div
       class="container-wide creator-grid"
       data-creator
@@ -95,213 +83,178 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       data-initial-height={String(initialOutput?.height ?? 2560)}
     >
       <form class="creator-panel surface" onsubmit="return false;">
-        <div class="step-block">
-          <div class="step-head"><span>01</span><div><h2>选择创作对象</h2><p>神灵会锁定 Canonical Design；神域会锁定核心空间与建筑锚点。</p></div></div>
+        <header class="panel-heading">
+          <h1>AI 绘神</h1>
           <div class="segmented" role="group" aria-label="创作对象类型">
             <button class="is-active" type="button" data-entity-tab="character" aria-pressed="true">神灵</button>
             <button type="button" data-entity-tab="world" aria-pressed="false">神域</button>
           </div>
-          <div class="entity-options" data-entity-group="character">
-            {creatorCharacters.map((character, index) => (
-              <button
-                class:list={{ 'entity-option': true, 'is-active': index === 0 }}
-                type="button"
-                data-entity
-                data-entity-id={character.id}
-                data-entity-type="character"
-                data-entity-slug={character.slug}
-                data-name={character.name}
-                data-image={character.portrait?.src ?? '/media/content/chinese-celestial.svg'}
-                aria-pressed={index === 0 ? 'true' : 'false'}
-              >
-                <span class="entity-glyph" aria-hidden="true">{character.symbols[0]}</span>
-                <span><strong>{character.name}</strong><small>{character.role}</small></span>
-              </button>
-            ))}
-          </div>
-          <div class="entity-options" data-entity-group="world" hidden>
-            {creatorWorlds.map((world) => (
-              <button
-                class="entity-option"
-                type="button"
-                data-entity
-                data-entity-id={world.id}
-                data-entity-type="world"
-                data-entity-slug={world.slug}
-                data-name={world.name}
-                data-image={world.heroImage.src}
-                aria-pressed="false"
-              >
-                <span class="entity-glyph" aria-hidden="true"><Landmark size={18} strokeWidth={1.8} /></span>
-                <span><strong>{world.name}</strong><small>{world.nameEn}</small></span>
-              </button>
-            ))}
-          </div>
-        </div>
+        </header>
 
-        <div class="step-block" data-interpretation-step>
-          <div class="step-head"><span>02</span><div><h2>选择传统版本</h2><p>传统、宗教、民间与文学身份有来源地并存；不把它们当作换装或第二个角色。</p></div></div>
-          {creatorCharacters.map((character, characterIndex) => (
-            <div class="interpretation-options" data-interpretation-group={character.id} hidden={characterIndex !== 0}>
-              <button
-                class="interpretation-option is-active"
-                type="button"
-                data-interpretation-id=""
-                data-interpretation-name="跨传统经典设定"
-                aria-pressed="true"
-              >
-                <span class="variant-meta"><small>BASE</small><strong>经典设定</strong></span>
-                <span>只使用跨传统稳定身份锚点，不混入具体文学或地方信仰细节。</span>
-              </button>
-              {(interpretationsByCharacter.get(character.id) ?? []).map((interpretation) => (
-                <button
-                  class="interpretation-option"
-                  type="button"
-                  data-interpretation-id={interpretation.id}
-                  data-interpretation-slug={interpretation.slug}
-                  data-interpretation-name={interpretation.name}
-                  aria-pressed="false"
-                >
-                  <span class="variant-meta"><small>{interpretation.sourcePeriods[0] ?? '来源'}</small><strong>{interpretation.name}</strong></span>
-                  <span>{interpretation.summary}</span>
-                </button>
+        <div class="field-grid">
+          <label class="creator-field entity-field">
+            <span data-entity-label>角色</span>
+            <span class="select-wrap" data-entity-group="character">
+              <select data-entity-select data-entity-type="character" aria-label="选择角色">
+                {creatorCharacters.map((character, index) => (
+                  <option
+                    value={character.id}
+                    selected={index === 0}
+                    data-entity-id={character.id}
+                    data-entity-type="character"
+                    data-entity-slug={character.slug}
+                    data-name={character.name}
+                    data-image={character.portrait?.src ?? '/media/content/chinese-celestial.svg'}
+                  >
+                    {character.name} · {character.role}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+            <span class="select-wrap" data-entity-group="world" hidden>
+              <select data-entity-select data-entity-type="world" aria-label="选择神域">
+                {creatorWorlds.map((world) => (
+                  <option
+                    value={world.id}
+                    data-entity-id={world.id}
+                    data-entity-type="world"
+                    data-entity-slug={world.slug}
+                    data-name={world.name}
+                    data-image={world.heroImage.src}
+                  >
+                    {world.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+          </label>
+
+          <label class="creator-field interpretation-field field-wide" data-interpretation-step>
+            <span>传统版本</span>
+            <span class="select-wrap">
+              {creatorCharacters.map((character, characterIndex) => (
+                <select data-interpretation-select data-character-id={character.id} aria-label={`${character.name}的传统版本`} hidden={characterIndex !== 0}>
+                  <option value="" data-name="经典设定">经典设定</option>
+                  {(interpretationsByCharacter.get(character.id) ?? []).map((interpretation) => (
+                    <option value={interpretation.id} data-name={interpretation.name} data-interpretation-slug={interpretation.slug}>
+                      {interpretation.name}
+                    </option>
+                  ))}
+                </select>
               ))}
-            </div>
-          ))}
-        </div>
+              <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+          </label>
 
-        <div class="step-block" data-variant-step>
-          <div class="step-head"><span data-step-variant>03</span><div><h2>选择角色形态</h2><p>年龄、服装和神性形态属于角色 Variant，不属于画风。</p></div></div>
-          {creatorCharacters.map((character, characterIndex) => (
-            <div class="variant-options" data-variant-group={character.id} hidden={characterIndex !== 0}>
-              <button
-                class="variant-option is-active"
-                type="button"
-                data-variant-id=""
-                data-variant-name="经典设定"
-                data-variant-type="canonical"
-                aria-pressed="true"
-              >
-                <span class="variant-meta"><small>BASE</small><strong>经典设定</strong></span>
-                <span>使用角色主设，不叠加年龄、服装或形态变化。</span>
-              </button>
-              {(variantsByCharacter.get(character.id) ?? []).map((variant) => (
-                <button
-                  class="variant-option"
-                  type="button"
-                  data-variant-id={variant.id}
-                data-variant-slug={variant.slug}
-                  data-variant-name={variant.name}
-                  data-variant-type={variant.variantType}
-                  aria-pressed="false"
-                >
-                  <span class="variant-meta"><small>{variantTypeLabels[variant.variantType]}</small><strong>{variant.name}</strong></span>
-                  <span>{variant.description}</span>
-                </button>
+          <label class="creator-field variant-field" data-variant-step>
+            <span>角色形态</span>
+            <span class="select-wrap">
+              {creatorCharacters.map((character, characterIndex) => (
+                <select data-variant-select data-character-id={character.id} aria-label={`${character.name}的角色形态`} hidden={characterIndex !== 0}>
+                  <option value="" data-name="经典设定">经典设定</option>
+                  {(variantsByCharacter.get(character.id) ?? []).map((variant) => (
+                    <option value={variant.id} data-name={variant.name} data-variant-slug={variant.slug}>
+                      {variant.name} · {variantTypeLabels[variant.variantType]}
+                    </option>
+                  ))}
+                </select>
               ))}
-            </div>
-          ))}
-          {variants.length === 0 && (
-            <p class="variant-fallback">当前环境尚未应用角色形态数据迁移，将使用经典设定生成。</p>
-          )}
-        </div>
+              <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+          </label>
 
-        <div class="step-block">
-          <div class="step-head"><span data-step-style>04</span><div><h2>选择独立画风</h2><p>画风只定义“怎么画”，不会静默改写角色年龄、服装或身份。</p></div></div>
-          <div class="style-options">
-            {styles.map((style, index) => (
-              <button
-                class:list={{ 'style-option': true, 'is-active': index === 0 }}
-                type="button"
-                data-style-id={style.id}
-                data-style-name={style.name}
-                aria-pressed={index === 0 ? 'true' : 'false'}
-              >
-                <span class:list={{ 'style-swatch': true, [`tone-${(index % 4) + 1}`]: true }} aria-hidden="true"></span>
-                <span><strong>{style.name}</strong><small>{style.nameEn}</small></span>
-              </button>
-            ))}
-          </div>
-        </div>
+          <label class="creator-field">
+            <span>画风</span>
+            <span class="select-wrap">
+              <select data-style-select aria-label="选择画风">
+                {styles.map((style, index) => (
+                  <option value={style.id} selected={index === 0} data-name={style.name}>{style.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+          </label>
 
-        <div class="step-block">
-          <div class="step-head"><span data-step-scene>05</span><div><h2>场景与镜头</h2><p>场景、镜头和临时氛围只影响这一张作品，不写回角色主设。</p></div></div>
-          <div class="field-label">场景</div>
-          <div class="chip-options">
-            {scenes.map((scene, index) => <button class:list={{ chip: true, 'is-active': index === 0 }} type="button" data-scene={scene} aria-pressed={index === 0 ? 'true' : 'false'}>{scene}</button>)}
-          </div>
-          <div class="field-label composition-label">镜头构图</div>
-          <div class="chip-options">
-            {compositions.map((composition, index) => <button class:list={{ chip: true, 'is-active': index === 0 }} type="button" data-composition={composition} aria-pressed={index === 0 ? 'true' : 'false'}>{composition}</button>)}
-          </div>
-          <label class="advanced-input">
-            <span>补充描述 <small>可选 · 不会覆盖角色和画风约束</small></span>
-            <textarea rows="3" maxlength="300" placeholder="例如：远处有巨大的月轮，风吹动披风，晨光穿过云层……" data-description></textarea>
+          <label class="creator-field">
+            <span>场景</span>
+            <span class="select-wrap">
+              <select data-scene-select aria-label="选择场景">
+                {scenes.map((scene) => <option value={scene}>{scene}</option>)}
+              </select>
+              <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+          </label>
+
+          <label class="creator-field">
+            <span>镜头</span>
+            <span class="select-wrap">
+              <select data-composition-select aria-label="选择镜头构图">
+                {compositions.map((composition) => <option value={composition}>{composition}</option>)}
+              </select>
+              <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+          </label>
+
+          <label class="creator-field">
+            <span>输出规格</span>
+            <span class="select-wrap">
+              <select data-output-select aria-label="选择输出规格">
+                {outputSpecs.map((spec, index) => (
+                  <option
+                    value={spec.id}
+                    selected={spec.id === initialOutput?.id || (!initialOutput && index === 0)}
+                    data-name={spec.name}
+                    data-output-device={spec.deviceType}
+                    data-ratio={spec.ratio}
+                    data-width={String(spec.width)}
+                    data-height={String(spec.height)}
+                  >
+                    {spec.name} · {spec.ratio} · {spec.width}×{spec.height}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+          </label>
+
+          <label class="creator-field field-wide description-field">
+            <span>补充描述 <small>可选</small></span>
+            <textarea rows="2" maxlength="300" placeholder="例如：远处有巨大的月轮，晨光穿过云层……" data-description></textarea>
           </label>
         </div>
 
-        <div class="step-block">
-          <div class="step-head"><span data-step-output>06</span><div><h2>选择壁纸规格</h2><p>只提供主流 PC 与手机规格，并自动加入对应安全区和构图约束。</p></div></div>
-          <div class="output-options">
-            {outputSpecs.map((spec, index) => (
-              <button
-                class:list={{ 'output-option': true, 'is-active': spec.id === initialOutput?.id || (!initialOutput && index === 0) }}
-                type="button"
-                data-output-spec-id={spec.id}
-                data-output-name={spec.name}
-                data-output-device={spec.deviceType}
-                data-ratio={spec.ratio}
-                data-width={String(spec.width)}
-                data-height={String(spec.height)}
-                aria-pressed={spec.id === initialOutput?.id ? 'true' : 'false'}
-              >
-                <span class="device-icon" aria-hidden="true">
-                  {spec.deviceType === 'mobile' ? <Smartphone size={22} strokeWidth={1.65} /> : <Monitor size={24} strokeWidth={1.65} />}
-                </span>
-                <span class="output-copy">
-                  <strong>{spec.name}</strong>
-                  <small>{spec.ratio} · {spec.width}×{spec.height}</small>
-                </span>
-                <span class="output-note">{spec.deviceType === 'mobile' ? '预留锁屏顶部安全区' : '适合横向环境叙事'}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {variants.length === 0 && <p class="variant-fallback">当前使用经典角色设定。</p>}
 
         <button class="btn btn-primary generate-button" type="button" data-generate>
           <span data-generate-label>开始绘神</span><Sparkles size={17} strokeWidth={1.8} aria-hidden="true" />
         </button>
       </form>
 
-      <aside class="preview-column">
-        <div class="recipe-card surface">
-          <div class="recipe-head"><span class="small-caps">Generation Recipe</span><strong>本次绘神配方</strong></div>
-          <div class="recipe-grid">
-            <div><span>对象</span><strong data-summary-entity>{initialCharacter?.name ?? '神灵'}</strong></div>
-            <div data-summary-interpretation-wrap><span>传统</span><strong data-summary-interpretation>跨传统经典设定</strong></div>
-            <div data-summary-variant-wrap><span>形态</span><strong data-summary-variant>经典设定</strong></div>
-            <div><span>画风</span><strong data-summary-style>{initialStyle?.name ?? '经典神话'}</strong></div>
-            <div><span>场景</span><strong data-summary-scene>云海</strong></div>
-            <div><span>镜头</span><strong data-summary-composition>人物居中</strong></div>
-            <div><span>规格</span><strong data-summary-output>{initialOutput?.name ?? '手机壁纸'}</strong></div>
-          </div>
-          <div class="identity-lock"><span class="lock-dot"></span><span data-identity-message>Canonical Design 已锁定，画风不会覆盖角色身份。</span></div>
-        </div>
+      <aside class="preview-card surface" aria-label="作品预览">
+        <header class="preview-heading">
+          <h2 data-preview-title>{initialCharacter?.name ?? '神灵'} · {initialStyle?.name ?? '经典神话'}</h2>
+          <p class="preview-meta">
+            <span data-preview-subtitle>经典设定 · 云海 · {initialOutput?.name ?? '手机壁纸'}</span>
+            <span aria-hidden="true">·</span>
+            <strong data-resolution>{initialOutput?.width ?? 1440}×{initialOutput?.height ?? 2560}</strong>
+          </p>
+        </header>
 
-        <div class="preview-card surface">
-          <div class="preview-stage" data-preview-stage data-device={initialOutput?.deviceType ?? 'mobile'}>
-            <div class="preview-frame" data-preview-frame>
-              <img src={initialImage} alt="AI 绘神预览" width="720" height="1280" data-preview-image />
-              <div class="preview-overlay"></div>
-              <div class="mobile-safe-zone" data-mobile-safe-zone aria-hidden="true"></div>
-              <div class="preview-status" data-preview-status>
-                <span class="small-caps">Creation Preview</span>
-                <strong data-preview-title>{initialCharacter?.name ?? '神灵'} · {initialStyle?.name ?? '经典神话'}</strong>
-                <p data-preview-subtitle>经典设定 · 云海 · {initialOutput?.name ?? '手机壁纸'}</p>
-              </div>
+        <div class="preview-stage" data-preview-stage data-device={initialOutput?.deviceType ?? 'mobile'}>
+          <div class="preview-frame" data-preview-frame>
+            <img src={initialImage} alt="AI 绘神预览" width="720" height="1280" data-preview-image />
+            <div class="preview-overlay" data-preview-overlay hidden></div>
+            <div class="mobile-safe-zone" data-mobile-safe-zone aria-hidden="true"></div>
+            <div class="preview-status" data-preview-status aria-live="polite" hidden>
+              <strong data-status-title>准备预览</strong>
+              <p data-status-text>调整左侧选项，画面会同步切换。</p>
             </div>
           </div>
-          <div class="resolution-line"><span>输出尺寸</span><strong data-resolution>{initialOutput?.width ?? 1440} × {initialOutput?.height ?? 2560}</strong></div>
+        </div>
+
+        <div class="preview-footer" data-preview-footer hidden>
           <div class="preview-actions" data-preview-actions hidden>
             <a class="btn btn-secondary" data-download href="#" download>下载</a>
             <button class="btn btn-secondary" type="button" data-publish>申请公开</button>
@@ -310,19 +263,13 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
           </div>
         </div>
 
-        <div class="refine-card surface" data-refine-panel hidden>
-          <div class="refine-head"><span class="small-caps">Quick Refine</span><strong>保持配方，只微调结果</strong></div>
+        <div class="refine-card" data-refine-panel hidden>
+          <span>快捷微调</span>
           <div class="refine-options">
             {quickRefines.map((item) => (
               <button class="refine-option" type="button" data-refine={item.key} title={item.hint}>{item.label}</button>
             ))}
           </div>
-        </div>
-
-        <div class="history-card surface" data-history>
-          <div class="history-head"><span><span class="small-caps">Recent</span><strong>最近的绘神</strong></span><button type="button" class="history-clear" data-history-clear>清空</button></div>
-          <div class="history-list" data-history-list></div>
-          <div class="history-empty" data-history-empty>还没有生成记录。完成第一张后，可在这里快速回看配方。</div>
         </div>
       </aside>
     </div>
@@ -340,7 +287,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       entity: root.dataset.initialEntityName || '',
       image: root.dataset.initialImage || '',
       interpretationId: '',
-      interpretation: '跨传统经典设定',
+      interpretation: '经典设定',
       variantId: '',
       variant: '经典设定',
       styleId: root.dataset.initialStyleId || 'canonical',
@@ -358,37 +305,10 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     };
 
     const HISTORY_KEY = 'mythcanvas-generations-v2';
-    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const loadHistory = () => { try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; } };
     const saveHistory = (list) => { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 8))); } catch { /* ignore */ } };
-
-    const preselectFromQuery = () => {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const characterSlug = params.get('character');
-        const worldSlug = params.get('world');
-        const entityType = characterSlug ? 'character' : 'world';
-        const entitySlug = characterSlug || worldSlug;
-        if (!entitySlug) return;
-        const match = root.querySelector(`[data-entity-type="${entityType}"][data-entity-slug="${CSS.escape(entitySlug)}"]`);
-        if (!match) return;
-        const tab = root.querySelector(`[data-entity-tab="${entityType}"]`);
-        if (tab) tab.click();
-        match.click();
-        const interpretationSlug = params.get('interpretation');
-        if (entityType === 'character' && interpretationSlug) {
-          root.querySelector(`[data-interpretation-group="${state.entityId}"] [data-interpretation-slug="${CSS.escape(interpretationSlug)}"]`)?.click();
-        }
-        const variantSlug = params.get('variant');
-        if (entityType === 'character' && variantSlug) {
-          root.querySelector(`[data-variant-group="${state.entityId}"] [data-variant-slug="${CSS.escape(variantSlug)}"]`)?.click();
-        }
-        const styleId = params.get('style');
-        if (styleId) root.querySelector(`[data-style-id="${CSS.escape(styleId)}"]`)?.click();
-        const outputId = params.get('output');
-        if (outputId) root.querySelector(`[data-output-spec-id="${CSS.escape(outputId)}"]`)?.click();
-      } catch { /* ignore malformed query */ }
-    };
+    const selectedOption = (select) => select?.selectedOptions?.[0];
+    const emitChange = (select) => select?.dispatchEvent(new Event('change', { bubbles: true }));
 
     const setPressed = (selector, active) => {
       root.querySelectorAll(selector).forEach((item) => {
@@ -398,47 +318,54 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       });
     };
 
-    const selectBaseVariant = () => {
+    const currentCharacterSelect = (selector) => root.querySelector(`${selector}[data-character-id="${CSS.escape(state.entityId)}"]`);
+
+    const resetCharacterChoices = () => {
+      root.querySelectorAll('[data-interpretation-select]').forEach((select) => {
+        select.hidden = select.dataset.characterId !== state.entityId;
+      });
+      root.querySelectorAll('[data-variant-select]').forEach((select) => {
+        select.hidden = select.dataset.characterId !== state.entityId;
+      });
+      const interpretationSelect = currentCharacterSelect('[data-interpretation-select]');
+      const variantSelect = currentCharacterSelect('[data-variant-select]');
+      const interpretationStep = root.querySelector('[data-interpretation-step]');
+      const variantStep = root.querySelector('[data-variant-step]');
+      const fieldGrid = root.querySelector('.field-grid');
+      const hasInterpretations = Boolean(interpretationSelect && interpretationSelect.options.length > 1);
+      const hasVariants = Boolean(variantSelect && variantSelect.options.length > 1);
+      if (interpretationStep) interpretationStep.hidden = !hasInterpretations;
+      if (fieldGrid) fieldGrid.classList.toggle('has-interpretation', hasInterpretations);
+      if (variantStep) {
+        variantStep.hidden = !hasVariants;
+      }
+      if (interpretationSelect) interpretationSelect.selectedIndex = 0;
+      if (variantSelect) variantSelect.selectedIndex = 0;
+      state.interpretationId = '';
+      state.interpretation = '经典设定';
       state.variantId = '';
       state.variant = '经典设定';
-      const group = root.querySelector(`[data-variant-group="${state.entityId}"]`);
-      const base = group?.querySelector('[data-variant-id=""]');
-      if (base) setPressed(`[data-variant-group="${state.entityId}"] [data-variant-id]`, base);
-    };
-
-    const selectBaseInterpretation = () => {
-      state.interpretationId = '';
-      state.interpretation = '跨传统经典设定';
-      const group = root.querySelector(`[data-interpretation-group="${state.entityId}"]`);
-      const base = group?.querySelector('[data-interpretation-id=""]');
-      if (base) setPressed(`[data-interpretation-group="${state.entityId}"] [data-interpretation-id]`, base);
     };
 
     const refresh = () => {
       const image = root.querySelector('[data-preview-image]');
       if (image && !state.lastImageUrl && image.getAttribute('src') !== state.image) image.setAttribute('src', state.image);
-      root.querySelector('[data-preview-title]').textContent = `${state.entity} · ${state.style}`;
-      root.querySelector('[data-preview-subtitle]').textContent = `${state.entityType === 'character' ? state.interpretation + ' · ' + state.variant + ' · ' : ''}${state.scene} · ${state.outputName}`;
-      root.querySelector('[data-summary-entity]').textContent = state.entity;
-      root.querySelector('[data-summary-style]').textContent = state.style;
-      root.querySelector('[data-summary-scene]').textContent = state.scene;
-      root.querySelector('[data-summary-composition]').textContent = state.composition;
-      root.querySelector('[data-summary-output]').textContent = `${state.outputName} · ${state.ratio}`;
-      root.querySelector('[data-summary-variant]').textContent = state.variant;
-      root.querySelector('[data-summary-interpretation]').textContent = state.interpretation;
-      const variantWrap = root.querySelector('[data-summary-variant-wrap]');
-      if (variantWrap) variantWrap.hidden = state.entityType !== 'character';
-      const interpretationWrap = root.querySelector('[data-summary-interpretation-wrap]');
-      if (interpretationWrap) interpretationWrap.hidden = state.entityType !== 'character';
-      const identityMessage = root.querySelector('[data-identity-message]');
-      if (identityMessage) identityMessage.textContent = state.entityType === 'character'
-        ? `Canonical Design 已锁定；${state.interpretation}、${state.variant} 与 ${state.style} 分层组合。`
-        : '神域 Canonical Design 与文明 Visual DNA 已锁定。';
+      const title = root.querySelector('[data-preview-title]');
+      const subtitle = root.querySelector('[data-preview-subtitle]');
+      if (title) title.textContent = `${state.entity} · ${state.style}`;
+      if (subtitle) subtitle.textContent = `${state.entityType === 'character' ? state.variant + ' · ' : ''}${state.scene} · ${state.outputName}`;
       const stage = root.querySelector('[data-preview-stage]');
       if (stage) stage.dataset.device = state.device;
       const safeZone = root.querySelector('[data-mobile-safe-zone]');
       if (safeZone) safeZone.hidden = state.device !== 'mobile';
-      root.querySelector('[data-resolution]').textContent = `${state.width} × ${state.height}`;
+      const status = root.querySelector('[data-preview-status]');
+      const overlay = root.querySelector('[data-preview-overlay]');
+      if (!state.lastImageUrl) {
+        if (status) status.hidden = true;
+        if (overlay) overlay.hidden = true;
+      }
+      const resolution = root.querySelector('[data-resolution]');
+      if (resolution) resolution.textContent = `${state.width}×${state.height}`;
     };
 
     root.querySelectorAll('[data-entity-tab]').forEach((button) => {
@@ -449,102 +376,138 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         state.lastImageUrl = null;
         setPressed('[data-entity-tab]', button);
         root.querySelectorAll('[data-entity-group]').forEach((group) => { group.hidden = group.dataset.entityGroup !== type; });
+        const entityLabel = root.querySelector('[data-entity-label]');
+        if (entityLabel) entityLabel.textContent = type === 'character' ? '角色' : '神域';
         const variantStep = root.querySelector('[data-variant-step]');
-        if (variantStep) variantStep.hidden = type !== 'character';
         const interpretationStep = root.querySelector('[data-interpretation-step]');
+        if (variantStep) variantStep.hidden = type !== 'character';
         if (interpretationStep) interpretationStep.hidden = type !== 'character';
-        root.querySelector('[data-step-style]').textContent = type === 'character' ? '04' : '02';
-        root.querySelector('[data-step-scene]').textContent = type === 'character' ? '05' : '03';
-        root.querySelector('[data-step-output]').textContent = type === 'character' ? '06' : '04';
-        const first = root.querySelector(`[data-entity-group="${type}"] [data-entity]`);
-        if (first) first.click();
+        emitChange(root.querySelector(`[data-entity-select][data-entity-type="${type}"]`));
       });
     });
 
-    root.querySelectorAll('[data-entity]').forEach((button) => {
-      button.addEventListener('click', () => {
-        state.entityId = button.dataset.entityId || state.entityId;
-        state.entity = button.dataset.name || state.entity;
-        state.image = button.dataset.image || state.image;
+    root.querySelectorAll('[data-entity-select]').forEach((select) => {
+      select.addEventListener('change', () => {
+        const option = selectedOption(select);
+        if (!option) return;
+        state.entityId = option.dataset.entityId || option.value || state.entityId;
+        state.entity = option.dataset.name || option.textContent?.trim() || state.entity;
+        state.image = option.dataset.image || state.image;
         state.lastImageUrl = null;
-        setPressed(`[data-entity-type="${button.dataset.entityType}"]`, button);
-        root.querySelectorAll('[data-variant-group]').forEach((group) => { group.hidden = group.dataset.variantGroup !== state.entityId; });
-        root.querySelectorAll('[data-interpretation-group]').forEach((group) => { group.hidden = group.dataset.interpretationGroup !== state.entityId; });
-        if (state.entityType === 'character') {
-          selectBaseInterpretation();
-          selectBaseVariant();
+        if (state.entityType === 'character') resetCharacterChoices();
+        refresh();
+      });
+    });
+
+    root.querySelectorAll('[data-interpretation-select]').forEach((select) => {
+      select.addEventListener('change', () => {
+        if (state.entityType !== 'character' || select.hidden) return;
+        const option = selectedOption(select);
+        state.interpretationId = option?.value || '';
+        state.interpretation = option?.dataset.name || '经典设定';
+        const variantSelect = currentCharacterSelect('[data-variant-select]');
+        if (variantSelect) variantSelect.selectedIndex = 0;
+        state.variantId = '';
+        state.variant = '经典设定';
+        refresh();
+      });
+    });
+
+    root.querySelectorAll('[data-variant-select]').forEach((select) => {
+      select.addEventListener('change', () => {
+        if (state.entityType !== 'character' || select.hidden) return;
+        const option = selectedOption(select);
+        state.variantId = option?.value || '';
+        state.variant = option?.dataset.name || '经典设定';
+        refresh();
+      });
+    });
+
+    root.querySelector('[data-style-select]')?.addEventListener('change', (event) => {
+      const option = selectedOption(event.currentTarget);
+      state.styleId = option?.value || state.styleId;
+      state.style = option?.dataset.name || state.style;
+      refresh();
+    });
+
+    root.querySelector('[data-scene-select]')?.addEventListener('change', (event) => {
+      state.scene = event.currentTarget.value || state.scene;
+      refresh();
+    });
+
+    root.querySelector('[data-composition-select]')?.addEventListener('change', (event) => {
+      state.composition = event.currentTarget.value || state.composition;
+      refresh();
+    });
+
+    root.querySelector('[data-output-select]')?.addEventListener('change', (event) => {
+      const option = selectedOption(event.currentTarget);
+      if (!option) return;
+      state.outputSpecId = option.value || state.outputSpecId;
+      state.outputName = option.dataset.name || state.outputName;
+      state.device = option.dataset.outputDevice || state.device;
+      state.ratio = option.dataset.ratio || state.ratio;
+      state.width = Number(option.dataset.width || state.width);
+      state.height = Number(option.dataset.height || state.height);
+      refresh();
+    });
+
+    const preselectFromQuery = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const characterSlug = params.get('character');
+        const worldSlug = params.get('world');
+        const entityType = characterSlug ? 'character' : 'world';
+        const entitySlug = characterSlug || worldSlug;
+        if (entitySlug) {
+          root.querySelector(`[data-entity-tab="${entityType}"]`)?.click();
+          const option = root.querySelector(`[data-entity-select][data-entity-type="${entityType}"] [data-entity-slug="${CSS.escape(entitySlug)}"]`);
+          if (option) {
+            option.parentElement.value = option.value;
+            emitChange(option.parentElement);
+          }
         }
-        refresh();
-      });
-    });
-
-    root.querySelectorAll('[data-interpretation-id]').forEach((button) => {
-      button.addEventListener('click', () => {
-        if (state.entityType !== 'character') return;
-        state.interpretationId = button.dataset.interpretationId || '';
-        state.interpretation = button.dataset.interpretationName || '跨传统经典设定';
-        setPressed(`[data-interpretation-group="${state.entityId}"] [data-interpretation-id]`, button);
-        selectBaseVariant();
-        refresh();
-      });
-    });
-
-    root.querySelectorAll('[data-variant-id]').forEach((button) => {
-      button.addEventListener('click', () => {
-        if (state.entityType !== 'character') return;
-        state.variantId = button.dataset.variantId || '';
-        state.variant = button.dataset.variantName || '经典设定';
-        setPressed(`[data-variant-group="${state.entityId}"] [data-variant-id]`, button);
-        refresh();
-      });
-    });
-
-    root.querySelectorAll('[data-style-id]').forEach((button) => {
-      button.addEventListener('click', () => {
-        state.styleId = button.dataset.styleId || state.styleId;
-        state.style = button.dataset.styleName || state.style;
-        setPressed('[data-style-id]', button);
-        refresh();
-      });
-    });
-
-    root.querySelectorAll('[data-scene]').forEach((button) => {
-      button.addEventListener('click', () => {
-        state.scene = button.dataset.scene || state.scene;
-        setPressed('[data-scene]', button);
-        refresh();
-      });
-    });
-
-    root.querySelectorAll('[data-composition]').forEach((button) => {
-      button.addEventListener('click', () => {
-        state.composition = button.dataset.composition || state.composition;
-        setPressed('[data-composition]', button);
-        refresh();
-      });
-    });
-
-    root.querySelectorAll('[data-output-spec-id]').forEach((button) => {
-      button.addEventListener('click', () => {
-        state.outputSpecId = button.dataset.outputSpecId || state.outputSpecId;
-        state.outputName = button.dataset.outputName || state.outputName;
-        state.device = button.dataset.outputDevice || state.device;
-        state.ratio = button.dataset.ratio || state.ratio;
-        state.width = Number(button.dataset.width || state.width);
-        state.height = Number(button.dataset.height || state.height);
-        setPressed('[data-output-spec-id]', button);
-        refresh();
-      });
-    });
+        const interpretationSlug = params.get('interpretation');
+        if (state.entityType === 'character' && interpretationSlug) {
+          const option = currentCharacterSelect('[data-interpretation-select]')?.querySelector(`[data-interpretation-slug="${CSS.escape(interpretationSlug)}"]`);
+          if (option) {
+            option.parentElement.value = option.value;
+            emitChange(option.parentElement);
+          }
+        }
+        const variantSlug = params.get('variant');
+        if (state.entityType === 'character' && variantSlug) {
+          const option = currentCharacterSelect('[data-variant-select]')?.querySelector(`[data-variant-slug="${CSS.escape(variantSlug)}"]`);
+          if (option) {
+            option.parentElement.value = option.value;
+            emitChange(option.parentElement);
+          }
+        }
+        const styleId = params.get('style');
+        const styleSelect = root.querySelector('[data-style-select]');
+        if (styleId && styleSelect?.querySelector(`option[value="${CSS.escape(styleId)}"]`)) {
+          styleSelect.value = styleId;
+          emitChange(styleSelect);
+        }
+        const outputId = params.get('output');
+        const outputSelect = root.querySelector('[data-output-select]');
+        if (outputId && outputSelect?.querySelector(`option[value="${CSS.escape(outputId)}"]`)) {
+          outputSelect.value = outputId;
+          emitChange(outputSelect);
+        }
+      } catch { /* ignore malformed query */ }
+    };
 
     const setBusy = (busy, label) => {
       const button = root.querySelector('[data-generate]');
       const actions = root.querySelector('[data-preview-actions]');
+      const footer = root.querySelector('[data-preview-footer]');
       if (!button) return;
       button.disabled = busy;
       const labelNode = button.querySelector('[data-generate-label]');
       if (labelNode) labelNode.textContent = label;
       if (actions) actions.hidden = busy || !state.lastImageUrl;
+      if (footer) footer.hidden = busy || !state.lastImageUrl;
     };
 
     const runGenerate = async (isRetry, refineHint) => {
@@ -554,16 +517,19 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       const favoriteBtn = root.querySelector('[data-favorite]');
       const downloadBtn = root.querySelector('[data-download]');
       const description = root.querySelector('[data-description]');
+      const overlay = root.querySelector('[data-preview-overlay]');
       if (!status || !image) return;
 
-      const statusTitle = status.querySelector('strong');
-      const statusText = status.querySelector('p');
+      const statusTitle = status.querySelector('[data-status-title]');
+      const statusText = status.querySelector('[data-status-text]');
       setBusy(true, '正在绘神…');
+      status.hidden = false;
+      if (overlay) overlay.hidden = false;
       status.classList.add('is-generating');
       if (retryBtn) retryBtn.hidden = true;
       if (favoriteBtn) favoriteBtn.setAttribute('aria-pressed', 'false');
-      if (statusTitle) statusTitle.textContent = isRetry ? '正在重新构筑' : '正在组合绘神配方';
-      if (statusText) statusText.textContent = `${state.entity}${state.entityType === 'character' ? ' · ' + state.interpretation + ' · ' + state.variant : ''} · ${state.style} · ${state.outputName}`;
+      if (statusTitle) statusTitle.textContent = isRetry ? '正在重新构筑' : '正在唤醒神祇';
+      if (statusText) statusText.textContent = `${state.entity} · ${state.style} · ${state.outputName}`;
 
       const baseDescription = description?.value || '';
       const body = {
@@ -596,7 +562,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         image.setAttribute('src', result.imageUrl);
         image.setAttribute('alt', `${state.entity} · ${state.interpretation} · ${state.variant} · ${state.style} · ${state.scene}`);
         if (statusTitle) statusTitle.textContent = `${state.entity} · ${state.style}`;
-        if (statusText) statusText.textContent = result.persisted ? '神迹已完成，并保存生成配方与资产溯源。' : '神迹已完成 · 当前环境使用临时生成结果。';
+        if (statusText) statusText.textContent = result.persisted ? '作品已完成并保存。' : '作品已完成。';
 
         const history = loadHistory();
         history.unshift({
@@ -622,7 +588,6 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
           createdAt: new Date().toISOString(),
         });
         saveHistory(history);
-        renderHistory();
 
         if (downloadBtn instanceof HTMLAnchorElement) downloadBtn.href = result.imageUrl;
         const refinePanel = root.querySelector('[data-refine-panel]');
@@ -630,43 +595,17 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
         setBusy(false, '再绘一次');
       } catch (error) {
         const message = error instanceof Error ? error.message : '请稍后再试';
-        if (statusTitle) statusTitle.textContent = '这次神迹没有完成';
+        if (statusTitle) statusTitle.textContent = '这次没有完成';
         if (statusText) statusText.textContent = message;
         setBusy(false, '重新绘神');
         if (retryBtn) retryBtn.hidden = false;
+        const actions = root.querySelector('[data-preview-actions]');
+        const footer = root.querySelector('[data-preview-footer]');
+        if (actions) actions.hidden = false;
+        if (footer) footer.hidden = false;
       } finally {
         status.classList.remove('is-generating');
       }
-    };
-
-    const renderHistory = () => {
-      const list = loadHistory();
-      const listEl = root.querySelector('[data-history-list]');
-      const emptyEl = root.querySelector('[data-history-empty]');
-      if (!listEl) return;
-      listEl.innerHTML = '';
-      if (emptyEl) emptyEl.hidden = list.length !== 0;
-      list.forEach((item) => {
-        const row = document.createElement('button');
-        row.type = 'button';
-        row.className = 'history-item';
-        row.setAttribute('aria-label', `查看 ${item.entity} 的生成`);
-        const img = document.createElement('img');
-        img.src = item.imageUrl;
-        img.alt = '';
-        img.loading = 'lazy';
-        const span = document.createElement('span');
-        span.innerHTML = `<strong>${escapeHtml(item.entity)} · ${escapeHtml(item.style)}</strong><small>${escapeHtml(item.interpretation || item.variant || '经典设定')} · ${escapeHtml(item.variant || '经典设定')} · ${escapeHtml(item.outputName || item.ratio)}</small>`;
-        row.appendChild(img);
-        row.appendChild(span);
-        row.addEventListener('click', () => {
-          state.lastJobId = item.jobId || null;
-          state.lastImageUrl = item.imageUrl;
-          const preview = root.querySelector('[data-preview-image]');
-          if (preview) preview.setAttribute('src', item.imageUrl);
-        });
-        listEl.appendChild(row);
-      });
     };
 
     root.querySelector('[data-generate]')?.addEventListener('click', () => runGenerate(false));
@@ -712,134 +651,453 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       finally { button.disabled = false; }
     });
 
-    root.querySelector('[data-history-clear]')?.addEventListener('click', () => { saveHistory([]); renderHistory(); });
-
-    const initialOutputButton = root.querySelector(`[data-output-spec-id="${state.outputSpecId}"]`);
-    if (initialOutputButton) state.device = initialOutputButton.dataset.outputDevice || 'mobile';
+    emitChange(root.querySelector('[data-output-select]'));
+    resetCharacterChoices();
     refresh();
-    renderHistory();
     preselectFromQuery();
   })();
 </script>
 
 <style>
-  .creator-hero { padding-block: 2.1rem 1.4rem; border-bottom: 1px solid var(--border); }
-  .creator-hero-inner { display: flex; justify-content: space-between; gap: 2rem; align-items: end; }
-  .creator-hero h1 { max-width: 760px; margin: .35rem 0 0; font-size: clamp(2.15rem, 4vw, 3.65rem); }
-  .creator-hero p { max-width: 740px; margin: .7rem 0 0; color: var(--text-secondary); font-size: .88rem; line-height: 1.8; }
-  .recipe-principle { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: flex-end; color: var(--text-muted); font-size: .72rem; white-space: nowrap; }
-  .recipe-principle span { padding: .45rem .62rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
-  .recipe-principle b { color: var(--accent); font-weight: 400; }
-  .creator-grid { display: grid; grid-template-columns: minmax(0, .98fr) minmax(400px, 1.02fr); gap: 1rem; align-items: start; }
-  .creator-panel { display: grid; gap: 1.1rem; padding: 1.2rem; border-radius: var(--radius-lg); }
-  .step-block + .step-block { padding-top: 1.1rem; border-top: 1px solid var(--border); }
-  .step-head { display: flex; gap: var(--space-4); align-items: start; margin-bottom: .8rem; }
-  .step-head > span { min-width: 18px; color: var(--accent); font-family: var(--font-serif); font-size: .75rem; }
-  .step-head h2 { margin: 0; font-family: var(--font-sans); font-size: 1.04rem; }
-  .step-head p { margin: .2rem 0 0; color: var(--text-muted); font-size: .76rem; line-height: 1.55; }
-  .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-muted); }
-  .segmented button { min-height: 38px; border: 0; border-radius: 9px; color: var(--text-secondary); background: transparent; cursor: pointer; }
-  .segmented button.is-active { color: var(--text-primary); background: var(--surface-strong); box-shadow: var(--shadow-sm); }
-  .entity-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-  .entity-option { display: flex; align-items: center; gap: var(--space-3); min-height: 68px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); text-align: left; background: var(--surface); cursor: pointer; }
-  .entity-option.is-active, .interpretation-option.is-active, .variant-option.is-active, .style-option.is-active, .output-option.is-active { border-color: var(--border-strong); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); background: var(--surface-strong); }
-  .entity-glyph { display: grid; width: 40px; height: 40px; place-items: center; flex: 0 0 auto; border-radius: 50%; color: var(--accent-strong); background: var(--surface-muted); font-family: var(--font-serif); font-size: .7rem; }
-  .entity-option > span:last-child { display: grid; min-width: 0; }
-  .entity-option strong, .output-option strong { font-size: .82rem; }
-  .entity-option small, .output-option small { margin-top: 2px; overflow: hidden; color: var(--text-muted); font-size: .67rem; text-overflow: ellipsis; white-space: nowrap; }
-  .interpretation-options, .variant-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-  .interpretation-option, .variant-option { display: grid; gap: .45rem; min-height: 92px; padding: .8rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); text-align: left; background: var(--surface); cursor: pointer; }
-  .interpretation-option > span:last-child, .variant-option > span:last-child { color: var(--text-muted); font-size: .7rem; line-height: 1.5; }
-  .variant-meta { display: flex; gap: .55rem; align-items: center; }
-  .variant-meta small { padding: .18rem .35rem; border-radius: 4px; color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .58rem; }
-  .variant-meta strong { color: var(--text-primary); font-size: .78rem; }
-  .variant-fallback { margin: 0; padding: .75rem; border: 1px dashed var(--border); border-radius: var(--radius-md); color: var(--text-muted); font-size: .72rem; }
-  .style-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
-  .style-option { display: grid; gap: .5rem; justify-items: stretch; min-height: 86px; padding: .65rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); background: var(--surface); cursor: pointer; text-align: left; }
-  .style-option > span:last-child { display: grid; gap: 1px; }
-  .style-option strong { color: var(--text-primary); font-size: .75rem; }
-  .style-option small { color: var(--text-muted); font-size: .62rem; }
-  .style-swatch { width: 100%; height: 30px; border-radius: var(--radius-sm); }
-  .tone-1 { background: linear-gradient(90deg, var(--cloud-blue), var(--accent)); }
-  .tone-2 { background: linear-gradient(90deg, var(--jade), #e6c382); }
-  .tone-3 { background: linear-gradient(90deg, #304b68, #9e8154); }
-  .tone-4 { background: linear-gradient(90deg, #5c4e69, #91acd0); }
-  .field-label { margin: .25rem 0 .45rem; color: var(--text-secondary); font-size: .7rem; font-weight: 700; }
-  .composition-label { margin-top: .8rem; }
-  .chip-options { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-  button.chip { cursor: pointer; }
-  .advanced-input { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
-  .advanced-input > span { color: var(--text-secondary); font-size: .74rem; font-weight: 700; }
-  .advanced-input small { color: var(--text-muted); font-weight: 400; }
-  textarea { resize: vertical; min-height: 82px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); }
-  .output-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-  .output-option { position: relative; display: grid; grid-template-columns: auto 1fr; gap: .2rem .75rem; align-items: center; min-height: 92px; padding: .85rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); text-align: left; cursor: pointer; }
-  .device-icon { display: grid; width: 38px; height: 38px; grid-row: span 2; place-items: center; color: var(--accent-strong); border-radius: 50%; background: var(--surface-muted); }
-  .output-copy { display: grid; }
-  .output-note { grid-column: 2; color: var(--text-muted); font-size: .65rem; }
-  .generate-button { width: 100%; min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; }
-  .generate-button:disabled { cursor: wait; opacity: .7; }
-  .preview-column { position: sticky; top: calc(var(--header-height) + var(--space-6)); display: grid; gap: var(--space-4); }
-  .recipe-card, .refine-card, .history-card { padding: 1rem; border-radius: var(--radius-lg); }
-  .recipe-head, .refine-head { display: grid; gap: .15rem; margin-bottom: .8rem; }
-  .recipe-head strong, .refine-head strong { font-size: .86rem; }
-  .recipe-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
-  .recipe-grid div { display: grid; gap: .18rem; padding: .62rem; border-radius: var(--radius-sm); background: var(--surface-muted); }
-  .recipe-grid span, .resolution-line span { color: var(--text-muted); font-size: .6rem; }
-  .recipe-grid strong, .resolution-line strong { overflow: hidden; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
-  .identity-lock { display: flex; gap: .45rem; align-items: center; margin-top: .75rem; color: var(--text-secondary); font-size: .67rem; }
-  .lock-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--jade); box-shadow: 0 0 0 4px color-mix(in srgb, var(--jade) 12%, transparent); }
-  .preview-card { overflow: hidden; padding: .6rem; border-radius: var(--radius-lg); }
-  .preview-stage { min-height: 390px; display: grid; place-items: center; padding: .7rem; border-radius: var(--radius-md); background: var(--surface-muted); }
-  .preview-stage[data-device='mobile'] .preview-frame { width: min(52%, 285px); aspect-ratio: 9 / 16; }
-  .preview-stage[data-device='desktop'] .preview-frame { width: 100%; aspect-ratio: 16 / 9; }
-  .preview-frame { position: relative; overflow: hidden; border-radius: 10px; box-shadow: var(--shadow-md); background: var(--surface); transition: width .25s ease, aspect-ratio .25s ease; }
-  .preview-frame img { width: 100%; height: 100%; object-fit: cover; }
-  .preview-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(4, 10, 17, .52), transparent 48%); pointer-events: none; }
-  .mobile-safe-zone { position: absolute; inset: 7% 7% auto; height: 15%; border: 1px dashed rgba(255,255,255,.42); border-radius: 12px; pointer-events: none; }
-  .preview-status { position: absolute; right: .8rem; bottom: .8rem; left: .8rem; display: grid; gap: .2rem; color: white; text-shadow: 0 1px 10px rgba(0,0,0,.5); }
-  .preview-status strong { font-size: .88rem; }
-  .preview-status p { margin: 0; font-size: .67rem; opacity: .82; }
-  .preview-status.is-generating { animation: creator-pulse 1.6s ease-in-out infinite; }
-  .resolution-line { display: flex; justify-content: space-between; gap: 1rem; padding: .75rem .45rem .35rem; color: var(--text-primary); }
-  .preview-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: .45rem; padding: .55rem .1rem .1rem; }
-  .preview-actions .btn { min-width: 0; padding-inline: .55rem; font-size: .68rem; }
-  .refine-options { display: flex; flex-wrap: wrap; gap: .45rem; }
-  .refine-option { padding: .42rem .58rem; border: 1px solid var(--border); border-radius: 999px; color: var(--text-secondary); background: var(--surface); cursor: pointer; font-size: .68rem; }
-  .history-head { display: flex; justify-content: space-between; gap: 1rem; align-items: end; margin-bottom: .7rem; }
-  .history-head > span { display: grid; gap: .15rem; }
-  .history-head strong { font-size: .82rem; }
-  .history-clear { border: 0; color: var(--text-muted); background: transparent; cursor: pointer; font-size: .65rem; }
-  .history-list { display: grid; gap: .45rem; }
-  .history-item { display: grid; grid-template-columns: 44px 1fr; gap: .6rem; align-items: center; padding: .4rem; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); background: transparent; text-align: left; cursor: pointer; }
-  .history-item img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; }
-  .history-item span { display: grid; min-width: 0; }
-  .history-item strong, .history-item small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .history-item strong { font-size: .68rem; }
-  .history-item small { color: var(--text-muted); font-size: .6rem; }
-  .history-empty { color: var(--text-muted); font-size: .68rem; line-height: 1.6; }
-  @keyframes creator-pulse { 50% { opacity: .58; } }
+  :global(main.page-main) {
+    min-height: calc(100svh - var(--header-height) - 1px);
+  }
+
+  .creator-workspace {
+    height: calc(100svh - var(--header-height) - 1px);
+    min-height: 650px;
+    padding-block: 14px;
+  }
+
+  .creator-grid {
+    display: grid;
+    grid-template-columns: minmax(370px, 420px) minmax(0, 1fr);
+    gap: 14px;
+    height: 100%;
+  }
+
+  .creator-panel,
+  .preview-card {
+    min-height: 0;
+    border-radius: var(--radius-lg);
+  }
+
+  .creator-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+    overflow: auto;
+  }
+
+  .panel-heading,
+  .preview-heading,
+  .preview-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .panel-heading h1,
+  .preview-heading h2 {
+    margin: 0;
+  }
+
+  .panel-heading {
+    min-height: 42px;
+  }
+
+  .panel-heading h1 {
+    font-size: 1.45rem;
+    line-height: 1.1;
+  }
+
+  .segmented {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    width: 184px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+  }
+
+  .segmented button {
+    min-height: 34px;
+    border: 0;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    background: transparent;
+    cursor: pointer;
+    font-size: .78rem;
+    font-weight: 650;
+  }
+
+  .segmented button.is-active {
+    color: var(--text-primary);
+    background: var(--surface-strong);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .field-grid {
+    display: grid;
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto auto auto minmax(78px, 1fr);
+    grid-auto-flow: row dense;
+    gap: 11px 10px;
+  }
+
+  .field-wide {
+    grid-column: 1 / -1;
+  }
+
+  .field-grid.has-interpretation {
+    grid-template-rows: auto auto auto auto minmax(78px, 1fr);
+  }
+
+  .creator-field {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .description-field {
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .creator-field > span:first-child {
+    color: var(--text-secondary);
+    font-size: .68rem;
+    font-weight: 700;
+  }
+
+  .creator-field small {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .select-wrap {
+    position: relative;
+    display: block;
+  }
+
+  .select-wrap > svg {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    z-index: 1;
+    color: var(--text-muted);
+    pointer-events: none;
+    transform: translateY(-50%);
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    background: var(--surface-strong);
+  }
+
+  select {
+    height: 42px;
+    padding: 0 34px 0 11px;
+    overflow: hidden;
+    appearance: none;
+    cursor: pointer;
+    font-size: .75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  textarea {
+    height: 100%;
+    min-height: 78px;
+    padding: 10px 11px;
+    resize: none;
+    font-size: .75rem;
+    line-height: 1.5;
+  }
+
+  select:hover,
+  textarea:hover {
+    border-color: var(--border-strong);
+  }
+
+  .variant-fallback {
+    margin: -4px 0 0;
+    color: var(--text-muted);
+    font-size: .65rem;
+  }
+
+  .generate-button {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .generate-button:disabled {
+    cursor: wait;
+    opacity: .7;
+  }
+
+  .preview-card {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 10px;
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  .preview-heading {
+    min-height: 42px;
+    padding-inline: 4px;
+  }
+
+  .preview-heading h2 {
+    font-family: var(--font-sans);
+    font-size: .93rem;
+  }
+
+  .preview-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .3rem;
+    margin: 0;
+    color: var(--text-muted);
+    font-size: .69rem;
+    text-align: right;
+  }
+
+  .preview-meta strong {
+    color: inherit;
+    font-size: inherit;
+    font-weight: 650;
+  }
+
+  .preview-stage {
+    display: grid;
+    min-height: 0;
+    place-items: center;
+    overflow: hidden;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    background:
+      radial-gradient(circle at 50% 25%, color-mix(in srgb, var(--hero-ambient) 60%, transparent), transparent 42%),
+      var(--surface-muted);
+  }
+
+  .preview-stage[data-device='mobile'] .preview-frame {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    aspect-ratio: 9 / 16;
+  }
+
+  .preview-stage[data-device='desktop'] .preview-frame {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .preview-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: var(--shadow-md);
+    transition: width .25s ease, height .25s ease, aspect-ratio .25s ease;
+  }
+
+  .preview-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .preview-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(4, 10, 17, .62), transparent 42%);
+    pointer-events: none;
+  }
+
+  .mobile-safe-zone {
+    position: absolute;
+    inset: 7% 7% auto;
+    height: 15%;
+    border: 1px dashed rgba(255, 255, 255, .38);
+    border-radius: 10px;
+    pointer-events: none;
+  }
+
+  .preview-status {
+    position: absolute;
+    right: 14px;
+    bottom: 13px;
+    left: 14px;
+    display: grid;
+    gap: 2px;
+    color: white;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, .55);
+  }
+
+  .preview-status strong {
+    font-size: .78rem;
+  }
+
+  .preview-status p {
+    margin: 0;
+    font-size: .62rem;
+    opacity: .78;
+  }
+
+  .preview-status.is-generating {
+    animation: creator-pulse 1.6s ease-in-out infinite;
+  }
+
+  .preview-footer {
+    min-height: 36px;
+    justify-content: flex-end;
+    padding-inline: 4px;
+  }
+
+  .preview-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .preview-actions .btn {
+    min-height: 36px;
+    padding: .45rem .72rem;
+    font-size: .68rem;
+  }
+
+  .refine-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 4px 2px;
+    border-top: 1px solid var(--border);
+  }
+
+  .refine-card > span {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-size: .65rem;
+  }
+
+  .refine-options {
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .refine-options::-webkit-scrollbar {
+    display: none;
+  }
+
+  .refine-option {
+    flex: 0 0 auto;
+    padding: .36rem .52rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-secondary);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: .64rem;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @keyframes creator-pulse {
+    50% { opacity: .58; }
+  }
+
   @media (max-width: 980px) {
-    .creator-hero-inner { display: grid; }
-    .recipe-principle { justify-content: flex-start; }
-    .creator-grid { grid-template-columns: 1fr; }
-    .preview-column { position: static; }
-    .preview-stage { min-height: 330px; }
+    .creator-workspace {
+      height: auto;
+      min-height: 0;
+      padding-block: 16px 28px;
+    }
+
+    .creator-grid {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+
+    .creator-panel {
+      overflow: visible;
+    }
+
+    .preview-card {
+      min-height: 680px;
+    }
   }
+
   @media (max-width: 640px) {
-    .creator-hero { padding-top: 1.5rem; }
-    .creator-hero h1 { font-size: 2.15rem; }
-    .recipe-principle { display: none; }
-    .creator-panel { padding: .85rem; }
-    .entity-options, .interpretation-options, .variant-options, .output-options { grid-template-columns: 1fr; }
-    .style-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .recipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .preview-stage[data-device='mobile'] .preview-frame { width: min(62%, 270px); }
-    .preview-stage { min-height: 360px; }
-    .preview-actions { grid-template-columns: repeat(2, 1fr); }
+    .creator-grid {
+      width: min(100% - 24px, var(--container-wide));
+    }
+
+    .creator-panel,
+    .preview-card {
+      padding: 14px;
+    }
+
+    .field-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: none;
+    }
+
+    .field-wide {
+      grid-column: auto;
+    }
+
+    .preview-card {
+      min-height: 600px;
+    }
+
+    .preview-heading {
+      align-items: flex-start;
+    }
+
+    .preview-heading p {
+      max-width: 48%;
+    }
+
+    .preview-stage[data-device='mobile'] .preview-frame {
+      height: auto;
+      width: min(78%, 280px);
+    }
+
+    .preview-footer {
+      align-items: flex-end;
+    }
+
+    .preview-actions {
+      flex-wrap: wrap;
+    }
   }
+
   @media (prefers-reduced-motion: reduce) {
-    .preview-frame { transition: none; }
-    .preview-status.is-generating { animation: none; }
+    .preview-frame {
+      transition: none;
+    }
+
+    .preview-status.is-generating {
+      animation: none;
+    }
   }
 </style>

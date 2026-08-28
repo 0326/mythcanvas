@@ -1,9 +1,10 @@
 ---
+import { X, ChevronLeft, ChevronRight, Download, Sparkles } from '@lucide/astro';
 import type { Character, ImageAsset } from '../../lib/content/types';
-import type { CharacterStyleId } from '../../lib/content/character-styles';
+import { getCharacterStyle, type CharacterStyleId } from '../../lib/content/character-styles';
 
 export type WallpaperDevice = 'pc' | 'mobile';
-export type DeviceFilter = 'all' | WallpaperDevice;
+export type StyleFilter = CharacterStyleId | 'all';
 
 export type ArtworkCard = {
   id: string;
@@ -14,14 +15,15 @@ export type ArtworkCard = {
   styleNameEn: string;
   image: ImageAsset;
   href: string;
+  recreateHref: string;
 };
 
 interface Props {
   character: Character;
   artworkCards: ArtworkCard[];
-  selectedStyle: CharacterStyleId;
+  selectedStyle: StyleFilter;
   selectedStyleName: string;
-  selectedDevice: DeviceFilter;
+  selectedDevice: WallpaperDevice;
   selectedInterpretationSlug?: string;
   selectedVariantSlug: string;
   emptyCreateHref: string;
@@ -38,45 +40,73 @@ const {
   emptyCreateHref,
 } = Astro.props;
 
-const cardMatchesDevice = (card: ArtworkCard, device: DeviceFilter) =>
-  device === 'all' || card.device === device;
+const cardMatchesStyle = (card: ArtworkCard, style: StyleFilter) =>
+  style === 'all' || card.styleId === style;
 
 const hasVisible = artworkCards.some(
-  (card) => card.styleId === selectedStyle && cardMatchesDevice(card, selectedDevice),
+  (card) => cardMatchesStyle(card, selectedStyle) && card.device === selectedDevice,
 );
 
-const deviceHref = (device: DeviceFilter) => {
+const styleOptionIds: CharacterStyleId[] = [];
+for (const card of artworkCards) {
+  if (!styleOptionIds.includes(card.styleId)) styleOptionIds.push(card.styleId);
+}
+const styleOptions = [
+  { id: 'all' as const, name: '全部', description: '所有艺术风格' },
+  ...styleOptionIds.map((id) => {
+    const def = getCharacterStyle(id);
+    return { id, name: def.name, description: def.description };
+  }),
+];
+
+const filterHref = (style: StyleFilter, device: WallpaperDevice) => {
   const params = new URLSearchParams();
   if (selectedInterpretationSlug) params.set('interpretation', selectedInterpretationSlug);
   if (selectedVariantSlug) params.set('variant', selectedVariantSlug);
-  if (selectedStyle && selectedStyle !== 'canonical') params.set('style', selectedStyle);
-  if (device !== 'all') params.set('device', device);
+  if (style && style !== 'all') params.set('style', style);
+  if (device !== 'pc') params.set('device', device);
   const query = params.toString();
   return `/character/${character.slug}/${query ? `?${query}` : ''}#wallpapers`;
 };
 
-const deviceLabels: Record<DeviceFilter, string> = {
-  all: '全部',
+const deviceLabels: Record<WallpaperDevice, string> = {
   pc: 'PC',
   mobile: 'Mobile',
 };
 ---
 
-<div class="wallpaper-device-bar">
-  <div class="filter-group" role="group" aria-label="选择壁纸设备">
-    <span class="filter-label">设备</span>
-    <div class="filter-options">
-      {(['all', 'pc', 'mobile'] as const).map((device) => (
-        <a
-          class:list={{ 'filter-option': true, 'is-active': device === selectedDevice }}
-          href={deviceHref(device)}
-          data-device-filter={device}
-          aria-current={device === selectedDevice ? 'true' : 'false'}
-        >{deviceLabels[device]}</a>
-      ))}
+{artworkCards.length > 0 && (
+  <div class="wallpaper-filter-bar">
+    <div class="filter-group" role="group" aria-label="筛选艺术风格">
+      <span class="filter-label">风格</span>
+      <div class="filter-options">
+        {styleOptions.map((opt) => (
+          <a
+            class:list={{ 'filter-option': true, 'is-active': opt.id === selectedStyle }}
+            href={filterHref(opt.id, selectedDevice)}
+            data-style-filter={opt.id}
+            data-style-label={opt.name}
+            data-style-description={opt.description}
+            aria-current={opt.id === selectedStyle ? 'true' : 'false'}
+          >{opt.name}</a>
+        ))}
+      </div>
+    </div>
+    <div class="filter-group filter-group-device" role="group" aria-label="选择壁纸设备">
+      <span class="filter-label">设备</span>
+      <div class="filter-options">
+        {(['pc', 'mobile'] as const).map((device) => (
+          <a
+            class:list={{ 'filter-option': true, 'is-active': device === selectedDevice }}
+            href={filterHref(selectedStyle, device)}
+            data-device-filter={device}
+            aria-current={device === selectedDevice ? 'true' : 'false'}
+          >{deviceLabels[device]}</a>
+        ))}
+      </div>
     </div>
   </div>
-</div>
+)}
 
 {artworkCards.length > 0 ? (
   <div class="wallpaper-grid" data-wallpaper-grid data-active-device={selectedDevice}>
@@ -86,17 +116,28 @@ const deviceLabels: Record<DeviceFilter, string> = {
         data-wallpaper-card
         data-style={card.styleId}
         data-device={card.device}
-        hidden={card.styleId !== selectedStyle || !cardMatchesDevice(card, selectedDevice)}
+        data-artwork-id={card.id}
+        data-artwork-title={card.title}
+        data-artwork-style={card.styleName}
+        data-artwork-device={card.device}
+        data-artwork-width={card.image.width}
+        data-artwork-height={card.image.height}
+        data-artwork-src={card.image.src}
+        data-artwork-alt={card.image.alt}
+        data-artwork-recreate={card.recreateHref}
+        hidden={!cardMatchesStyle(card, selectedStyle) || card.device !== selectedDevice}
       >
-        <a href={card.href} aria-label={`${card.title} · ${card.styleName}`}>
+        <a
+          href={card.href}
+          class="wallpaper-trigger"
+          data-wallpaper-trigger
+          aria-label={`${card.title} · ${card.styleName} · 预览壁纸`}
+        >
           <div class="wallpaper-visual">
             <img src={card.image.src} alt={card.image.alt} width={card.image.width} height={card.image.height} loading="lazy" decoding="async" />
             <span class="wallpaper-shade" aria-hidden="true"></span>
             <span class="wallpaper-style-badge">{card.styleName}</span>
             <span class="wallpaper-open">查看壁纸 ↗</span>
-          </div>
-          <div class="wallpaper-copy">
-            <div><h3>{card.title}</h3><p>{card.device === 'pc' ? 'PC 壁纸' : 'Mobile 壁纸'} · {card.styleNameEn}</p></div>
           </div>
         </a>
       </article>
@@ -109,9 +150,157 @@ const deviceLabels: Record<DeviceFilter, string> = {
   <a class="btn btn-outline wallpaper-empty-cta" href={emptyCreateHref} data-empty-create>生成第一张</a>
 </div>
 
+<div class="wallpaper-lightbox" data-wallpaper-lightbox role="dialog" aria-modal="true" aria-label="{character.name} 壁纸预览" hidden>
+  <button class="lightbox-icon-btn lightbox-close" type="button" data-lightbox-close aria-label="关闭预览">
+    <X size={20} strokeWidth={1.8} aria-hidden="true" />
+  </button>
+  <button class="lightbox-icon-btn lightbox-nav lightbox-prev" type="button" data-lightbox-prev aria-label="上一张">
+    <ChevronLeft size={24} strokeWidth={1.8} aria-hidden="true" />
+  </button>
+  <button class="lightbox-icon-btn lightbox-nav lightbox-next" type="button" data-lightbox-next aria-label="下一张">
+    <ChevronRight size={24} strokeWidth={1.8} aria-hidden="true" />
+  </button>
+  <div class="lightbox-stage" data-lightbox-stage>
+    <img class="lightbox-image" data-lightbox-image alt="" />
+  </div>
+  <div class="lightbox-info">
+    <div class="lightbox-meta">
+      <h3 data-lightbox-title></h3>
+      <p class="lightbox-sub">
+        <span data-lightbox-style></span><span class="dot">·</span><span data-lightbox-device></span><span class="dot">·</span><span data-lightbox-size></span>
+      </p>
+    </div>
+    <div class="lightbox-actions">
+      <a class="btn btn-primary lightbox-download" data-lightbox-download href="#" download>
+        <Download size={16} strokeWidth={1.9} aria-hidden="true" /> 下载原图
+      </a>
+      <a class="btn btn-secondary lightbox-recreate" data-lightbox-recreate href="/create/">
+        <Sparkles size={16} strokeWidth={1.9} aria-hidden="true" /> AI 重绘
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const grid = document.querySelector('[data-wallpaper-grid]');
+  const lightbox = document.querySelector('[data-wallpaper-lightbox]');
+  if (grid && lightbox) {
+    const imgEl = lightbox.querySelector('[data-lightbox-image]') as HTMLImageElement | null;
+    const titleEl = lightbox.querySelector('[data-lightbox-title]');
+    const styleEl = lightbox.querySelector('[data-lightbox-style]');
+    const deviceEl = lightbox.querySelector('[data-lightbox-device]');
+    const sizeEl = lightbox.querySelector('[data-lightbox-size]');
+    const downloadEl = lightbox.querySelector('[data-lightbox-download]') as HTMLAnchorElement | null;
+    const recreateEl = lightbox.querySelector('[data-lightbox-recreate]') as HTMLAnchorElement | null;
+    const closeEl = lightbox.querySelector('[data-lightbox-close]');
+    const prevEl = lightbox.querySelector('[data-lightbox-prev]');
+    const nextEl = lightbox.querySelector('[data-lightbox-next]');
+    const stageEl = lightbox.querySelector('[data-lightbox-stage]');
+
+    let currentId: string | null = null;
+    let lastFocused: HTMLElement | null = null;
+    let prevOverflow = '';
+    let closing = false;
+
+    const visibleCards = (): HTMLElement[] =>
+      Array.from(grid!.querySelectorAll<HTMLElement>('[data-wallpaper-card]:not([hidden])'));
+
+    const deviceLabel = (d: string) => (d === 'mobile' ? 'Mobile 壁纸' : 'PC 壁纸');
+
+    const render = (card: HTMLElement) => {
+      const ds = card.dataset;
+      currentId = ds.artworkId ?? null;
+      if (imgEl) {
+        imgEl.src = ds.artworkSrc ?? '';
+        imgEl.alt = ds.artworkAlt || ds.artworkTitle || '';
+      }
+      if (titleEl) titleEl.textContent = ds.artworkTitle ?? '';
+      if (styleEl) styleEl.textContent = ds.artworkStyle ?? '';
+      if (deviceEl) deviceEl.textContent = deviceLabel(ds.artworkDevice ?? 'pc');
+      if (sizeEl) sizeEl.textContent = `${ds.artworkWidth} × ${ds.artworkHeight}`;
+      if (downloadEl) downloadEl.href = ds.artworkSrc ?? '';
+      if (recreateEl) recreateEl.href = ds.artworkRecreate || '/create/';
+    };
+
+    const open = (card: HTMLElement, trigger: HTMLElement) => {
+      lastFocused = trigger;
+      prevOverflow = document.body.style.overflow;
+      render(card);
+      closing = false;
+      lightbox!.hidden = false;
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => lightbox!.classList.add('is-open'));
+      closeEl?.focus();
+      document.addEventListener('keydown', onKey);
+    };
+
+    const close = () => {
+      if (closing) return;
+      closing = true;
+      lightbox!.classList.remove('is-open');
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKey);
+      const cleanup = () => {
+        lightbox!.hidden = true;
+        if (imgEl) imgEl.src = '';
+        if (lastFocused && document.contains(lastFocused)) lastFocused.focus();
+        currentId = null;
+      };
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        cleanup();
+      } else {
+        lightbox!.addEventListener('transitionend', function done() {
+          lightbox!.removeEventListener('transitionend', done);
+          cleanup();
+        });
+        window.setTimeout(cleanup, 450);
+      }
+    };
+
+    const nav = (dir: number) => {
+      const cards = visibleCards();
+      const idx = cards.findIndex((c) => c.dataset.artworkId === currentId);
+      if (idx < 0 || cards.length === 0) return;
+      const nextIdx = (idx + dir + cards.length) % cards.length;
+      render(cards[nextIdx]);
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') nav(-1);
+      else if (e.key === 'ArrowRight') nav(1);
+    };
+
+    grid!.querySelectorAll('[data-wallpaper-trigger]').forEach((node) => {
+      const a = node as HTMLAnchorElement;
+      a.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        const card = a.closest<HTMLElement>('[data-wallpaper-card]');
+        if (card) open(card, a);
+      });
+    });
+
+    closeEl?.addEventListener('click', close);
+    prevEl?.addEventListener('click', () => nav(-1));
+    nextEl?.addEventListener('click', () => nav(1));
+    lightbox!.addEventListener('click', (e) => {
+      if (e.target === lightbox || e.target === stageEl) close();
+    });
+  }
+</script>
+
 <style>
-  .wallpaper-device-bar { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem; }
+  .wallpaper-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
   .filter-group { display: flex; min-width: 0; align-items: center; gap: 0.8rem; }
+  .filter-group-device { margin-left: auto; }
   .filter-label { color: var(--text-muted); font-size: 0.76rem; white-space: nowrap; }
   .filter-options { display: flex; flex-wrap: wrap; gap: 0.35rem; }
   .filter-option {
@@ -126,11 +315,10 @@ const deviceLabels: Record<DeviceFilter, string> = {
   }
 
   .wallpaper-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.8rem 1.35rem; margin-top: 1.5rem; }
-  .wallpaper-grid[data-active-device="mobile"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .wallpaper-grid[data-active-device="all"] { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .wallpaper-grid[data-active-device="mobile"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .wallpaper-card[hidden] { display: none; }
   .wallpaper-card { min-width: 0; }
-  .wallpaper-card a { display: block; color: inherit; }
+  .wallpaper-trigger { display: block; color: inherit; cursor: pointer; }
   .wallpaper-visual {
     position: relative; aspect-ratio: 16 / 9; overflow: hidden;
     border: 1px solid var(--border); border-radius: var(--radius-md);
@@ -154,22 +342,80 @@ const deviceLabels: Record<DeviceFilter, string> = {
     opacity: 0; transition: opacity var(--transition-fast);
   }
   .wallpaper-card:hover .wallpaper-open, .wallpaper-card:focus-within .wallpaper-open { opacity: 1; }
-  .wallpaper-copy { display: flex; align-items: start; justify-content: space-between; gap: .7rem; padding: .7rem .1rem 0; }
-  .wallpaper-copy h3 { margin: 0; font-size: .92rem; }
-  .wallpaper-copy p { margin: .22rem 0 0; color: var(--text-muted); font-size: .72rem; }
 
   .wallpaper-empty[hidden] { display: none; }
   .wallpaper-empty { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin: 3rem 0; color: var(--text-secondary); text-align: center; }
   .wallpaper-empty-title { margin: 0; }
   .wallpaper-empty-cta { margin-top: .4rem; }
 
+  .wallpaper-lightbox[hidden] { display: none; }
+  .wallpaper-lightbox {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; flex-direction: column;
+    background: rgba(6, 10, 18, 0.94);
+    -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+    opacity: 0; transition: opacity 0.28s ease;
+  }
+  .wallpaper-lightbox.is-open { opacity: 1; }
+
+  .lightbox-stage {
+    flex: 1; min-height: 0; display: grid; place-items: center;
+    padding: clamp(4rem, 7vh, 5rem) clamp(4rem, 6vw, 6rem) clamp(1rem, 3vh, 2rem);
+    overflow: hidden;
+  }
+  .lightbox-image {
+    max-width: 100%; max-height: 100%;
+    width: auto; height: auto;
+    object-fit: contain; border-radius: var(--radius-md);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  }
+
+  .lightbox-icon-btn {
+    display: grid; place-items: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.08); color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  .lightbox-icon-btn:hover, .lightbox-icon-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.4); outline: none;
+  }
+  .lightbox-close { position: absolute; top: 1rem; right: 1rem; z-index: 2; }
+  .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 48px; height: 48px; }
+  .lightbox-prev { left: clamp(0.5rem, 2vw, 1.5rem); }
+  .lightbox-next { right: clamp(0.5rem, 2vw, 1.5rem); }
+  .lightbox-nav:hover { transform: translateY(-50%) scale(1.06); }
+
+  .lightbox-info {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 1rem clamp(1.25rem, 4vw, 2.5rem);
+    background: rgba(6, 10, 18, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+  .lightbox-meta { min-width: 0; }
+  .lightbox-meta h3 { margin: 0; font-size: 1.05rem; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lightbox-sub { margin: 0.3rem 0 0; color: rgba(255, 255, 255, 0.66); font-size: 0.76rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+  .lightbox-sub .dot { opacity: 0.5; }
+  .lightbox-actions { display: flex; gap: 0.6rem; flex-shrink: 0; }
+  .lightbox-actions .btn { display: inline-flex; align-items: center; gap: 0.4rem; }
+
   @media (max-width: 768px) {
+    .wallpaper-filter-bar { justify-content: flex-start; }
+    .filter-group-device { margin-left: 0; }
     .wallpaper-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .wallpaper-grid[data-active-device="mobile"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .wallpaper-grid[data-active-device="all"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .lightbox-nav { width: 40px; height: 40px; }
+    .lightbox-info { flex-direction: column; align-items: stretch; gap: 0.8rem; }
+    .lightbox-actions { justify-content: flex-end; }
   }
   @media (max-width: 480px) {
     .wallpaper-grid { grid-template-columns: 1fr; }
     .wallpaper-grid[data-active-device="mobile"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wallpaper-lightbox { transition: none; }
+    .lightbox-icon-btn { transition: none; }
   }
 </style>

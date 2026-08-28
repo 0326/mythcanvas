@@ -6,10 +6,37 @@ import type { EntityListQuery } from './types';
 type CharacterRow = Record<string, unknown>;
 
 const SELECT_COLUMNS = `
-  id, mythology_id, slug, name, name_en, role, summary, symbols_json, canonical_design_json,
+  id, mythology_id, slug, name, name_en, role, click_count, summary, symbols_json, canonical_design_json,
   portrait_src, portrait_alt, portrait_width, portrait_height, character_type, tradition_tags_json,
   source_periods_json, source_refs_json, editorial_collections_json, canonicality
 `;
+
+function isMissingClickCountColumnError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /no such column[^\n]*click_count/i.test(message);
+}
+
+function withoutClickCountColumn(sql: string): string {
+  return sql.replace(/\b(?:c\.)?click_count,\s*/g, '');
+}
+
+async function getCharacterRows(db: D1Database, sql: string, ...bindings: unknown[]) {
+  try {
+    return await db.prepare(sql).bind(...bindings).all();
+  } catch (error) {
+    if (!isMissingClickCountColumnError(error)) throw error;
+    return db.prepare(withoutClickCountColumn(sql)).bind(...bindings).all();
+  }
+}
+
+async function getCharacterRow(db: D1Database, sql: string, ...bindings: unknown[]) {
+  try {
+    return await db.prepare(sql).bind(...bindings).first();
+  } catch (error) {
+    if (!isMissingClickCountColumnError(error)) throw error;
+    return db.prepare(withoutClickCountColumn(sql)).bind(...bindings).first();
+  }
+}
 
 export function mapCharacterRow(row: CharacterRow, worldIds: readonly string[] = []): Character {
   return {
@@ -20,6 +47,7 @@ export function mapCharacterRow(row: CharacterRow, worldIds: readonly string[] =
     name: String(row.name),
     nameEn: String(row.name_en),
     role: String(row.role),
+    clickCount: optionalNumber(row.click_count) ?? 0,
     summary: String(row.summary),
     symbols: parseStringArray(row.symbols_json),
     canonicalDesign: parseJson(row.canonical_design_json, { anchors: [] }),
@@ -70,17 +98,18 @@ export async function getCharacters(db: D1Database | undefined, query: EntityLis
     return seedCharacters.slice(offset, offset + limit);
   }
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
-  const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM characters${where} ORDER BY name`).all();
+  const rows = await getCharacterRows(db, `SELECT ${SELECT_COLUMNS} FROM characters${where} ORDER BY name`);
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
   return rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
 }
 
 export async function getCharacterBySlug(db: D1Database | undefined, slug: string): Promise<Character | undefined> {
   if (!db) return seedCharacters.find((item) => item.slug === slug);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM characters WHERE slug = ? AND publish_status = 'published'`)
-    .bind(slug)
-    .first();
+  const row = await getCharacterRow(
+    db,
+    `SELECT ${SELECT_COLUMNS} FROM characters WHERE slug = ? AND publish_status = 'published'`,
+    slug,
+  );
   if (!row) return undefined;
   const worldMap = await loadWorldIds(db, [String(row.id)]);
   return mapCharacterRow(row, worldMap.get(String(row.id)) ?? []);
@@ -88,10 +117,11 @@ export async function getCharacterBySlug(db: D1Database | undefined, slug: strin
 
 export async function getCharacterById(db: D1Database | undefined, id: string): Promise<Character | undefined> {
   if (!db) return seedCharacters.find((item) => item.id === id);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM characters WHERE id = ? AND publish_status = 'published'`)
-    .bind(id)
-    .first();
+  const row = await getCharacterRow(
+    db,
+    `SELECT ${SELECT_COLUMNS} FROM characters WHERE id = ? AND publish_status = 'published'`,
+    id,
+  );
   if (!row) return undefined;
   const worldMap = await loadWorldIds(db, [String(row.id)]);
   return mapCharacterRow(row, worldMap.get(String(row.id)) ?? []);
@@ -104,10 +134,13 @@ export async function getCharactersForMythology(
 ): Promise<Character[]> {
   if (!db) return seedCharacters.filter((item) => item.mythologyId === mythologyId);
   const { limit, offset } = pageClause(query);
-  const rows = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM characters WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name LIMIT ? OFFSET ?`)
-    .bind(mythologyId, limit, offset)
-    .all();
+  const rows = await getCharacterRows(
+    db,
+    `SELECT ${SELECT_COLUMNS} FROM characters WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name LIMIT ? OFFSET ?`,
+    mythologyId,
+    limit,
+    offset,
+  );
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
   return rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
 }
@@ -119,9 +152,8 @@ export async function getCharactersForWorld(
 ): Promise<Character[]> {
   if (!db) return seedCharacters.filter((item) => item.worldIds.includes(worldId));
   const { limit, offset } = pageClause(query);
-  const rows = await db
-    .prepare(`
-      SELECT c.id, c.mythology_id, c.slug, c.name, c.name_en, c.role, c.summary,
+  const rows = await getCharacterRows(db, `
+      SELECT c.id, c.mythology_id, c.slug, c.name, c.name_en, c.role, c.click_count, c.summary,
              c.symbols_json, c.canonical_design_json, c.portrait_src, c.portrait_alt,
              c.portrait_width, c.portrait_height, c.character_type, c.tradition_tags_json,
              c.source_periods_json, c.source_refs_json, c.editorial_collections_json, c.canonicality
@@ -129,9 +161,7 @@ export async function getCharactersForWorld(
       JOIN character_worlds cr ON cr.character_id = c.id
       WHERE cr.world_id = ? AND c.publish_status = 'published'
       ORDER BY c.name LIMIT ? OFFSET ?
-    `)
-    .bind(worldId, limit, offset)
-    .all();
+    `, worldId, limit, offset);
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
   return rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
 }

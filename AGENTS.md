@@ -176,6 +176,12 @@ Respect `prefers-color-scheme` for first visit; persist explicit user selection.
 
 ### Shared
 
+### Current character-list scope
+
+- The current Character list redesign is desktop-only and is judged at desktop viewports.
+- Do not add or adjust mobile-specific layout behavior for this page unless the user explicitly requests a mobile pass.
+- Existing mobile styles may remain untouched; mobile is outside the scope of the current Character list iteration.
+
 ### Icon system
 
 - Functional UI icons MUST use `@lucide/astro` with named imports.

@@ -1,4 +1,5 @@
 ---
+import { Flame } from '@lucide/astro';
 import type { Character, Mythology } from '../../lib/content/types';
 
 interface Props {
@@ -8,10 +9,11 @@ interface Props {
 
 const { character, mythology } = Astro.props;
 const primarySymbol = character.symbols[0] ?? '✦';
+const clickCount = Math.max(0, Math.floor(character.clickCount ?? 0));
 ---
 
-<article class="character-card surface">
-  <a href={`/character/${character.slug}/`} aria-label={`${character.name} · ${character.nameEn}`}>
+<article class="character-card surface" data-character-card data-character-id={character.id}>
+  <a href={`/character/${character.slug}/`} aria-label={`${character.name} · 进入角色`}>
     <div class="portrait">
       {character.portrait ? (
         <img
@@ -28,21 +30,37 @@ const primarySymbol = character.symbols[0] ?? '✦';
           <span>{primarySymbol}</span>
         </div>
       )}
-      <span class="enter-hint" aria-hidden="true">进入角色 →</span>
-    </div>
-    <div class="copy">
-      {mythology && <span class="mythology">{mythology.name}</span>}
-      <h3>{character.name}</h3>
-      <p class="en">{character.nameEn}</p>
-      <span class="role">{character.role}</span>
+      <span class="portrait-shade" aria-hidden="true"></span>
+      {mythology && <span class="badge badge-mythology">{mythology.name}</span>}
+      <span class="badge badge-heat" aria-label={`热度 ${clickCount} 次点击`}>
+        <Flame size={14} strokeWidth={1.8} aria-hidden="true" />
+        <span>{clickCount}</span>
+      </span>
+      <div class="copy">
+        <h3>{character.name}</h3>
+        <span class="role">{character.role}</span>
+      </div>
     </div>
   </a>
 </article>
 
+<script>
+  import { trackClick } from '../../lib/analytics/track';
+
+  document.querySelectorAll<HTMLElement>('[data-character-card]').forEach((card) => {
+    card.addEventListener('click', () => {
+      const characterId = card.dataset.characterId;
+      if (characterId) trackClick('character_click', characterId);
+    });
+  });
+</script>
+
 <style>
   .character-card {
+    position: relative;
     border-radius: var(--radius-lg);
     overflow: hidden;
+    aspect-ratio: 9 / 16;
     transition: transform var(--transition-base), border-color var(--transition-fast), box-shadow var(--transition-base);
   }
 
@@ -53,15 +71,16 @@ const primarySymbol = character.symbols[0] ?? '✦';
   }
 
   a {
-    display: flex;
-    flex-direction: column;
+    position: absolute;
+    inset: 0;
+    display: block;
     color: inherit;
   }
 
   .portrait {
-    position: relative;
+    position: absolute;
+    inset: 0;
     display: block;
-    aspect-ratio: 4 / 5;
     overflow: hidden;
     background: var(--surface-muted);
   }
@@ -72,6 +91,18 @@ const primarySymbol = character.symbols[0] ?? '✦';
     object-fit: cover;
     object-position: center top;
     transition: transform var(--transition-slow);
+  }
+
+  .portrait-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--card-overlay) 12%, transparent) 0%,
+      transparent 48%,
+      var(--card-overlay) 100%
+    );
+    pointer-events: none;
   }
 
   .portrait-fallback {
@@ -105,19 +136,33 @@ const primarySymbol = character.symbols[0] ?? '✦';
     font-weight: 700;
   }
 
-  .enter-hint {
+  .badge {
     position: absolute;
-    right: 0.7rem;
-    bottom: 0.7rem;
-    padding: 0.3rem 0.6rem;
+    top: 0.75rem;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.7rem;
     border-radius: var(--radius-pill);
-    color: #fff;
-    background: rgba(5, 12, 20, 0.42);
+    background: rgba(0, 0, 0, 0.5);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
+    color: var(--moon-white);
     font-size: 0.72rem;
-    opacity: 0;
-    transform: translateY(4px);
-    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .badge-mythology {
+    left: 0.75rem;
+  }
+
+  .badge-heat {
+    right: 0.75rem;
+    font-variant-numeric: tabular-nums;
   }
 
   .character-card:hover .portrait img,
@@ -125,42 +170,37 @@ const primarySymbol = character.symbols[0] ?? '✦';
     transform: scale(1.035);
   }
 
-  .character-card:hover .enter-hint,
-  .character-card:focus-within .enter-hint {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
   .copy {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
-    padding: var(--space-4) var(--space-5) var(--space-5);
-  }
-
-  .mythology {
-    color: var(--accent-strong);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    color: var(--moon-white);
+    text-shadow: 0 1px 12px color-mix(in srgb, var(--bg-primary) 78%, transparent);
   }
 
   h3 {
-    margin: 0.15rem 0 0;
-    font-size: 1.4rem;
+    margin: 0;
+    color: var(--moon-white);
+    font-size: clamp(1.3rem, 1.5vw, 1.8rem);
     line-height: 1.2;
   }
 
-  .en {
-    margin: 0;
-    color: var(--text-muted);
-    font-family: Georgia, serif;
+  .role {
+    margin-top: 0.15rem;
+    color: color-mix(in srgb, var(--moon-white) 78%, transparent);
     font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .role {
-    margin-top: 0.35rem;
-    color: var(--text-secondary);
-    font-size: 0.78rem;
+  @media (prefers-reduced-motion: reduce) {
+    .portrait img {
+      transition: none;
+    }
   }
 </style>

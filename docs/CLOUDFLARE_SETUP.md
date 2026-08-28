@@ -287,7 +287,23 @@ Do not hand-maintain generated Worker runtime types as the long-term source of t
 
 ---
 
-## 7. Local verification
+## 7. Local development against production data
+
+The checked-in `wrangler.json` marks the `DB`, `ARTWORKS` and `SESSION` bindings as
+`remote: true`. Therefore `npm run dev` runs the Astro app locally while reading
+the deployed D1 database, R2 bucket and KV namespace. The `ASSETS` binding remains
+local because it serves the local Astro build output.
+
+This also means local requests can write production data through account,
+favorite, generation and submission endpoints. Use read-only pages for normal
+content work, and do not test mutating endpoints unless that is intentional.
+
+To temporarily force Wrangler bindings back to local simulations, use a local
+Astro run with `MYTHCANVAS_REMOTE_DATA=false npm run dev`. For a production
+build preview, use `npx wrangler dev --local`. Both override the configured
+remote bindings for that run.
+
+## 8. Local verification
 
 Default mock flow:
 

@@ -5,6 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import cloudflare from "@astrojs/cloudflare";
 
 const site = "https://mythcanvas.space";
+const remoteBindings = process.env.MYTHCANVAS_REMOTE_DATA !== "false";
 const sitemapExcludedPrefixes = ["/admin/", "/login/", "/password/", "/register/", "/my/", "/search/"];
 const mythologySitemapPages = ["chinese", "greek", "norse", "japanese", "egyptian"]
 	.map((slug) => new URL(`/mythology/${slug}/`, site).toString());
@@ -25,6 +26,7 @@ export default defineConfig({
 	adapter: cloudflare({
 		platformProxy: {
 			enabled: true,
+			remoteBindings,
 		},
 	}),
 });

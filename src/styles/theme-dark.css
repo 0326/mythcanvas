@@ -37,4 +37,5 @@
   --header-bg: rgba(8, 16, 26, 0.9);
   --hero-overlay: linear-gradient(90deg, rgba(8, 19, 31, 0.95) 0%, rgba(8, 19, 31, 0.62) 42%, rgba(8, 19, 31, 0.08) 74%);
   --hero-ambient: rgba(117, 158, 211, 0.18);
+  --card-overlay: rgba(2, 9, 17, 0.92);
 }

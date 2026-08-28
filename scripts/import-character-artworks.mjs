@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const DB_NAME = 'mythcanvas-db';
 const R2_BUCKET = 'mythcanvas-artworks';
@@ -71,7 +72,7 @@ async function main() {
 
   console.log('Uploading to R2...');
   for (const item of candidates) {
-    uploadR2(item, modeFlag);
+    await uploadR2(item, modeFlag);
     console.log(`  uploaded ${item.r2Key}`);
   }
 
@@ -219,19 +220,33 @@ function d1Query(command, modeFlag) {
   return rows;
 }
 
-function uploadR2(item, modeFlag) {
-  runWrangler([
-    'r2', 'object', 'put', `${R2_BUCKET}/${item.r2Key}`,
-    '--file', item.absoluteFile,
-    '--content-type', item.mimeType,
-    '--cache-control', 'public, max-age=31536000, immutable',
-    modeFlag,
-    '--force',
-  ]);
+async function uploadR2(item, modeFlag) {
+  const maxAttempts = 4;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      runWrangler([
+        'r2', 'object', 'put', `${R2_BUCKET}/${item.r2Key}`,
+        '--file', item.absoluteFile,
+        '--content-type', item.mimeType,
+        '--cache-control', 'public, max-age=31536000, immutable',
+        modeFlag,
+        '--force',
+      ]);
+      return;
+    } catch (error) {
+      if (attempt === maxAttempts) throw error;
+      const waitMs = attempt * 2000;
+      console.warn(`  upload retry ${attempt}/${maxAttempts - 1} for ${item.filename} after ${waitMs}ms`);
+      await delay(waitMs);
+    }
+  }
 }
 
 function buildImportSql(candidates, characterMap, styleMap) {
-  const statements = ['PRAGMA foreign_keys = ON;', 'BEGIN TRANSACTION;'];
+  // Wrangler's remote `d1 execute --file` rejects explicit BEGIN/COMMIT
+  // statements. Keep the statements idempotent so a retry safely converges
+  // after the preceding R2 uploads have completed.
+  const statements = ['PRAGMA foreign_keys = ON;'];
 
   for (const item of candidates) {
     const character = characterMap.get(item.characterSlug);
@@ -253,7 +268,7 @@ function buildImportSql(candidates, characterMap, styleMap) {
 
     statements.push(`
 INSERT INTO artworks (
-  id, slug, title, type, mythology_id, realm_id, style_id, mood_ids_json,
+  id, slug, title, type, mythology_id, world_id, style_id, mood_ids_json,
   asset_key, asset_mime, width, height, alt_text, source_type, license, creator,
   prompt_meta_json, review_status, publish_status, updated_at
 ) VALUES (
@@ -331,7 +346,6 @@ ON CONFLICT(id) DO UPDATE SET
     }
   }
 
-  statements.push('COMMIT;');
   return statements.join('\n');
 }
 
@@ -341,7 +355,21 @@ function executeSqlFile(sql, modeFlag) {
   const tempFile = path.join(tempDir, `artwork-import-${process.pid}-${Date.now()}.sql`);
   fs.writeFileSync(tempFile, sql, 'utf8');
   try {
-    runWrangler(['d1', 'execute', DB_NAME, modeFlag, '--file', tempFile, '--yes']);
+    const maxAttempts = 4;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        runWrangler(['d1', 'execute', DB_NAME, modeFlag, '--file', tempFile, '--yes']);
+        return;
+      } catch (error) {
+        if (attempt === maxAttempts) throw error;
+        const waitMs = attempt * 2000;
+        console.warn(`  D1 import retry ${attempt}/${maxAttempts - 1} after ${waitMs}ms`);
+        // D1 writes are idempotent upserts, so a retry is safe even when the
+        // request failed after the remote service accepted the file.
+        const wait = new Int32Array(new SharedArrayBuffer(4));
+        Atomics.wait(wait, 0, 0, waitMs);
+      }
+    }
   } finally {
     fs.rmSync(tempFile, { force: true });
   }

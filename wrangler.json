@@ -15,19 +15,22 @@
 			"binding": "DB",
 			"database_name": "mythcanvas-db",
 			"database_id": "b6e7fe36-755c-4ec7-a768-855af0a583d7",
-			"migrations_dir": "migrations"
+			"migrations_dir": "migrations",
+			"remote": true
 		}
 	],
 	"r2_buckets": [
 		{
 			"binding": "ARTWORKS",
-			"bucket_name": "mythcanvas-artworks"
+			"bucket_name": "mythcanvas-artworks",
+			"remote": true
 		}
 	],
 	"kv_namespaces": [
 		{
 			"binding": "SESSION",
-			"id": "493f439abeef47b6827f479061d20f6f"
+			"id": "493f439abeef47b6827f479061d20f6f",
+			"remote": true
 		}
 	],
 	"observability": {
