@@ -8,6 +8,8 @@ import {
 
 export const prerender = false;
 
+const PAGE_SIZE = 1000;
+
 const escapeXml = (value: string) =>
   value
     .replaceAll('&', '&amp;')
@@ -21,6 +23,15 @@ const absolute = (path: string, site: URL) => new URL(path, site).toString();
 const imageEntry = (pageUrl: string, imageUrl: string, title: string) =>
   `<url><loc>${escapeXml(pageUrl)}</loc><image:image><image:loc>${escapeXml(imageUrl)}</image:loc><image:title>${escapeXml(title)}</image:title></image:image></url>`;
 
+async function loadAllPaged<T>(fetchPage: (offset: number) => Promise<T[]>): Promise<T[]> {
+  const items: T[] = [];
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const page = await fetchPage(offset);
+    items.push(...page);
+    if (page.length < PAGE_SIZE) return items;
+  }
+}
+
 export const GET: APIRoute = async ({ locals, site }) => {
   if (!site) {
     return new Response('Astro.site is required for sitemap generation.', { status: 500 });
@@ -29,9 +40,9 @@ export const GET: APIRoute = async ({ locals, site }) => {
   const db = locals.runtime.env.DB;
   const [mythologies, worlds, characters, artworks] = await Promise.all([
     getMythologies(db),
-    getWorlds(db),
+    loadAllPaged((offset) => getWorlds(db, { limit: PAGE_SIZE, offset })),
     getCharacters(db),
-    getArtworks(db),
+    loadAllPaged((offset) => getArtworks(db, { limit: PAGE_SIZE, offset })),
   ]);
 
   const entries: string[] = [];
