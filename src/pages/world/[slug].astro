@@ -67,7 +67,6 @@ const createHref = `/create/?world=${world.slug}`;
         ],
       },
     ])} />
-    <link rel="canonical" href={new URL(`/world/${world.slug}/`, Astro.site).toString()} />
   </Fragment>
 
   <WorldHero world={world} mythology={mythology} />
