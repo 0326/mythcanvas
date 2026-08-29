@@ -16,6 +16,7 @@ import {
   getMythologies,
   getWorlds,
   getStyles,
+  getCharacters,
 } from '../../lib/content/repositories';
 import type { ArtworkDevice, ArtworkSort } from '../../lib/content/repositories';
 import type { ArtworkType } from '../../lib/content/types';
@@ -56,10 +57,11 @@ const requestedSort = params.get('sort') as ArtworkSort | null;
 const initialSort: ArtworkSort = sortOptions.some((item) => item.id === requestedSort) ? requestedSort! : 'recommended';
 const initialSearch = params.get('q')?.trim() ?? '';
 
-const [mythologies, styles, worlds] = await Promise.all([
+const [mythologies, styles, worlds, characters] = await Promise.all([
   getMythologies(db),
   getStyles(db),
   getWorlds(db),
+  getCharacters(db),
 ]);
 
 const approvedArtworks = await getArtworks(db, {
@@ -74,26 +76,38 @@ const approvedArtworks = await getArtworks(db, {
 
 const mythologiesById = new Map(mythologies.map((item) => [item.id, item]));
 const worldsById = new Map(worlds.map((item) => [item.id, item]));
+const charactersById = new Map(characters.map((item) => [item.id, item]));
+const artworkCharacterName = (artwork: (typeof approvedArtworks)[number]) =>
+  artwork.characterIds?.map((id) => charactersById.get(id)?.name).find((name): name is string => Boolean(name));
 
-const featuredPrimary = approvedArtworks[0];
-const featuredSecondary = approvedArtworks[1];
-const featuredTertiary = approvedArtworks[2];
-const hasFeaturedMosaic = Boolean(featuredPrimary && featuredSecondary && featuredTertiary);
-const galleryArtworks = hasFeaturedMosaic ? approvedArtworks.slice(3) : approvedArtworks;
+// 宽幅精选卡只能使用 PC 壁纸；手机壁纸保留原比例进入下方竖向画廊，避免被宽卡裁掉人物头部。
+const isDesktopArtwork = (artwork: (typeof approvedArtworks)[number]) => artwork.image.width >= artwork.image.height;
+const featuredCandidates = initialDevice === 'mobile'
+  ? []
+  : approvedArtworks.filter(isDesktopArtwork);
+const featuredPrimary = featuredCandidates[0];
+const featuredSecondary = featuredCandidates[1];
+const featuredTertiary = featuredCandidates[2];
+const featuredIds = new Set(
+  [featuredPrimary, featuredSecondary, featuredTertiary]
+    .filter((artwork): artwork is (typeof approvedArtworks)[number] => Boolean(artwork))
+    .map((artwork) => artwork.id),
+);
+const hasFeaturedMosaic = featuredIds.size === 3;
+const galleryArtworks = hasFeaturedMosaic
+  ? approvedArtworks.filter((artwork) => !featuredIds.has(artwork.id))
+  : approvedArtworks;
 
-const sortPresentation: Record<ArtworkSort, { badge: string; heading: string; description: string }> = {
+const sortPresentation: Record<ArtworkSort, { heading: string; description: string }> = {
   recommended: {
-    badge: '编辑推荐',
     heading: '更多神话作品',
     description: '从不同文明与画风中继续发现值得停留的作品。',
   },
   latest: {
-    badge: '最新发布',
     heading: '最新作品',
     description: '按发布时间浏览最近加入 MythCanvas 的视觉作品。',
   },
   popular: {
-    badge: '正在流行',
     heading: '热门作品',
     description: '优先展示收藏与下载反馈更高的神话视觉。',
   },
@@ -205,21 +219,23 @@ const hasActiveFilters = initialMythology !== 'all'
             <div class="featured-primary">
               <ExploreArtworkCard
                 artwork={featuredPrimary}
+                characterName={artworkCharacterName(featuredPrimary)}
                 mythologyName={mythologiesById.get(featuredPrimary.mythologyId)?.name}
                 worldName={featuredPrimary.worldId ? worldsById.get(featuredPrimary.worldId)?.name : undefined}
                 variant="hero"
-                badge={sortPresentation[initialSort].badge}
               />
             </div>
             <div class="featured-side">
               <ExploreArtworkCard
                 artwork={featuredSecondary}
+                characterName={artworkCharacterName(featuredSecondary)}
                 mythologyName={mythologiesById.get(featuredSecondary.mythologyId)?.name}
                 worldName={featuredSecondary.worldId ? worldsById.get(featuredSecondary.worldId)?.name : undefined}
                 variant="side"
               />
               <ExploreArtworkCard
                 artwork={featuredTertiary}
+                characterName={artworkCharacterName(featuredTertiary)}
                 mythologyName={mythologiesById.get(featuredTertiary.mythologyId)?.name}
                 worldName={featuredTertiary.worldId ? worldsById.get(featuredTertiary.worldId)?.name : undefined}
                 variant="side"
@@ -241,6 +257,7 @@ const hasActiveFilters = initialMythology !== 'all'
               {galleryArtworks.map((artwork) => (
                 <ExploreArtworkCard
                   artwork={artwork}
+                  characterName={artworkCharacterName(artwork)}
                   mythologyName={mythologiesById.get(artwork.mythologyId)?.name}
                   worldName={artwork.worldId ? worldsById.get(artwork.worldId)?.name : undefined}
                 />

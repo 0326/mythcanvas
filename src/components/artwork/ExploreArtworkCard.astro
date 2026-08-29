@@ -1,26 +1,53 @@
 ---
 import { ArrowUpRight, Heart } from '@lucide/astro';
 import type { Artwork } from '../../lib/content/types';
+import {
+  cloudflareImageUrl,
+  shouldUseCloudflareImageTransformations,
+} from '../../lib/media/cloudflare-images';
 
 interface Props {
   artwork: Artwork;
+  characterName?: string;
   mythologyName?: string;
   worldName?: string;
   variant?: 'hero' | 'side' | 'tile';
-  badge?: string;
 }
 
 const {
   artwork,
+  characterName,
   mythologyName,
   worldName,
   variant = 'tile',
-  badge,
 } = Astro.props;
 
-const contextName = worldName ?? mythologyName ?? '神话视觉';
-const styleName = artwork.styleId.replaceAll('-', ' ');
+const mythologyLabel = mythologyName ?? worldName;
+const displayName = characterName?.trim() || artwork.title.split('·')[0]?.trim() || artwork.title;
+const styleLabel = artwork.styleId.replaceAll('-', ' ');
+const deviceLabel = artwork.image.width >= artwork.image.height ? 'PC' : 'Mobile';
 const ratio = `${artwork.image.width} / ${artwork.image.height}`;
+const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
+const imageWidth = variant === 'hero' ? 1440 : variant === 'side' ? 960 : 720;
+const imageRatio = variant === 'hero'
+  ? 4 / 3
+  : variant === 'side'
+    ? 16 / 9
+    : artwork.image.width / artwork.image.height;
+const imageHeight = Math.max(1, Math.round(imageWidth / imageRatio));
+const imageSrc = cloudflareImageUrl(
+  artwork.image.src,
+  {
+    width: imageWidth,
+    height: imageHeight,
+    fit: 'cover',
+    quality: 78,
+    format: 'auto',
+    // Keep faces toward the upper half when a wide feature card needs a crop.
+    focalPoint: { x: 0.5, y: 0.34 },
+  },
+  useImageTransformations,
+) ?? artwork.image.src;
 ---
 
 <article
@@ -38,22 +65,25 @@ const ratio = `${artwork.image.width} / ${artwork.image.height}`;
   <a class="card-link" href={`/wallpaper/${artwork.slug}/`} aria-label={`查看作品：${artwork.title}`}>
     <div class="image-wrap">
       <img
-        src={artwork.image.src}
+        src={imageSrc}
         alt={artwork.image.alt}
-        width={artwork.image.width}
-        height={artwork.image.height}
+        width={imageWidth}
+        height={imageHeight}
         loading={variant === 'hero' ? 'eager' : 'lazy'}
+        fetchpriority={variant === 'hero' ? 'high' : 'auto'}
         decoding="async"
       />
       <div class="image-overlay" aria-hidden="true"></div>
 
-      {badge && <span class="badge">{badge}</span>}
+      {mythologyLabel && <span class="badge badge-mythology">{mythologyLabel}</span>}
       {variant === 'tile' && <span class="favorite-hint" aria-hidden="true"><Heart size={18} strokeWidth={1.7} /></span>}
 
       <div class="copy">
-        <h3>{artwork.title}</h3>
-        <p>{mythologyName}{mythologyName && contextName !== mythologyName ? ' · ' : ''}{contextName !== mythologyName ? contextName : ''}</p>
-        {variant === 'tile' && <span class="style-name">{styleName}</span>}
+        <h3>{displayName}</h3>
+        <div class="tag-row" aria-label={`${styleLabel} · ${deviceLabel}`}>
+          <span class="tag">{styleLabel}</span>
+          <span class="tag">{deviceLabel}</span>
+        </div>
       </div>
 
       {variant !== 'tile' && (
@@ -179,20 +209,26 @@ const ratio = `${artwork.image.width} / ${artwork.image.height}`;
     white-space: nowrap;
   }
 
-  p {
-    margin: .24rem 0 0;
-    color: rgba(255, 255, 255, .78);
-    font-family: var(--font-ui);
-    font-size: .72rem;
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .38rem;
+    margin-top: .38rem;
   }
 
-  .style-name {
-    display: block;
-    margin-top: .28rem;
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.35rem;
+    padding: .18rem .48rem;
+    border: 1px solid rgba(255, 255, 255, .26);
+    border-radius: 999px;
     color: rgba(255, 255, 255, .56);
     font-family: var(--font-ui);
     font-size: .65rem;
     text-transform: capitalize;
+    background: rgba(8, 12, 18, .22);
+    backdrop-filter: blur(7px);
   }
 
   .badge {
@@ -209,6 +245,10 @@ const ratio = `${artwork.image.width} / ${artwork.image.height}`;
     font-family: var(--font-ui);
     font-size: .68rem;
     font-weight: 650;
+  }
+
+  .badge-mythology {
+    right: auto;
   }
 
   .favorite-hint {
