@@ -2,6 +2,7 @@
 import {
   ArrowDownWideNarrow,
   Brush,
+  ChevronDown,
   Globe2,
   MonitorSmartphone,
   MoonStar,
@@ -56,6 +57,9 @@ const initialDevice = deviceOptions.some((item) => item.id === requestedDevice) 
 const requestedSort = params.get('sort') as ArtworkSort | null;
 const initialSort: ArtworkSort = sortOptions.some((item) => item.id === requestedSort) ? requestedSort! : 'recommended';
 const initialSearch = params.get('q')?.trim() ?? '';
+
+const optionLabel = (options: ReadonlyArray<{ id: string; name: string; slug?: string }>, value: string, fallback: string) =>
+  options.find((option) => option.id === value || option.slug === value)?.name ?? fallback;
 
 const [mythologies, styles, worlds, characters] = await Promise.all([
   getMythologies(db),
@@ -139,57 +143,83 @@ const hasActiveFilters = initialMythology !== 'all'
     <section class="explore-filter-section collection-filter-section" aria-label="探索筛选与搜索">
       <div class="container-wide">
         <div class="filter-bar collection-filter-toolbar" data-explore-controls aria-label="探索筛选与排序">
-          <label class="filter-control">
+          <div class="filter-control filter-select" data-filter-select data-param="mythology">
             <Globe2 size={17} strokeWidth={1.65} aria-hidden="true" />
             <span class="control-name">文明</span>
-            <select data-query-control data-param="mythology" aria-label="按文明筛选">
-              <option value="all" selected={initialMythology === 'all'}>全部文明</option>
+            <button
+              class="filter-select-trigger"
+              type="button"
+              popovertarget="explore-filter-mythology"
+              aria-controls="explore-filter-mythology"
+              aria-haspopup="listbox"
+            >
+              <span>{optionLabel([{ id: 'all', name: '全部文明' }, ...mythologies], initialMythology, '全部文明')}</span>
+              <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+            <div id="explore-filter-mythology" class="filter-select-menu" popover="auto" role="listbox" aria-label="按文明筛选">
+              <button class="filter-select-option" type="button" role="option" data-query-option data-param="mythology" data-value="all" aria-selected={initialMythology === 'all'}>全部文明</button>
               {mythologies.map((mythology) => (
-                <option value={mythology.id} selected={initialMythology === mythology.id}>{mythology.name}</option>
+                <button class="filter-select-option" type="button" role="option" data-query-option data-param="mythology" data-value={mythology.id} aria-selected={initialMythology === mythology.id}>{mythology.name}</button>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
-          <label class="filter-control">
+          <div class="filter-control filter-select" data-filter-select data-param="type">
             <Shapes size={17} strokeWidth={1.65} aria-hidden="true" />
             <span class="control-name">类型</span>
-            <select data-query-control data-param="type" aria-label="按内容类型筛选">
+            <button class="filter-select-trigger" type="button" popovertarget="explore-filter-type" aria-controls="explore-filter-type" aria-haspopup="listbox">
+              <span>{optionLabel(contentTypes, initialType, '全部类型')}</span>
+              <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+            <div id="explore-filter-type" class="filter-select-menu" popover="auto" role="listbox" aria-label="按内容类型筛选">
               {contentTypes.map((type) => (
-                <option value={type.id} selected={initialType === type.id}>{type.name}</option>
+                <button class="filter-select-option" type="button" role="option" data-query-option data-param="type" data-value={type.id} aria-selected={initialType === type.id}>{type.name}</button>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
-          <label class="filter-control">
+          <div class="filter-control filter-select" data-filter-select data-param="style">
             <Brush size={17} strokeWidth={1.65} aria-hidden="true" />
             <span class="control-name">画风</span>
-            <select data-query-control data-param="style" aria-label="按画风筛选">
-              <option value="all" selected={initialStyle === 'all'}>全部画风</option>
+            <button class="filter-select-trigger" type="button" popovertarget="explore-filter-style" aria-controls="explore-filter-style" aria-haspopup="listbox">
+              <span>{optionLabel([{ id: 'all', name: '全部画风' }, ...styles], initialStyle, '全部画风')}</span>
+              <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+            <div id="explore-filter-style" class="filter-select-menu" popover="auto" role="listbox" aria-label="按画风筛选">
+              <button class="filter-select-option" type="button" role="option" data-query-option data-param="style" data-value="all" aria-selected={initialStyle === 'all'}>全部画风</button>
               {styles.map((style) => (
-                <option value={style.id} selected={initialStyle === style.id || initialStyle === style.slug}>{style.name}</option>
+                <button class="filter-select-option" type="button" role="option" data-query-option data-param="style" data-value={style.id} aria-selected={initialStyle === style.id || initialStyle === style.slug}>{style.name}</button>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
-          <label class="filter-control">
+          <div class="filter-control filter-select" data-filter-select data-param="device">
             <MonitorSmartphone size={17} strokeWidth={1.65} aria-hidden="true" />
             <span class="control-name">设备</span>
-            <select data-query-control data-param="device" aria-label="按设备比例筛选">
+            <button class="filter-select-trigger" type="button" popovertarget="explore-filter-device" aria-controls="explore-filter-device" aria-haspopup="listbox">
+              <span>{optionLabel(deviceOptions, initialDevice, '全部设备')}</span>
+              <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+            <div id="explore-filter-device" class="filter-select-menu" popover="auto" role="listbox" aria-label="按设备比例筛选">
               {deviceOptions.map((device) => (
-                <option value={device.id} selected={initialDevice === device.id}>{device.name}</option>
+                <button class="filter-select-option" type="button" role="option" data-query-option data-param="device" data-value={device.id} aria-selected={initialDevice === device.id}>{device.name}</button>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
-          <label class="filter-control filter-control--sort">
+          <div class="filter-control filter-control--sort filter-select" data-filter-select data-param="sort">
             <ArrowDownWideNarrow size={17} strokeWidth={1.65} aria-hidden="true" />
             <span class="control-name">排序</span>
-            <select data-query-control data-param="sort" aria-label="作品排序">
+            <button class="filter-select-trigger" type="button" popovertarget="explore-filter-sort" aria-controls="explore-filter-sort" aria-haspopup="listbox">
+              <span>{optionLabel(sortOptions, initialSort, '推荐优先')}</span>
+              <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+            <div id="explore-filter-sort" class="filter-select-menu" popover="auto" role="listbox" aria-label="作品排序">
               {sortOptions.map((sort) => (
-                <option value={sort.id} selected={initialSort === sort.id}>{sort.name}</option>
+                <button class="filter-select-option" type="button" role="option" data-query-option data-param="sort" data-value={sort.id} aria-selected={initialSort === sort.id}>{sort.name}</button>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
           <div class="filter-meta">
             <span><strong>{approvedArtworks.length}</strong> 件作品</span>
@@ -293,12 +323,32 @@ const hasActiveFilters = initialMythology !== 'all'
       window.location.assign(`${url.pathname}${url.search}`);
     };
 
-    document.querySelectorAll('[data-query-control]').forEach((control) => {
-      control.addEventListener('change', () => {
-        if (!(control instanceof HTMLSelectElement)) return;
-        const key = control.dataset.param;
-        if (!key) return;
-        updateQuery(key, control.value);
+    const positionMenu = (trigger, menu) => {
+      const rect = trigger.getBoundingClientRect();
+      menu.style.left = `${Math.round(rect.left)}px`;
+      menu.style.top = `${Math.round(rect.bottom + 6)}px`;
+      menu.style.minWidth = `${Math.max(168, Math.round(rect.width))}px`;
+    };
+
+    document.querySelectorAll('[data-filter-select]').forEach((control) => {
+      const trigger = control.querySelector('[data-filter-trigger]') ?? control.querySelector('.filter-select-trigger');
+      const menuId = trigger?.getAttribute('popovertarget');
+      const menu = menuId ? document.getElementById(menuId) : null;
+      if (!(trigger instanceof HTMLElement) || !(menu instanceof HTMLElement)) return;
+      const syncPosition = () => {
+        if (menu.matches(':popover-open')) positionMenu(trigger, menu);
+      };
+      trigger.addEventListener('click', () => window.setTimeout(syncPosition, 0));
+      menu.addEventListener('toggle', syncPosition);
+      window.addEventListener('resize', syncPosition, { passive: true });
+      window.addEventListener('scroll', syncPosition, { passive: true });
+    });
+
+    document.querySelectorAll('[data-query-option]').forEach((option) => {
+      option.addEventListener('click', () => {
+        const key = option.getAttribute('data-param');
+        const value = option.getAttribute('data-value');
+        if (key && value) updateQuery(key, value);
       });
     });
 
@@ -333,7 +383,7 @@ const hasActiveFilters = initialMythology !== 'all'
   .explore-shell {
     position: relative;
     min-height: calc(100vh - var(--header-height));
-    overflow: hidden;
+    overflow: clip;
     background: color-mix(in srgb, var(--bg-primary) 94%, var(--surface));
   }
 
@@ -425,6 +475,80 @@ const hasActiveFilters = initialMythology !== 'all'
     font-family: var(--font-ui);
     font-size: .76rem;
     cursor: pointer;
+  }
+
+  .filter-select-trigger {
+    display: inline-flex;
+    max-width: 132px;
+    min-width: 70px;
+    align-items: center;
+    justify-content: space-between;
+    gap: .35rem;
+    padding: .18rem 0;
+    border: 0;
+    color: var(--text-secondary);
+    background: transparent;
+    font-family: var(--font-ui);
+    font-size: .76rem;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .filter-select-trigger > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .filter-select-trigger:hover,
+  .filter-select-trigger:focus-visible {
+    color: var(--text-primary);
+  }
+
+  .filter-select-menu {
+    position: fixed;
+    inset: auto;
+    z-index: 100;
+    width: max-content;
+    min-width: 168px;
+    max-height: min(320px, calc(100vh - 24px));
+    margin: 0;
+    padding: .35rem;
+    overflow-y: auto;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: var(--surface-strong);
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--text-primary) 16%, transparent);
+    color: var(--text-primary);
+  }
+
+  .filter-select-menu::backdrop {
+    background: transparent;
+  }
+
+  .filter-select-option {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: .55rem .65rem;
+    border: 0;
+    border-radius: 7px;
+    color: var(--text-secondary);
+    background: transparent;
+    font: inherit;
+    font-size: .78rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .filter-select-option:hover,
+  .filter-select-option:focus-visible,
+  .filter-select-option[aria-selected="true"] {
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
   }
 
   .filter-meta {

@@ -156,6 +156,14 @@ export async function getArtworks(db: D1Database | undefined, query: ArtworkList
   return rows.results.map((row) => mapArtworkRow(row, characterMap.get(String(row.id)) ?? []));
 }
 
+export async function countPublishedArtworks(db: D1Database | undefined): Promise<number> {
+  if (!db) return seedArtworks.filter((item) => item.reviewStatus === 'approved').length;
+  const row = await db
+    .prepare("SELECT COUNT(*) AS count FROM artworks WHERE publish_status = 'published' AND review_status = 'approved'")
+    .first<{ count: number }>();
+  return Number(row?.count ?? 0);
+}
+
 export async function getArtworkBySlug(db: D1Database | undefined, slug: string): Promise<Artwork | undefined> {
   if (!db) return seedArtworks.find((item) => item.slug === slug);
   const row = await db

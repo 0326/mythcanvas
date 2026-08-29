@@ -1,28 +1,34 @@
 import type { APIRoute } from 'astro';
+import { countPublishedArtworks } from '../lib/content/repositories';
+import {
+  buildSitemapIndexXml,
+  sitemapShardCount,
+  xmlResponse,
+} from '../lib/seo/sitemap';
 
 export const prerender = false;
 
-const escapeXml = (value: string) =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;');
+function shardUrl(path: string, part: string, page: number | undefined, site: URL): string {
+  const url = new URL(path, site);
+  url.searchParams.set('part', part);
+  if (page !== undefined) url.searchParams.set('page', String(page));
+  return url.toString();
+}
 
-export const GET: APIRoute = ({ site }) => {
-  if (!site) {
-    return new Response('Astro.site is required for sitemap generation.', { status: 500 });
+export const GET: APIRoute = async ({ locals, site }) => {
+  if (!site) return xmlResponse('<error>Astro.site is required for sitemap generation.</error>', 500);
+
+  const artworkCount = await countPublishedArtworks(locals.runtime.env.DB);
+  const artworkShardCount = sitemapShardCount(artworkCount);
+  const locations = [
+    shardUrl('/sitemap-pages.xml', 'entities', undefined, site),
+    shardUrl('/sitemap-images.xml', 'entities', undefined, site),
+  ];
+
+  for (let page = 1; page <= artworkShardCount; page += 1) {
+    locations.push(shardUrl('/sitemap-pages.xml', 'artworks', page, site));
+    locations.push(shardUrl('/sitemap-images.xml', 'artworks', page, site));
   }
 
-  const pages = new URL('/sitemap-pages.xml', site).toString();
-  const images = new URL('/sitemap-images.xml', site).toString();
-  const body = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>${escapeXml(pages)}</loc></sitemap><sitemap><loc>${escapeXml(images)}</loc></sitemap></sitemapindex>`;
-
-  return new Response(body, {
-    headers: {
-      'content-type': 'application/xml; charset=utf-8',
-      'cache-control': 'public, max-age=300, s-maxage=3600',
-    },
-  });
+  return xmlResponse(buildSitemapIndexXml(locations));
 };

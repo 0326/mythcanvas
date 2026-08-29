@@ -10,7 +10,7 @@ CSS Token：`--font-display`
 
 用于承担品牌、页面结构和实体身份：
 
-- 首页主标题「绘世神话」
+- 首页主标题「绘神宇宙」
 - Logo 中文品牌名
 - 页面 H1 / H2 / H3 / H4
 - 神话、神域、角色等实体名称
@@ -84,7 +84,7 @@ CSS Token：`--font-ui`
 推荐语义类：
 
 ```html
-<h1 class="display-type">绘世神话</h1>
+<h1 class="display-type">绘神宇宙</h1>
 <p class="literary">用 AI 重现神话世界</p>
 <p class="entity-summary">云海、天宫与山海异兽……</p>
 <span class="ui-type">4K · 16:9</span>
@@ -98,7 +98,7 @@ CSS Token：`--font-ui`
 
 ### 首页
 
-- 「绘世神话」：思源宋体，600–700，可叠加鎏金流光效果。
+- 「绘神宇宙」：思源宋体，600–700，可叠加鎏金流光效果。
 - 「用 AI 重现神话世界」：霞鹜文楷 Regular。
 - CTA：UI 字体。
 - 「文明与神话」及卡片名称：思源宋体。

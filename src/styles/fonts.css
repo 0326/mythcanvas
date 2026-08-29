@@ -3,8 +3,6 @@
  * Display: Source Han Serif SC VF (思源宋体), browser-sliced webfont build derived from Adobe Source Han Serif.
  * Literary: LXGW WenKai (霞鹜文楷), browser webfont build derived from the upstream LXGW WenKai project.
  *
- * These imports are intentionally isolated here so they can later be replaced by locally hosted assets
- * without changing component-level typography tokens.
+ * Font stylesheets are linked directly from BaseHead so the browser discovers them in parallel
+ * with the application stylesheet. Keep component-level typography tokens independent of the provider.
  */
-@import url("https://cdn.jsdelivr.net/npm/@wc1font/source-han-serif-sc-vf@1.0.6/font.css");
-@import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css");

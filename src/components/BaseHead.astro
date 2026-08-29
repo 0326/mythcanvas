@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import { SITE_TITLE } from '../consts';
+import { getPageSeoPolicy } from '../lib/seo/page-policy';
 
 interface Props {
   title: string;
@@ -7,27 +9,8 @@ interface Props {
   image?: string;
 }
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const { title, description, image = '/media/content/mythology-civilizations-banner.webp' } = Astro.props;
-
-const matchesRoute = (pathname: string, route: string) =>
-  pathname === route || pathname.startsWith(`${route}/`);
-
-const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
-const privateNoindexRoutes = ['/admin', '/my'];
-const utilityNoindexRoutes = ['/login', '/register', '/password', '/search'];
-const isPrivateNoindex = privateNoindexRoutes.some((route) => matchesRoute(pathname, route));
-const isUtilityNoindex = utilityNoindexRoutes.some((route) => matchesRoute(pathname, route));
-const isThinFilterPage = Astro.url.searchParams.size > 0 && (
-  matchesRoute(pathname, '/character') ||
-  matchesRoute(pathname, '/explore') ||
-  matchesRoute(pathname, '/wallpaper')
-);
-const robots = isPrivateNoindex
-  ? 'noindex,nofollow'
-  : isUtilityNoindex || isThinFilterPage
-    ? 'noindex,follow'
-    : 'index,follow';
+const { canonicalURL, robots } = getPageSeoPolicy(Astro.url, Astro.site);
 ---
 
 <meta charset="utf-8" />
@@ -35,6 +18,8 @@ const robots = isPrivateNoindex
 <meta name="theme-color" content="#fbf7ed" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#08131f" media="(prefers-color-scheme: dark)" />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@wc1font/source-han-serif-sc-vf@1.0.6/font.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="manifest" href="/manifest.webmanifest" />
 <meta name="generator" content={Astro.generator} />
@@ -79,7 +64,7 @@ const robots = isPrivateNoindex
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image, Astro.site)} />
-<meta property="og:site_name" content="绘世神话 MythCanvas" />
+<meta property="og:site_name" content={SITE_TITLE} />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />

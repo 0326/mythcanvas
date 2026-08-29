@@ -1,6 +1,11 @@
 ---
 import { ArrowRight, Landmark } from '@lucide/astro';
 import type { World } from '../../lib/content/types';
+import {
+  cloudflareImageSrcSet,
+  cloudflareImageUrl,
+  shouldUseCloudflareImageTransformations,
+} from '../../lib/media/cloudflare-images';
 
 interface Props {
   world: World;
@@ -10,13 +15,28 @@ interface Props {
 
 const { world, mythologyName, className = '' } = Astro.props;
 const keywords = world.canonicalDesign.anchors.slice(0, 3);
+const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
+const imageOptions = { quality: 80, format: 'auto' as const };
+const imageSrc = cloudflareImageUrl(
+  world.heroImage.src,
+  { ...imageOptions, width: 960 },
+  useImageTransformations,
+) ?? world.heroImage.src;
+const imageSrcSet = cloudflareImageSrcSet(
+  world.heroImage.src,
+  [480, 720, 960],
+  imageOptions,
+  useImageTransformations,
+);
 ---
 
 <article class:list={['world-card', 'surface', className]}>
   <a href={`/world/${world.slug}/`} class="world-link">
     <div class="world-image-wrap">
       <img
-        src={world.heroImage.src}
+        src={imageSrc}
+        srcset={imageSrcSet}
+        sizes="(max-width: 680px) 100vw, (max-width: 1080px) 50vw, 34vw"
         alt={world.heroImage.alt}
         width={world.heroImage.width}
         height={world.heroImage.height}

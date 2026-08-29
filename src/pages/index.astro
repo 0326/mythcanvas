@@ -16,12 +16,31 @@ const mythologyCards = (await getMythologies(db))
   .slice(0, 10);
 
 const defaultMythology = mythologyCards[0];
-const heroTitleChars = [...'绘世神话'];
+const heroTitleChars = [...'绘神宇宙'];
 const defaultCtaText = defaultMythology ? `进入${defaultMythology.name}` : '探索神话世界';
 const defaultCtaChars = [...defaultCtaText];
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
 const defaultFocalCss = focalPointToCss(defaultMythology?.homeHero?.focalPoint);
 const homeShellStyle = `--hero-focal-x:${defaultFocalCss.x};--hero-focal-y:${defaultFocalCss.y}`;
+
+const homeHeroUrl = (
+  src?: string,
+  focalPoint?: { x: number; y: number },
+) => cloudflareImageUrl(
+  src,
+  {
+    width: 1920,
+    height: 1080,
+    fit: 'cover',
+    quality: 84,
+    format: 'auto',
+    focalPoint,
+  },
+  useImageTransformations,
+) ?? src;
+
+const defaultHeroLight = homeHeroUrl(defaultMythology?.homeHero?.lightSrc, defaultMythology?.homeHero?.focalPoint);
+const defaultHeroDark = homeHeroUrl(defaultMythology?.homeHero?.darkSrc, defaultMythology?.homeHero?.focalPoint);
 
 const cardImageStyle = (
   lightSrc?: string,
@@ -53,7 +72,7 @@ const cardImageStyle = (
   fullBleed
   immersiveHeader
   hideFooter
-  description="绘世神话 MythCanvas：用 AI 重现神话世界。探索中国、希腊、北欧、埃及、印度、日本、凯尔特、玛雅、阿兹特克与美索不达米亚神话。"
+  description="绘神宇宙 MythCanvas：用 AI 重现神话世界。探索中国、希腊、北欧、埃及、印度、日本、凯尔特、玛雅、阿兹特克与美索不达米亚神话。"
 >
   <section
     class="home-shell"
@@ -67,28 +86,29 @@ const cardImageStyle = (
       <img
         data-hero-light
         class="hero-art-light"
-        src={defaultMythology?.homeHero?.lightSrc}
+        src={defaultHeroLight}
         alt=""
         width="2560"
         height="1440"
         fetchpriority="high"
-        hidden={!defaultMythology?.homeHero?.lightSrc}
+        hidden={!defaultHeroLight}
       />
       <img
         data-hero-dark
         class="hero-art-dark"
-        src={defaultMythology?.homeHero?.darkSrc}
+        src={defaultHeroDark}
         alt=""
         width="2560"
         height="1440"
-        hidden={!defaultMythology?.homeHero?.darkSrc}
+        loading="lazy"
+        hidden={!defaultHeroDark}
       />
     </div>
     <div class="hero-overlay" aria-hidden="true"></div>
 
     <div class="hero-stage container-wide">
       <div class="hero-copy">
-        <h1 id="hero-title" aria-label="绘世神话">
+        <h1 id="hero-title" aria-label="绘神宇宙">
           {heroTitleChars.map((char, index) => (
             <span class="title-char" style={`--char-index:${index}`} aria-hidden="true">{char}</span>
           ))}
@@ -124,6 +144,8 @@ const cardImageStyle = (
               {mythologyCards.map((item, index) => {
                 const lightSrc = item.homeHero?.lightSrc;
                 const darkSrc = item.homeHero?.darkSrc;
+                const lightHeroSrc = homeHeroUrl(lightSrc, item.homeHero?.focalPoint);
+                const darkHeroSrc = homeHeroUrl(darkSrc, item.homeHero?.focalPoint);
                 const focalCss = focalPointToCss(item.homeHero?.focalPoint);
                 const hasImage = Boolean(lightSrc || darkSrc);
                 return (
@@ -135,8 +157,8 @@ const cardImageStyle = (
                     data-name={item.name}
                     data-summary={item.summary}
                     data-href={`/mythology/${item.slug}/`}
-                    data-light-src={lightSrc ?? ''}
-                    data-dark-src={darkSrc ?? ''}
+                    data-light-src={lightHeroSrc ?? ''}
+                    data-dark-src={darkHeroSrc ?? ''}
                     data-focal-x={focalCss.x}
                     data-focal-y={focalCss.y}
                     aria-pressed={index === 0 ? 'true' : 'false'}

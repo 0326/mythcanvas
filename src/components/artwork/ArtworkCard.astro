@@ -1,6 +1,11 @@
 ---
 import { ArrowUpRight } from '@lucide/astro';
 import type { Artwork } from '../../lib/content/types';
+import {
+  cloudflareImageSrcSet,
+  cloudflareImageUrl,
+  shouldUseCloudflareImageTransformations,
+} from '../../lib/media/cloudflare-images';
 
 interface Props {
   artwork: Artwork;
@@ -9,6 +14,19 @@ interface Props {
 }
 
 const { artwork, mythologyName, worldName } = Astro.props;
+const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
+const imageOptions = { quality: 78, format: 'auto' as const };
+const imageSrc = cloudflareImageUrl(
+  artwork.image.src,
+  { ...imageOptions, width: 720 },
+  useImageTransformations,
+) ?? artwork.image.src;
+const imageSrcSet = cloudflareImageSrcSet(
+  artwork.image.src,
+  [320, 480, 720],
+  imageOptions,
+  useImageTransformations,
+);
 ---
 
 <article
@@ -21,7 +39,9 @@ const { artwork, mythologyName, worldName } = Astro.props;
   <a href={`/wallpaper/${artwork.slug}/`}>
     <div class="image-wrap">
       <img
-        src={artwork.image.src}
+        src={imageSrc}
+        srcset={imageSrcSet}
+        sizes="(max-width: 680px) 50vw, (max-width: 900px) 33vw, 25vw"
         alt={artwork.image.alt}
         width={artwork.image.width}
         height={artwork.image.height}

@@ -51,6 +51,21 @@ export function cloudflareImageUrl(
   return `/cdn-cgi/image/${params.join(',')}/${source}`;
 }
 
+export function cloudflareImageSrcSet(
+  src: string | undefined,
+  widths: readonly number[],
+  options: Omit<CloudflareImageTransformOptions, 'width'> = {},
+  enabled = true,
+): string | undefined {
+  if (!src || !enabled || src.startsWith('data:') || src.startsWith('blob:')) return undefined;
+  const normalizedWidths = [...new Set(widths.map((width) => Math.max(1, Math.round(width))))]
+    .sort((a, b) => a - b);
+  if (normalizedWidths.length === 0) return undefined;
+  return normalizedWidths
+    .map((width) => `${cloudflareImageUrl(src, { ...options, width }, true)} ${width}w`)
+    .join(', ');
+}
+
 export function focalPointToCss(focalPoint?: ImageFocalPoint): { x: string; y: string } {
   const normalized = normalizeFocalPoint(focalPoint);
   return {

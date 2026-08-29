@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  cloudflareImageSrcSet,
   cloudflareImageUrl,
   focalPointToCss,
   normalizeFocalPoint,
@@ -19,6 +20,16 @@ describe('Cloudflare image transformations', () => {
   it('keeps the source URL when transformations are disabled', () => {
     expect(cloudflareImageUrl('/media/mythology/chinese-light.jpg', { width: 480 }, false))
       .toBe('/media/mythology/chinese-light.jpg');
+  });
+
+  it('builds a sorted responsive srcset without duplicate widths', () => {
+    expect(cloudflareImageSrcSet('/media/world/olympus.jpg', [720, 320, 720], {
+      quality: 78,
+      format: 'auto',
+    })).toBe([
+      '/cdn-cgi/image/width=320,fit=cover,gravity=0.500x0.500,quality=78,format=auto/media/world/olympus.jpg 320w',
+      '/cdn-cgi/image/width=720,fit=cover,gravity=0.500x0.500,quality=78,format=auto/media/world/olympus.jpg 720w',
+    ].join(', '));
   });
 
   it('clamps focal coordinates and exposes CSS positions', () => {
