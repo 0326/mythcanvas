@@ -5,6 +5,10 @@ import {
 } from '@lucide/astro';
 import type { Character, ImageAsset } from '../../lib/content/types';
 import { getCharacterStyle, type CharacterStyleId } from '../../lib/content/character-styles';
+import {
+  cloudflareArtworkListImage,
+  shouldUseCloudflareImageTransformations,
+} from '../../lib/media/cloudflare-images';
 
 export type WallpaperDevice = 'pc' | 'mobile';
 export type StyleFilter = CharacterStyleId | 'all';
@@ -76,6 +80,18 @@ const deviceLabels: Record<WallpaperDevice, string> = {
   pc: 'PC',
   mobile: 'Mobile',
 };
+
+const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
+const artworkCardsWithListImages = artworkCards.map((card) => ({
+  card,
+  listImage: cloudflareArtworkListImage(
+    card.image.src,
+    card.image.width,
+    card.image.height,
+    'tile',
+    useImageTransformations,
+  ),
+}));
 ---
 
 {artworkCards.length > 0 && (
@@ -113,7 +129,7 @@ const deviceLabels: Record<WallpaperDevice, string> = {
 
 {artworkCards.length > 0 ? (
   <div class="wallpaper-grid" data-wallpaper-grid data-active-device={selectedDevice}>
-    {artworkCards.map((card) => (
+    {artworkCardsWithListImages.map(({ card, listImage }) => (
       <article
         class:list={{ 'wallpaper-card': true, [`wallpaper-style-${card.styleId}`]: true }}
         data-wallpaper-card
@@ -137,7 +153,14 @@ const deviceLabels: Record<WallpaperDevice, string> = {
           aria-label={`${card.title} · ${card.styleName} · 预览壁纸`}
         >
           <div class="wallpaper-visual">
-            <img src={card.image.src} alt={card.image.alt} width={card.image.width} height={card.image.height} loading="lazy" decoding="async" />
+            <img
+              src={listImage.src ?? card.image.src}
+              alt={card.image.alt}
+              width={listImage.width}
+              height={listImage.height}
+              loading="lazy"
+              decoding="async"
+            />
             <span class="wallpaper-shade" aria-hidden="true"></span>
             <span class="wallpaper-style-badge">{card.styleName}</span>
             <span class="wallpaper-open">查看壁纸 ↗</span>
@@ -437,7 +460,6 @@ const deviceLabels: Record<WallpaperDevice, string> = {
   .lightbox-actions { display: flex; gap: 0.6rem; flex-shrink: 0; }
   .lightbox-actions .btn { display: inline-flex; align-items: center; gap: 0.4rem; }
   .phone-preview-switch { display: none; }
-
   .wallpaper-lightbox[data-device="pc"] .lightbox-layout { grid-template-rows: minmax(0, 1fr) auto; }
   .wallpaper-lightbox[data-device="pc"] .lightbox-stage { grid-row: 1; }
   .wallpaper-lightbox[data-device="pc"] .lightbox-info { grid-row: 2; }
