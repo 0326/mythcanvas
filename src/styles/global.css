@@ -116,9 +116,9 @@ main {
 /* Shared list-page search/filter module: Character, Explore and World use one rhythm. */
 .collection-filter-section {
   position: sticky;
-  top: 0;
-  /* This must cover the sticky site navigation once it reaches the viewport top. */
-  z-index: 100;
+  top: var(--header-height);
+  /* Keep the site navigation above the filter; both stay visible while scrolling. */
+  z-index: calc(var(--z-header) - 1);
   padding-block: 0.9rem;
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
