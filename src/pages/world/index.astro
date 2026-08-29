@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import WorldCard from '../../components/world/WorldCard.astro';
+import { Search } from '@lucide/astro';
 import { getMythologies, getWorlds } from '../../lib/content/repositories';
 
 export const prerender = false;
@@ -24,20 +25,28 @@ const rest = worlds.slice(2);
     </div>
   </section>
 
-  <section class="section-compact">
-    <div class="container-wide">
-      <div class="world-toolbar" data-world-atlas>
-        <div class="mythology-filters" role="group" aria-label="按文明筛选神域">
-          <button class="is-active" type="button" data-mythology-filter="all" aria-pressed="true">全部</button>
+  <section class="filter-section collection-filter-section" aria-label="神域筛选">
+    <div class="container-wide world-toolbar collection-filter-toolbar" data-world-atlas>
+      <div class="mythology-filters filter-group" role="group" aria-label="按神话体系筛选神域">
+        <span class="filter-label">神话体系</span>
+        <div class="filter-options">
+          <button class="filter-option is-active" type="button" data-mythology-filter="all" aria-pressed="true">全部</button>
           {mythologies.map((mythology) => (
-            <button type="button" data-mythology-filter={mythology.slug} aria-pressed="false">{mythology.name.replace('神话', '')}</button>
+            <button class="filter-option" type="button" data-mythology-filter={mythology.slug} aria-pressed="false">{mythology.name}</button>
           ))}
         </div>
-        <label class="world-search">
-          <span class="visually-hidden">搜索神域</span>
-          <input type="search" placeholder="搜索神域" data-world-search aria-label="搜索神域" />
-        </label>
       </div>
+      <label class="world-search collection-filter-search">
+        <Search class="search-icon" aria-hidden="true" />
+        <span class="sr-only">搜索神域</span>
+        <input type="search" placeholder="搜索神域" data-world-search aria-label="搜索神域" />
+      </label>
+    </div>
+
+  </section>
+
+  <section class="world-content">
+    <div class="container-wide">
 
       <div class="editorial-mosaic" data-world-mosaic>
         {featured.map((world, index) => (
@@ -123,7 +132,7 @@ const rest = worlds.slice(2);
 
 <style>
   .atlas-hero {
-    padding-block: clamp(4rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem);
+    padding-block: clamp(2.75rem, 5vw, 4.75rem) clamp(1.75rem, 3vw, 2.75rem);
     border-bottom: 1px solid var(--border);
     background: radial-gradient(circle at 82% 20%, var(--hero-ambient), transparent 28%);
   }
@@ -141,49 +150,58 @@ const rest = worlds.slice(2);
 
   .world-toolbar {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    margin-bottom: var(--space-8);
+    gap: 1.2rem;
   }
 
   .mythology-filters {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+    min-width: 0;
+    align-items: center;
+    gap: 0.8rem;
   }
 
-  .mythology-filters button {
-    padding: 0.4rem 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
+  .mythology-filters .filter-options {
+    display: flex;
+    min-width: 0;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .mythology-filters .filter-options::-webkit-scrollbar { display: none; }
+
+  .mythology-filters .filter-option {
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0.85rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
     color: var(--text-secondary);
     background: transparent;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    white-space: nowrap;
     transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
   }
 
-  .mythology-filters button.is-active {
-    border-color: var(--accent);
-    color: var(--text-inverse);
-    background: var(--accent);
+  .mythology-filters .filter-option:hover,
+  .mythology-filters .filter-option:focus-visible,
+  .mythology-filters .filter-option.is-active {
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
   }
 
   .world-search input {
-    width: min(240px, 100%);
-    padding: 0.5rem 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
-    color: var(--text-primary);
-    background: var(--surface);
-    font-size: 0.85rem;
+    font-size: 0.84rem;
   }
 
-  .world-search input:focus {
-    outline: 2px solid var(--focus-ring, var(--accent));
-    outline-offset: 1px;
+  .world-content {
+    padding-block: clamp(2.5rem, 5vw, 4rem);
   }
 
   .editorial-mosaic {
@@ -264,6 +282,7 @@ const rest = worlds.slice(2);
       flex-direction: column;
       align-items: stretch;
     }
+    .world-search { width: 100%; }
     .world-search input {
       width: 100%;
     }

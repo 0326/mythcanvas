@@ -77,8 +77,8 @@ const searchValue = requestedQuery;
       </div>
     </section>
 
-    <section class="filter-section" aria-label="神灵筛选">
-      <div class="container-wide filter-toolbar" data-filter-toolbar>
+    <section class="filter-section collection-filter-section" aria-label="神灵筛选">
+      <div class="container-wide filter-toolbar collection-filter-toolbar" data-filter-toolbar>
         <div class="filter-group mythology-filter" role="group" aria-label="按神话体系筛选神灵">
           <span class="filter-label">神话体系</span>
           <div class="filter-options">
@@ -100,7 +100,7 @@ const searchValue = requestedQuery;
         </div>
 
         <div class="filter-group search-filter">
-          <label class="search-box">
+          <label class="search-box collection-filter-search">
             <Search class="search-icon" aria-hidden="true" />
             <input
               type="search"
@@ -216,7 +216,7 @@ const searchValue = requestedQuery;
 
 <style>
   .collection-hero {
-    padding-block: clamp(4rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem);
+    padding-block: clamp(2.75rem, 5vw, 4.75rem) clamp(1.75rem, 3vw, 2.75rem);
     border-bottom: 1px solid var(--border);
     background: radial-gradient(circle at 82% 20%, var(--hero-ambient), transparent 28%);
   }
@@ -226,7 +226,7 @@ const searchValue = requestedQuery;
   .filter-section {
     position: sticky;
     top: 0;
-    z-index: 20;
+    z-index: calc(var(--z-header) + 1);
     padding-block: 0.9rem;
     border-bottom: 1px solid var(--border);
     background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
@@ -237,13 +237,24 @@ const searchValue = requestedQuery;
     align-items: center;
     justify-content: space-between;
     gap: 1.2rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
+  .filter-toolbar::-webkit-scrollbar { display: none; }
   .filter-group { display: flex; min-width: 0; align-items: center; gap: 0.8rem; }
   .mythology-filter { flex: 1 1 auto; min-width: 0; }
   .search-filter { flex: 0 0 auto; }
   .filter-label { color: var(--text-muted); font-size: 0.76rem; white-space: nowrap; }
-  .filter-options { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .filter-options {
+    display: flex;
+    min-width: 0;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-options::-webkit-scrollbar { display: none; }
   .filter-option {
     display: inline-flex;
     min-height: 34px;
@@ -324,6 +335,7 @@ const searchValue = requestedQuery;
     .character-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
     .filter-toolbar { flex-direction: column; align-items: stretch; }
     .search-box { min-width: 0; width: 100%; }
+    .collection-filter-search { flex: 0 0 auto; margin-left: 0; }
   }
   @media (max-width: 360px) { .character-grid { grid-template-columns: 1fr; } }
 </style>
