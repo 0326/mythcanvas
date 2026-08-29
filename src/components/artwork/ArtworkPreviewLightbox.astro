@@ -42,6 +42,10 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
 <script>
   const lightbox = document.querySelector('[data-wallpaper-lightbox]');
   if (lightbox) {
+    // Escape page-level stacking contexts (`isolation`, clipped shells, sticky header) so the modal
+    // always lives in the root overlay layer and can cover the navigation completely.
+    if (lightbox.parentElement !== document.body) document.body.append(lightbox);
+
     const imgEl = lightbox.querySelector('[data-lightbox-image]') as HTMLImageElement | null;
     const previewImgEl = lightbox.querySelector('[data-lightbox-preview-image]') as HTMLImageElement | null;
     const titleEl = lightbox.querySelector('[data-lightbox-title]');
@@ -168,9 +172,9 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
   .wallpaper-lightbox[data-device="pc"] .lightbox-prev { left: clamp(.5rem, 2vw, 1.5rem); }
   .wallpaper-lightbox[data-device="pc"] .lightbox-next { right: clamp(.5rem, 2vw, 1.5rem); }
   @media (min-width: 769px) {
-    .wallpaper-lightbox[data-device="mobile"] .lightbox-layout { grid-template-columns: minmax(168px,.72fr) minmax(260px,1.18fr) minmax(250px,290px); gap: clamp(1rem,2vw,2rem); align-items: center; padding: clamp(1rem,3vh,2.25rem) clamp(1.25rem,3.5vw,4rem); }
-    .wallpaper-lightbox[data-device="mobile"] .lightbox-phone-preview { display: grid; place-items: center; min-width: 0; }
-    .phone-device { position: relative; width: min(100%,254px); aspect-ratio: 322 / 662; filter: drop-shadow(0 22px 34px rgba(0,0,0,.48)); }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-layout { grid-template-columns: minmax(260px,.86fr) minmax(260px,1.18fr) minmax(250px,290px); gap: clamp(1rem,2vw,2rem); align-items: center; padding: clamp(1rem,3vh,2.25rem) clamp(1.25rem,3.5vw,4rem); }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-phone-preview { display: grid; height: 100%; min-width: 0; place-items: center; }
+    .phone-device { position: relative; width: min(100%,43vh,430px); aspect-ratio: 322 / 662; filter: drop-shadow(0 22px 34px rgba(0,0,0,.48)); }
     .phone-device::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: url('/media/ui/iphone-17-pro-frame.png') center / contain no-repeat; }
     .phone-screen { position: absolute; z-index: 3; inset: .9% 1.25%; overflow: hidden; border-radius: 13.8% / 6.7%; background: #111827; color: #fff; }
     .phone-wallpaper { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
