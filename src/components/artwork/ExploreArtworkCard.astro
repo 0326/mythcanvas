@@ -11,6 +11,7 @@ interface Props {
   characterName?: string;
   mythologyName?: string;
   worldName?: string;
+  recreateHref: string;
   variant?: 'hero' | 'side' | 'tile';
 }
 
@@ -19,6 +20,7 @@ const {
   characterName,
   mythologyName,
   worldName,
+  recreateHref,
   variant = 'tile',
 } = Astro.props;
 
@@ -57,12 +59,20 @@ const imageSrc = cloudflareImageUrl(
   }}
   data-artwork-card
   data-artwork-id={artwork.id}
+  data-artwork-title={artwork.title}
+  data-artwork-style={styleLabel}
+  data-artwork-device={artwork.image.width >= artwork.image.height ? 'pc' : 'mobile'}
+  data-artwork-width={artwork.image.width}
+  data-artwork-height={artwork.image.height}
+  data-artwork-src={artwork.image.src}
+  data-artwork-alt={artwork.image.alt}
+  data-artwork-recreate={recreateHref}
   data-mythology={artwork.mythologyId}
   data-type={artwork.type}
   data-style={artwork.styleId}
   style={`--art-ratio: ${ratio};`}
 >
-  <a class="card-link" href={`/wallpaper/${artwork.slug}/`} aria-label={`查看作品：${artwork.title}`}>
+  <a class="card-link" data-artwork-trigger href={`/wallpaper/${artwork.slug}/`} aria-label={`查看作品：${artwork.title}`}>
     <div class="image-wrap">
       <img
         src={imageSrc}

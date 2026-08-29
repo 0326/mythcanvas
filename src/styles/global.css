@@ -117,8 +117,8 @@ main {
 .collection-filter-section {
   position: sticky;
   top: 0;
-  /* Deliberately sits above the navigation once it reaches the viewport top. */
-  z-index: calc(var(--z-header) + 1);
+  /* This must cover the sticky site navigation once it reaches the viewport top. */
+  z-index: 100;
   padding-block: 0.9rem;
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg-primary) 88%, transparent);

@@ -1,0 +1,207 @@
+---
+import { X, ChevronLeft, ChevronRight, Download, Sparkles, Flashlight, Camera, Wifi, Signal, BatteryFull } from '@lucide/astro';
+
+interface Props {
+  dialogLabel?: string;
+}
+
+const { dialogLabel = '壁纸预览' } = Astro.props;
+---
+
+<div class="wallpaper-lightbox" data-wallpaper-lightbox role="dialog" aria-modal="true" aria-label={dialogLabel} hidden>
+  <div class="lightbox-layout">
+    <div class="lightbox-phone-preview" aria-hidden="true">
+      <div class="phone-device">
+        <div class="phone-screen">
+          <img class="phone-wallpaper" data-lightbox-preview-image alt="" />
+          <div class="phone-status-bar"><span>9:41</span><span class="phone-status-icons"><Signal size={10} /><Wifi size={10} /><BatteryFull size={13} /></span></div>
+          <div class="phone-lock-content"><span class="phone-lock-date">星期二，八月二十</span><strong>9:41</strong></div>
+          <div class="phone-lock-actions"><Flashlight size={15} /><Camera size={15} /></div>
+          <img class="phone-home-overlay" src="/media/ui/iphone-home-screen.png" alt="" />
+          <span class="phone-home-indicator"></span>
+        </div>
+      </div>
+    </div>
+    <div class="lightbox-stage" data-lightbox-stage tabindex="0" aria-label="壁纸原图，可上下滚动查看"><img class="lightbox-image" data-lightbox-image alt="" /></div>
+    <aside class="lightbox-info">
+      <div class="lightbox-panel-controls"><button class="lightbox-icon-btn lightbox-close" type="button" data-lightbox-close aria-label="关闭预览"><X size={20} strokeWidth={1.8} aria-hidden="true" /></button></div>
+      <div class="lightbox-meta"><h3 data-lightbox-title></h3><p class="lightbox-sub"><span data-lightbox-style></span><span class="dot">·</span><span data-lightbox-device></span><span class="dot">·</span><span data-lightbox-size></span></p></div>
+      <div class="phone-preview-switch" role="group" aria-label="选择手机预览效果"><button type="button" class="is-active" data-preview-mode="lock" aria-pressed="true">锁屏效果</button><button type="button" data-preview-mode="home" aria-pressed="false">主屏效果</button></div>
+      <div class="lightbox-actions">
+        <a class="btn btn-primary lightbox-download" data-lightbox-download href="#" download><Download size={16} strokeWidth={1.9} aria-hidden="true" /> 下载原图</a>
+        <a class="btn btn-secondary lightbox-recreate" data-lightbox-recreate href="/create/" target="_blank" rel="noopener noreferrer"><Sparkles size={16} strokeWidth={1.9} aria-hidden="true" /> AI 重绘</a>
+      </div>
+      <div class="lightbox-nav-group" aria-label="切换壁纸">
+        <button class="lightbox-icon-btn lightbox-prev" type="button" data-lightbox-prev aria-label="上一张"><ChevronLeft size={18} strokeWidth={1.8} aria-hidden="true" /><span>上一张</span></button>
+        <button class="lightbox-icon-btn lightbox-next" type="button" data-lightbox-next aria-label="下一张"><span>下一张</span><ChevronRight size={18} strokeWidth={1.8} aria-hidden="true" /></button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  const lightbox = document.querySelector('[data-wallpaper-lightbox]');
+  if (lightbox) {
+    const imgEl = lightbox.querySelector('[data-lightbox-image]') as HTMLImageElement | null;
+    const previewImgEl = lightbox.querySelector('[data-lightbox-preview-image]') as HTMLImageElement | null;
+    const titleEl = lightbox.querySelector('[data-lightbox-title]');
+    const styleEl = lightbox.querySelector('[data-lightbox-style]');
+    const deviceEl = lightbox.querySelector('[data-lightbox-device]');
+    const sizeEl = lightbox.querySelector('[data-lightbox-size]');
+    const downloadEl = lightbox.querySelector('[data-lightbox-download]') as HTMLAnchorElement | null;
+    const recreateEl = lightbox.querySelector('[data-lightbox-recreate]') as HTMLAnchorElement | null;
+    const closeEl = lightbox.querySelector('[data-lightbox-close]');
+    const prevEl = lightbox.querySelector('[data-lightbox-prev]');
+    const nextEl = lightbox.querySelector('[data-lightbox-next]');
+    const stageEl = lightbox.querySelector('[data-lightbox-stage]') as HTMLElement | null;
+    const previewModeButtons = Array.from(lightbox.querySelectorAll<HTMLButtonElement>('[data-preview-mode]'));
+    let currentId: string | null = null;
+    let lastFocused: HTMLElement | null = null;
+    let prevOverflow = '';
+    let closing = false;
+
+    const visibleCards = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-artwork-card]:not([hidden])'));
+    const deviceLabel = (device: string) => device === 'mobile' ? 'Mobile 壁纸' : 'PC 壁纸';
+    const setPreviewMode = (mode: 'lock' | 'home') => {
+      lightbox!.dataset.previewMode = mode;
+      previewModeButtons.forEach((button) => {
+        const isActive = button.dataset.previewMode === mode;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+      });
+    };
+    const render = (card: HTMLElement) => {
+      const data = card.dataset;
+      currentId = data.artworkId ?? null;
+      if (imgEl) { imgEl.src = data.artworkSrc ?? ''; imgEl.alt = data.artworkAlt || data.artworkTitle || ''; }
+      if (previewImgEl) previewImgEl.src = data.artworkSrc ?? '';
+      stageEl?.scrollTo({ top: 0 });
+      lightbox!.dataset.device = data.artworkDevice ?? 'pc';
+      setPreviewMode('lock');
+      if (titleEl) titleEl.textContent = data.artworkTitle ?? '';
+      if (styleEl) styleEl.textContent = data.artworkStyle ?? '';
+      if (deviceEl) deviceEl.textContent = deviceLabel(data.artworkDevice ?? 'pc');
+      if (sizeEl) sizeEl.textContent = `${data.artworkWidth} × ${data.artworkHeight}`;
+      if (downloadEl) downloadEl.href = data.artworkSrc ?? '';
+      if (recreateEl) recreateEl.href = data.artworkRecreate || '/create/';
+    };
+    const close = () => {
+      if (closing) return;
+      closing = true;
+      lightbox!.classList.remove('is-open');
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKey);
+      const cleanup = () => {
+        lightbox!.hidden = true;
+        if (imgEl) imgEl.src = '';
+        if (previewImgEl) previewImgEl.src = '';
+        if (lastFocused && document.contains(lastFocused)) lastFocused.focus();
+        currentId = null;
+      };
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) cleanup();
+      else {
+        lightbox!.addEventListener('transitionend', function done() { lightbox!.removeEventListener('transitionend', done); cleanup(); });
+        window.setTimeout(cleanup, 450);
+      }
+    };
+    const nav = (direction: number) => {
+      const cards = visibleCards();
+      const index = cards.findIndex((card) => card.dataset.artworkId === currentId);
+      if (index < 0 || !cards.length) return;
+      render(cards[(index + direction + cards.length) % cards.length]);
+    };
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') close(); else if (event.key === 'ArrowLeft') nav(-1); else if (event.key === 'ArrowRight') nav(1); };
+    document.querySelectorAll('[data-artwork-trigger]').forEach((node) => {
+      const trigger = node as HTMLAnchorElement;
+      trigger.addEventListener('click', (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+        const card = trigger.closest<HTMLElement>('[data-artwork-card]');
+        if (!card) return;
+        event.preventDefault();
+        lastFocused = trigger;
+        prevOverflow = document.body.style.overflow;
+        render(card);
+        closing = false;
+        lightbox!.hidden = false;
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(() => lightbox!.classList.add('is-open'));
+        closeEl?.focus();
+        document.addEventListener('keydown', onKey);
+      });
+    });
+    closeEl?.addEventListener('click', close);
+    prevEl?.addEventListener('click', () => nav(-1));
+    nextEl?.addEventListener('click', () => nav(1));
+    previewModeButtons.forEach((button) => button.addEventListener('click', () => setPreviewMode(button.dataset.previewMode === 'home' ? 'home' : 'lock')));
+    lightbox.addEventListener('click', (event) => { if (event.target === lightbox || event.target === stageEl) close(); });
+  }
+</script>
+
+<style>
+  .wallpaper-lightbox[hidden] { display: none; }
+  .wallpaper-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(6, 10, 18, .94); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); opacity: 0; transition: opacity .28s ease; }
+  .wallpaper-lightbox.is-open { opacity: 1; }
+  .lightbox-layout { display: grid; width: 100%; height: 100%; min-height: 0; }
+  .lightbox-phone-preview { display: none; }
+  .lightbox-stage { min-height: 0; display: grid; place-items: center; padding: clamp(4rem, 7vh, 5rem) clamp(4rem, 6vw, 6rem) clamp(1rem, 3vh, 2rem); overflow: hidden; }
+  .lightbox-image { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: var(--radius-md); box-shadow: 0 24px 80px rgba(0, 0, 0, .6); }
+  .lightbox-icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.08); color: #fff; cursor: pointer; transition: background-color .2s ease, border-color .2s ease, transform .2s ease; }
+  .lightbox-icon-btn:hover, .lightbox-icon-btn:focus-visible { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.4); outline: none; }
+  .lightbox-panel-controls { display: flex; justify-content: flex-end; }
+  .lightbox-nav-group { display: flex; gap: .5rem; }
+  .lightbox-info { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem clamp(1.25rem, 4vw, 2.5rem); background: rgba(6,10,18,.6); border-top: 1px solid rgba(255,255,255,.08); color: #fff; }
+  .lightbox-meta { min-width: 0; display: flex; align-items: baseline; gap: .55rem; }
+  .lightbox-meta h3 { margin: 0; overflow: hidden; color: #fff; font-size: 1.05rem; text-overflow: ellipsis; white-space: nowrap; }
+  .lightbox-sub { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 0; color: rgba(255,255,255,.66); font-size: .76rem; }
+  .lightbox-sub .dot { opacity: .5; }
+  .lightbox-actions { display: flex; gap: .6rem; flex-shrink: 0; }
+  .lightbox-actions .btn { display: inline-flex; align-items: center; gap: .4rem; }
+  .phone-preview-switch { display: none; }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-layout { grid-template-rows: minmax(0, 1fr) auto; }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-stage { grid-row: 1; }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-info { grid-row: 2; }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-panel-controls, .wallpaper-lightbox[data-device="pc"] .lightbox-nav-group { display: contents; }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-nav-group span { display: none; }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-close, .wallpaper-lightbox[data-device="pc"] .lightbox-prev, .wallpaper-lightbox[data-device="pc"] .lightbox-next { position: absolute; z-index: 2; }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-close { top: 1rem; right: 1rem; }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-prev, .wallpaper-lightbox[data-device="pc"] .lightbox-next { top: 50%; width: 48px; height: 48px; transform: translateY(-50%); }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-prev { left: clamp(.5rem, 2vw, 1.5rem); }
+  .wallpaper-lightbox[data-device="pc"] .lightbox-next { right: clamp(.5rem, 2vw, 1.5rem); }
+  @media (min-width: 769px) {
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-layout { grid-template-columns: minmax(168px,.72fr) minmax(260px,1.18fr) minmax(250px,290px); gap: clamp(1rem,2vw,2rem); align-items: center; padding: clamp(1rem,3vh,2.25rem) clamp(1.25rem,3.5vw,4rem); }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-phone-preview { display: grid; place-items: center; min-width: 0; }
+    .phone-device { position: relative; width: min(100%,254px); aspect-ratio: 322 / 662; filter: drop-shadow(0 22px 34px rgba(0,0,0,.48)); }
+    .phone-device::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: url('/media/ui/iphone-17-pro-frame.png') center / contain no-repeat; }
+    .phone-screen { position: absolute; z-index: 3; inset: .9% 1.25%; overflow: hidden; border-radius: 13.8% / 6.7%; background: #111827; color: #fff; }
+    .phone-wallpaper { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .phone-screen::before { content: ''; position: absolute; z-index: 2; top: 1.1%; left: 33%; width: 34%; height: 2.6%; border-radius: 999px; background: #070B11; }
+    .phone-screen::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(2,7,14,.26), transparent 24%, transparent 70%, rgba(2,7,14,.36)); }
+    .phone-status-bar { position: absolute; z-index: 3; inset: 3.5% 7.4% auto; display: flex; align-items: center; justify-content: space-between; font-size: 6px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+    .phone-status-icons { display: inline-flex; align-items: center; gap: 3px; }
+    .phone-lock-content { position: absolute; z-index: 1; top: 16%; right: 0; left: 0; display: grid; justify-items: center; text-shadow: 0 2px 10px rgba(0,0,0,.76); }
+    .phone-lock-date { font-size: 7px; font-weight: 600; }
+    .phone-lock-content strong { font-family: Georgia, serif; font-size: clamp(2.7rem,4.3vw,4.25rem); font-weight: 500; line-height: .95; letter-spacing: -.08em; }
+    .phone-lock-actions { position: absolute; z-index: 1; right: 9%; bottom: 5%; left: 9%; display: flex; justify-content: space-between; }
+    .phone-lock-actions svg { box-sizing: content-box; padding: 8px; border-radius: 50%; background: rgba(13,21,34,.42); box-shadow: inset 0 1px rgba(255,255,255,.16); }
+    .phone-home-overlay { position: absolute; z-index: 1; inset: 0; display: none; width: 100%; height: 100%; object-fit: fill; mix-blend-mode: screen; }
+    .phone-home-indicator { position: absolute; z-index: 3; right: 35%; bottom: 1.45%; left: 35%; height: 3px; border-radius: 999px; background: rgba(255,255,255,.86); }
+    .wallpaper-lightbox[data-preview-mode="home"] .phone-lock-content, .wallpaper-lightbox[data-preview-mode="home"] .phone-lock-actions, .wallpaper-lightbox[data-preview-mode="home"] .phone-status-bar { display: none; }
+    .wallpaper-lightbox[data-preview-mode="home"] .phone-home-overlay { display: block; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-stage { display: block; height: min(82vh,820px); padding: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.3) transparent; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-stage::-webkit-scrollbar { width: 6px; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-stage::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(255,255,255,.3); }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-image { display: block; width: 100%; max-width: none; max-height: none; height: auto; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-info { align-self: stretch; flex-direction: column; align-items: stretch; justify-content: center; padding: 0 0 0 clamp(1rem,2vw,2rem); border: 0; border-left: 1px solid rgba(255,255,255,.12); background: transparent; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-meta { display: block; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-meta h3 { font-size: 1.2rem; white-space: normal; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-sub { margin-top: .55rem; }
+    .wallpaper-lightbox[data-device="mobile"] .phone-preview-switch { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .4rem; margin-top: 1.4rem; }
+    .phone-preview-switch button { min-height: 34px; border: 1px solid rgba(255,255,255,.2); border-radius: 6px; color: rgba(255,255,255,.68); background: rgba(255,255,255,.05); cursor: pointer; font: inherit; font-size: .78rem; }
+    .phone-preview-switch button.is-active, .phone-preview-switch button:hover, .phone-preview-switch button:focus-visible { border-color: rgba(205,166,91,.7); color: #fff; background: rgba(205,166,91,.14); outline: none; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-actions { flex-direction: column; margin-top: 1.5rem; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-actions .btn { justify-content: center; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-nav-group { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .55rem; margin-top: auto; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,.12); }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-nav-group .lightbox-icon-btn { width: 100%; height: 42px; padding: 0 .7rem; border-radius: 7px; justify-content: center; grid-auto-flow: column; gap: .32rem; color: rgba(255,255,255,.84); font: inherit; font-size: .78rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .wallpaper-lightbox, .lightbox-icon-btn { transition: none; } }
+</style>
