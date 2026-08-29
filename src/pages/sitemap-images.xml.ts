@@ -20,8 +20,8 @@ const escapeXml = (value: string) =>
 
 const absolute = (path: string, site: URL) => new URL(path, site).toString();
 
-const imageEntry = (pageUrl: string, imageUrl: string, title: string) =>
-  `<url><loc>${escapeXml(pageUrl)}</loc><image:image><image:loc>${escapeXml(imageUrl)}</image:loc><image:title>${escapeXml(title)}</image:title></image:image></url>`;
+const imageEntry = (pageUrl: string, imageUrl: string) =>
+  `<url><loc>${escapeXml(pageUrl)}</loc><image:image><image:loc>${escapeXml(imageUrl)}</image:loc></image:image></url>`;
 
 async function loadAllPaged<T>(fetchPage: (offset: number) => Promise<T[]>): Promise<T[]> {
   const items: T[] = [];
@@ -53,7 +53,6 @@ export const GET: APIRoute = async ({ locals, site }) => {
       imageEntry(
         absolute(`/mythology/${mythology.slug}/`, site),
         absolute(mythology.heroImage.src, site),
-        `${mythology.name}神话`,
       ),
     );
   }
@@ -64,7 +63,6 @@ export const GET: APIRoute = async ({ locals, site }) => {
       imageEntry(
         absolute(`/world/${world.slug}/`, site),
         absolute(world.heroImage.src, site),
-        `${world.name} · ${world.nameEn}`,
       ),
     );
   }
@@ -75,7 +73,6 @@ export const GET: APIRoute = async ({ locals, site }) => {
       imageEntry(
         absolute(`/character/${character.slug}/`, site),
         absolute(character.portrait.src, site),
-        `${character.name} · ${character.nameEn}`,
       ),
     );
   }
@@ -86,7 +83,6 @@ export const GET: APIRoute = async ({ locals, site }) => {
       imageEntry(
         absolute(`/wallpaper/${artwork.slug}/`, site),
         absolute(artwork.image.src, site),
-        artwork.title,
       ),
     );
   }
