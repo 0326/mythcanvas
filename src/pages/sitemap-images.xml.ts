@@ -8,7 +8,7 @@ import {
 
 export const prerender = false;
 
-const PAGE_SIZE = 1000;
+const PAGE_SIZE = 50;
 
 const escapeXml = (value: string) =>
   value
