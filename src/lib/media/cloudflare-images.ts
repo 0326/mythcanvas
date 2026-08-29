@@ -12,7 +12,16 @@ export type CloudflareImageTransformOptions = {
   focalPoint?: ImageFocalPoint;
 };
 
+export type ArtworkListImageVariant = 'hero' | 'side' | 'tile';
+
+export type ArtworkListImage = {
+  src: string | undefined;
+  width: number;
+  height: number;
+};
+
 export const DEFAULT_IMAGE_FOCAL_POINT: ImageFocalPoint = { x: 0.5, y: 0.5 };
+export const ARTWORK_LIST_FOCAL_POINT: ImageFocalPoint = { x: 0.5, y: 0.34 };
 
 const clampFocalCoordinate = (value: number) => Math.min(1, Math.max(0, value));
 
@@ -49,6 +58,37 @@ export function cloudflareImageUrl(
 
   const source = /^https?:\/\//i.test(src) ? src : src.replace(/^\/+/, '');
   return `/cdn-cgi/image/${params.join(',')}/${source}`;
+}
+
+export function cloudflareArtworkListImage(
+  src: string | undefined,
+  sourceWidth: number,
+  sourceHeight: number,
+  variant: ArtworkListImageVariant = 'tile',
+  enabled = true,
+): ArtworkListImage {
+  const width = variant === 'hero' ? 1440 : variant === 'side' ? 960 : 720;
+  const sourceRatio = sourceWidth > 0 && sourceHeight > 0 ? sourceWidth / sourceHeight : 1;
+  const ratio = variant === 'hero' ? 4 / 3 : variant === 'side' ? 16 / 9 : sourceRatio;
+  const height = Math.max(1, Math.round(width / ratio));
+
+  return {
+    src: cloudflareImageUrl(
+      src,
+      {
+        width,
+        height,
+        fit: 'cover',
+        quality: 78,
+        format: 'auto',
+        // Keep faces toward the upper half when a wide feature card needs a crop.
+        focalPoint: ARTWORK_LIST_FOCAL_POINT,
+      },
+      enabled,
+    ) ?? src,
+    width,
+    height,
+  };
 }
 
 export function cloudflareImageSrcSet(
