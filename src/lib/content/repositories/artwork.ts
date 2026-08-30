@@ -189,6 +189,19 @@ async function getArtworkRowWithEngagement(
   }
 }
 
+/** 记录一次已发布作品访问；D1 自增更新是原子的。 */
+export async function incrementArtworkView(
+  db: D1Database | undefined,
+  artworkId: string,
+): Promise<void> {
+  if (!db || !artworkId) return;
+  await db
+    .prepare("UPDATE artworks SET view_count = view_count + 1 WHERE id = ? AND publish_status = 'published' AND review_status = 'approved'")
+    .bind(artworkId)
+    .run()
+    .catch(() => undefined);
+}
+
 export async function getArtworkBySlug(db: D1Database | undefined, slug: string): Promise<ArtworkWithEngagement | undefined> {
   if (!db) {
     const artwork = seedArtworks.find((item) => item.slug === slug);
@@ -196,6 +209,8 @@ export async function getArtworkBySlug(db: D1Database | undefined, slug: string)
   }
   const row = await getArtworkRowWithEngagement(db, 'slug', slug);
   if (!row) return undefined;
+  // 当前按 slug 获取只用于公开作品详情页，因此在这里覆盖直接访问/新标签打开等非弹窗访问。
+  await incrementArtworkView(db, String(row.id));
   const characterMap = await loadCharacterIds(db, [String(row.id)]);
   return mapArtworkRow(row, characterMap.get(String(row.id)) ?? []);
 }
@@ -209,19 +224,6 @@ export async function getArtworkById(db: D1Database | undefined, id: string): Pr
   if (!row) return undefined;
   const characterMap = await loadCharacterIds(db, [String(row.id)]);
   return mapArtworkRow(row, characterMap.get(String(row.id)) ?? []);
-}
-
-/** 记录一次已发布作品访问；D1 自增更新是原子的。 */
-export async function incrementArtworkView(
-  db: D1Database | undefined,
-  artworkId: string,
-): Promise<void> {
-  if (!db || !artworkId) return;
-  await db
-    .prepare("UPDATE artworks SET view_count = view_count + 1 WHERE id = ? AND publish_status = 'published' AND review_status = 'approved'")
-    .bind(artworkId)
-    .run()
-    .catch(() => undefined);
 }
 
 export async function getArtworksForMythology(
