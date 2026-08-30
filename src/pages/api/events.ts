@@ -51,8 +51,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .run()
       .catch(() => undefined);
 
-    // Explore 的 artwork_click 即一次作品详情/预览访问，直接维护聚合计数供热门排序使用。
-    if (name === 'artwork_click' && targetId) {
+    // 只有真正打开作品预览/详情才累计访问量；普通卡片点击继续保留为独立分析事件。
+    if (name === 'artwork_view' && targetId) {
       await incrementArtworkView(db, targetId);
     }
   }
