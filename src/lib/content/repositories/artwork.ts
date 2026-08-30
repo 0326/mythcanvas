@@ -1,16 +1,21 @@
 import { artworks as seedArtworks } from '../../../data/seed';
 import type { Artwork, ArtworkType, LicenseMeta } from '../types';
-import { optionalString, pageClause, parseStringArray } from './shared';
+import { optionalNumber, optionalString, pageClause, parseStringArray } from './shared';
 import type { ArtworkListQuery } from './types';
 
 type ArtworkRow = Record<string, unknown>;
+export type ArtworkWithEngagement = Artwork & {
+  downloadCount?: number;
+  viewCount?: number;
+};
 
-const SELECT_COLUMNS = `
+const BASE_SELECT_COLUMNS = `
   id, slug, title, type, mythology_id, world_id, style_id, mood_ids_json,
   asset_key, asset_mime, width, height, alt_text, source_type, license, creator, review_status
 `;
+const SELECT_COLUMNS = `${BASE_SELECT_COLUMNS}, download_count, view_count`;
 
-export function mapArtworkRow(row: ArtworkRow, characterIds: readonly string[] = []): Artwork {
+export function mapArtworkRow(row: ArtworkRow, characterIds: readonly string[] = []): ArtworkWithEngagement {
   return {
     id: String(row.id),
     slug: String(row.slug),
@@ -33,6 +38,8 @@ export function mapArtworkRow(row: ArtworkRow, characterIds: readonly string[] =
       creator: optionalString(row.creator),
     },
     reviewStatus: String(row.review_status) as Artwork['reviewStatus'],
+    downloadCount: optionalNumber(row.download_count) ?? 0,
+    viewCount: optionalNumber(row.view_count) ?? 0,
   };
 }
 
@@ -54,7 +61,7 @@ async function loadCharacterIds(db: D1Database, artworkIds: readonly string[]): 
   return map;
 }
 
-function applySeedFilters(list: Artwork[], query: ArtworkListQuery): Artwork[] {
+function applySeedFilters(list: Artwork[], query: ArtworkListQuery): ArtworkWithEngagement[] {
   let result = [...list];
   if (query.published !== 'all') result = result.filter((item) => item.reviewStatus === 'approved');
   if (query.mythologyId) result = result.filter((item) => item.mythologyId === query.mythologyId);
@@ -71,19 +78,19 @@ function applySeedFilters(list: Artwork[], query: ArtworkListQuery): Artwork[] {
   if (query.device === 'desktop') result = result.filter((item) => item.image.width >= item.image.height);
   if (query.device === 'mobile') result = result.filter((item) => item.image.height > item.image.width);
 
-  // Seed 数据没有正式热度/发布时间元数据：推荐沿用编辑顺序，最新使用反向顺序作为可区分的本地兜底。
+  // Seed 数据没有正式访问/下载/发布时间元数据：推荐与热门沿用编辑顺序，最新反向作为本地兜底。
   if (query.sort === 'latest') result.reverse();
 
   const { limit, offset } = pageClause(query);
-  return result.slice(offset, offset + limit);
+  return result.slice(offset, offset + limit).map((item) => ({ ...item, downloadCount: 0, viewCount: 0 }));
 }
 
-function isMissingRankingColumnError(error: unknown): boolean {
+function isMissingEngagementColumnError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return /no such column[^\n]*(featured|favorite_count|download_count|published_at)/i.test(message);
+  return /no such column[^\n]*(download_count|view_count|published_at)/i.test(message);
 }
 
-export async function getArtworks(db: D1Database | undefined, query: ArtworkListQuery = {}): Promise<Artwork[]> {
+export async function getArtworks(db: D1Database | undefined, query: ArtworkListQuery = {}): Promise<ArtworkWithEngagement[]> {
   if (!db) return applySeedFilters(seedArtworks, query);
 
   const where: string[] = [];
@@ -131,9 +138,9 @@ export async function getArtworks(db: D1Database | undefined, query: ArtworkList
   const whereSql = where.length ? ` WHERE ${where.join(' AND ')}` : '';
   const { limit, offset } = pageClause(query);
   const orderBy = query.sort === 'recommended'
-    ? 'a.featured DESC, (a.favorite_count * 3 + a.download_count) DESC, COALESCE(a.published_at, a.created_at) DESC, a.id'
+    ? 'a.download_count DESC, a.view_count DESC, COALESCE(a.published_at, a.created_at) DESC, a.id'
     : query.sort === 'popular'
-      ? '(a.favorite_count * 3 + a.download_count) DESC, a.favorite_count DESC, a.download_count DESC, COALESCE(a.published_at, a.created_at) DESC, a.id'
+      ? 'a.view_count DESC, a.download_count DESC, COALESCE(a.published_at, a.created_at) DESC, a.id'
       : 'COALESCE(a.published_at, a.created_at) DESC, a.id';
 
   let rows;
@@ -143,11 +150,10 @@ export async function getArtworks(db: D1Database | undefined, query: ArtworkList
       .bind(...values, limit, offset)
       .all();
   } catch (error) {
-    // 线上 D1 可能尚未应用 0005_user_features.sql。排序增强字段缺失时先降级到旧 Schema，
-    // 保证 Explore 可用；待迁移补齐后自动恢复推荐/热门排序，无需再次改代码。
-    if (!isMissingRankingColumnError(error)) throw error;
+    // 线上 D1 可能尚未应用参与度字段迁移。字段缺失时退化为发布时间排序，并返回 0 计数。
+    if (!isMissingEngagementColumnError(error)) throw error;
     rows = await db
-      .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks a${join}${whereSql} ORDER BY a.created_at DESC, a.id LIMIT ? OFFSET ?`)
+      .prepare(`SELECT ${BASE_SELECT_COLUMNS}, 0 AS download_count, 0 AS view_count FROM artworks a${join}${whereSql} ORDER BY a.created_at DESC, a.id LIMIT ? OFFSET ?`)
       .bind(...values, limit, offset)
       .all();
   }
@@ -164,33 +170,65 @@ export async function countPublishedArtworks(db: D1Database | undefined): Promis
   return Number(row?.count ?? 0);
 }
 
-export async function getArtworkBySlug(db: D1Database | undefined, slug: string): Promise<Artwork | undefined> {
-  if (!db) return seedArtworks.find((item) => item.slug === slug);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks WHERE slug = ? AND publish_status = 'published' AND review_status = 'approved'`)
-    .bind(slug)
-    .first();
+async function getArtworkRowWithEngagement(
+  db: D1Database,
+  column: 'slug' | 'id',
+  value: string,
+): Promise<ArtworkRow | null> {
+  try {
+    return await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks WHERE ${column} = ? AND publish_status = 'published' AND review_status = 'approved'`)
+      .bind(value)
+      .first<ArtworkRow>();
+  } catch (error) {
+    if (!isMissingEngagementColumnError(error)) throw error;
+    return db
+      .prepare(`SELECT ${BASE_SELECT_COLUMNS}, 0 AS download_count, 0 AS view_count FROM artworks WHERE ${column} = ? AND publish_status = 'published' AND review_status = 'approved'`)
+      .bind(value)
+      .first<ArtworkRow>();
+  }
+}
+
+export async function getArtworkBySlug(db: D1Database | undefined, slug: string): Promise<ArtworkWithEngagement | undefined> {
+  if (!db) {
+    const artwork = seedArtworks.find((item) => item.slug === slug);
+    return artwork ? { ...artwork, downloadCount: 0, viewCount: 0 } : undefined;
+  }
+  const row = await getArtworkRowWithEngagement(db, 'slug', slug);
   if (!row) return undefined;
   const characterMap = await loadCharacterIds(db, [String(row.id)]);
   return mapArtworkRow(row, characterMap.get(String(row.id)) ?? []);
 }
 
-export async function getArtworkById(db: D1Database | undefined, id: string): Promise<Artwork | undefined> {
-  if (!db) return seedArtworks.find((item) => item.id === id);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM artworks WHERE id = ? AND publish_status = 'published' AND review_status = 'approved'`)
-    .bind(id)
-    .first();
+export async function getArtworkById(db: D1Database | undefined, id: string): Promise<ArtworkWithEngagement | undefined> {
+  if (!db) {
+    const artwork = seedArtworks.find((item) => item.id === id);
+    return artwork ? { ...artwork, downloadCount: 0, viewCount: 0 } : undefined;
+  }
+  const row = await getArtworkRowWithEngagement(db, 'id', id);
   if (!row) return undefined;
   const characterMap = await loadCharacterIds(db, [String(row.id)]);
   return mapArtworkRow(row, characterMap.get(String(row.id)) ?? []);
+}
+
+/** 记录一次已发布作品访问；D1 自增更新是原子的。 */
+export async function incrementArtworkView(
+  db: D1Database | undefined,
+  artworkId: string,
+): Promise<void> {
+  if (!db || !artworkId) return;
+  await db
+    .prepare("UPDATE artworks SET view_count = view_count + 1 WHERE id = ? AND publish_status = 'published' AND review_status = 'approved'")
+    .bind(artworkId)
+    .run()
+    .catch(() => undefined);
 }
 
 export async function getArtworksForMythology(
   db: D1Database | undefined,
   mythologyId: string,
   query: ArtworkListQuery = {},
-): Promise<Artwork[]> {
+): Promise<ArtworkWithEngagement[]> {
   return getArtworks(db, { ...query, mythologyId });
 }
 
@@ -198,7 +236,7 @@ export async function getArtworksForWorld(
   db: D1Database | undefined,
   worldId: string,
   query: ArtworkListQuery = {},
-): Promise<Artwork[]> {
+): Promise<ArtworkWithEngagement[]> {
   return getArtworks(db, { ...query, worldId });
 }
 
@@ -206,7 +244,7 @@ export async function getArtworksForCharacter(
   db: D1Database | undefined,
   characterId: string,
   query: ArtworkListQuery = {},
-): Promise<Artwork[]> {
+): Promise<ArtworkWithEngagement[]> {
   return getArtworks(db, { ...query, characterId });
 }
 
@@ -214,7 +252,7 @@ export async function getArtworksForStyle(
   db: D1Database | undefined,
   styleId: string,
   query: ArtworkListQuery = {},
-): Promise<Artwork[]> {
+): Promise<ArtworkWithEngagement[]> {
   return getArtworks(db, { ...query, styleId });
 }
 
