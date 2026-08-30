@@ -7,8 +7,10 @@ import {
   shouldUseCloudflareImageTransformations,
 } from '../../lib/media/cloudflare-images';
 
+type EngagementArtwork = Artwork & { downloadCount?: number };
+
 interface Props {
-  artwork: Artwork;
+  artwork: EngagementArtwork;
   characterName?: string;
   mythologyName?: string;
   worldName?: string;
@@ -71,6 +73,7 @@ const previewSrc = cloudflareImageUrl(
   data-artwork-preview-src={previewSrc}
   data-artwork-alt={artwork.image.alt}
   data-artwork-recreate={recreateHref}
+  data-artwork-download-count={artwork.downloadCount ?? 0}
   data-mythology={artwork.mythologyId}
   data-type={artwork.type}
   data-style={artwork.styleId}

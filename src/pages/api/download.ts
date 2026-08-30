@@ -10,7 +10,7 @@ const DOWNLOAD_LIMIT = 60; // 每小时最多 60 次下载记录，防止刷计�
 /**
  * POST /api/download — 记录一次壁纸下载
  * body: { artworkId: string, variant: 'original'|'hd'|'2k'|'4k' }
- * 返回下载地址（原图）；派生规格基于素材，具体 content negotiation 由客户端决定。
+ * 返回下载地址。当前真正可下载的资产仍是原图，派生规格上线前不计入下载次数。
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   const kv = locals.runtime.env.SESSION;
@@ -47,7 +47,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   if (!artwork) return json({ error: { code: 'NOT_FOUND', message: '未找到该作品。' } }, 404, sessionResult.cookie);
 
-  if (db) {
+  // 当前只有 original 对应真实下载资产。HD/2K/4K 仍是规格选择占位，不应污染下载热度。
+  if (db && variant === 'original') {
     await db
       .prepare('INSERT INTO download_events (id, artwork_id, user_id, variant) VALUES (?, ?, ?, ?)')
       .bind(crypto.randomUUID(), artworkId, sessionResult.user.id, variant)
@@ -70,6 +71,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     ok: true,
     url,
     variant,
+    counted: variant === 'original',
   }, 200, sessionResult.cookie);
 };
 

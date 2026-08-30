@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getOrCreateUser, readSessionId } from '../../lib/auth/session';
+import { incrementArtworkView } from '../../lib/content/repositories';
 import { checkRateLimit, clientIp } from '../../lib/security/rate-limit';
 
 export const prerender = false;
@@ -49,6 +50,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .bind(crypto.randomUUID(), name, targetId ?? null, sessionResult.user.id, page ?? null, extraJson)
       .run()
       .catch(() => undefined);
+
+    // 只有真正打开作品预览/详情才累计访问量；普通卡片点击继续保留为独立分析事件。
+    if (name === 'artwork_view' && targetId) {
+      await incrementArtworkView(db, targetId);
+    }
   }
 
   return json({ ok: true }, 200, sessionResult.cookie);
