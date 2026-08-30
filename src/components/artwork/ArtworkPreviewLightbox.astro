@@ -28,6 +28,7 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
       <div class="lightbox-meta"><h3 data-lightbox-title></h3><p class="lightbox-sub"><span data-lightbox-style></span><span class="dot">·</span><span data-lightbox-device></span><span class="dot">·</span><span data-lightbox-size></span></p></div>
       <div class="phone-preview-switch" role="group" aria-label="选择手机预览效果"><button type="button" class="is-active" data-preview-mode="lock" aria-pressed="true">锁屏效果</button><button type="button" data-preview-mode="home" aria-pressed="false">主屏效果</button></div>
       <div class="lightbox-actions">
+        <span class="lightbox-download-count" data-lightbox-download-count hidden><Download size={14} strokeWidth={1.8} aria-hidden="true" /><span data-lightbox-download-count-value></span> 次下载</span>
         <a class="btn btn-primary lightbox-download" data-lightbox-download href="#" download><Download size={16} strokeWidth={1.9} aria-hidden="true" /> 下载原图</a>
         <a class="btn btn-secondary lightbox-recreate" data-lightbox-recreate href="/create/" target="_blank" rel="noopener noreferrer"><Sparkles size={16} strokeWidth={1.9} aria-hidden="true" /> AI 重绘</a>
       </div>
@@ -53,6 +54,8 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
     const deviceEl = lightbox.querySelector('[data-lightbox-device]');
     const sizeEl = lightbox.querySelector('[data-lightbox-size]');
     const downloadEl = lightbox.querySelector('[data-lightbox-download]') as HTMLAnchorElement | null;
+    const downloadCountEl = lightbox.querySelector('[data-lightbox-download-count]') as HTMLElement | null;
+    const downloadCountValueEl = lightbox.querySelector('[data-lightbox-download-count-value]');
     const recreateEl = lightbox.querySelector('[data-lightbox-recreate]') as HTMLAnchorElement | null;
     const closeEl = lightbox.querySelector('[data-lightbox-close]');
     const prevEl = lightbox.querySelector('[data-lightbox-prev]');
@@ -60,12 +63,26 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
     const stageEl = lightbox.querySelector('[data-lightbox-stage]') as HTMLElement | null;
     const previewModeButtons = Array.from(lightbox.querySelectorAll<HTMLButtonElement>('[data-preview-mode]'));
     let currentId: string | null = null;
+    let currentDownloadCount = 0;
     let lastFocused: HTMLElement | null = null;
     let prevOverflow = '';
     let closing = false;
 
     const visibleCards = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-artwork-card]:not([hidden])'));
     const deviceLabel = (device: string) => device === 'mobile' ? 'Mobile 壁纸' : 'PC 壁纸';
+    const updateDownloadCount = (count: number) => {
+      currentDownloadCount = Math.max(0, Number.isFinite(count) ? Math.trunc(count) : 0);
+      if (downloadCountValueEl) downloadCountValueEl.textContent = currentDownloadCount.toLocaleString('zh-CN');
+      if (downloadCountEl) downloadCountEl.hidden = currentDownloadCount <= 0;
+    };
+    const trackView = (artworkId: string) => {
+      void fetch('/api/events', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name: 'artwork_view', targetId: artworkId, page: location.pathname }),
+        keepalive: true,
+      }).catch(() => undefined);
+    };
     const setPreviewMode = (mode: 'lock' | 'home') => {
       lightbox!.dataset.previewMode = mode;
       previewModeButtons.forEach((button) => {
@@ -88,6 +105,8 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
       if (sizeEl) sizeEl.textContent = `${data.artworkWidth} × ${data.artworkHeight}`;
       if (downloadEl) downloadEl.href = data.artworkSrc ?? '';
       if (recreateEl) recreateEl.href = data.artworkRecreate || '/create/';
+      updateDownloadCount(Number.parseInt(data.artworkDownloadCount ?? '0', 10) || 0);
+      if (currentId) trackView(currentId);
     };
     const close = () => {
       if (closing) return;
@@ -101,6 +120,7 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
         if (previewImgEl) previewImgEl.src = '';
         if (lastFocused && document.contains(lastFocused)) lastFocused.focus();
         currentId = null;
+        updateDownloadCount(0);
       };
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) cleanup();
       else {
@@ -133,6 +153,22 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
         document.addEventListener('keydown', onKey);
       });
     });
+    downloadEl?.addEventListener('click', () => {
+      if (!currentId) return;
+      const artworkId = currentId;
+      void fetch('/api/download', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ artworkId, variant: 'original' }),
+        keepalive: true,
+      }).then((response) => {
+        if (!response.ok || currentId !== artworkId) return;
+        const nextCount = currentDownloadCount + 1;
+        updateDownloadCount(nextCount);
+        const card = visibleCards().find((item) => item.dataset.artworkId === artworkId);
+        if (card) card.dataset.artworkDownloadCount = String(nextCount);
+      }).catch(() => undefined);
+    });
     closeEl?.addEventListener('click', close);
     prevEl?.addEventListener('click', () => nav(-1));
     nextEl?.addEventListener('click', () => nav(1));
@@ -158,8 +194,10 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
   .lightbox-meta h3 { margin: 0; overflow: hidden; color: #fff; font-size: 1.05rem; text-overflow: ellipsis; white-space: nowrap; }
   .lightbox-sub { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 0; color: rgba(255,255,255,.66); font-size: .76rem; }
   .lightbox-sub .dot { opacity: .5; }
-  .lightbox-actions { display: flex; gap: .6rem; flex-shrink: 0; }
+  .lightbox-actions { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; }
   .lightbox-actions .btn { display: inline-flex; align-items: center; gap: .4rem; }
+  .lightbox-download-count { display: inline-flex; align-items: center; gap: .28rem; color: rgba(255,255,255,.58); font-size: .72rem; white-space: nowrap; }
+  .lightbox-download-count[hidden] { display: none; }
   .phone-preview-switch { display: none; }
   .wallpaper-lightbox[data-device="pc"] .lightbox-layout { grid-template-rows: minmax(0, 1fr) auto; }
   .wallpaper-lightbox[data-device="pc"] .lightbox-stage { grid-row: 1; }
@@ -202,8 +240,9 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
     .wallpaper-lightbox[data-device="mobile"] .phone-preview-switch { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .4rem; margin-top: 1.4rem; }
     .phone-preview-switch button { min-height: 34px; border: 1px solid rgba(255,255,255,.2); border-radius: 6px; color: rgba(255,255,255,.68); background: rgba(255,255,255,.05); cursor: pointer; font: inherit; font-size: .78rem; }
     .phone-preview-switch button.is-active, .phone-preview-switch button:hover, .phone-preview-switch button:focus-visible { border-color: rgba(205,166,91,.7); color: #fff; background: rgba(205,166,91,.14); outline: none; }
-    .wallpaper-lightbox[data-device="mobile"] .lightbox-actions { flex-direction: column; margin-top: 1.5rem; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-actions { flex-direction: column; align-items: stretch; margin-top: 1.5rem; }
     .wallpaper-lightbox[data-device="mobile"] .lightbox-actions .btn { justify-content: center; }
+    .wallpaper-lightbox[data-device="mobile"] .lightbox-download-count { justify-content: center; }
     .wallpaper-lightbox[data-device="mobile"] .lightbox-nav-group { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .55rem; margin-top: auto; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,.12); }
     .wallpaper-lightbox[data-device="mobile"] .lightbox-nav-group .lightbox-icon-btn { width: 100%; height: 42px; padding: 0 .7rem; border-radius: 7px; justify-content: center; grid-auto-flow: column; gap: .32rem; color: rgba(255,255,255,.84); font: inherit; font-size: .78rem; }
   }
