@@ -1,6 +1,6 @@
 -- 0031_artwork_view_count.sql
 -- 探索页排序：热门按访问量，推荐按实际下载量。
-PRAGMA foreign_keys = ON;
+-- D1 already enforces foreign keys during migrations.
 
 ALTER TABLE artworks ADD COLUMN view_count INTEGER NOT NULL DEFAULT 0;
 CREATE INDEX IF NOT EXISTS idx_artworks_view_count ON artworks(view_count DESC);
