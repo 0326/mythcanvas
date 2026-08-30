@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  cloudflareArtworkListImage,
   cloudflareImageSrcSet,
   cloudflareImageUrl,
   focalPointToCss,
@@ -30,6 +31,19 @@ describe('Cloudflare image transformations', () => {
       '/cdn-cgi/image/width=320,fit=cover,gravity=0.500x0.500,quality=78,format=auto/media/world/olympus.jpg 320w',
       '/cdn-cgi/image/width=720,fit=cover,gravity=0.500x0.500,quality=78,format=auto/media/world/olympus.jpg 720w',
     ].join(', '));
+  });
+
+  it('uses the same artwork tile transform for PC and mobile list cards', () => {
+    expect(cloudflareArtworkListImage('/media/artworks/pc.webp', 2560, 1440, 'tile')).toEqual({
+      src: '/cdn-cgi/image/width=720,height=405,fit=cover,gravity=0.500x0.340,quality=78,format=auto/media/artworks/pc.webp',
+      width: 720,
+      height: 405,
+    });
+    expect(cloudflareArtworkListImage('/media/artworks/mobile.webp', 1440, 2560, 'tile')).toEqual({
+      src: '/cdn-cgi/image/width=720,height=1280,fit=cover,gravity=0.500x0.340,quality=78,format=auto/media/artworks/mobile.webp',
+      width: 720,
+      height: 1280,
+    });
   });
 
   it('clamps focal coordinates and exposes CSS positions', () => {

@@ -5,7 +5,11 @@ import {
 } from '@lucide/astro';
 import type { Character, ImageAsset } from '../../lib/content/types';
 import { getCharacterStyle, type CharacterStyleId } from '../../lib/content/character-styles';
-import { cloudflareImageUrl, shouldUseCloudflareImageTransformations } from '../../lib/media/cloudflare-images';
+import {
+  cloudflareArtworkListImage,
+  cloudflareImageUrl,
+  shouldUseCloudflareImageTransformations,
+} from '../../lib/media/cloudflare-images';
 
 export type WallpaperDevice = 'pc' | 'mobile';
 export type StyleFilter = CharacterStyleId | 'all';
@@ -78,18 +82,28 @@ const deviceLabels: Record<WallpaperDevice, string> = {
   mobile: 'Mobile',
 };
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
-const previewImageSrc = (card: ArtworkCard) => cloudflareImageUrl(
-  card.image.src,
-  {
-    width: card.device === 'mobile' ? 480 : 1280,
-    height: card.device === 'mobile' ? 990 : 720,
-    fit: 'cover',
-    quality: 72,
-    format: 'auto',
-    focalPoint: { x: 0.5, y: 0.34 },
-  },
-  useImageTransformations,
-) ?? card.image.src;
+const artworkCardsWithListImages = artworkCards.map((card) => ({
+  card,
+  listImage: cloudflareArtworkListImage(
+    card.image.src,
+    card.image.width,
+    card.image.height,
+    'tile',
+    useImageTransformations,
+  ),
+  previewSrc: cloudflareImageUrl(
+    card.image.src,
+    {
+      width: card.device === 'mobile' ? 480 : 1280,
+      height: card.device === 'mobile' ? 990 : 720,
+      fit: 'cover',
+      quality: 72,
+      format: 'auto',
+      focalPoint: { x: 0.5, y: 0.34 },
+    },
+    useImageTransformations,
+  ) ?? card.image.src,
+}));
 ---
 
 {artworkCards.length > 0 && (
@@ -127,7 +141,7 @@ const previewImageSrc = (card: ArtworkCard) => cloudflareImageUrl(
 
 {artworkCards.length > 0 ? (
   <div class="wallpaper-grid" data-wallpaper-grid data-active-device={selectedDevice}>
-    {artworkCards.map((card) => (
+    {artworkCardsWithListImages.map(({ card, listImage, previewSrc }) => (
       <article
         class:list={{ 'wallpaper-card': true, [`wallpaper-style-${card.styleId}`]: true }}
         data-wallpaper-card
@@ -140,7 +154,7 @@ const previewImageSrc = (card: ArtworkCard) => cloudflareImageUrl(
         data-artwork-width={card.image.width}
         data-artwork-height={card.image.height}
         data-artwork-src={card.image.src}
-        data-artwork-preview-src={previewImageSrc(card)}
+        data-artwork-preview-src={previewSrc}
         data-artwork-alt={card.image.alt}
         data-artwork-recreate={card.recreateHref}
         hidden={!cardMatchesStyle(card, selectedStyle) || card.device !== selectedDevice}
@@ -152,7 +166,14 @@ const previewImageSrc = (card: ArtworkCard) => cloudflareImageUrl(
           aria-label={`${card.title} · ${card.styleName} · 预览壁纸`}
         >
           <div class="wallpaper-visual">
-            <img src={card.image.src} alt={card.image.alt} width={card.image.width} height={card.image.height} loading="lazy" decoding="async" />
+            <img
+              src={listImage.src ?? card.image.src}
+              alt={card.image.alt}
+              width={listImage.width}
+              height={listImage.height}
+              loading="lazy"
+              decoding="async"
+            />
             <span class="wallpaper-shade" aria-hidden="true"></span>
             <span class="wallpaper-style-badge">{card.styleName}</span>
             <span class="wallpaper-open">查看壁纸 ↗</span>
@@ -452,7 +473,6 @@ const previewImageSrc = (card: ArtworkCard) => cloudflareImageUrl(
   .lightbox-actions { display: flex; gap: 0.6rem; flex-shrink: 0; }
   .lightbox-actions .btn { display: inline-flex; align-items: center; gap: 0.4rem; }
   .phone-preview-switch { display: none; }
-
   .wallpaper-lightbox[data-device="pc"] .lightbox-layout { grid-template-rows: minmax(0, 1fr) auto; }
   .wallpaper-lightbox[data-device="pc"] .lightbox-stage { grid-row: 1; }
   .wallpaper-lightbox[data-device="pc"] .lightbox-info { grid-row: 2; }

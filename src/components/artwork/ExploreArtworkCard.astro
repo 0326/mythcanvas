@@ -2,6 +2,7 @@
 import { ArrowUpRight, Heart } from '@lucide/astro';
 import type { Artwork } from '../../lib/content/types';
 import {
+  cloudflareArtworkListImage,
   cloudflareImageUrl,
   shouldUseCloudflareImageTransformations,
 } from '../../lib/media/cloudflare-images';
@@ -30,26 +31,16 @@ const styleLabel = artwork.styleId.replaceAll('-', ' ');
 const deviceLabel = artwork.image.width >= artwork.image.height ? 'PC' : 'Mobile';
 const ratio = `${artwork.image.width} / ${artwork.image.height}`;
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
-const imageWidth = variant === 'hero' ? 1440 : variant === 'side' ? 960 : 720;
-const imageRatio = variant === 'hero'
-  ? 4 / 3
-  : variant === 'side'
-    ? 16 / 9
-    : artwork.image.width / artwork.image.height;
-const imageHeight = Math.max(1, Math.round(imageWidth / imageRatio));
-const imageSrc = cloudflareImageUrl(
+const listImage = cloudflareArtworkListImage(
   artwork.image.src,
-  {
-    width: imageWidth,
-    height: imageHeight,
-    fit: 'cover',
-    quality: 78,
-    format: 'auto',
-    // Keep faces toward the upper half when a wide feature card needs a crop.
-    focalPoint: { x: 0.5, y: 0.34 },
-  },
+  artwork.image.width,
+  artwork.image.height,
+  variant,
   useImageTransformations,
-) ?? artwork.image.src;
+);
+const imageSrc = listImage.src ?? artwork.image.src;
+const imageWidth = listImage.width;
+const imageHeight = listImage.height;
 const previewSrc = cloudflareImageUrl(
   artwork.image.src,
   {
