@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getOrCreateUser, readSessionId } from '../../lib/auth/session';
+import { incrementArtworkView } from '../../lib/content/repositories';
 import { checkRateLimit, clientIp } from '../../lib/security/rate-limit';
 
 export const prerender = false;
@@ -49,6 +50,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .bind(crypto.randomUUID(), name, targetId ?? null, sessionResult.user.id, page ?? null, extraJson)
       .run()
       .catch(() => undefined);
+
+    // Explore 的 artwork_click 即一次作品详情/预览访问，直接维护聚合计数供热门排序使用。
+    if (name === 'artwork_click' && targetId) {
+      await incrementArtworkView(db, targetId);
+    }
   }
 
   return json({ ok: true }, 200, sessionResult.cookie);
