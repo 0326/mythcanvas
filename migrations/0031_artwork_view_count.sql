@@ -1,5 +1,5 @@
 -- 0031_artwork_view_count.sql
--- 探索页排序：热门按访问量，推荐按下载量。
+-- 探索页排序：热门按访问量，推荐按实际下载量。
 PRAGMA foreign_keys = ON;
 
 ALTER TABLE artworks ADD COLUMN view_count INTEGER NOT NULL DEFAULT 0;
@@ -13,4 +13,13 @@ SET view_count = COALESCE((
   FROM analytics_events e
   WHERE e.event_name = 'artwork_click'
     AND e.target_id = artworks.id
+), 0);
+
+-- 当前真正可下载的仍是原图；历史规格选择曾被误记为下载，因此按实际原图下载事件重算。
+UPDATE artworks
+SET download_count = COALESCE((
+  SELECT COUNT(*)
+  FROM download_events d
+  WHERE d.artwork_id = artworks.id
+    AND d.variant = 'original'
 ), 0);
