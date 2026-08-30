@@ -4,7 +4,8 @@
 -- stable identity, separates source-scoped interpretations, adds compatible
 -- persistent costume variants, and wires the Character into Olympus.
 
-PRAGMA foreign_keys = ON;
+-- D1 enforces foreign keys for migrations and does not allow toggling
+-- PRAGMA foreign_keys inside the implicit migration transaction.
 
 -- Stable Character identity: keep the classical hunt/wilderness identity
 -- primary while acknowledging the historically layered lunar identification.
