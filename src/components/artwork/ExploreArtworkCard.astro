@@ -50,6 +50,18 @@ const imageSrc = cloudflareImageUrl(
   },
   useImageTransformations,
 ) ?? artwork.image.src;
+const previewSrc = cloudflareImageUrl(
+  artwork.image.src,
+  {
+    width: artwork.image.width >= artwork.image.height ? 1280 : 480,
+    height: artwork.image.width >= artwork.image.height ? 720 : 990,
+    fit: 'cover',
+    quality: 72,
+    format: 'auto',
+    focalPoint: { x: 0.5, y: 0.34 },
+  },
+  useImageTransformations,
+) ?? artwork.image.src;
 ---
 
 <article
@@ -65,6 +77,7 @@ const imageSrc = cloudflareImageUrl(
   data-artwork-width={artwork.image.width}
   data-artwork-height={artwork.image.height}
   data-artwork-src={artwork.image.src}
+  data-artwork-preview-src={previewSrc}
   data-artwork-alt={artwork.image.alt}
   data-artwork-recreate={recreateHref}
   data-mythology={artwork.mythologyId}

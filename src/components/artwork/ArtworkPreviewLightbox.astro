@@ -74,7 +74,7 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
       const data = card.dataset;
       currentId = data.artworkId ?? null;
       if (imgEl) { imgEl.src = data.artworkSrc ?? ''; imgEl.alt = data.artworkAlt || data.artworkTitle || ''; }
-      if (previewImgEl) previewImgEl.src = data.artworkSrc ?? '';
+      if (previewImgEl) previewImgEl.src = data.artworkPreviewSrc || data.artworkSrc || '';
       stageEl?.scrollTo({ top: 0 });
       lightbox!.dataset.device = data.artworkDevice ?? 'pc';
       setPreviewMode('lock');
@@ -170,20 +170,20 @@ const { dialogLabel = '壁纸预览' } = Astro.props;
   @media (min-width: 769px) {
     .wallpaper-lightbox[data-device="mobile"] .lightbox-layout { grid-template-columns: minmax(168px,.72fr) minmax(260px,1.18fr) minmax(250px,290px); gap: clamp(1rem,2vw,2rem); align-items: center; padding: clamp(1rem,3vh,2.25rem) clamp(1.25rem,3.5vw,4rem); }
     .wallpaper-lightbox[data-device="mobile"] .lightbox-phone-preview { display: grid; place-items: center; min-width: 0; }
-    .phone-device { position: relative; width: min(100%,254px); aspect-ratio: 322 / 662; filter: drop-shadow(0 22px 34px rgba(0,0,0,.48)); }
+    .phone-device { position: relative; width: min(100%,280px); aspect-ratio: 322 / 662; container-type: inline-size; filter: drop-shadow(0 22px 34px rgba(0,0,0,.48)); }
     .phone-device::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: url('/media/ui/iphone-17-pro-frame.png') center / contain no-repeat; }
-    .phone-screen { position: absolute; z-index: 3; inset: .9% 1.25%; overflow: hidden; border-radius: 13.8% / 6.7%; background: #111827; color: #fff; }
+    .phone-screen { position: absolute; z-index: 3; inset: 1.15% 1.9%; overflow: hidden; border-radius: 16% / 7.8%; background: #111827; color: #fff; }
     .phone-wallpaper { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .phone-screen::before { content: ''; position: absolute; z-index: 2; top: 1.1%; left: 33%; width: 34%; height: 2.6%; border-radius: 999px; background: #070B11; }
     .phone-screen::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(2,7,14,.26), transparent 24%, transparent 70%, rgba(2,7,14,.36)); }
-    .phone-status-bar { position: absolute; z-index: 3; inset: 3.5% 7.4% auto; display: flex; align-items: center; justify-content: space-between; font-size: 6px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+    .phone-status-bar { position: absolute; z-index: 3; inset: 3.5% 7.4% auto; display: flex; align-items: center; justify-content: space-between; font-size: 3cqw; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
     .phone-status-icons { display: inline-flex; align-items: center; gap: 3px; }
     .phone-lock-content { position: absolute; z-index: 1; top: 16%; right: 0; left: 0; display: grid; justify-items: center; text-shadow: 0 2px 10px rgba(0,0,0,.76); }
-    .phone-lock-date { font-size: 7px; font-weight: 600; }
-    .phone-lock-content strong { font-family: Georgia, serif; font-size: clamp(2.7rem,4.3vw,4.25rem); font-weight: 500; line-height: .95; letter-spacing: -.08em; }
+    .phone-lock-date { font-size: 4.2cqw; font-weight: 600; }
+    .phone-lock-content strong { font-family: Georgia, serif; font-size: 27cqw; font-weight: 500; line-height: .95; letter-spacing: -.08em; }
     .phone-lock-actions { position: absolute; z-index: 1; right: 9%; bottom: 5%; left: 9%; display: flex; justify-content: space-between; }
     .phone-lock-actions svg { box-sizing: content-box; padding: 8px; border-radius: 50%; background: rgba(13,21,34,.42); box-shadow: inset 0 1px rgba(255,255,255,.16); }
-    .phone-home-overlay { position: absolute; z-index: 1; inset: 0; display: none; width: 100%; height: 100%; object-fit: fill; mix-blend-mode: screen; }
+    .phone-home-overlay { position: absolute; z-index: 1; inset: 0; display: none; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: screen; }
     .phone-home-indicator { position: absolute; z-index: 3; right: 35%; bottom: 1.45%; left: 35%; height: 3px; border-radius: 999px; background: rgba(255,255,255,.86); }
     .wallpaper-lightbox[data-preview-mode="home"] .phone-lock-content, .wallpaper-lightbox[data-preview-mode="home"] .phone-lock-actions, .wallpaper-lightbox[data-preview-mode="home"] .phone-status-bar { display: none; }
     .wallpaper-lightbox[data-preview-mode="home"] .phone-home-overlay { display: block; }
