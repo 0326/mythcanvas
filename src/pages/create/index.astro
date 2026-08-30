@@ -1,5 +1,5 @@
 ---
-import { ChevronDown, Sparkles } from '@lucide/astro';
+import { Check, ChevronDown, Copy, Sparkles } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCharacters, getWorlds, getStyles } from '../../lib/content/repositories';
 import {
@@ -227,22 +227,61 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
 
         {variants.length === 0 && <p class="variant-fallback">当前使用经典角色设定。</p>}
 
-        <button class="btn btn-primary generate-button" type="button" data-generate>
-          <span data-generate-label>开始绘神</span><Sparkles size={17} strokeWidth={1.8} aria-hidden="true" />
-        </button>
+        <div class="generate-actions">
+          <button class="btn btn-primary generate-button" type="button" data-generate>
+            <span data-generate-label>开始绘神</span><Sparkles size={17} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+          <button
+            class="btn btn-secondary copy-prompt-button"
+            type="button"
+            data-copy-prompt
+            aria-label="复制完整提示词"
+            title="复制完整提示词"
+          >
+            <Copy size={18} strokeWidth={1.8} aria-hidden="true" data-copy-icon />
+            <Check size={18} strokeWidth={1.8} aria-hidden="true" data-copy-success-icon hidden />
+          </button>
+          <span class="copy-status" data-copy-status aria-live="polite"></span>
+        </div>
       </form>
 
-      <aside class="preview-card surface" aria-label="作品预览">
+      <aside class="preview-card surface" aria-label="作品预览与提示词" data-active-view="preview">
         <header class="preview-heading">
-          <h2 data-preview-title>{initialCharacter?.name ?? '神灵'} · {initialStyle?.name ?? '经典神话'}</h2>
-          <p class="preview-meta">
-            <span data-preview-subtitle>经典设定 · 云海 · {initialOutput?.name ?? '手机壁纸'}</span>
-            <span aria-hidden="true">·</span>
-            <strong data-resolution>{initialOutput?.width ?? 1440}×{initialOutput?.height ?? 2560}</strong>
-          </p>
+          <div class="preview-heading-copy">
+            <h2 data-preview-title>{initialCharacter?.name ?? '神灵'} · {initialStyle?.name ?? '经典神话'}</h2>
+            <p class="preview-meta">
+              <span data-preview-subtitle>经典设定 · 云海 · {initialOutput?.name ?? '手机壁纸'}</span>
+              <span aria-hidden="true">·</span>
+              <strong data-resolution>{initialOutput?.width ?? 1440}×{initialOutput?.height ?? 2560}</strong>
+            </p>
+          </div>
+          <div class="view-tabs" role="tablist" aria-label="创作详情视图">
+            <button
+              class="is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="creator-preview-panel"
+              data-view-tab="preview"
+            >预览</button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="creator-prompt-panel"
+              data-view-tab="prompt"
+            >提示词</button>
+          </div>
         </header>
 
-        <div class="preview-stage" data-preview-stage data-device={initialOutput?.deviceType ?? 'mobile'}>
+        <div
+          class="preview-stage"
+          id="creator-preview-panel"
+          role="tabpanel"
+          data-view-panel="preview"
+          data-preview-stage
+          data-device={initialOutput?.deviceType ?? 'mobile'}
+        >
           <div class="preview-frame" data-preview-frame>
             <img src={initialImage} alt="AI 绘神预览" width="720" height="1280" data-preview-image />
             <div class="preview-overlay" data-preview-overlay hidden></div>
@@ -253,6 +292,37 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
             </div>
           </div>
         </div>
+
+        <section
+          class="prompt-panel"
+          id="creator-prompt-panel"
+          role="tabpanel"
+          data-view-panel="prompt"
+          aria-label="当前生成提示词"
+          hidden
+        >
+          <div class="prompt-summary">
+            <div>
+              <strong>当前配置 Prompt</strong>
+              <p data-prompt-summary>切换到此面板后，会解析当前选项对应的完整生成提示词。</p>
+            </div>
+            <span data-prompt-status>与实际生成规则同步</span>
+          </div>
+
+          <div class="prompt-loading" data-prompt-loading>正在解析当前组合…</div>
+          <div class="prompt-error" data-prompt-error role="status" hidden></div>
+
+          <div class="prompt-content" data-prompt-content hidden>
+            <div class="prompt-layers" data-prompt-layers></div>
+            <section class="prompt-final">
+              <div class="prompt-section-heading">
+                <h3>最终 Prompt</h3>
+                <span>实际发送给图片模型的文本提示词</span>
+              </div>
+              <pre data-prompt-final></pre>
+            </section>
+          </div>
+        </section>
 
         <div class="preview-footer" data-preview-footer hidden>
           <div class="preview-actions" data-preview-actions hidden>
@@ -302,6 +372,35 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       device: 'mobile',
       lastJobId: null,
       lastImageUrl: null,
+      activeView: 'preview',
+      promptData: null,
+      promptDirty: true,
+      promptRevision: 0,
+    };
+
+    const PROMPT_LAYER_ORDER = [
+      'purpose',
+      'identity',
+      'interpretation',
+      'variant',
+      'civilization',
+      'style',
+      'scene',
+      'output',
+      'refinement',
+      'guardrails',
+    ];
+    const PROMPT_LAYER_LABELS = {
+      purpose: '生成目标',
+      identity: '角色身份',
+      interpretation: '传统版本',
+      variant: '角色形态',
+      civilization: '文明视觉 DNA',
+      style: '画风规则',
+      scene: '场景与构图',
+      output: '输出规格',
+      refinement: '补充描述',
+      guardrails: '生成约束',
     };
 
     const HISTORY_KEY = 'mythcanvas-generations-v2';
@@ -309,6 +408,8 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     const saveHistory = (list) => { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 8))); } catch { /* ignore */ } };
     const selectedOption = (select) => select?.selectedOptions?.[0];
     const emitChange = (select) => select?.dispatchEvent(new Event('change', { bubbles: true }));
+    let promptRefreshTimer = null;
+    let copyResetTimer = null;
 
     const setPressed = (selector, active) => {
       root.querySelectorAll(selector).forEach((item) => {
@@ -319,6 +420,194 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     };
 
     const currentCharacterSelect = (selector) => root.querySelector(`${selector}[data-character-id="${CSS.escape(state.entityId)}"]`);
+
+    const buildGenerationRequest = (refineHint = '', includeSourceGeneration = false) => {
+      const description = root.querySelector('[data-description]');
+      const baseDescription = description?.value || '';
+      return {
+        entityType: state.entityType,
+        entityId: state.entityId,
+        interpretationId: state.entityType === 'character' && state.interpretationId ? state.interpretationId : undefined,
+        variantId: state.entityType === 'character' && state.variantId ? state.variantId : undefined,
+        styleId: state.styleId,
+        scene: state.scene,
+        composition: state.composition,
+        ratio: state.ratio,
+        outputSpecId: state.outputSpecId,
+        description: [baseDescription, refineHint].filter(Boolean).join('，'),
+        sourceGenerationId: includeSourceGeneration && state.lastJobId ? state.lastJobId : undefined,
+      };
+    };
+
+    const renderPrompt = (result) => {
+      const summary = root.querySelector('[data-prompt-summary]');
+      const status = root.querySelector('[data-prompt-status]');
+      const loading = root.querySelector('[data-prompt-loading]');
+      const errorNode = root.querySelector('[data-prompt-error]');
+      const content = root.querySelector('[data-prompt-content]');
+      const layersRoot = root.querySelector('[data-prompt-layers]');
+      const finalPrompt = root.querySelector('[data-prompt-final]');
+      const context = result?.context || {};
+      const output = context.output || {};
+
+      if (summary) {
+        const details = [
+          context.entityName,
+          context.interpretationName,
+          context.variantName,
+          context.styleName,
+          context.scene,
+          output.name,
+        ].filter(Boolean);
+        summary.textContent = details.join(' · ');
+      }
+      if (status) status.textContent = `${context.mythologyName || 'MythCanvas'} · ${output.ratio || state.ratio} · ${output.width || state.width}×${output.height || state.height}`;
+      if (layersRoot) {
+        layersRoot.replaceChildren();
+        PROMPT_LAYER_ORDER.forEach((key, index) => {
+          const value = result?.layers?.[key];
+          if (!value) return;
+          const section = document.createElement('section');
+          section.className = 'prompt-layer';
+          const heading = document.createElement('div');
+          heading.className = 'prompt-layer-heading';
+          const order = document.createElement('span');
+          order.textContent = String(index + 1).padStart(2, '0');
+          const title = document.createElement('h3');
+          title.textContent = PROMPT_LAYER_LABELS[key] || key;
+          heading.append(order, title);
+          const text = document.createElement('p');
+          text.textContent = value;
+          section.append(heading, text);
+          layersRoot.append(section);
+        });
+      }
+      if (finalPrompt) finalPrompt.textContent = result?.prompt || '';
+      if (loading) loading.hidden = true;
+      if (errorNode) errorNode.hidden = true;
+      if (content) content.hidden = false;
+    };
+
+    const showPromptError = (message) => {
+      const loading = root.querySelector('[data-prompt-loading]');
+      const errorNode = root.querySelector('[data-prompt-error]');
+      const content = root.querySelector('[data-prompt-content]');
+      if (loading) loading.hidden = true;
+      if (content) content.hidden = true;
+      if (errorNode) {
+        errorNode.hidden = false;
+        errorNode.textContent = message;
+      }
+    };
+
+    const loadPromptPreview = async (force = false) => {
+      if (!force && !state.promptDirty && state.promptData) return state.promptData;
+      const revision = state.promptRevision;
+      const loading = root.querySelector('[data-prompt-loading]');
+      const errorNode = root.querySelector('[data-prompt-error]');
+      const content = root.querySelector('[data-prompt-content]');
+      if (loading) loading.hidden = false;
+      if (errorNode) errorNode.hidden = true;
+      if (content) content.hidden = true;
+
+      try {
+        const response = await fetch('/api/prompt-preview', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(buildGenerationRequest()),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.prompt) throw new Error(result.error?.message || '提示词解析失败');
+        if (revision !== state.promptRevision) return null;
+        state.promptData = result;
+        state.promptDirty = false;
+        renderPrompt(result);
+        return result;
+      } catch (error) {
+        if (revision !== state.promptRevision) return null;
+        const message = error instanceof Error ? error.message : '提示词解析失败';
+        showPromptError(message);
+        throw error;
+      }
+    };
+
+    const invalidatePrompt = () => {
+      state.promptDirty = true;
+      state.promptData = null;
+      state.promptRevision += 1;
+      if (state.activeView !== 'prompt') return;
+      if (promptRefreshTimer) window.clearTimeout(promptRefreshTimer);
+      promptRefreshTimer = window.setTimeout(() => {
+        loadPromptPreview().catch(() => undefined);
+      }, 220);
+    };
+
+    const switchView = (view) => {
+      if (view !== 'preview' && view !== 'prompt') return;
+      state.activeView = view;
+      const card = root.querySelector('.preview-card');
+      if (card) card.dataset.activeView = view;
+      root.querySelectorAll('[data-view-tab]').forEach((button) => {
+        const selected = button.dataset.viewTab === view;
+        button.classList.toggle('is-active', selected);
+        button.setAttribute('aria-selected', selected ? 'true' : 'false');
+      });
+      root.querySelectorAll('[data-view-panel]').forEach((panel) => {
+        panel.hidden = panel.dataset.viewPanel !== view;
+      });
+      if (view === 'prompt') loadPromptPreview().catch(() => undefined);
+    };
+
+    const writeClipboard = async (text) => {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.append(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      textarea.remove();
+      if (!copied) throw new Error('浏览器未允许复制');
+    };
+
+    const setCopyState = (button, statusText, copied) => {
+      const copyIcon = button?.querySelector('[data-copy-icon]');
+      const successIcon = button?.querySelector('[data-copy-success-icon]');
+      const liveStatus = root.querySelector('[data-copy-status]');
+      if (button) {
+        button.dataset.copyState = copied ? 'success' : 'idle';
+        button.setAttribute('aria-label', copied ? '提示词已复制' : '复制完整提示词');
+        button.setAttribute('title', copied ? '已复制' : '复制完整提示词');
+      }
+      if (copyIcon) copyIcon.hidden = copied;
+      if (successIcon) successIcon.hidden = !copied;
+      if (liveStatus) liveStatus.textContent = statusText;
+    };
+
+    const copyCurrentPrompt = async (button) => {
+      if (!button) return;
+      button.disabled = true;
+      const liveStatus = root.querySelector('[data-copy-status]');
+      if (liveStatus) liveStatus.textContent = '正在整理提示词';
+      try {
+        const result = await loadPromptPreview();
+        if (!result?.prompt) throw new Error('当前提示词不可用');
+        await writeClipboard(result.prompt);
+        setCopyState(button, '完整提示词已复制', true);
+        if (copyResetTimer) window.clearTimeout(copyResetTimer);
+        copyResetTimer = window.setTimeout(() => setCopyState(button, '', false), 1600);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '复制失败';
+        setCopyState(button, `复制失败：${message}`, false);
+      } finally {
+        button.disabled = false;
+      }
+    };
 
     const resetCharacterChoices = () => {
       root.querySelectorAll('[data-interpretation-select]').forEach((select) => {
@@ -336,9 +625,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       const hasVariants = Boolean(variantSelect && variantSelect.options.length > 1);
       if (interpretationStep) interpretationStep.hidden = !hasInterpretations;
       if (fieldGrid) fieldGrid.classList.toggle('has-interpretation', hasInterpretations);
-      if (variantStep) {
-        variantStep.hidden = !hasVariants;
-      }
+      if (variantStep) variantStep.hidden = !hasVariants;
       if (interpretationSelect) interpretationSelect.selectedIndex = 0;
       if (variantSelect) variantSelect.selectedIndex = 0;
       state.interpretationId = '';
@@ -348,6 +635,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     };
 
     const refresh = () => {
+      invalidatePrompt();
       const image = root.querySelector('[data-preview-image]');
       if (image && !state.lastImageUrl && image.getAttribute('src') !== state.image) image.setAttribute('src', state.image);
       const title = root.querySelector('[data-preview-title]');
@@ -367,6 +655,16 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       const resolution = root.querySelector('[data-resolution]');
       if (resolution) resolution.textContent = `${state.width}×${state.height}`;
     };
+
+    root.querySelectorAll('[data-view-tab]').forEach((button) => {
+      button.addEventListener('click', () => switchView(button.dataset.viewTab));
+    });
+
+    root.querySelector('[data-copy-prompt]')?.addEventListener('click', (event) => {
+      copyCurrentPrompt(event.currentTarget);
+    });
+
+    root.querySelector('[data-description]')?.addEventListener('input', invalidatePrompt);
 
     root.querySelectorAll('[data-entity-tab]').forEach((button) => {
       button.addEventListener('click', () => {
@@ -516,13 +814,13 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       const retryBtn = root.querySelector('[data-retry]');
       const favoriteBtn = root.querySelector('[data-favorite]');
       const downloadBtn = root.querySelector('[data-download]');
-      const description = root.querySelector('[data-description]');
       const overlay = root.querySelector('[data-preview-overlay]');
       if (!status || !image) return;
 
       const statusTitle = status.querySelector('[data-status-title]');
       const statusText = status.querySelector('[data-status-text]');
       setBusy(true, '正在绘神…');
+      switchView('preview');
       status.hidden = false;
       if (overlay) overlay.hidden = false;
       status.classList.add('is-generating');
@@ -531,20 +829,7 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
       if (statusTitle) statusTitle.textContent = isRetry ? '正在重新构筑' : '正在唤醒神祇';
       if (statusText) statusText.textContent = `${state.entity} · ${state.style} · ${state.outputName}`;
 
-      const baseDescription = description?.value || '';
-      const body = {
-        entityType: state.entityType,
-        entityId: state.entityId,
-        interpretationId: state.entityType === 'character' && state.interpretationId ? state.interpretationId : undefined,
-        variantId: state.entityType === 'character' && state.variantId ? state.variantId : undefined,
-        styleId: state.styleId,
-        scene: state.scene,
-        composition: state.composition,
-        ratio: state.ratio,
-        outputSpecId: state.outputSpecId,
-        description: [baseDescription, refineHint].filter(Boolean).join('，'),
-        sourceGenerationId: state.lastJobId || undefined,
-      };
+      const body = buildGenerationRequest(refineHint || '', true);
 
       try {
         const response = await fetch('/api/generate', {
@@ -836,14 +1121,50 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     font-size: .65rem;
   }
 
-  .generate-button {
-    width: 100%;
+  .generate-actions {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px;
+    gap: 8px;
+  }
+
+  .generate-button,
+  .copy-prompt-button {
     min-height: 48px;
   }
 
-  .generate-button:disabled {
+  .generate-button {
+    width: 100%;
+  }
+
+  .generate-button:disabled,
+  .copy-prompt-button:disabled {
     cursor: wait;
     opacity: .7;
+  }
+
+  .copy-prompt-button {
+    display: grid;
+    width: 48px;
+    padding: 0;
+    place-items: center;
+  }
+
+  .copy-prompt-button[data-copy-state='success'] {
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+  }
+
+  .copy-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .preview-card {
@@ -856,7 +1177,14 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
 
   .preview-heading {
     min-height: 42px;
+    align-items: flex-start;
     padding-inline: 4px;
+  }
+
+  .preview-heading-copy {
+    display: grid;
+    min-width: 0;
+    gap: 4px;
   }
 
   .preview-heading h2 {
@@ -867,18 +1195,46 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
   .preview-meta {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: .3rem;
     margin: 0;
     color: var(--text-muted);
     font-size: .69rem;
-    text-align: right;
   }
 
   .preview-meta strong {
     color: inherit;
     font-size: inherit;
     font-weight: 650;
+  }
+
+  .view-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 0 0 148px;
+    gap: 3px;
+    width: 148px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+  }
+
+  .view-tabs button {
+    min-height: 32px;
+    padding-inline: 10px;
+    border: 0;
+    border-radius: 6px;
+    color: var(--text-muted);
+    background: transparent;
+    cursor: pointer;
+    font-size: .7rem;
+    font-weight: 650;
+  }
+
+  .view-tabs button.is-active {
+    color: var(--text-primary);
+    background: var(--surface-strong);
+    box-shadow: var(--shadow-sm);
   }
 
   .preview-stage {
@@ -961,6 +1317,148 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
 
   .preview-status.is-generating {
     animation: creator-pulse 1.6s ease-in-out infinite;
+  }
+
+  .prompt-panel {
+    grid-row: 2 / -1;
+    min-height: 0;
+    overflow: auto;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, transparent), var(--surface-muted));
+    scrollbar-width: thin;
+  }
+
+  .prompt-summary {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-summary > div {
+    display: grid;
+    gap: 4px;
+  }
+
+  .prompt-summary strong {
+    color: var(--text-primary);
+    font-size: .86rem;
+  }
+
+  .prompt-summary p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: .68rem;
+    line-height: 1.5;
+  }
+
+  .prompt-summary > span {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-size: .63rem;
+    text-align: right;
+  }
+
+  .prompt-loading,
+  .prompt-error {
+    display: grid;
+    min-height: 160px;
+    place-items: center;
+    color: var(--text-muted);
+    font-size: .72rem;
+    text-align: center;
+  }
+
+  .prompt-error {
+    color: var(--text-secondary);
+  }
+
+  .prompt-content {
+    padding-top: 14px;
+  }
+
+  .prompt-layers {
+    display: grid;
+    gap: 10px;
+  }
+
+  .prompt-layer {
+    padding: 13px 14px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-strong);
+  }
+
+  .prompt-layer-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+
+  .prompt-layer-heading span {
+    color: var(--text-muted);
+    font-size: .6rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .prompt-layer h3,
+  .prompt-final h3 {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: .72rem;
+  }
+
+  .prompt-layer p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: .7rem;
+    line-height: 1.68;
+    white-space: pre-wrap;
+  }
+
+  .prompt-final {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .prompt-section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 9px;
+  }
+
+  .prompt-section-heading span {
+    color: var(--text-muted);
+    font-size: .62rem;
+  }
+
+  .prompt-final pre {
+    margin: 0;
+    padding: 15px;
+    overflow: visible;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    background: var(--surface-strong);
+    font-family: var(--font-sans);
+    font-size: .69rem;
+    line-height: 1.72;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .preview-card[data-active-view='prompt'] .preview-footer,
+  .preview-card[data-active-view='prompt'] .refine-card {
+    display: none !important;
   }
 
   .preview-footer {
@@ -1070,16 +1568,36 @@ const initialImage = initialCharacter?.portrait?.src ?? '/media/content/art-moon
     }
 
     .preview-heading {
-      align-items: flex-start;
+      display: grid;
+      gap: 10px;
     }
 
     .preview-heading p {
-      max-width: 48%;
+      max-width: none;
+    }
+
+    .view-tabs {
+      width: 100%;
     }
 
     .preview-stage[data-device='mobile'] .preview-frame {
-      height: auto;
       width: min(78%, 280px);
+      height: auto;
+    }
+
+    .prompt-panel {
+      padding: 14px;
+    }
+
+    .prompt-summary,
+    .prompt-section-heading {
+      display: grid;
+      gap: 6px;
+    }
+
+    .prompt-summary > span,
+    .prompt-section-heading span {
+      text-align: left;
     }
 
     .preview-footer {
