@@ -1,0 +1,91 @@
+---
+import { ArrowRight, ExternalLink } from '@lucide/astro';
+import type { Character, CharacterRelation, Mythology } from '../../lib/content/types';
+
+interface Props {
+  mythology: Mythology;
+  characters: readonly Character[];
+  relations: readonly CharacterRelation[];
+}
+
+const { mythology, characters, relations } = Astro.props;
+const stages = [
+  { id: 'primordial', label: '原初神', predicate: (item: Character) => item.traditionTags?.includes('primordial') },
+  { id: 'titan', label: '泰坦', predicate: (item: Character) => item.traditionTags?.includes('titan') },
+  { id: 'olympian', label: '奥林匹斯秩序', predicate: (item: Character) => item.traditionTags?.includes('olympian') || item.traditionTags?.includes('olympian-generation') },
+  { id: 'hero', label: '英雄时代', predicate: (item: Character) => item.characterType === 'hero' },
+];
+const parents = relations.filter((relation) => relation.relationType === 'parent' && relation.isDefault !== false);
+const characterById = new Map(characters.map((item) => [item.id, item]));
+---
+
+<section class="genealogy-section" id="genealogy" aria-labelledby="genealogy-title">
+  <div class="container-wide">
+    <header class="genealogy-heading">
+      <div>
+        <span class="eyebrow">Sourced Genealogy</span>
+        <h2 id="genealogy-title">神谱不是一条唯一真相</h2>
+        <p>这里展示适合入门阅读的默认关系视图；每一条关系都保留来源范围，存在差异的传统不会被静默合并。</p>
+      </div>
+      <a href="#stories" class="genealogy-story-link">先从故事阅读 <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" /></a>
+    </header>
+
+    <div class="genealogy-flow" aria-label={`${mythology.name}主干神谱`}>
+      {stages.map((stage, index) => {
+        const items = characters.filter(stage.predicate).slice(0, 8);
+        return items.length > 0 && (
+          <div class="genealogy-stage">
+            <div class="stage-label"><span>{String(index + 1).padStart(2, '0')}</span><strong>{stage.label}</strong></div>
+            <div class="genealogy-nodes">
+              {items.map((item) => {
+                const parentNames = parents
+                  .filter((relation) => relation.toCharacterId === item.id)
+                  .map((relation) => characterById.get(relation.fromCharacterId)?.name)
+                  .filter(Boolean);
+                return (
+                  <a class="genealogy-node" href={`/character/${item.slug}/`}>
+                    <span class="node-name">{item.name}</span>
+                    <small>{item.role}</small>
+                    {parentNames.length > 0 && <em>源自：{parentNames.join('、')}</em>}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <details class="genealogy-sources">
+      <summary>查看本视图的关系来源</summary>
+      <ul>
+        {parents.slice(0, 16).map((relation) => {
+          const from = characterById.get(relation.fromCharacterId);
+          const to = relation.toCharacterId ? characterById.get(relation.toCharacterId) : undefined;
+          return from && to && <li><strong>{from.name} → {to.name}</strong><span>{relation.sourceRefs.map((source) => `${source.title}${source.locator ? ` · ${source.locator}` : ''}`).join('；')}</span></li>;
+        })}
+      </ul>
+      <p><ExternalLink size={14} strokeWidth={1.8} aria-hidden="true" /> 角色页会显示与该角色直接相关的亲缘、配偶和叙事关联。</p>
+    </details>
+  </div>
+</section>
+
+<style>
+  .genealogy-section { padding: clamp(5rem, 8vw, 8rem) 0; border-block: 1px solid var(--border); background: color-mix(in srgb, var(--bg-secondary) 78%, transparent); }
+  .genealogy-heading { display: flex; justify-content: space-between; gap: var(--space-8); align-items: end; }
+  .genealogy-heading h2 { margin: .35rem 0 0; } .genealogy-heading p { max-width: 42rem; color: var(--text-secondary); line-height: 1.8; }
+  .genealogy-story-link { display: inline-flex; gap: .35rem; align-items: center; color: var(--accent-strong); white-space: nowrap; }
+  .genealogy-flow { display: grid; gap: 1px; margin-top: var(--space-8); overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--border); }
+  .genealogy-stage { display: grid; grid-template-columns: 150px 1fr; background: var(--bg-primary); }
+  .stage-label { display: grid; align-content: center; gap: .25rem; padding: var(--space-6); border-right: 1px solid var(--border); background: var(--surface-muted); }
+  .stage-label span { color: var(--accent-strong); font-size: .7rem; letter-spacing: .12em; } .stage-label strong { font-family: var(--font-serif); font-size: 1.1rem; }
+  .genealogy-nodes { display: flex; flex-wrap: wrap; gap: .65rem; padding: var(--space-5); }
+  .genealogy-node { width: min(100%, 178px); min-height: 92px; padding: .8rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); transition: border-color var(--transition-fast), transform var(--transition-fast); }
+  .genealogy-node:hover { border-color: var(--accent-strong); transform: translateY(-2px); }
+  .node-name, .genealogy-node small, .genealogy-node em { display: block; } .node-name { font-family: var(--font-serif); font-size: 1.05rem; } .genealogy-node small { margin-top: .25rem; color: var(--text-muted); font-size: .68rem; line-height: 1.35; }
+  .genealogy-node em { margin-top: .45rem; color: var(--accent-strong); font-size: .64rem; font-style: normal; line-height: 1.35; }
+  .genealogy-sources { margin-top: var(--space-5); color: var(--text-secondary); } .genealogy-sources summary { cursor: pointer; color: var(--text-primary); font-size: .86rem; font-weight: 700; }
+  .genealogy-sources ul { display: grid; gap: .45rem; padding: 0; list-style: none; } .genealogy-sources li { display: grid; gap: .15rem; font-size: .78rem; } .genealogy-sources li span { color: var(--text-muted); }
+  .genealogy-sources p { display: inline-flex; align-items: center; gap: .35rem; font-size: .78rem; }
+  @media (max-width: 760px) { .genealogy-heading { display: grid; align-items: start; } .genealogy-stage { grid-template-columns: 1fr; } .stage-label { border-right: 0; border-bottom: 1px solid var(--border); } }
+</style>

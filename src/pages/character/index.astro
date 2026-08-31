@@ -17,8 +17,12 @@ const mythologyById = new Map(mythologies.map((item) => [item.id, item]));
 
 const requestedMythology = Astro.url.searchParams.get('mythology') ?? '';
 const requestedQuery = (Astro.url.searchParams.get('q') ?? '').trim();
+const requestedType = Astro.url.searchParams.get('type') ?? '';
 const selectedMythology = mythologyBySlug.has(requestedMythology) ? requestedMythology : '';
 const selectedQuery = requestedQuery.toLowerCase();
+const availableTypes = ['deity', 'hero', 'mortal', 'monster', 'creature', 'collective'] as const;
+const selectedType = availableTypes.includes(requestedType as typeof availableTypes[number]) ? requestedType : '';
+const typeLabels: Record<typeof availableTypes[number], string> = { deity: '神祇', hero: '英雄', mortal: '凡人', monster: '怪物', creature: '神兽', collective: '群体' };
 
 const normalize = (value: string) => value.trim().toLowerCase();
 const matchesQuery = (
@@ -40,13 +44,15 @@ const visibleCharacters = characters.filter((character) => {
   if (selectedQuery) {
     if (!matchesQuery(character.name, character.nameEn, character.role, selectedQuery)) return false;
   }
+  if (selectedType && character.characterType !== selectedType) return false;
   return true;
 });
 
-const filterHref = (mythologySlug: string) => {
+const filterHref = (mythologySlug: string, type = selectedType) => {
   const url = new URL(Astro.url.pathname, Astro.site);
   if (mythologySlug) url.searchParams.set('mythology', mythologySlug);
   if (selectedQuery) url.searchParams.set('q', selectedQuery);
+  if (type) url.searchParams.set('type', type);
   return `${url.pathname}${url.search}`;
 };
 
@@ -68,7 +74,7 @@ const searchValue = requestedQuery;
     })} />
   </Fragment>
 
-  <div class="character-index" data-character-index data-selected-mythology={selectedMythology}>
+  <div class="character-index" data-character-index data-selected-mythology={selectedMythology} data-selected-type={selectedType}>
     <section class="collection-hero">
       <div class="container-wide">
         <span class="eyebrow">Characters · 神灵视觉资产</span>
@@ -99,6 +105,14 @@ const searchValue = requestedQuery;
           </div>
         </div>
 
+        <div class="filter-group type-filter" role="group" aria-label="按实体类别筛选神灵">
+          <span class="filter-label">类别</span>
+          <div class="filter-options">
+            <a class:list={{ 'filter-option': true, 'is-active': selectedType === '' }} href={filterHref(selectedMythology, '')} data-type-filter="" aria-current={selectedType === '' ? 'true' : 'false'}>全部</a>
+            {availableTypes.map((type) => <a class:list={{ 'filter-option': true, 'is-active': selectedType === type }} href={filterHref(selectedMythology, type)} data-type-filter={type} aria-current={selectedType === type ? 'true' : 'false'}>{typeLabels[type]}</a>)}
+          </div>
+        </div>
+
         <div class="filter-group search-filter">
           <label class="search-box collection-filter-search">
             <Search class="search-icon" aria-hidden="true" />
@@ -125,13 +139,15 @@ const searchValue = requestedQuery;
               const searchText = `${character.name} ${character.nameEn} ${character.role}`.toLowerCase();
               const matchesMythology = !selectedMythology || mythology?.slug === selectedMythology;
               const matchesSearch = !selectedQuery || searchText.includes(selectedQuery);
+              const matchesType = !selectedType || character.characterType === selectedType;
               return (
                 <div
                   class="character-cell"
                   data-character-cell
                   data-mythology={mythology?.slug ?? ''}
                   data-search={searchText}
-                  hidden={!matchesMythology || !matchesSearch}
+                  data-character-type={character.characterType ?? ''}
+                  hidden={!matchesMythology || !matchesSearch || !matchesType}
                 >
                   <CharacterCard character={character} mythology={mythology} />
                 </div>
@@ -154,20 +170,23 @@ const searchValue = requestedQuery;
   const grid = document.querySelector('[data-character-grid]');
   const cells = Array.from(document.querySelectorAll('[data-character-cell]'));
   const mythologyLinks = Array.from(document.querySelectorAll('[data-mythology-filter]'));
+  const typeLinks = Array.from(document.querySelectorAll('[data-type-filter]'));
   const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
   const emptyState = document.querySelector('[data-gallery-empty]');
 
   if (root && grid) {
-    const setUrlState = (mythology: string, query: string) => {
+    const setUrlState = (mythology: string, query: string, type: string) => {
       const url = new URL(window.location.href);
       if (mythology) url.searchParams.set('mythology', mythology);
       else url.searchParams.delete('mythology');
       if (query) url.searchParams.set('q', query);
       else url.searchParams.delete('q');
+      if (type) url.searchParams.set('type', type);
+      else url.searchParams.delete('type');
       window.history.replaceState({}, '', url);
     };
 
-    const applyFilters = (mythology: string, query: string) => {
+    const applyFilters = (mythology: string, query: string, type: string) => {
       const normalizedQuery = query.trim().toLowerCase();
       let visibleCount = 0;
       cells.forEach((cell) => {
@@ -175,7 +194,8 @@ const searchValue = requestedQuery;
         const cellSearch = cell.getAttribute('data-search') ?? '';
         const matchesMythology = !mythology || cellMythology === mythology;
         const matchesSearch = !normalizedQuery || cellSearch.includes(normalizedQuery);
-        const visible = matchesMythology && matchesSearch;
+        const matchesType = !type || (cell.getAttribute('data-character-type') ?? '') === type;
+        const visible = matchesMythology && matchesSearch && matchesType;
         cell.hidden = !visible;
         if (visible) visibleCount += 1;
       });
@@ -185,9 +205,15 @@ const searchValue = requestedQuery;
         link.classList.toggle('is-active', active);
         link.setAttribute('aria-current', String(active));
       });
+      typeLinks.forEach((link) => {
+        const active = (link.getAttribute('data-type-filter') ?? '') === type;
+        link.classList.toggle('is-active', active);
+        link.setAttribute('aria-current', String(active));
+      });
       if (root) root.dataset.selectedMythology = mythology;
+      if (root) root.dataset.selectedType = type;
       if (emptyState) emptyState.hidden = visibleCount > 0;
-      setUrlState(mythology, query);
+      setUrlState(mythology, query, type);
     };
 
     mythologyLinks.forEach((link) => {
@@ -197,7 +223,17 @@ const searchValue = requestedQuery;
         if (value === current) return;
         event.preventDefault();
         const query = searchInput?.value ?? '';
-        applyFilters(value, query);
+        applyFilters(value, query, root?.dataset.selectedType ?? '');
+      });
+    });
+
+    typeLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const value = link.getAttribute('data-type-filter') ?? '';
+        const current = root?.dataset.selectedType ?? '';
+        if (value === current) return;
+        event.preventDefault();
+        applyFilters(root?.dataset.selectedMythology ?? '', searchInput?.value ?? '', value);
       });
     });
 
@@ -207,7 +243,7 @@ const searchValue = requestedQuery;
         window.clearTimeout(debounce);
         debounce = window.setTimeout(() => {
           const mythology = root?.dataset.selectedMythology ?? '';
-          applyFilters(mythology, searchInput.value);
+          applyFilters(mythology, searchInput.value, root?.dataset.selectedType ?? '');
         }, 160);
       });
     }

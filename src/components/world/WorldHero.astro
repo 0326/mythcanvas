@@ -12,13 +12,16 @@ const keywords = world.canonicalDesign.anchors.slice(0, 4);
 ---
 
 <section class="world-hero">
-  <img
-    src={world.heroImage.src}
-    alt={world.heroImage.alt}
-    width={world.heroImage.width}
-    height={world.heroImage.height}
-    fetchpriority="high"
-  />
+  <picture>
+    {world.heroImageMobile && <source media="(max-width: 680px)" srcset={world.heroImageMobile.src} width={world.heroImageMobile.width} height={world.heroImageMobile.height} />}
+    <img
+      src={world.heroImage.src}
+      alt={world.heroImage.alt}
+      width={world.heroImage.width}
+      height={world.heroImage.height}
+      fetchpriority="high"
+    />
+  </picture>
   <div class="world-hero-overlay" aria-hidden="true"></div>
   <div class="container-wide world-hero-copy">
     <span class="eyebrow">{mythology ? `${mythology.name} · ${mythology.nameEn}` : world.nameEn}</span>
@@ -46,11 +49,15 @@ const keywords = world.canonicalDesign.anchors.slice(0, 4);
     color: var(--text-inverse);
   }
 
-  .world-hero > img {
+  .world-hero > picture,
+  .world-hero > picture > img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
+  }
+
+  .world-hero > picture > img {
     object-fit: cover;
   }
 

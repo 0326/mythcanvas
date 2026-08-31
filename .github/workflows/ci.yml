@@ -25,6 +25,12 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Validate structured mythology content
+        run: npm run content:validate
+
+      - name: Audit public artwork provenance
+        run: npm run provenance:audit -- --strict
+
       - name: Verify D1 migrations
         run: npm run migration:check
 

@@ -6,7 +6,7 @@ interface Props {
 }
 
 const { characters } = Astro.props;
-const primarySymbol = (character: Character) => character.symbols[0] ?? '✦';
+const fallbackSymbols = (character: Character) => character.symbols.slice(0, 2);
 ---
 
 <section class="section-compact">
@@ -29,7 +29,10 @@ const primarySymbol = (character: Character) => character.symbols[0] ?? '✦';
                   decoding="async"
                 />
               ) : (
-                <div class="inhabitant-fallback" aria-hidden="true"><span>{primarySymbol(character)}</span></div>
+                <div class="inhabitant-fallback" role="img" aria-label={`${character.name} Canonical symbol fallback`}>
+                  <span class="fallback-kicker">Canonical symbol set</span>
+                  <strong>{fallbackSymbols(character).join(' · ') || character.name}</strong>
+                </div>
               )}
             </div>
             <div class="inhabitant-copy">
@@ -90,18 +93,35 @@ const primarySymbol = (character: Character) => character.symbols[0] ?? '✦';
   }
 
   .inhabitant-fallback {
+    position: relative;
     display: grid;
     width: 100%;
     height: 100%;
     place-items: center;
+    align-content: center;
+    gap: 0.55rem;
+    padding: 1rem;
+    text-align: center;
     color: var(--accent-strong);
-    background: linear-gradient(155deg, var(--cloud-blue), var(--jade-soft));
+    background:
+      radial-gradient(circle at 52% 38%, color-mix(in srgb, var(--moon-white) 80%, transparent), transparent 24%),
+      linear-gradient(155deg, var(--cloud-blue), var(--jade-soft));
   }
 
-  .inhabitant-fallback span {
+  .inhabitant-fallback strong {
+    color: var(--text-primary);
     font-family: var(--font-serif);
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .fallback-kicker {
+    color: var(--text-muted);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .inhabitant-copy {

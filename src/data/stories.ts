@@ -1,4 +1,5 @@
 import type { MythStory, MythStorySource } from '../lib/content/types';
+import { greekStories } from '../content/greek/stories';
 
 type StoryDraft = Omit<MythStory, 'publishedAt' | 'updatedAt'>;
 
@@ -446,8 +447,14 @@ const storyDrafts: readonly StoryDraft[] = [
   },
 ];
 
-export const mythStories: MythStory[] = storyDrafts.map((story) => ({
-  ...story,
-  publishedAt: editorialDate,
-  updatedAt: editorialDate,
-}));
+/**
+ * Greek P0 is maintained in its own source set because it has claim-level
+ * provenance and dependency-closure requirements. Existing three Greek drafts
+ * are deliberately replaced rather than silently duplicated.
+ */
+export const mythStories: MythStory[] = [
+  ...storyDrafts
+    .filter((story) => story.mythologyId !== 'myth-greek')
+    .map((story) => ({ ...story, publishedAt: editorialDate, updatedAt: editorialDate })),
+  ...greekStories,
+];

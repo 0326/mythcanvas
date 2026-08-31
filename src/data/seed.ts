@@ -1,8 +1,15 @@
 import type { Artwork, Character, CharacterVariant, Mythology, World, Scene, Style } from '../lib/content/types';
+import { greekCharacters, greekScenes, greekWorlds } from '../content/greek/catalog';
 
-const prototypeLicense = {
-  sourceType: 'prototype' as const,
-  license: 'Internal prototype asset — replace before production',
+const legacyOriginalLicense = {
+  sourceType: 'original' as const,
+  license: 'MythCanvas Original — legacy asset reviewed for public use (2026-08-31)',
+  creator: 'MythCanvas',
+};
+const greekProductionAiLicense = {
+  sourceType: 'ai' as const,
+  license: 'MythCanvas AI-generated original',
+  creator: 'MythCanvas',
 };
 
 export const mythologies: Mythology[] = [
@@ -32,7 +39,7 @@ export const mythologies: Mythology[] = [
       materials: ['大理石', '青铜', '黄金'],
       atmosphere: ['庄严', '明亮', '英雄感'],
     },
-    heroImage: { src: '/media/content/greek-olympus.jpg', alt: '奥林匹斯:云海之上的白色大理石神殿', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/greek-olympus-v2.webp', alt: '晨光下的奥林匹斯白色大理石议庭、山巅与云海', width: 1672, height: 941 },
   },
   {
     id: 'myth-norse',
@@ -78,7 +85,7 @@ export const mythologies: Mythology[] = [
   },
 ];
 
-export const worlds: World[] = [
+const baseWorlds: World[] = [
   {
     id: 'world-heavenly-palace',
     mythologyId: 'myth-chinese',
@@ -104,7 +111,7 @@ export const worlds: World[] = [
       anchors: ['白色柱廊', '高山云层', '黄金穹顶', '诸神议庭'],
       signatureMaterials: ['大理石', '黄金'],
     },
-    heroImage: { src: '/media/content/greek-olympus.jpg', alt: '奥林匹斯:高峰之上云层之中的诸神居所', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/greek-olympus-v2.webp', alt: '晨光下的奥林匹斯白色大理石议庭、山巅与云海', width: 1672, height: 941 },
   },
   {
     id: 'world-asgard',
@@ -147,7 +154,7 @@ export const worlds: World[] = [
   },
 ];
 
-export const characters: Character[] = [
+const baseCharacters: Character[] = [
   {
     id: 'character-change',
     mythologyId: 'myth-chinese',
@@ -178,7 +185,7 @@ export const characters: Character[] = [
       anchors: ['长矛', '埃癸斯盾', '猫头鹰', '青铜与金'],
       silhouette: '高挑战士轮廓与大型圆盾形成强识别形态',
     },
-    portrait: { src: '/media/content/char-athena.jpg', alt: '雅典娜:持矛执盾的智慧女神', width: 864, height: 1152 },
+    portrait: { src: '/media/characters/athena/canonical/mobile-wallpaper/canonical_m_01.png', alt: '雅典娜:持矛执盾的智慧女神', width: 941, height: 1672 },
   },
   {
     id: 'character-freyja',
@@ -378,7 +385,7 @@ export const artworks: Artwork[] = [
     styleId: 'canonical',
     moodIds: ['sacred', 'dreamy', 'epic'],
     image: { src: '/media/content/chinese-celestial.svg', alt: '云海之上的金色天门和宫阙', width: 1600, height: 900 },
-    license: prototypeLicense,
+    license: legacyOriginalLicense,
     reviewStatus: 'approved',
   },
   {
@@ -392,7 +399,7 @@ export const artworks: Artwork[] = [
     styleId: 'sacred',
     moodIds: ['moonlight', 'quiet'],
     image: { src: '/media/content/art-moon-palace.jpg', alt: '月宫清辉:圆月与飘带之间的嫦娥', width: 720, height: 1280 },
-    license: prototypeLicense,
+    license: legacyOriginalLicense,
     reviewStatus: 'approved',
   },
   {
@@ -404,8 +411,8 @@ export const artworks: Artwork[] = [
     worldId: 'world-olympus',
     styleId: 'cinematic',
     moodIds: ['sacred', 'bright'],
-    image: { src: '/media/content/art-olympus-dawn.jpg', alt: '晨光中的奥林匹斯:金色光线穿过大理石柱廊', width: 720, height: 1280 },
-    license: prototypeLicense,
+    image: { src: '/media/content/greek-olympus-mobile-v1.webp', alt: '竖幅晨光中的奥林匹斯:金色光线穿过大理石柱廊', width: 941, height: 1672 },
+    license: greekProductionAiLicense,
     reviewStatus: 'approved',
   },
   {
@@ -418,7 +425,7 @@ export const artworks: Artwork[] = [
     styleId: 'cinematic',
     moodIds: ['epic', 'cold'],
     image: { src: '/media/content/art-asgard-aurora.jpg', alt: '极光下的阿斯加德:雪崖上的金色灯火殿堂', width: 720, height: 1280 },
-    license: prototypeLicense,
+    license: legacyOriginalLicense,
     reviewStatus: 'approved',
   },
   {
@@ -431,7 +438,7 @@ export const artworks: Artwork[] = [
     styleId: 'sacred',
     moodIds: ['moonlight', 'quiet'],
     image: { src: '/media/content/art-takamagahara-moon.jpg', alt: '月下高天原:巨大满月与湖面鸟居', width: 720, height: 1280 },
-    license: prototypeLicense,
+    license: legacyOriginalLicense,
     reviewStatus: 'approved',
   },
   {
@@ -444,7 +451,7 @@ export const artworks: Artwork[] = [
     styleId: 'dark-fantasy',
     moodIds: ['mysterious', 'sacred'],
     image: { src: '/media/content/art-duat-sun-barge.jpg', alt: '太阳神舟:星空之河上的拉神金舟', width: 720, height: 1280 },
-    license: prototypeLicense,
+    license: legacyOriginalLicense,
     reviewStatus: 'approved',
   },
 ];
@@ -458,7 +465,7 @@ export const styles: Style[] = [
   { id: 'cyber-myth', slug: 'cyber-myth', name: '赛博神话', nameEn: 'Cyber Myth' },
 ];
 
-export const scenes: Scene[] = [
+const baseScenes: Scene[] = [
   {
     id: 'scene-sea-of-clouds',
     mythologyId: 'myth-chinese',
@@ -479,7 +486,7 @@ export const scenes: Scene[] = [
     nameEn: 'Court of the Gods',
     summary: '高山之巅的白色神殿，诸神围绕黄金穹顶议事。',
     canonicalDesign: { anchors: ['白色柱廊', '黄金穹顶', '高山云层'] },
-    heroImage: { src: '/media/content/greek-olympus.jpg', alt: '云层之上的白色大理石神殿', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/greek-olympus-v2.webp', alt: '晨光下的奥林匹斯白色大理石议庭、山巅与云海', width: 1672, height: 941 },
   },
   {
     id: 'scene-world-tree-roots',
@@ -515,3 +522,14 @@ export const scenes: Scene[] = [
     heroImage: { src: '/media/content/egyptian-duat.jpg', alt: '星空之下的砂岩巨门与太阳神舟', width: 1280, height: 720 },
   },
 ];
+
+const mergeById = <T extends { id: string }>(base: readonly T[], additions: readonly T[]): T[] => {
+  const byId = new Map(base.map((item) => [item.id, item]));
+  additions.forEach((item) => byId.set(item.id, { ...(byId.get(item.id) ?? {}), ...item }));
+  return Array.from(byId.values());
+};
+
+/** Greek P0 content is an editorial source set, not an accidental local-only fixture. */
+export const worlds: World[] = mergeById(baseWorlds, greekWorlds);
+export const characters: Character[] = mergeById(baseCharacters, greekCharacters);
+export const scenes: Scene[] = mergeById(baseScenes, greekScenes);

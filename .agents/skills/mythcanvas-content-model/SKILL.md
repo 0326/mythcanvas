@@ -11,7 +11,7 @@ Model MythCanvas as entities and relationships, not as a flat wallpaper list.
 
 ```text
 Mythology
-  → Realm
+  → World
   → Character
   → Scene
   → Artwork
@@ -22,13 +22,13 @@ Artwork can relate to multiple entities; do not force every artwork into one cha
 ## Required vocabulary
 
 - `Mythology`: mythology/civilization system
-- `Realm`: named mythic world/domain
+- `World`: named mythic world/domain
 - `Character`: named god/hero/spirit/figure
 - `Scene`: reusable visual place/event concept
 - `Artwork`: visual work plus metadata
 - `Style`: artwork rendering style
 - `VisualDNA`: civilization identity constraints
-- `CanonicalDesign`: stable identity anchors for Character/Realm
+- `CanonicalDesign`: stable identity anchors for Character/World
 - `Theme`: application Light/Dark only
 
 ## Never collapse these fields
@@ -60,7 +60,7 @@ For important Character entities store identity anchors such as:
 - temperament/visual posture
 - prohibited confusion notes where useful
 
-For Realm entities store:
+For World entities store:
 
 - landmarks
 - spatial composition
@@ -128,11 +128,11 @@ A Character page should answer:
 
 - who is this?
 - which mythology?
-- which Realm?
+- which World?
 - symbols / role?
 - what makes the MythCanvas interpretation identifiable?
 
-A Realm page should answer:
+A World page should answer:
 
 - what world is this?
 - which mythology?
@@ -163,7 +163,7 @@ Before adding content:
 
 - [ ] slug is stable and human-readable
 - [ ] mythology relationship exists
-- [ ] Realm/Character links are valid
+- [ ] World/Character links are valid
 - [ ] Visual DNA / Canonical Design is separated from Style
 - [ ] image width/height/alt are present
 - [ ] license/source metadata is present

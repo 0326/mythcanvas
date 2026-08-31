@@ -1,0 +1,51 @@
+---
+import { BookOpenText, GitBranch } from '@lucide/astro';
+import type { Character, CharacterRelation } from '../../lib/content/types';
+
+interface Props {
+  character: Character;
+  relations: readonly CharacterRelation[];
+  characters: readonly Character[];
+}
+
+const { character, relations, characters } = Astro.props;
+const characterById = new Map(characters.map((item) => [item.id, item]));
+const relationLabels: Record<string, string> = { parent: '父母', consort: '配偶', sibling: '兄弟姐妹', ally: '盟友', rival: '竞争/冲突', enemy: '敌对', 'rules-over': '统治', serves: '侍奉', 'associated-with': '关联', punishes: '惩罚', 'orders-creation': '命其诞生', defeats: '击败', 'exchanges-with': '交换/和解', opposes: '对立', captures: '捕获', aids: '援助', rides: '驾驭', companion: '同伴', encounters: '相遇', resists: '抵抗', 'departs-from': '离开' };
+const visibleRelations = relations.filter((relation) => relation.isDefault !== false);
+---
+
+{visibleRelations.length > 0 && (
+  <section class="relations-section section-compact" aria-labelledby="relations-title">
+    <div class="container-wide relations-grid">
+      <div>
+        <span class="eyebrow">Genealogy & Relations</span>
+        <h2 id="relations-title">在神谱中的位置</h2>
+        <p>关系以可追溯的来源呈现。这里是默认阅读视图；不同传统不被强行压成唯一事实。</p>
+      </div>
+      <div class="relations-list">
+        {visibleRelations.map((relation) => {
+          const isOutgoing = relation.fromCharacterId === character.id;
+          const counterpart = characterById.get(isOutgoing ? relation.toCharacterId ?? '' : relation.fromCharacterId);
+          if (!counterpart) return null;
+          const label = relation.relationType === 'parent' && !isOutgoing ? '父母' : relationLabels[relation.relationType] ?? relation.relationType;
+          return (
+            <article class="relation-item">
+              <span class="relation-label"><GitBranch size={15} strokeWidth={1.8} aria-hidden="true" />{label}</span>
+              <a href={`/character/${counterpart.slug}/`}><strong>{counterpart.name}</strong><small>{counterpart.role}</small></a>
+              <details><summary>来源</summary>{relation.sourceRefs.map((source) => <p><BookOpenText size={13} strokeWidth={1.8} aria-hidden="true" />{source.title}{source.locator && ` · ${source.locator}`}</p>)}</details>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .relations-section { border-block: 1px solid var(--border); background: var(--surface-muted); } .relations-grid { display: grid; grid-template-columns: .72fr 1.28fr; gap: var(--space-10); }
+  .relations-grid h2 { margin: .35rem 0 0; } .relations-grid > div > p { max-width: 30rem; color: var(--text-secondary); line-height: 1.75; }
+  .relations-list { display: grid; gap: .65rem; } .relation-item { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: var(--space-4); padding: .85rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+  .relation-label { display: inline-flex; align-items: center; gap: .35rem; color: var(--accent-strong); font-size: .72rem; font-weight: 700; } .relation-item a { color: var(--text-primary); } .relation-item a small { display: block; margin-top: .15rem; color: var(--text-muted); font-size: .72rem; }
+  .relation-item details summary { cursor: pointer; color: var(--text-secondary); font-size: .72rem; } .relation-item details p { display: flex; align-items: center; gap: .25rem; max-width: 18rem; color: var(--text-muted); font-size: .7rem; }
+  @media (max-width: 780px) { .relations-grid { grid-template-columns: 1fr; } .relation-item { grid-template-columns: 1fr; gap: .35rem; } }
+</style>

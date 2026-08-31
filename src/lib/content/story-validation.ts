@@ -38,6 +38,29 @@ const duplicateValues = (values: readonly string[]): string[] => {
   });
 };
 
+const validateDependencyIds = (
+  issues: StoryValidationIssue[],
+  scope: { storyId: string },
+  field: 'requiredCharacterIds' | 'requiredWorldIds' | 'requiredSceneIds',
+  requiredIds: readonly string[] | undefined,
+  linkedIds: readonly string[],
+  knownIds: ReadonlySet<string>,
+  label: string,
+) => {
+  if (!requiredIds) return;
+  duplicateValues(requiredIds).forEach((id) => {
+    issues.push({ ...scope, field, message: `Required ${label} is duplicated: ${id}.` });
+  });
+  requiredIds.forEach((id) => {
+    if (!knownIds.has(id)) {
+      issues.push({ ...scope, field, message: `Required ${label} does not exist: ${id}.` });
+    }
+    if (!linkedIds.includes(id)) {
+      issues.push({ ...scope, field, message: `Required ${label} must also be a reader-facing relation: ${id}.` });
+    }
+  });
+};
+
 /**
  * Checks the editorial invariants that TypeScript alone cannot prove for Story
  * seed data or later Content Collection adapters.
@@ -104,6 +127,16 @@ export const validateMythStories = ({
       }
     });
 
+    if (story.requiredSourceIds && story.requiredSourceIds.length === 0) {
+      issues.push({ ...scope, field: 'requiredSourceIds', message: 'A closure-managed Story must declare at least one required source.' });
+    }
+    story.requiredSourceIds?.forEach((sourceId) => {
+      const hasSource = story.sources.some((source) => sourceId === source.sourceId || sourceId === source.title || sourceId === source.url);
+      if (!hasSource) {
+        issues.push({ ...scope, field: 'requiredSourceIds', message: `Required source is not attached to this Story: ${sourceId}.` });
+      }
+    });
+
     story.characterIds.forEach((id) => {
       if (!characterIds.has(id)) issues.push({ ...scope, field: 'characterIds', message: `Unknown Character: ${id}.` });
     });
@@ -112,6 +145,21 @@ export const validateMythStories = ({
     });
     story.sceneIds.forEach((id) => {
       if (!sceneIds.has(id)) issues.push({ ...scope, field: 'sceneIds', message: `Unknown Scene: ${id}.` });
+    });
+
+    validateDependencyIds(issues, scope, 'requiredCharacterIds', story.requiredCharacterIds, story.characterIds, characterIds, 'Character');
+    validateDependencyIds(issues, scope, 'requiredWorldIds', story.requiredWorldIds, story.worldIds, worldIds, 'World');
+    validateDependencyIds(issues, scope, 'requiredSceneIds', story.requiredSceneIds, story.sceneIds, sceneIds, 'Scene');
+
+    story.claims?.forEach((claim, index) => {
+      if (!hasText(claim.id) || !hasText(claim.summary) || claim.sourceRefs.length === 0) {
+        issues.push({ ...scope, field: `claims.${index}`, message: 'A claim needs an id, summary and at least one source.' });
+      }
+      claim.sourceRefs.forEach((source, sourceIndex) => {
+        if (!hasText(source.title) || !hasText(source.locator ?? source.section ?? '')) {
+          issues.push({ ...scope, field: `claims.${index}.sourceRefs.${sourceIndex}`, message: 'Claim sources need a title and a locator or section.' });
+        }
+      });
     });
 
     if (story.heroAssetId && !illustrationIds.has(story.heroAssetId)) {

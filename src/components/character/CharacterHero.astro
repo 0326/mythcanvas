@@ -1,5 +1,6 @@
 ---
 import type { Character, ImageAsset, Mythology } from '../../lib/content/types';
+import { cloudflareImageUrl, shouldUseCloudflareImageTransformations } from '../../lib/media/cloudflare-images';
 
 interface Props {
   character: Character;
@@ -9,15 +10,28 @@ interface Props {
 }
 
 const { character, mythology, heroImage, createHref } = Astro.props;
+const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
+const heroImageSrc = cloudflareImageUrl(
+  heroImage.src,
+  {
+    width: 1920,
+    height: 1080,
+    fit: 'cover',
+    quality: 82,
+    format: 'auto',
+    focalPoint: { x: 0.5, y: 0.42 },
+  },
+  useImageTransformations,
+) ?? heroImage.src;
 ---
 
 <section class="character-hero" id="character-hero" aria-labelledby="character-title">
   <img
     class="character-hero-image"
-    src={heroImage.src}
+    src={heroImageSrc}
     alt={heroImage.alt}
-    width={heroImage.width}
-    height={heroImage.height}
+    width="1920"
+    height="1080"
     fetchpriority="high"
   />
   <div class="character-hero-overlay" aria-hidden="true"></div>

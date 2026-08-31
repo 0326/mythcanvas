@@ -12,7 +12,7 @@ interface Props {
 }
 
 const { character, mythology } = Astro.props;
-const primarySymbol = character.symbols[0] ?? '✦';
+const fallbackSymbols = character.symbols.slice(0, 3);
 const clickCount = Math.max(0, Math.floor(character.clickCount ?? 0));
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
 const portraitImage = character.portrait
@@ -45,9 +45,13 @@ const portraitImage = character.portrait
           decoding="async"
         />
       ) : (
-        <div class="portrait-fallback" aria-hidden="true">
-          <div class="moon-ring"></div>
-          <span>{primarySymbol}</span>
+        <div class="portrait-fallback" role="img" aria-label={`${character.name} Canonical symbol fallback`}>
+          <div class="moon-ring" aria-hidden="true"></div>
+          <div class="fallback-copy">
+            <span class="fallback-kicker">Canonical symbol set</span>
+            <strong>{fallbackSymbols.length > 0 ? fallbackSymbols.join(' · ') : character.name}</strong>
+            <span class="fallback-role">{character.role}</span>
+          </div>
         </div>
       )}
       <span class="portrait-shade" aria-hidden="true"></span>
@@ -130,6 +134,7 @@ const portraitImage = character.portrait
     inset: 0;
     display: grid;
     place-items: center;
+    padding: 1.5rem;
     color: var(--accent-strong);
     background:
       radial-gradient(circle at 52% 38%, color-mix(in srgb, var(--moon-white) 80%, transparent), transparent 24%),
@@ -145,15 +150,42 @@ const portraitImage = character.portrait
     box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 28%, transparent);
   }
 
-  .portrait-fallback span {
+  .fallback-copy {
     position: relative;
     z-index: 1;
-    max-width: 90px;
-    padding: var(--space-2);
+    display: grid;
+    gap: 0.65rem;
+    max-width: 13rem;
     text-align: center;
-    font-family: var(--font-serif);
-    font-size: 1rem;
+  }
+
+  .fallback-kicker {
+    color: var(--text-muted);
+    font-size: 0.6rem;
     font-weight: 700;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .fallback-copy strong {
+    position: relative;
+    z-index: 1;
+    color: var(--text-primary);
+    font-family: var(--font-serif);
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .fallback-role {
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+
+  .portrait-fallback > .moon-ring {
+    pointer-events: none;
   }
 
   .badge {

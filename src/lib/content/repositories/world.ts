@@ -1,9 +1,24 @@
 import { worlds as seedWorlds } from '../../../data/seed';
+import { greekWorlds } from '../../../content/greek/catalog';
 import type { World } from '../types';
 import { optionalNumber, optionalString, pageClause, parseJson } from './shared';
 import type { EntityListQuery } from './types';
 
 type WorldRow = Record<string, unknown>;
+
+function mergeGreekWorlds(items: readonly World[]): World[] {
+  const byId = new Map(greekWorlds.map((item) => [item.id, item]));
+  items.forEach((item) => {
+    const authored = byId.get(item.id);
+    byId.set(item.id, authored ? { ...authored, ...item, heroImageMobile: authored.heroImageMobile } : item);
+  });
+  return Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+}
+
+function withGreekWorldVariants(item: World): World {
+  const authored = greekWorlds.find((world) => world.id === item.id);
+  return authored ? { ...authored, ...item, heroImageMobile: authored.heroImageMobile } : item;
+}
 
 const SELECT_COLUMNS = `
   id, mythology_id, slug, name, name_en, summary, canonical_design_json,
@@ -39,7 +54,7 @@ export async function getWorlds(db: D1Database | undefined, query: EntityListQue
     .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds${where} ORDER BY name LIMIT ? OFFSET ?`)
     .bind(limit, offset)
     .all();
-  return rows.results.map(mapWorldRow);
+  return mergeGreekWorlds(rows.results.map(mapWorldRow));
 }
 
 export async function getWorldBySlug(db: D1Database | undefined, slug: string): Promise<World | undefined> {
@@ -48,7 +63,7 @@ export async function getWorldBySlug(db: D1Database | undefined, slug: string): 
     .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE slug = ? AND publish_status = 'published'`)
     .bind(slug)
     .first();
-  return row ? mapWorldRow(row) : undefined;
+  return row ? withGreekWorldVariants(mapWorldRow(row)) : greekWorlds.find((item) => item.slug === slug);
 }
 
 export async function getWorldById(db: D1Database | undefined, id: string): Promise<World | undefined> {
@@ -57,7 +72,7 @@ export async function getWorldById(db: D1Database | undefined, id: string): Prom
     .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE id = ? AND publish_status = 'published'`)
     .bind(id)
     .first();
-  return row ? mapWorldRow(row) : undefined;
+  return row ? withGreekWorldVariants(mapWorldRow(row)) : greekWorlds.find((item) => item.id === id);
 }
 
 export async function getWorldsForMythology(
@@ -67,9 +82,11 @@ export async function getWorldsForMythology(
 ): Promise<World[]> {
   if (!db) return seedWorlds.filter((item) => item.mythologyId === mythologyId);
   const { limit, offset } = pageClause(query);
+  const isGreek = mythologyId === 'myth-greek';
   const rows = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name LIMIT ? OFFSET ?`)
-    .bind(mythologyId, limit, offset)
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name${isGreek ? '' : ' LIMIT ? OFFSET ?'}`)
+    .bind(mythologyId, ...(isGreek ? [] : [limit, offset]))
     .all();
-  return rows.results.map(mapWorldRow);
+  const worlds = rows.results.map(mapWorldRow);
+  return isGreek ? mergeGreekWorlds(worlds).slice(offset, offset + limit) : worlds;
 }

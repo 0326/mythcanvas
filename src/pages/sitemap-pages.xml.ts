@@ -5,6 +5,7 @@ import {
   getMythologies,
   getWorlds,
 } from '../lib/content/repositories';
+import { getPublicStoryPaths } from '../lib/content/stories';
 import {
   absoluteUrl,
   buildUrlSetXml,
@@ -54,6 +55,10 @@ export const GET: APIRoute = async ({ locals, site, url }) => {
     ...mythologies.map((item) => `/mythology/${item.slug}/`),
     ...worlds.map((item) => `/world/${item.slug}/`),
     ...characters.map((item) => `/character/${item.slug}/`),
+    ...getPublicStoryPaths().flatMap((story) => {
+      const mythology = mythologies.find((item) => item.id === story.mythologyId);
+      return mythology ? [`/mythology/${mythology.slug}/${story.slug}/`] : [];
+    }),
   ];
 
   return xmlResponse(buildUrlSetXml(paths.map((path) => urlEntry(absoluteUrl(path, site)))));

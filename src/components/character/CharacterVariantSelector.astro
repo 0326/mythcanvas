@@ -28,6 +28,7 @@ const variantHref = (variantSlug: string) => {
 };
 
 const portraitImage: ImageAsset | undefined = character.portrait;
+const fallbackSymbols = character.symbols.slice(0, 2);
 ---
 
 <div class="variant-selector" role="group" aria-label="选择角色形态">
@@ -48,7 +49,9 @@ const portraitImage: ImageAsset | undefined = character.portrait;
           decoding="async"
         />
       ) : (
-        <div class="variant-fallback" aria-hidden="true"><span>{character.symbols[0] ?? '✦'}</span></div>
+        <div class="variant-fallback" role="img" aria-label={`${character.name} Canonical symbol fallback`}>
+          <span>{fallbackSymbols.length > 0 ? fallbackSymbols.join(' · ') : character.name}</span>
+        </div>
       )}
     </div>
     <div class="variant-copy">
@@ -85,7 +88,9 @@ const portraitImage: ImageAsset | undefined = character.portrait;
               decoding="async"
             />
           ) : (
-            <div class="variant-fallback" aria-hidden="true"><span>{character.symbols[0] ?? '✦'}</span></div>
+            <div class="variant-fallback" role="img" aria-label={`${character.name} ${variant.name} symbol fallback`}>
+              <span>{fallbackSymbols.length > 0 ? fallbackSymbols.join(' · ') : character.name}</span>
+            </div>
           )}
           {!previewSrc && portraitImage && <span class="variant-config-tag">形态配置</span>}
         </div>

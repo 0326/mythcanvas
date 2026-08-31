@@ -39,7 +39,7 @@ export const mythologies: Mythology[] = [
       materials: ['大理石', '青铜', '黄金'],
       atmosphere: ['庄严', '明亮', '英雄感'],
     },
-    heroImage: { src: '/media/content/greek-olympus.jpg', alt: '奥林匹斯山巅的古希腊神殿', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/greek-olympus-v2.webp', alt: '晨光下的奥林匹斯白色大理石议庭、山巅与云海', width: 1672, height: 941 },
     homeHero: {},
   },
   {

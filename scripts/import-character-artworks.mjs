@@ -10,6 +10,9 @@ const R2_BUCKET = 'mythcanvas-artworks';
 const IMPORT_ROOT = path.resolve('imports/characters');
 const FILE_RE = /^(?<style>[a-z0-9]+(?:-[a-z0-9]+)*)_(?<device>pc|m)_(?<sequence>[0-9]{2})\.(?<ext>png|jpg|jpeg|webp)$/i;
 const ACTIVE_PRODUCTION_STYLES = new Set(['canonical', 'sacred', 'cinematic', 'anime', 'cyber-myth']);
+const GENERATION_PROVIDER = 'OpenAI';
+const GENERATION_MODEL = 'gpt-image-2';
+const PROMPT_RECIPE_ID = 'mythcanvas.character.v1';
 
 const args = process.argv.slice(2);
 const options = parseArgs(args);
@@ -264,19 +267,31 @@ function buildImportSql(candidates, characterMap, styleMap) {
       sourceFile: item.filename,
       outputSpecId: item.outputSpecId,
       sequence: item.sequence,
+      provider: GENERATION_PROVIDER,
+      model: GENERATION_MODEL,
+      promptRecipeId: PROMPT_RECIPE_ID,
+      promptLayers: {
+        mythology: character.mythologyId,
+        character: character.slug,
+        style: style.slug,
+        scene: null,
+        outputSpec: item.outputSpecId,
+        userRefinement: null,
+        guardrails: ['preserve canonical identity', 'avoid copyrighted modern adaptations'],
+      },
     });
 
     statements.push(`
 INSERT INTO artworks (
   id, slug, title, type, mythology_id, world_id, style_id, mood_ids_json,
   asset_key, asset_mime, width, height, alt_text, source_type, license, creator,
-  prompt_meta_json, review_status, publish_status, updated_at
+  prompt_meta_json, ai_model, review_status, publish_status, updated_at
 ) VALUES (
   ${sqlQuote(artworkId)}, ${sqlQuote(artworkSlug)}, ${sqlQuote(title)}, 'character',
   ${sqlQuote(character.mythologyId)}, NULL, ${sqlQuote(style.id)}, '[]',
   ${sqlQuote(item.publicUrl)}, ${sqlQuote(item.mimeType)}, ${item.width}, ${item.height},
-  ${sqlQuote(alt)}, 'ai', 'MythCanvas AI-generated original', NULL,
-  ${sqlQuote(promptMeta)}, 'approved', 'published', CURRENT_TIMESTAMP
+  ${sqlQuote(alt)}, 'ai', 'MythCanvas AI-generated original', 'MythCanvas',
+  ${sqlQuote(promptMeta)}, ${sqlQuote(GENERATION_MODEL)}, 'approved', 'published', CURRENT_TIMESTAMP
 )
 ON CONFLICT(id) DO UPDATE SET
   slug=excluded.slug,
@@ -290,6 +305,8 @@ ON CONFLICT(id) DO UPDATE SET
   alt_text=excluded.alt_text,
   source_type=excluded.source_type,
   license=excluded.license,
+  creator=excluded.creator,
+  ai_model=excluded.ai_model,
   prompt_meta_json=excluded.prompt_meta_json,
   review_status='approved',
   publish_status='published',
@@ -304,9 +321,12 @@ ON CONFLICT(artwork_id, character_id) DO NOTHING;
       const refId = `ref-${item.characterSlug}-canonical-primary`;
       const generationMeta = JSON.stringify({
         importedBy: 'scripts/import-character-artworks.mjs',
-        sourceArtworkId: artworkId,
-        sourceFile: item.filename,
-        sequence: item.sequence,
+      sourceArtworkId: artworkId,
+      sourceFile: item.filename,
+      sequence: item.sequence,
+      provider: GENERATION_PROVIDER,
+      model: GENERATION_MODEL,
+      promptRecipeId: PROMPT_RECIPE_ID,
       });
       statements.push(`
 UPDATE characters

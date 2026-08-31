@@ -43,6 +43,8 @@ export type SourceRefType =
 
 /** A source attached to a concrete claim, identity, relation, or name. */
 export type SourceRef = {
+  /** Stable source registry identifier when the source belongs to a managed content set. */
+  sourceId?: string;
   type: SourceRefType;
   title: string;
   section?: string;
@@ -50,8 +52,43 @@ export type SourceRef = {
   period?: string;
   edition?: string;
   locator?: string;
+  /** Language of the cited text or translation, for example `grc`, `la`, or `zh-CN`. */
+  language?: string;
+  /** Edition or translator used by the editorial team. Never imply a translation is ancient text. */
+  translation?: string;
   url?: string;
   note?: string;
+};
+
+/** Whether MythCanvas presents a statement as directly supported, disputed, or editorial synthesis. */
+export type ContentClaimStatus = 'supported' | 'contested' | 'editorial-synthesis';
+
+/**
+ * A claim is intentionally separate from an entity summary. This keeps a chosen
+ * reader-facing interpretation from masquerading as the only ancient tradition.
+ */
+export type ContentClaim = {
+  id: string;
+  subjectType: 'character' | 'world' | 'scene' | 'story' | 'relation' | 'visual-anchor';
+  subjectId: string;
+  claimType: 'identity' | 'genealogy' | 'narrative' | 'interpretation' | 'visual-anchor';
+  summary: string;
+  status: ContentClaimStatus;
+  traditionScope?: string;
+  sourceRefs: readonly SourceRef[];
+};
+
+export type TaxonomyKind = 'lineage' | 'domain' | 'story-cycle' | 'editorial-collection';
+
+export type TaxonomyTerm = {
+  id: string;
+  slug: string;
+  mythologyId: string;
+  kind: TaxonomyKind;
+  name: string;
+  nameEn?: string;
+  summary: string;
+  displayOrder: number;
 };
 
 export type CharacterInterpretationConfidence = 'high' | 'medium' | 'contested';
@@ -77,7 +114,7 @@ export type ThemeHeroSet = {
 };
 
 export type LicenseMeta = {
-  sourceType: 'prototype' | 'platform' | 'creator' | 'public-domain';
+  sourceType: 'original' | 'prototype' | 'platform' | 'creator' | 'ai' | 'public-domain';
   license: string;
   creator?: string;
 };
@@ -104,10 +141,14 @@ export type MythStorySourceType = 'primary-text' | 'translation' | 'scholarly-re
 
 /** A source that identifies the textual, oral, or scholarly basis of a MythStory. */
 export type MythStorySource = {
+  sourceId?: string;
   title: string;
   sourceType: MythStorySourceType;
   tradition?: string;
   period?: string;
+  locator?: string;
+  language?: string;
+  translation?: string;
   note?: string;
   url?: string;
 };
@@ -172,6 +213,13 @@ export type MythStory = {
   readingMinutes?: number;
   sources: readonly MythStorySource[];
   sourceNotes: readonly string[];
+  /** P0 dependency closure distinguishes required entities from useful context links. */
+  requiredCharacterIds?: readonly string[];
+  requiredWorldIds?: readonly string[];
+  requiredSceneIds?: readonly string[];
+  /** Source ids or inline source keys required before publication. */
+  requiredSourceIds?: readonly string[];
+  claims?: readonly ContentClaim[];
   characterIds: readonly string[];
   worldIds: readonly string[];
   sceneIds: readonly string[];
@@ -191,6 +239,8 @@ export type World = {
   summary: string;
   canonicalDesign: CanonicalDesign;
   heroImage: ImageAsset;
+  /** Independently composed narrow-viewport World Hero, never a desktop crop. */
+  heroImageMobile?: ImageAsset;
 };
 
 export type Character = {
@@ -264,6 +314,12 @@ export type CharacterRelation = {
   fromInterpretationId?: string;
   toInterpretationId?: string;
   relationType: string;
+  /** Stable semantic key used to prevent duplicate assertions within one tradition scope. */
+  assertionKey?: string;
+  /** Empty for a cross-tradition-neutral assertion; otherwise identifies the asserted tradition. */
+  traditionScope?: string;
+  /** One supported relation may be selected for the compact default genealogy view. */
+  isDefault?: boolean;
   sourceRefs: readonly SourceRef[];
   confidence: CharacterInterpretationConfidence;
 };

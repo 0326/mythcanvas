@@ -25,6 +25,15 @@ export const getStoriesForMythology = (mythologyId: string): MythStory[] =>
     .filter((story) => story.mythologyId === mythologyId && story.publishStatus === 'published')
     .toSorted((a, b) => a.volumeOrder - b.volumeOrder || a.displayOrder - b.displayOrder);
 
+export const getStoryForMythology = (mythologyId: string, slug: string): MythStory | undefined =>
+  mythStories.find((story) => story.mythologyId === mythologyId && story.slug === slug && story.publishStatus === 'published');
+
+export const getPublicStoryPaths = (): { mythologyId: string; slug: string }[] =>
+  mythStories
+    .filter((story) => story.publishStatus === 'published')
+    .filter((story) => shouldUseMythStoryDetailRoutes(getStoriesForMythology(story.mythologyId).length))
+    .map((story) => ({ mythologyId: story.mythologyId, slug: story.slug }));
+
 export const groupStoriesByVolume = (stories: readonly MythStory[]): MythStoryVolume[] => {
   const volumes = new Map<string, MythStoryVolume>();
 

@@ -1,8 +1,8 @@
 # MythCanvas 希腊神话完整补全方案
 
-> 状态：Review Proposal  
+> 状态：P0 已实施并验证；P1 最低验收已完成，进入视觉增强与跨文明复用
 > 版本：V1.1  
-> 日期：2026-08-30  
+> 日期：2026-08-31
 > 适用范围：希腊神话内容建模、人物扩充、神谱关系、神域/场景、故事、来源体系、视觉资产、页面展示与后续 AI 出图。  
 > 相关文档：`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`docs/CHINESE_MYTHOLOGY_CHARACTERS_PLAN.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
 
@@ -10,17 +10,25 @@
 
 ## 0. 结论
 
-当前希腊神话已经具备一个可用骨架，但还不是完整的“神话体系”：
+当前希腊神话已具备可上线的第一版“神话体系”闭环：核心故事、依赖实体、来源、关系、页面与最低视觉资产均已落地；后续工作聚焦长尾扩展和风格衍生。
 
-- 已有 `myth-greek`；
-- 已有 `world-olympus`；
-- 已有 12 个高认知人物；
-- 12 个角色已有较完整 Canonical Design；
-- Artemis 已完成来源、解释层、Variant、World 关联等较完整 Character Production；
-- 已有少量 Story、Scene 和 Olympus 视觉资产；
-- `character_relations`、`character_interpretations`、`character_names` 等 Schema 已能承载复杂神谱与多版本来源。
+- `myth-greek` 现包含 67 个 Character、4 个 World、21 个 Scene 与 35 篇 Story；
+- required genealogy / narrative relation closure 已完成并带来源范围；
+- `/mythology/greek/`、Story 详情、Character Relations、Genealogy 与 taxonomy browse 已可用；
+- Tier S / Tier A 最低视觉覆盖、World 双端 hero、Tier B Symbol Fallback 已完成；
+- 静态公开数据与 local / production D1 的 prototype provenance 审计均为 0。
 
-当前最大缺口不是页面，而是内容图谱本身。
+## 实施状态（2026-08-31）
+
+本方案已按下列技术决策落地。此处记录的是可验证的当前状态，不把尚未生产的视觉资产写成已完成：
+
+- P0 Story Manifest：35 篇已发布 Greek Story，均声明 Character / World / Scene / Source 依赖，并可进入独立详情路由。
+- P0 Character Closure：67 个 typed Character、4 个 World、21 个 Scene、13 个 taxonomy terms；验证器检查 id、slug、依赖、来源定位与 World / Scene 关联。
+- P0 Relation Closure：59 条具来源范围与定位的关系，使用显式 required-relation manifest 锁定，不以数量作为验收 KPI。
+- Structured Content Pipeline：权威内容位于 `src/content/greek/` 的可审阅 TypeScript 模块；`content:validate` 验证后由 `scripts/sync-greek-content.mjs` 幂等同步到 D1。Schema migration 只承担结构演进。
+- 产品化：`/mythology/greek/` 有故事卷目、来源说明、神谱；`/mythology/greek/[story]/` 为可索引 Story 详情；角色页显示可追溯关系；角色列表支持实体类型筛选；sitemap 包含公开 Story URL。
+- 已修复同步后实际 D1 联表查询的列歧义，并用本地浏览器验证神话页、Story 详情、角色关系页与 Light/Dark 切换。
+- P1 World desktop heroes：Olympus、Underworld、Tartarus、Sea Realm 均已有独立、带项目内 provenance 的 desktop 主图；四者也均已补齐独立 mobile hero（4 / 4）。8 个 World hero 已转为 WebP，源 PNG 保留在被忽略的 `imports/worlds/source/`，catalog 与 local/production D1 均已同步。Tier S 目前 12 / 12 达到最低双端覆盖：Athena、Artemis 为既有生产资产，其余十位已新增并发布 Canonical mobile + desktop（local + production R2/D1），mobile portrait/reference 已自动晋升。Tier A 已按 `src/content/greek/visual-tiers.ts` 定义的 15 人最小集合完成 15 / 15 Canonical mobile portrait/reference（local + production R2/D1）。Tier B 已补齐基于 Canonical symbols / role 的可用 Symbol Fallback；public prototype provenance 已通过静态 + local/remote D1 审计清零。Tier A 额外 desktop/style 扩展仍是后续增强项。
 
 本轮不定义为“补到固定 48 个角色”，而定义为：
 
@@ -288,7 +296,7 @@ Character
 - Olympus Dawn
 - Athena
 
-Story Illustration 仍包含 prototype provenance。
+Greek Story 当前 3 个主插画引用已切换至正式 World / Character Artwork，并补齐 `ai_model` 与 `promptRecipeId`；其他文明的 legacy Story Illustration 也已改为带 creator/license 的 legacy original provenance，并由静态 + D1 审计保护，后续只需按素材升级计划替换图像本身。
 
 正式补全后需要逐步替换为正式 MythCanvas 原创 / AI 资产及真实 provenance。
 
@@ -984,28 +992,20 @@ Mythology Base DNA
 
 ## 11.1 目标目录
 
-建议：
+实施采用：
 
 ```text
-content/greek/
-├── mythology.json
-├── characters/
-│   ├── zeus.json
-│   ├── athena.json
-│   ├── cronus.json
-│   └── ...
-├── relations.json
-├── worlds.json
-├── scenes.json
-├── stories/
-│   ├── creation-chaos.json
-│   ├── titanomachy.json
-│   └── ...
-└── manifests/
-    └── p0.json
+src/content/greek/
+├── catalog.ts              # Character / World / Scene / taxonomy / relation manifest
+├── stories.ts              # authored Story body + dependency declarations
+├── assets.ts               # public World asset provenance
+└── index.md                # Astro content-collection registration marker
+
+scripts/
+└── sync-greek-content.mjs  # validate → idempotent D1 import
 ```
 
-具体 JSON / YAML / TypeScript 由实现阶段选择，核心要求是：
+TypeScript 被选为当前实现格式；核心要求仍为：
 
 - 可 diff；
 - 可 review；
@@ -1106,6 +1106,8 @@ Canonical Portrait
 Canonical Portrait 或高质量 Symbol Fallback
 ```
 
+当前 37 位 Tier B 角色均通过 `CharacterCard` / 形态选择器展示基于 Canonical symbols、role 的 Symbol Fallback；没有把通用占位图冒充为角色肖像。
+
 不阻塞 P0。
 
 ## World
@@ -1126,10 +1128,12 @@ Canonical Portrait 或高质量 Symbol Fallback
 
 P1 完成前：
 
-- prototype provenance 全部替换；
+- prototype provenance 全部替换（`npm run provenance:audit -- --strict --local/--remote` 均通过）；
 - source_type / license / creator 完整；
 - width / height / alt 完整；
 - public asset review 完成。
+
+审计已接入 CI 与 Cloudflare deploy workflow：PR / push 检查静态公开数据，部署前再检查 production D1。
 
 ---
 
@@ -1228,68 +1232,69 @@ Related Worlds
 
 ## P0-0：先补规范，不先批量灌数据
 
-- [ ] 拆分 `character_type` 与 taxonomy 语义
-- [ ] 定义 Canonical Relation Storage Rule
-- [ ] 定义 Claim-level Source Policy
-- [ ] 收紧 Interpretation 使用规范
-- [ ] 修 `.agents/skills/mythcanvas-content-model/SKILL.md` 中 Realm → World 旧术语
+- [x] 拆分 `character_type` 与 taxonomy 语义
+- [x] 定义 Canonical Relation Storage Rule
+- [x] 定义 Claim-level Source Policy
+- [x] 收紧 Interpretation 使用规范
+- [x] 修 `.agents/skills/mythcanvas-content-model/SKILL.md` 中 Realm → World 旧术语
 
 ## P0-1：建立 Story Manifest
 
-- [ ] 固定 30–35 篇 P0 主线 Story
-- [ ] 为每篇列 requiredCharacterIds / requiredSceneIds / requiredSources
-- [ ] 建 dependency validator
+- [x] 固定 35 篇 P0 主线 Story
+- [x] 为每篇列 requiredCharacterIds / requiredSceneIds / requiredSources
+- [x] 建 dependency validator
 
 ## P0-2：计算 Character Dependency Closure
 
-- [ ] 从 Story 反推核心参与者
-- [ ] 补必要神谱父母 / 配偶 / 敌对依赖
-- [ ] 人工 Review 最终 P0 Character 清单
-- [ ] 不人为锁 48
+- [x] 从 Story 反推核心参与者
+- [x] 补必要神谱父母 / 配偶 / 敌对依赖
+- [x] 人工 Review 最终 P0 Character 清单（67 个实体）
+- [x] 不人为锁 48
 
 ## P0-3：建立 Structured Content Pipeline
 
-- [ ] `content/greek/` 源目录
-- [ ] schema validator
-- [ ] dependency validator
-- [ ] source coverage validator
-- [ ] normalized import
-- [ ] D1 importer / migration generator
+- [x] `src/content/greek/` 源目录
+- [x] schema validator
+- [x] dependency validator
+- [x] source coverage validator
+- [x] normalized import
+- [x] D1 importer / migration generator
 
 ## P0-4：补 Character / Relation
 
-- [ ] 修正现有 12 Character source metadata
-- [ ] Apollo 等事实边界修正
-- [ ] 新增闭包 Character
-- [ ] 新增 scoped names
-- [ ] 新增必要 Interpretation
-- [ ] 完成 required genealogy edges
+- [x] 修正现有 Character source metadata
+- [x] Apollo 等事实边界修正
+- [x] 新增闭包 Character
+- [x] Review scoped names（当前 P0 没有必须独立展示的同名范围，保留为 P2 扩展）
+- [x] Review 必要 Interpretation（当前 P0 的版本差异均由 Story / Relation source scope 表达，不伪造 Interpretation）
+- [x] 完成 required genealogy edges
 
 ## P0-5：补 World / Scene
 
-World / Scene 从 Story 和 Character 真实依赖出发建立，不按数量凑齐。
+World / Scene 从 Story 和 Character 真实依赖出发建立，不按数量凑齐。**已完成：**4 个 World 与 21 个 Scene；Tartarus 是独立 World，Mortal Greece 保持 Scene / Place 语义。
 
 ## P0-6：补 Story 正文
 
-- [ ] Story 3 → 30+
-- [ ] 每篇 primary source 完整
-- [ ] alternate tradition note 按需
-- [ ] entity refs 全部闭包
+- [x] Story 3 → 35
+- [x] 每篇 primary source 完整
+- [x] alternate tradition note 按需
+- [x] entity refs 全部闭包
 
 ## P0-7：UI 产品化
 
-- [ ] CharacterRelations
-- [ ] MythologyGenealogy
-- [ ] Gods / Heroes / Monsters taxonomy browse
-- [ ] Source / alternate tradition 展示
+- [x] CharacterRelations
+- [x] MythologyGenealogy
+- [x] Gods / Heroes / Monsters taxonomy browse
+- [x] Source / alternate tradition 展示
 
 ## P1：视觉资产
 
-- [ ] Tier S
-- [ ] Tier A
-- [ ] Tier B portrait / fallback
-- [ ] World 正式资产
-- [ ] prototype provenance 清理
+- [x] Tier S（12 / 12 已发布 Canonical mobile + desktop；12 / 12 mobile portrait/reference）
+- [x] Tier A（15 / 15 已发布 Canonical mobile；满足至少一种 Wallpaper 的最低覆盖）
+- [x] Tier B portrait / fallback（37 / 37 已具备 Symbol Fallback；未伪装为正式肖像）
+- [x] World desktop 正式资产（4 / 4）
+- [x] World mobile / reference assets（4 / 4 mobile hero）
+- [x] prototype provenance 清理（public static data + local/production D1 均为 0）
 
 ## P2：长尾扩展
 

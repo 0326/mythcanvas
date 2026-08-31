@@ -1,9 +1,16 @@
 import { scenes as seedScenes } from '../../../data/seed';
+import { greekScenes } from '../../../content/greek/catalog';
 import type { Scene } from '../types';
 import { optionalNumber, optionalString, parseJson } from './shared';
 import type { EntityListQuery } from './types';
 
 type SceneRow = Record<string, unknown>;
+
+function mergeGreekScenes(items: readonly Scene[]): Scene[] {
+  const byId = new Map(greekScenes.map((item) => [item.id, item]));
+  items.forEach((item) => byId.set(item.id, item));
+  return Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+}
 
 const SELECT_COLUMNS = `
   id, mythology_id, world_id, slug, name, name_en, summary, canonical_design_json,
@@ -36,7 +43,7 @@ export async function getScenes(db: D1Database | undefined, query: EntityListQue
   if (!db) return seedScenes;
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
   const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM scenes${where} ORDER BY name`).all();
-  return rows.results.map(mapSceneRow);
+  return mergeGreekScenes(rows.results.map(mapSceneRow));
 }
 
 export async function getSceneBySlug(db: D1Database | undefined, slug: string): Promise<Scene | undefined> {
@@ -45,7 +52,7 @@ export async function getSceneBySlug(db: D1Database | undefined, slug: string): 
     .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE slug = ? AND publish_status = 'published'`)
     .bind(slug)
     .first();
-  return row ? mapSceneRow(row) : undefined;
+  return row ? mapSceneRow(row) : greekScenes.find((item) => item.slug === slug);
 }
 
 export async function getSceneById(db: D1Database | undefined, id: string): Promise<Scene | undefined> {
@@ -54,7 +61,7 @@ export async function getSceneById(db: D1Database | undefined, id: string): Prom
     .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE id = ? AND publish_status = 'published'`)
     .bind(id)
     .first();
-  return row ? mapSceneRow(row) : undefined;
+  return row ? mapSceneRow(row) : greekScenes.find((item) => item.id === id);
 }
 
 export async function getScenesForMythology(
@@ -67,7 +74,10 @@ export async function getScenesForMythology(
     .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name`)
     .bind(mythologyId)
     .all();
-  return rows.results.map(mapSceneRow);
+  const scenes = rows.results.map(mapSceneRow);
+  return mythologyId === 'myth-greek'
+    ? mergeGreekScenes(scenes).filter((item) => item.mythologyId === mythologyId)
+    : scenes;
 }
 
 export async function getScenesForWorld(
@@ -80,5 +90,5 @@ export async function getScenesForWorld(
     .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE world_id = ? AND publish_status = 'published' ORDER BY name`)
     .bind(worldId)
     .all();
-  return rows.results.map(mapSceneRow);
+  return mergeGreekScenes(rows.results.map(mapSceneRow)).filter((item) => item.worldId === worldId);
 }

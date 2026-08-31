@@ -2,12 +2,14 @@
 import { ArrowDown, ArrowRight, BookOpenText, Landmark, UserRound } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MythologyStoryReader from '../../components/mythology/MythologyStoryReader.astro';
+import MythologyGenealogy from '../../components/mythology/MythologyGenealogy.astro';
 import {
   getCharactersForMythology,
   getMythologyBySlug,
   getWorldsForMythology,
+  getCharacterRelationsForMythology,
 } from '../../lib/content/repositories';
-import { getStoriesForMythology, groupStoriesByVolume } from '../../lib/content/stories';
+import { getStoriesForMythology, groupStoriesByVolume, shouldUseMythStoryDetailRoutes } from '../../lib/content/stories';
 import { getStoryIllustrationById } from '../../data/story-illustrations';
 
 export const prerender = false;
@@ -17,12 +19,14 @@ const { slug } = Astro.params;
 const mythology = await getMythologyBySlug(db, slug ?? '');
 if (!mythology) return Astro.redirect('/404');
 
-const [relatedWorlds, relatedCharacters] = await Promise.all([
+const [relatedWorlds, relatedCharacters, relations] = await Promise.all([
   getWorldsForMythology(db, mythology.id),
   getCharactersForMythology(db, mythology.id),
+  getCharacterRelationsForMythology(db, mythology.id),
 ]);
 const stories = getStoriesForMythology(mythology.id);
 const volumes = groupStoriesByVolume(stories);
+const storyDetailRoutes = shouldUseMythStoryDetailRoutes(stories.length);
 // Story pages must retain a valid, crawlable hero image even when an optional
 // theme-specific home campaign derivative has not been published locally.
 const heroImage = mythology.heroImage.src;
@@ -35,7 +39,7 @@ const storyCreativeWorks = stories.map((story) => {
     alternateName: story.titleEn,
     description: story.summary,
     inLanguage: 'zh-CN',
-    url: new URL(`/mythology/${mythology.slug}/#story-${story.slug}`, Astro.site).toString(),
+    url: new URL(storyDetailRoutes ? `/mythology/${mythology.slug}/${story.slug}/` : `/mythology/${mythology.slug}/#story-${story.slug}`, Astro.site).toString(),
     image: illustration ? new URL(illustration.image.src, Astro.site).toString() : undefined,
     datePublished: story.publishedAt,
     dateModified: story.updatedAt,
@@ -123,8 +127,13 @@ const storyCreativeWorks = stories.map((story) => {
       volumes={volumes}
       characters={relatedCharacters}
       worlds={relatedWorlds}
+      storyDetailRoutes={storyDetailRoutes}
     />
   </div>
+
+  {mythology.id === 'myth-greek' && (
+    <MythologyGenealogy mythology={mythology} characters={relatedCharacters} relations={relations} />
+  )}
 
   {(relatedCharacters.length > 0 || relatedWorlds.length > 0) && (
     <section class="related-universe" aria-labelledby="related-universe-title">

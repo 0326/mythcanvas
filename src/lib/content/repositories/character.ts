@@ -1,4 +1,5 @@
 import { characters as seedCharacters } from '../../../data/seed';
+import { greekCharacters } from '../../../content/greek/catalog';
 import type { Character, SourceRef } from '../types';
 import { optionalNumber, optionalString, pageClause, parseJson, parseStringArray } from './shared';
 import type { EntityListQuery } from './types';
@@ -78,6 +79,12 @@ function sortCharactersByHeat(items: readonly Character[]): Character[] {
   );
 }
 
+function mergeGreekCharacters(items: readonly Character[]): Character[] {
+  const byId = new Map(greekCharacters.map((item) => [item.id, item]));
+  items.forEach((item) => byId.set(item.id, item));
+  return sortCharactersByHeat(Array.from(byId.values()));
+}
+
 /** 记录一次已发布角色详情页访问；D1 自增更新是原子的。 */
 export async function incrementCharacterView(
   db: D1Database | undefined,
@@ -123,7 +130,7 @@ export async function getCharacters(db: D1Database | undefined, query: EntityLis
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
   const rows = await getCharacterRows(db, `SELECT ${SELECT_COLUMNS} FROM characters${where} ORDER BY click_count DESC, name COLLATE NOCASE, id`);
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
-  return rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
+  return mergeGreekCharacters(rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? [])));
 }
 
 export async function getCharacterBySlug(db: D1Database | undefined, slug: string): Promise<Character | undefined> {
@@ -133,7 +140,7 @@ export async function getCharacterBySlug(db: D1Database | undefined, slug: strin
     `SELECT ${SELECT_COLUMNS} FROM characters WHERE slug = ? AND publish_status = 'published'`,
     slug,
   );
-  if (!row) return undefined;
+  if (!row) return greekCharacters.find((item) => item.slug === slug);
   const worldMap = await loadWorldIds(db, [String(row.id)]);
   return mapCharacterRow(row, worldMap.get(String(row.id)) ?? []);
 }
@@ -145,7 +152,7 @@ export async function getCharacterById(db: D1Database | undefined, id: string): 
     `SELECT ${SELECT_COLUMNS} FROM characters WHERE id = ? AND publish_status = 'published'`,
     id,
   );
-  if (!row) return undefined;
+  if (!row) return greekCharacters.find((item) => item.id === id);
   const worldMap = await loadWorldIds(db, [String(row.id)]);
   return mapCharacterRow(row, worldMap.get(String(row.id)) ?? []);
 }
@@ -160,15 +167,17 @@ export async function getCharactersForMythology(
     return sortCharactersByHeat(seedCharacters.filter((item) => item.mythologyId === mythologyId)).slice(offset, offset + limit);
   }
   const { limit, offset } = pageClause(query);
+  const isGreek = mythologyId === 'myth-greek';
   const rows = await getCharacterRows(
     db,
-    `SELECT ${SELECT_COLUMNS} FROM characters WHERE mythology_id = ? AND publish_status = 'published' ORDER BY click_count DESC, name COLLATE NOCASE, id LIMIT ? OFFSET ?`,
+    `SELECT ${SELECT_COLUMNS} FROM characters WHERE mythology_id = ? AND publish_status = 'published' ORDER BY click_count DESC, name COLLATE NOCASE, id${isGreek ? '' : ' LIMIT ? OFFSET ?'}`,
     mythologyId,
-    limit,
-    offset,
+    ...(isGreek ? [] : [limit, offset]),
   );
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
-  return rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
+  const items = rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
+  const merged = isGreek ? mergeGreekCharacters(items).filter((item) => item.mythologyId === mythologyId) : items;
+  return isGreek ? merged.slice(offset, offset + limit) : merged;
 }
 
 export async function getCharactersForWorld(
@@ -192,5 +201,7 @@ export async function getCharactersForWorld(
       ORDER BY c.click_count DESC, c.name COLLATE NOCASE, c.id LIMIT ? OFFSET ?
     `, worldId, limit, offset);
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
-  return rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
+  const items = rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
+  const merged = mergeGreekCharacters(items);
+  return merged.filter((item) => item.worldIds.includes(worldId)).slice(offset, offset + limit);
 }

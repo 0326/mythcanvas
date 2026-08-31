@@ -1,0 +1,108 @@
+---
+import { ArrowLeft, Landmark, UserRound } from '@lucide/astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import {
+  getCharactersForMythology,
+  getMythologyBySlug,
+  getWorldsForMythology,
+} from '../../../lib/content/repositories';
+import { getStoryForMythology } from '../../../lib/content/stories';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const mythology = await getMythologyBySlug(db, Astro.params.mythologySlug ?? '');
+const story = mythology ? getStoryForMythology(mythology.id, Astro.params.storySlug ?? '') : undefined;
+if (!mythology || !story) return Astro.redirect('/404');
+
+const [characters, worlds] = await Promise.all([
+  getCharactersForMythology(db, mythology.id),
+  getWorldsForMythology(db, mythology.id),
+]);
+const charactersById = new Map(characters.map((item) => [item.id, item]));
+const worldsById = new Map(worlds.map((item) => [item.id, item]));
+const relatedCharacters = story.characterIds.map((id) => charactersById.get(id)).filter(Boolean);
+const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Boolean);
+---
+
+<BaseLayout
+  title={`${story.title} · ${mythology.name}`}
+  description={story.summary}
+  image={mythology.heroImage.src}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: story.title,
+      alternativeHeadline: story.titleEn,
+      description: story.summary,
+      inLanguage: 'zh-CN',
+      datePublished: story.publishedAt,
+      dateModified: story.updatedAt,
+      isPartOf: { '@type': 'CollectionPage', name: mythology.name, url: new URL(`/mythology/${mythology.slug}/`, Astro.site).toString() },
+    })} />
+  </Fragment>
+
+  <main class="story-page">
+    <header class="story-hero">
+      <img src={mythology.heroImage.src} alt={mythology.heroImage.alt} width={mythology.heroImage.width} height={mythology.heroImage.height} fetchpriority="high" />
+      <div class="story-hero-overlay" aria-hidden="true"></div>
+      <div class="container-wide story-hero-content">
+        <a class="story-back" href={`/mythology/${mythology.slug}/`}><ArrowLeft size={17} strokeWidth={1.8} aria-hidden="true" />返回 {mythology.name}</a>
+        <span class="eyebrow">{story.volumeTitle}</span>
+        <h1>{story.title}</h1>
+        {story.titleEn && <p class="story-en">{story.titleEn}</p>}
+        {story.subtitle && <p class="story-subtitle literary-copy">{story.subtitle}</p>}
+        <p class="story-summary literary-copy">{story.summary}</p>
+      </div>
+    </header>
+
+    <article class="container-readable story-article">
+      {story.blocks.map((block) => {
+        if (block.type === 'paragraph') return <p class="literary-copy">{block.text}</p>;
+        if (block.type === 'heading') return block.level === 2 ? <h2 id={block.id}>{block.text}</h2> : <h3 id={block.id}>{block.text}</h3>;
+        if (block.type === 'quote') return <blockquote><p>{block.text}</p>{block.source && <cite>{block.source}</cite>}</blockquote>;
+        return null;
+      })}
+
+      <section class="story-links" aria-label={`${story.title}相关实体`}>
+        <h2>从故事继续探索</h2>
+        <div class="story-link-grid">
+          {relatedCharacters.map((character) => character && <a href={`/character/${character.slug}/`}><UserRound size={18} strokeWidth={1.8} aria-hidden="true" /><span><small>神灵</small><strong>{character.name}</strong></span></a>)}
+          {relatedWorlds.map((world) => world && <a href={`/world/${world.slug}/`}><Landmark size={18} strokeWidth={1.8} aria-hidden="true" /><span><small>神域</small><strong>{world.name}</strong></span></a>)}
+        </div>
+      </section>
+
+      <details class="story-sources">
+        <summary>来源与版本说明</summary>
+        <ul>{story.sources.map((source) => <li><strong>{source.title}</strong>{source.locator && <span> · {source.locator}</span>}{source.note && <p>{source.note}</p>}</li>)}</ul>
+        {story.sourceNotes.map((note) => <p>{note}</p>)}
+      </details>
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .story-hero { position: relative; min-height: min(620px, 76svh); display: grid; align-items: end; overflow: hidden; color: var(--text-primary); }
+  .story-hero > img, .story-hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .story-hero > img { object-fit: cover; }
+  .story-hero-overlay { background: linear-gradient(90deg, color-mix(in srgb, var(--bg-primary) 92%, transparent), color-mix(in srgb, var(--bg-primary) 35%, transparent)), linear-gradient(0deg, color-mix(in srgb, var(--bg-primary) 94%, transparent), transparent 70%); }
+  .story-hero-content { position: relative; padding-block: 8rem 4rem; }
+  .story-back { display: inline-flex; align-items: center; gap: .45rem; color: var(--text-secondary); font-size: .82rem; }
+  h1 { margin: .55rem 0 0; font-size: clamp(3rem, 7vw, 6rem); line-height: .95; }
+  .story-en, .story-subtitle { color: var(--accent-strong); margin: .65rem 0 0; }
+  .story-summary { max-width: 44rem; color: var(--text-secondary); font-size: 1.05rem; line-height: 1.9; }
+  .story-article { padding-block: clamp(4rem, 8vw, 7rem); }
+  .story-article > p { color: var(--text-primary); font-size: clamp(1.08rem, 1.4vw, 1.3rem); line-height: 2; }
+  .story-article > p + p { margin-top: 1.6rem; }
+  blockquote { margin: 3rem 0; padding: 1.25rem 1.5rem; border-left: 2px solid var(--accent-strong); background: var(--surface-muted); color: var(--text-secondary); }
+  blockquote p { margin: 0; } blockquote cite { display: block; margin-top: .7rem; font-size: .82rem; }
+  .story-links, .story-sources { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .story-links h2 { margin: 0 0 1rem; }
+  .story-link-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+  .story-link-grid a { display: flex; align-items: center; gap: .7rem; padding: .9rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); }
+  .story-link-grid small, .story-link-grid strong { display: block; } .story-link-grid small { color: var(--text-muted); font-size: .68rem; }
+  .story-sources summary { cursor: pointer; color: var(--text-primary); font-weight: 700; } .story-sources li, .story-sources p { color: var(--text-secondary); line-height: 1.7; }
+  @media (max-width: 700px) { .story-link-grid { grid-template-columns: 1fr; } }
+</style>
