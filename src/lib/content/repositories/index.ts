@@ -6,6 +6,7 @@ export * from './character';
 export * from './character-variant';
 export * from './character-interpretation';
 export * from './character-relation';
+export * from './content-concept';
 export * from './artwork';
 export * from './scene';
 export * from './style';

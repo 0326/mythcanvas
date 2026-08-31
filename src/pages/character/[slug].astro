@@ -7,8 +7,6 @@ import CharacterArtworkGrid, {
   type WallpaperDevice,
 } from '../../components/character/CharacterArtworkGrid.astro';
 import RelatedCharacters from '../../components/character/RelatedCharacters.astro';
-import CharacterDNA from '../../components/character/CharacterDNA.astro';
-import CharacterRelations from '../../components/character/CharacterRelations.astro';
 import {
   getArtworksForCharacter,
   getCharacterBySlug,
@@ -18,7 +16,6 @@ import {
   getMythologyById,
   getWorlds,
   incrementCharacterView,
-  getCharacterRelations,
 } from '../../lib/content/repositories';
 import {
   getCharacterStyle,
@@ -36,14 +33,13 @@ if (!character) return Astro.redirect('/404');
 
 await incrementCharacterView(db, character.id);
 
-const [mythology, relatedArtworks, worlds, names, allCharacters, allMythologies, relations] = await Promise.all([
+const [mythology, relatedArtworks, worlds, names, allCharacters, allMythologies] = await Promise.all([
   getMythologyById(db, character.mythologyId),
   getArtworksForCharacter(db, character.id),
   getWorlds(db),
   getCharacterNames(db, character.id),
   getCharacters(db),
   getMythologies(db, { published: 'all' }),
-  getCharacterRelations(db, character.id),
 ]);
 
 const mythologyById = new Map(allMythologies.map((item) => [item.id, item]));
@@ -169,9 +165,6 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
     data-selected-device={selectedDevice}
   >
     <CharacterHero character={character} mythology={mythology} heroImage={heroImage} createHref={buildCreateHref()} />
-
-    <CharacterDNA character={character} mythology={mythology} worlds={characterWorlds} />
-    <CharacterRelations character={character} relations={relations} characters={allCharacters} />
 
     <section class="wallpapers-section" id="wallpapers" aria-labelledby="wallpapers-title">
       <div class="container-wide">

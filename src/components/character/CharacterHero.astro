@@ -1,5 +1,6 @@
 ---
 import type { Character, ImageAsset, Mythology } from '../../lib/content/types';
+import { ArrowLeft, ArrowRight, RotateCcw } from '@lucide/astro';
 import { cloudflareImageUrl, shouldUseCloudflareImageTransformations } from '../../lib/media/cloudflare-images';
 
 interface Props {
@@ -25,7 +26,7 @@ const heroImageSrc = cloudflareImageUrl(
 ) ?? heroImage.src;
 ---
 
-<section class="character-hero" id="character-hero" aria-labelledby="character-title">
+<section class="character-hero" id="character-hero" aria-labelledby="character-title" data-character-hero data-character-slug={character.slug}>
   <img
     class="character-hero-image"
     src={heroImageSrc}
@@ -37,7 +38,7 @@ const heroImageSrc = cloudflareImageUrl(
   <div class="character-hero-overlay" aria-hidden="true"></div>
 
   <div class="container-wide character-hero-inner">
-    <div class="character-copy">
+    <div class="character-copy" data-character-intro>
       <a class="back-link" href={mythology ? `/mythology/${mythology.slug}/` : '/character/'}>
         ← {mythology?.name ?? '返回神灵'}
       </a>
@@ -55,7 +56,33 @@ const heroImageSrc = cloudflareImageUrl(
       <div class="hero-actions">
         <a class="btn btn-primary" href={createHref} data-create-cta>绘制我的 {character.name}</a>
         <a class="hero-scroll-link" href="#wallpapers">查看作品 ↓</a>
+        <button class="hero-graph-trigger" type="button" data-graph-open>
+          查看神谱 <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
+        </button>
       </div>
+    </div>
+  </div>
+
+  <div class="character-graph-layer" data-character-graph hidden>
+    <div class="container-wide character-graph-toolbar">
+      <button class="graph-back-button" type="button" data-graph-back aria-label="返回角色介绍">
+        <ArrowLeft size={18} strokeWidth={1.8} aria-hidden="true" />
+        <span>返回角色</span>
+      </button>
+      <button class="graph-reset-button" type="button" data-graph-reset aria-label={`回到${character.name}`}>
+        <RotateCcw size={16} strokeWidth={1.8} aria-hidden="true" />
+        <span>回到{character.name}</span>
+      </button>
+    </div>
+    <div class="character-graph-stage" data-character-graph-stage aria-label={`${character.name}神谱关系图`}></div>
+    <div class="container-wide character-graph-meta">
+      <div class="graph-scope-list" data-graph-scopes></div>
+      <div class="graph-detail" data-graph-detail>
+        <span class="graph-detail-eyebrow">Mythology Constellation</span>
+        <strong>{character.name}的神谱</strong>
+        <p>拖拽探索星图，点击人物聚焦关系。</p>
+      </div>
+      <p class="graph-status" data-graph-status aria-live="polite"></p>
     </div>
   </div>
 </section>
@@ -83,6 +110,7 @@ const heroImageSrc = cloudflareImageUrl(
     object-position: center;
     filter: saturate(0.94) contrast(0.98);
     transform: scale(1.01);
+    transition: opacity 420ms ease, filter 420ms ease, transform 700ms ease;
   }
   .character-hero-overlay {
     z-index: -2;
@@ -106,6 +134,7 @@ const heroImageSrc = cloudflareImageUrl(
   }
   .character-copy {
     width: min(620px, 56%);
+    transition: opacity 240ms ease, transform 320ms ease, visibility 0s linear 0s;
   }
   .back-link {
     display: inline-flex;
@@ -186,6 +215,165 @@ const heroImageSrc = cloudflareImageUrl(
   .hero-scroll-link:hover {
     color: var(--text-primary);
   }
+  .hero-graph-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    padding: 0;
+    border: 0;
+    color: var(--accent-strong);
+    background: transparent;
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: color var(--transition-fast), transform var(--transition-fast);
+  }
+  .hero-graph-trigger:hover {
+    color: var(--text-primary);
+    transform: translateX(2px);
+  }
+  .character-graph-layer {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 420ms ease;
+  }
+  .character-graph-layer:not([hidden]) {
+    pointer-events: auto;
+  }
+  .character-graph-stage {
+    position: absolute;
+    inset: 0;
+  }
+  .character-graph-stage :global(canvas) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    outline: none;
+  }
+  .character-graph-toolbar,
+  .character-graph-meta {
+    position: relative;
+    z-index: 1;
+  }
+  .character-graph-toolbar {
+    display: flex;
+    justify-content: space-between;
+    padding-top: clamp(5.5rem, 10vh, 8rem);
+    pointer-events: none;
+  }
+  .graph-back-button,
+  .graph-reset-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 36px;
+    padding: 0.45rem 0.72rem;
+    border: 1px solid color-mix(in srgb, var(--border-strong) 82%, transparent);
+    border-radius: var(--radius-pill);
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--surface) 76%, transparent);
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(12px);
+    font: inherit;
+    font-size: 0.76rem;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .graph-reset-button {
+    color: var(--text-secondary);
+  }
+  .graph-back-button:hover,
+  .graph-reset-button:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+  .character-graph-meta {
+    display: grid;
+    grid-template-columns: 1fr minmax(190px, 280px);
+    gap: 1rem;
+    align-items: end;
+    min-height: calc(100svh - clamp(5.5rem, 10vh, 8rem) - 44px);
+    padding-bottom: clamp(1.75rem, 5vh, 3.5rem);
+    pointer-events: none;
+  }
+  .graph-scope-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-self: end;
+    pointer-events: auto;
+  }
+  .graph-scope-button {
+    min-height: 31px;
+    padding: 0.34rem 0.65rem;
+    border: 1px solid color-mix(in srgb, var(--border-strong) 76%, transparent);
+    border-radius: var(--radius-pill);
+    color: var(--text-secondary);
+    background: color-mix(in srgb, var(--surface) 64%, transparent);
+    font: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+  }
+  .graph-scope-button[aria-pressed='true'] {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  }
+  .graph-detail {
+    padding: 1rem 1.1rem;
+    border: 1px solid color-mix(in srgb, var(--border-strong) 82%, transparent);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--surface) 76%, transparent);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(14px);
+    color: var(--text-primary);
+  }
+  .graph-detail-eyebrow {
+    display: block;
+    margin-bottom: 0.32rem;
+    color: var(--accent-strong);
+    font-size: 0.62rem;
+    font-weight: 760;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .graph-detail strong {
+    display: block;
+    font-size: 1rem;
+  }
+  .graph-detail p,
+  .graph-status {
+    margin: 0.42rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.73rem;
+    line-height: 1.6;
+  }
+  .graph-status {
+    grid-column: 1 / -1;
+    min-height: 1.2em;
+    margin: 0;
+  }
+  .character-hero.is-graph-open .character-copy {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-18px);
+    transition-delay: 0s, 0s, 240ms;
+    pointer-events: none;
+  }
+  .character-hero.is-graph-open .character-hero-image {
+    opacity: 0.34;
+    filter: saturate(0.68) contrast(0.9);
+    transform: scale(1.03);
+  }
+  .character-hero.is-graph-open .character-hero-overlay {
+    opacity: 0.58;
+  }
+  .character-hero.is-graph-open .character-graph-layer {
+    opacity: 1;
+  }
 
   @media (max-width: 1240px) {
     .character-copy {
@@ -208,8 +396,247 @@ const heroImageSrc = cloudflareImageUrl(
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .character-hero-image {
+    .character-hero-image,
+    .character-copy,
+    .character-graph-layer {
       transform: none;
+      transition: none;
     }
   }
 </style>
+
+<script>
+  const heroes = document.querySelectorAll<HTMLElement>('[data-character-hero]');
+
+  heroes.forEach((hero) => {
+    const openButton = hero.querySelector<HTMLButtonElement>('[data-graph-open]');
+    const backButton = hero.querySelector<HTMLButtonElement>('[data-graph-back]');
+    const resetButton = hero.querySelector<HTMLButtonElement>('[data-graph-reset]');
+    const layer = hero.querySelector<HTMLElement>('[data-character-graph]');
+    const stage = hero.querySelector<HTMLElement>('[data-character-graph-stage]');
+    const scopes = hero.querySelector<HTMLElement>('[data-graph-scopes]');
+    const detail = hero.querySelector<HTMLElement>('[data-graph-detail]');
+    const status = hero.querySelector<HTMLElement>('[data-graph-status]');
+    const slug = hero.dataset.characterSlug;
+    if (!openButton || !backButton || !resetButton || !layer || !stage || !scopes || !detail || !status || !slug) return;
+
+    let graph: any;
+    let activeData: any;
+    let selectedScope = '';
+    let requestVersion = 0;
+    let activeDepth = 1;
+    let resizeObserver: ResizeObserver | undefined;
+
+    const setStatus = (message = '') => { status.textContent = message; };
+    const themeColor = (token: string, fallback: string) => getComputedStyle(document.documentElement).getPropertyValue(token).trim() || fallback;
+    const labelSprite = (text: string, color: string) => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) return null;
+      const ratio = window.devicePixelRatio > 1 ? 2 : 1;
+      const width = Math.max(80, Math.ceil(context.measureText(text).width + 26));
+      canvas.width = width * ratio;
+      canvas.height = 34 * ratio;
+      context.scale(ratio, ratio);
+      context.font = '600 14px system-ui, sans-serif';
+      context.textAlign = 'center';
+      context.fillStyle = color;
+      context.shadowColor = 'rgba(0, 0, 0, .65)';
+      context.shadowBlur = 5;
+      context.fillText(text, width / 2, 20);
+      const texture = new THREE.CanvasTexture(canvas);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false }));
+      sprite.scale.set(width / 7, 4.8, 1);
+      return sprite;
+    };
+    let THREE: any;
+
+    const nodeObject = (node: any) => {
+      const isFocus = node.id === activeData?.focusId;
+      const color = isFocus ? themeColor('--accent-strong', '#d4af67') : node.kind === 'concept' ? themeColor('--text-secondary', '#9eabb8') : themeColor('--accent', '#e2a64d');
+      const size = isFocus ? 7 : node.kind === 'concept' ? 3.5 : 4.4;
+      const group = new THREE.Group();
+      const glowCanvas = document.createElement('canvas');
+      glowCanvas.width = 96;
+      glowCanvas.height = 96;
+      const glowContext = glowCanvas.getContext('2d');
+      if (glowContext) {
+        const gradient = glowContext.createRadialGradient(48, 48, 3, 48, 48, 48);
+        gradient.addColorStop(0, color);
+        gradient.addColorStop(0.28, `${color}99`);
+        gradient.addColorStop(1, `${color}00`);
+        glowContext.fillStyle = gradient;
+        glowContext.fillRect(0, 0, 96, 96);
+        const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(glowCanvas), transparent: true, depthWrite: false }));
+        glow.scale.set(size * 5, size * 5, 1);
+        group.add(glow);
+      }
+      const core = new THREE.Mesh(
+        new THREE.SphereGeometry(size, 18, 18),
+        new THREE.MeshStandardMaterial({
+          color,
+          emissive: color,
+          emissiveIntensity: isFocus ? 0.62 : 0.28,
+          metalness: 0.46,
+          roughness: 0.3,
+          transparent: true,
+          opacity: isFocus ? 1 : 0.9,
+        }),
+      );
+      group.add(core);
+      if (isFocus) {
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(size * 1.45, 0.24, 8, 40),
+          new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.74 }),
+        );
+        ring.rotation.x = Math.PI / 2.45;
+        group.add(ring);
+      }
+      const label = labelSprite(node.name, themeColor('--text-primary', '#f6f1e9'));
+      if (label) {
+        label.position.y = -size - 4.2;
+        group.add(label);
+      }
+      return group;
+    };
+
+    const focusNode = (nodeId: string) => {
+      const node = activeData?.nodes.find((item: any) => item.id === nodeId);
+      if (!node || !graph) return;
+      const related = activeData.links.filter((link: any) => link.source === nodeId || link.target === nodeId);
+      detail.replaceChildren();
+      const eyebrow = document.createElement('span');
+      eyebrow.className = 'graph-detail-eyebrow';
+      eyebrow.textContent = node.kind === 'concept' ? 'Mythic Concept' : node.role || 'Mythic Figure';
+      const title = document.createElement('strong');
+      title.textContent = node.name;
+      const copy = document.createElement('p');
+      copy.textContent = related.length ? `已收录 ${related.length} 条直接关联。` : '暂无已收录的直接关联。';
+      detail.append(eyebrow, title, copy);
+      const engineNode = graph.graphData().nodes.find((item: any) => item.id === nodeId);
+      if (engineNode) graph.cameraPosition({ x: engineNode.x || 0, y: engineNode.y || 0, z: (engineNode.z || 0) + 145 }, engineNode, 700);
+    };
+
+    const disposeGraph = () => {
+      resizeObserver?.disconnect();
+      resizeObserver = undefined;
+      graph?._destructor?.();
+      graph = undefined;
+      stage.replaceChildren();
+    };
+
+    const renderScopes = () => {
+      scopes.replaceChildren();
+      if (activeData?.availableScopes?.length > 1 || activeData?.requiresScopeSelection) {
+        activeData.availableScopes.forEach((scope: string) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'graph-scope-button';
+          button.textContent = scope;
+          button.setAttribute('aria-pressed', String(scope === activeData.selectedScope));
+          button.addEventListener('click', () => loadGraph(scope, 1));
+          scopes.append(button);
+        });
+      }
+      if (activeData?.canExpand && activeDepth === 1) {
+        const expand = document.createElement('button');
+        expand.type = 'button';
+        expand.className = 'graph-scope-button';
+        expand.textContent = '展开二度关系';
+        expand.addEventListener('click', () => loadGraph(selectedScope, 2));
+        scopes.append(expand);
+      }
+    };
+
+    const drawGraph = async () => {
+      const [{ default: ForceGraph3D }, three] = await Promise.all([import('3d-force-graph'), import('three')]);
+      THREE = three;
+      disposeGraph();
+      const graphData = {
+        nodes: activeData.nodes.map((node: any) => ({ ...node })),
+        links: activeData.links.map((link: any) => ({ ...link })),
+      };
+      graph = ForceGraph3D()(stage)
+        .backgroundColor('rgba(0,0,0,0)')
+        .showNavInfo(false)
+        .graphData(graphData)
+        .nodeThreeObject(nodeObject)
+        .nodeThreeObjectExtend(false)
+        .linkColor((link: any) => link.relationType === 'enemy' ? themeColor('--error', '#bd5d57') : themeColor('--border-strong', '#a38f6d'))
+        .linkOpacity(0.58)
+        .linkWidth((link: any) => link.relationType === 'parent' || link.relationType === 'child' ? 1.8 : 1.05)
+        .linkCurvature(0.1)
+        .linkDirectionalArrowLength((link: any) => link.directional ? 3.2 : 0)
+        .linkDirectionalArrowRelPos(0.84)
+        .linkDirectionalParticles((link: any) => link.directional ? 1 : 0)
+        .linkDirectionalParticleWidth(1.2)
+        .onNodeClick((node: any) => focusNode(node.id));
+      graph.d3Force('charge')?.strength(-125);
+      graph.d3Force('link')?.distance(42);
+      graph.cooldownTime(950);
+      graph.controls().enableDamping = true;
+      graph.renderer().setClearColor(0x000000, 0);
+      graph.scene().add(new THREE.AmbientLight(0xffffff, 1.8));
+      const keyLight = new THREE.PointLight(themeColor('--accent', '#e2a64d'), 180, 500);
+      keyLight.position.set(0, 0, 150);
+      graph.scene().add(keyLight);
+      resizeObserver = new ResizeObserver(([entry]) => {
+        graph?.width(entry.contentRect.width).height(entry.contentRect.height);
+      });
+      resizeObserver.observe(stage);
+      window.setTimeout(() => {
+        graph?.zoomToFit(500, 95, (node: any) => node.id === activeData.focusId || activeData.links.some((link: any) => link.source === node.id || link.target === node.id));
+        focusNode(activeData.focusId);
+      }, 80);
+    };
+
+    const loadGraph = async (scope = selectedScope, depth = activeDepth) => {
+      const version = ++requestVersion;
+      selectedScope = scope;
+      activeDepth = depth;
+      setStatus('正在召唤神谱…');
+      try {
+        const params = new URLSearchParams({ character: slug, depth: String(depth), limit: depth === 2 ? '48' : '24' });
+        if (scope) params.set('scope', scope);
+        const response = await fetch(`/api/character-graph?${params}`);
+        if (!response.ok) throw new Error('无法加载神谱');
+        const data = await response.json();
+        if (version !== requestVersion || !hero.classList.contains('is-graph-open')) return;
+        activeData = data;
+        selectedScope = data.selectedScope || '';
+        renderScopes();
+        await drawGraph();
+        if (version !== requestVersion || !hero.classList.contains('is-graph-open')) return;
+        setStatus(data.requiresScopeSelection ? '请选择一种传统范围以查看其专属关系。' : data.hiddenRelationCount && depth === 2 ? `当前范围内还有 ${data.hiddenRelationCount} 条关联未展示。` : '');
+      } catch {
+        if (version !== requestVersion) return;
+        setStatus('神谱暂时无法载入，请稍后重试。');
+      }
+    };
+
+    const openGraph = () => {
+      hero.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      hero.classList.add('is-graph-open');
+      layer.hidden = false;
+      openButton.setAttribute('aria-expanded', 'true');
+      loadGraph();
+    };
+    const closeGraph = () => {
+      requestVersion += 1;
+      hero.classList.remove('is-graph-open');
+      openButton.setAttribute('aria-expanded', 'false');
+      window.setTimeout(() => {
+        if (!hero.classList.contains('is-graph-open')) layer.hidden = true;
+      }, 420);
+      disposeGraph();
+      activeData = undefined;
+      scopes.replaceChildren();
+      setStatus();
+      openButton.focus();
+    };
+
+    openButton.addEventListener('click', openGraph);
+    backButton.addEventListener('click', closeGraph);
+    resetButton.addEventListener('click', () => focusNode(activeData?.focusId));
+  });
+</script>
