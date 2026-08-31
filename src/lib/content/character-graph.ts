@@ -48,8 +48,8 @@ export type BuildCharacterGraphInput = {
 };
 
 const RELATION_LABELS: Record<string, string> = {
-  parent: '父母',
-  child: '子女',
+  parent: '亲子',
+  child: '亲子',
   consort: '配偶',
   sibling: '手足',
   master: '师承',
@@ -85,17 +85,28 @@ function selectScope(relations: readonly CharacterRelation[], focusId: string, r
     .filter((relation) => relation.isDefault !== false && relation.traditionScope)
     .map((relation) => relation.traditionScope!)));
 
+  if (defaultScopes.length === 1) {
+    return { availableScopes, selectedScope: defaultScopes[0], requiresScopeSelection: false };
+  }
+
+  // Zero or multiple default scopes means the graph cannot safely infer which
+  // tradition the user wants. This also covers a single explicitly non-default
+  // alternate tradition: it must remain reachable through an explicit choice.
   return {
     availableScopes,
-    selectedScope: defaultScopes.length === 1 ? defaultScopes[0] : undefined,
-    requiresScopeSelection: defaultScopes.length > 1,
+    selectedScope: undefined,
+    requiresScopeSelection: availableScopes.length > 0,
   };
 }
 
 function isIncludedByScope(relation: CharacterRelation, selectedScope?: string, requiresScopeSelection = false): boolean {
-  if (relation.isDefault === false) return false;
-  if (!relation.traditionScope) return true;
-  if (requiresScopeSelection) return false;
+  if (!relation.traditionScope) return relation.isDefault !== false;
+  if (requiresScopeSelection && !selectedScope) return false;
+  if (!selectedScope) return false;
+
+  // Once a source/tradition scope is explicitly selected, include every active
+  // assertion in that scope. `isDefault` only controls compact/default reading;
+  // it must not make supported alternate-tradition facts impossible to inspect.
   return relation.traditionScope === selectedScope;
 }
 
