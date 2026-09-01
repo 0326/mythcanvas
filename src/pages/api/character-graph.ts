@@ -15,7 +15,8 @@ export const GET: APIRoute = async ({ url, locals }) => {
   if (!slug) return json({ error: { code: 'MISSING_CHARACTER', message: '缺少角色参数。' } }, 400);
 
   const depth = url.searchParams.get('depth') === '2' ? 2 : 1;
-  const requestedLimit = Number(url.searchParams.get('limit'));
+  const rawLimit = url.searchParams.get('limit');
+  const requestedLimit = rawLimit === null ? Number.NaN : Number(rawLimit);
   const nodeLimit = Number.isFinite(requestedLimit) ? Math.min(Math.max(Math.floor(requestedLimit), 2), 80) : 24;
   const scope = normalizeScope(url.searchParams.get('scope'));
   const interpretationId = normalizeScope(url.searchParams.get('interpretation'));
