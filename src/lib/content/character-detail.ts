@@ -42,8 +42,8 @@ export async function getCharacterDetailViewModel(
     getCharacterNames(db, character.id),
     getCharacterInterpretations(db, character.id),
     getCharacterVariants(db, character.id),
-    getWorlds(db),
-    getCharacters(db),
+    getWorlds(db, { limit: 1000 }),
+    getCharacters(db, { limit: 1000 }),
     getCharacterRelations(db, character.id),
   ]);
 

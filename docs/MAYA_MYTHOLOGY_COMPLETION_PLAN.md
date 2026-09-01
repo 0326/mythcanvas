@@ -1,7 +1,7 @@
 # MythCanvas 玛雅神话完整补全方案
 
-> 状态：Review Proposal  
-> 版本：V1.1  
+> 状态：Execution Plan — P0 vertical slice landed
+> 版本：V1.2
 > 日期：2026-09-02  
 > 适用范围：玛雅神话内容建模、传统/时期分层、Story、Character、Relation / Graph、World / Scene、来源体系、视觉资产、结构化内容流水线与后续 AI 出图。  
 > 相关文档：`docs/GREEK_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md`、`docs/JAPANESE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/EGYPTIAN_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
@@ -1979,3 +1979,38 @@ P2
 V1.1 的目标不是把 V1.0 写得更保守，而是让玛雅方案真正与 Greek / Norse / Japanese / Egyptian 共用一套 Completeness Standard：
 
 > **文明差异进入内容、来源与解释；工程模型尽量保持通用。**
+
+---
+
+# 20. V1.2 执行记录与优化后的交付边界
+
+本次 Review 后，方案的执行单位从“补齐一套玛雅百科”收敛为一个可验证的 P0 内容闭环：先让用户可以从玛雅入口进入 K’iche’ 主线、继续探索 Xibalba 与角色关系，再通过古典期 / Codex bridge 理解证据边界。Story 数量不再是 KPI，正式壁纸生产也不阻塞 P0 上线。
+
+## 20.1 已落地
+
+- `src/content/maya/` 已注册为共享 `StructuredMythologyBundle`，未新增 Maya-only repository、importer 或 Graph API。
+- 已落地 19 个 P0 Character、3 个 World、12 个 Scene、16 个可独立阅读 Story、3 个 ContentConcept、17 条单向 canonical Relation。
+- Story 依赖字段、来源 locator、传统 / 时期范围、Xibalba scope、Classic Maize God boundary、Codex rain bridge 已进入验证与静态回退。
+- `CharacterName`、`CharacterInterpretation`、`ContentClaim` 已通过通用 bundle 入口支持静态回退，并由通用同步脚本写入 D1。
+- 同步脚本已支持按目录发现结构化文明包，并同步 concepts、claims、names、interpretations 与来源引用；Maya 使用同一条 pipeline。
+- `myth-maya` 已改为“玉米 · 星辰 · 地下世界”定位，并使用原创 SVG Hero；没有将 Aztec Sun Stone、Templo Mayor 或不可读 glyph 当作 Maya 资产。
+- `npm run content:validate` 已纳入 Maya contract test；`npm run typecheck` 已通过。
+- 本地 D1 回读确认了 19 个托管 P0 Character、3 个 World、12 个 Scene、3 个 Concept、17 条 Relation 与 4 条 Claim；数据库中另外保留 5 条既有 Maya legacy Character 行。同步采用 additive/upsert 策略，本轮不做破坏性清理，避免把历史数据误当作待删除内容。
+
+## 20.2 本轮明确不宣称完成
+
+- Tier S / A 正式 portrait、PC wallpaper、mobile wallpaper 与 R2 生产资产；这些继续属于 P1。
+- God D / Itzamna、Goddess O / Ix Chel、Death God / Kisin 等高风险身份的确定性合并；当前保持 source-scoped interpretation / concept 边界。
+- 生产环境 D1 写入与 Cloudflare deploy；本地 D1 sync 可验证，生产发布仍需按发布流程执行。
+
+## 20.3 可重复验收命令
+
+```bash
+npm run content:validate
+npm run typecheck
+npm run content:import -- --mythology=maya --write .wrangler/maya-content.sql
+npm run migration:check
+npm run content:import -- --mythology=maya --apply --local
+```
+
+P0 的下一步不是继续扩充神名数量，而是以 `Core Narrative Coverage`、`Dependency Closure`、`source coverage`、`identity forced-merge audit` 和“托管 ID 的 Static / Local D1 / Production D1 Semantic Parity”作为发布门槛；legacy 行的归档 / 合并另开迁移审计，再进入 P1 视觉生产。

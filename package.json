@@ -34,7 +34,7 @@
     "cf-typegen": "wrangler types",
     "check": "node --check scripts/import-character-artworks.mjs && node --check scripts/report-greek-artwork-coverage.mjs && node --check scripts/report-mythology-artwork-coverage.mjs && node --check scripts/sync-structured-content.mjs && node --check scripts/sync-greek-content.mjs && node --check scripts/report-prototype-provenance.mjs && npm run content:validate && npm run content:import -- --mythology=all && astro build && tsc && wrangler deploy --dry-run",
     "typecheck": "tsc --noEmit",
-    "content:validate": "vitest run tests/structured-content-contract.test.ts tests/greek-content.test.ts tests/norse-content.test.ts",
+    "content:validate": "vitest run tests/structured-content-contract.test.ts tests/greek-content.test.ts tests/norse-content.test.ts tests/maya-content.test.ts tests/japanese-content.test.ts tests/egyptian-content.test.ts",
     "content:import": "node scripts/sync-structured-content.mjs",
     "test": "vitest run",
     "test:watch": "vitest",

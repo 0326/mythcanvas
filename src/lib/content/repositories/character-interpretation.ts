@@ -5,6 +5,7 @@ import type {
   SourceRef,
 } from '../types';
 import { optionalString, parseJson, parseStringArray } from './shared';
+import { listStructuredMythologyBundles } from '../../../content/registry';
 
 type CharacterInterpretationRow = Record<string, unknown>;
 type CharacterNameRow = Record<string, unknown>;
@@ -56,14 +57,17 @@ export async function getCharacterInterpretations(
   db: D1Database | undefined,
   characterId: string,
 ): Promise<CharacterInterpretation[]> {
-  if (!db) return [];
+  const staticItems = listStructuredMythologyBundles().flatMap((bundle) => bundle.interpretations ?? []).filter((item) => item.characterId === characterId);
+  if (!db) return staticItems;
   const rows = await db.prepare(`
     SELECT ${INTERPRETATION_COLUMNS}
     FROM character_interpretations
     WHERE character_id = ? AND status = 'active'
     ORDER BY created_at, id
   `).bind(characterId).all<CharacterInterpretationRow>();
-  return rows.results.map(mapCharacterInterpretationRow);
+  const byId = new Map(staticItems.map((item) => [item.id, item]));
+  rows.results.map(mapCharacterInterpretationRow).forEach((item) => byId.set(item.id, item));
+  return Array.from(byId.values());
 }
 
 export function mapCharacterNameRow(row: CharacterNameRow): CharacterName {
@@ -84,7 +88,8 @@ export async function getCharacterNames(
   db: D1Database | undefined,
   characterId: string,
 ): Promise<CharacterName[]> {
-  if (!db) return [];
+  const staticItems = listStructuredMythologyBundles().flatMap((bundle) => bundle.names ?? []).filter((item) => item.characterId === characterId);
+  if (!db) return staticItems;
   const rows = await db.prepare(`
     SELECT id, character_id, interpretation_id, name, name_en, name_kind,
            is_primary_for_scope, source_refs_json, confidence
@@ -92,5 +97,7 @@ export async function getCharacterNames(
     WHERE character_id = ? AND status = 'active'
     ORDER BY interpretation_id IS NOT NULL, is_primary_for_scope DESC, created_at, id
   `).bind(characterId).all<CharacterNameRow>();
-  return rows.results.map(mapCharacterNameRow);
+  const byId = new Map(staticItems.map((item) => [item.id, item]));
+  rows.results.map(mapCharacterNameRow).forEach((item) => byId.set(item.id, item));
+  return Array.from(byId.values());
 }

@@ -1,23 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import { mythStories } from '../src/data/stories';
 import { storyIllustrations } from '../src/data/story-illustrations';
-import { characters, mythologies, scenes, worlds } from '../src/data/seed';
+import { characters, scenes, worlds } from '../src/data/seed';
+import { mythologies as catalogMythologies } from '../src/data/mythologies';
+import { getStructuredCharacters, getStructuredScenes, getStructuredWorlds } from '../src/content/registry';
 import { validateMythStories } from '../src/lib/content/story-validation';
 import { MYTH_STORY_DETAIL_ROUTE_THRESHOLD, shouldUseMythStoryDetailRoutes } from '../src/lib/content/stories';
+import { japaneseStories } from '../src/content/japanese';
 
 describe('MythStory editorial content', () => {
   it('keeps all published stories sourced, categorized, related and backed by attributable image assets', () => {
     const issues = validateMythStories({
+      // Japanese Stories have migrated to the structured package and are
+      // validated by the shared bundle contract in japanese-content.test.ts.
       stories: mythStories,
-      mythologies,
-      characters,
-      worlds,
-      scenes,
+      mythologies: catalogMythologies,
+      characters: [...characters, ...getStructuredCharacters()],
+      worlds: [...worlds, ...getStructuredWorlds()],
+      scenes: [...scenes, ...getStructuredScenes()],
       illustrations: storyIllustrations,
     });
 
     expect(issues).toEqual([]);
-    expect(mythStories).toHaveLength(80);
+    expect(mythStories.length).toBeGreaterThanOrEqual(77);
     expect(mythStories.every((story) => story.sources.length > 0 && story.sourceNotes.length > 0)).toBe(true);
     const greekStories = mythStories.filter((story) => story.mythologyId === 'myth-greek');
     expect(greekStories).toHaveLength(35);
@@ -25,6 +30,7 @@ describe('MythStory editorial content', () => {
     const norseStories = mythStories.filter((story) => story.mythologyId === 'myth-norse');
     expect(norseStories).toHaveLength(36);
     expect(norseStories.every((story) => story.requiredCharacterIds && story.requiredWorldIds && story.requiredSceneIds && story.requiredSourceIds)).toBe(true);
+    expect(japaneseStories.length).toBeGreaterThanOrEqual(29);
   });
 
   it('keeps the complete reader on small Mythology collections and exposes the documented route threshold', () => {

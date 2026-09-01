@@ -1,6 +1,8 @@
 import type { MythStory, MythStorySource } from '../lib/content/types';
 import { greekStories } from '../content/greek/stories';
 import { norseStories } from '../content/norse/stories';
+import { mayaStories } from '../content/maya/stories';
+import { egyptianStories } from '../content/egyptian/stories';
 
 type StoryDraft = Omit<MythStory, 'publishedAt' | 'updatedAt'>;
 
@@ -274,93 +276,6 @@ const storyDrafts: readonly StoryDraft[] = [
     ],
   },
   {
-    id: 'story-izanagi-izanami',
-    slug: 'izanagi-izanami',
-    mythologyId: 'myth-japanese',
-    title: '伊邪那岐与伊邪那美',
-    titleEn: 'Izanagi and Izanami',
-    subtitle: '造岛、死亡与黄泉的边界',
-    summary: '两位神创造岛屿与众神，却因火神之诞生走向死亡与黄泉，从此生死世界被划开。',
-    volumeId: 'japanese-origins',
-    volumeTitle: '天地与神世',
-    volumeOrder: 1,
-    displayOrder: 1,
-    kind: 'myth',
-    tradition: '《古事记》《日本书纪》创世传统',
-    readingMinutes: 5,
-    sources: [source('《古事记》与《日本书纪》', 'primary-text', '日本创世传统', '8 世纪', '保存伊邪那岐、伊邪那美造国与黄泉叙事的核心文献。')],
-    sourceNotes: ['《古事记》与《日本书纪》保存了伊邪那岐、伊邪那美造国与黄泉叙事。', '两部文献的细节和神谱编排并不完全一致。'],
-    characterIds: [],
-    worldIds: ['world-takamagahara'],
-    sceneIds: [],
-    heroAssetId: 'story-illustration-takamagahara',
-    publishStatus: 'published',
-    blocks: [
-      { type: 'paragraph', text: '日本神话的早期宇宙并不是一开始就拥有今天熟悉的岛屿。伊邪那岐与伊邪那美立于天之浮桥，以天沼矛搅动海面，矛尖滴落的盐水凝结成岛。随后，他们继续生成国土与众神。' },
-      { type: 'paragraph', text: '但创造很快与死亡相连。伊邪那美在生下火神后死去，伊邪那岐追至黄泉，希望把她带回现世，却最终看见无法逆转的死亡形态。两者在黄泉比良坂永远分离。' },
-      { type: 'image', assetId: 'story-illustration-takamagahara', caption: '门、雾与幽暗路径很适合表现日本神话中“此界与彼界”的边界感。', layout: 'wide' },
-      { type: 'paragraph', text: '这段故事把“创造国土”和“死亡进入世界”连接在一起。它不是单纯的爱情悲剧，而是解释生死秩序为何不能任意跨越的起源叙事。' },
-    ],
-  },
-  {
-    id: 'story-amaterasu-cave',
-    slug: 'amaterasu-cave',
-    mythologyId: 'myth-japanese',
-    title: '天照大神隐入天岩户',
-    titleEn: 'Amaterasu and the Heavenly Rock Cave',
-    subtitle: '世界失去光明之后',
-    summary: '天照退入天岩户，天地陷入黑暗；众神以仪式、镜与欢笑把太阳重新引回世界。',
-    volumeId: 'japanese-origins',
-    volumeTitle: '天地与神世',
-    volumeOrder: 1,
-    displayOrder: 2,
-    kind: 'myth',
-    tradition: '《古事记》《日本书纪》天岩户神话',
-    readingMinutes: 4,
-    sources: [source('《古事记》与《日本书纪》', 'primary-text', '天岩户神话', '8 世纪', '两部文献均保存天照隐入天岩户的叙事。')],
-    sourceNotes: ['《古事记》《日本书纪》都保存了天岩户相关叙事，但细节有所不同。', '镜、勾玉、神乐与天钿女命的表演构成后世极具影响力的仪式意象。'],
-    characterIds: [],
-    worldIds: ['world-takamagahara'],
-    sceneIds: ['scene-bamboo-moon'],
-    heroAssetId: 'story-illustration-takamagahara-moon',
-    publishStatus: 'published',
-    blocks: [
-      { type: 'paragraph', text: '当天照大神因为须佐之男的行为而退入天岩户，最直接的后果不是一位神“离开”，而是世界失去太阳。黑暗降临，高天原与大地的秩序同时受到威胁。' },
-      { type: 'image', assetId: 'story-illustration-takamagahara-moon', caption: '当太阳消失，神域从明亮秩序转为幽玄、静默与等待。', layout: 'portrait' },
-      { type: 'paragraph', text: '众神并不是靠力量砸开石门，而是共同设计了一场仪式：镜、勾玉、神乐、笑声与好奇心一起发挥作用。天照被门外异常热闹的声音吸引，看到镜中的光辉，终于重新走出岩户。' },
-      { type: 'paragraph', text: '这是一个非常少见的“以表演恢复宇宙秩序”的神话。光明的回归来自诸神共同参与的仪式，也使镜与神乐在日本神话视觉中获得持久象征意义。' },
-    ],
-  },
-  {
-    id: 'story-kaguya-return',
-    slug: 'kaguya-return',
-    mythologyId: 'myth-japanese',
-    title: '辉夜姬归月',
-    titleEn: 'Kaguya-hime Returns to the Moon',
-    subtitle: '竹中降临的人，终究不属于人间',
-    summary: '《竹取物语》把月界、异乡人与人间情感连接成日本最著名的古典幻想故事之一。',
-    volumeId: 'japanese-legends',
-    volumeTitle: '传说与古典幻想',
-    volumeOrder: 2,
-    displayOrder: 1,
-    kind: 'literary-fantasy',
-    tradition: '平安时代《竹取物语》文学传统',
-    readingMinutes: 5,
-    sources: [source('《竹取物语》', 'primary-text', '平安时代物语文学', '10 世纪前后', '辉夜姬归月叙事的核心文学文本。')],
-    sourceNotes: ['《竹取物语》通常被视为日本最早期的物语文学之一。', '辉夜姬更接近古典文学与民间幻想人物，而非《古事记》式神谱中的神祇；MythCanvas 将其收在“传说与古典幻想”卷中。'],
-    characterIds: ['character-kaguya'],
-    worldIds: ['world-takamagahara'],
-    sceneIds: ['scene-bamboo-moon'],
-    heroAssetId: 'story-illustration-kaguya',
-    publishStatus: 'published',
-    blocks: [
-      { type: 'paragraph', text: '竹取翁在发光的竹子中发现一个小小的女孩。她迅速长大，容貌与气质超出凡俗，求婚者接踵而来，却都无法完成她提出的难题。故事越往后，越能感到她与人间始终隔着一层无法消除的距离。' },
-      { type: 'image', assetId: 'story-illustration-kaguya', caption: '竹影、层叠衣装与巨大月轮构成辉夜姬“既在人间又不属于人间”的视觉核心。', layout: 'portrait' },
-      { type: 'paragraph', text: '当八月十五临近，辉夜姬终于说明自己来自月之都。即使帝王派兵守卫，月界使者到来后，人间的武力仍然毫无意义。她披上羽衣，逐渐忘却尘世情感，返回月亮。' },
-      { type: 'paragraph', text: '它并不是神谱中的创世故事，却极大塑造了东亚文化对“月宫来客”的想象。放在 MythCanvas 中，更适合作为神话体系内部的古典幻想支流，而不是与天照、伊邪那岐混为同一来源。' },
-    ],
-  },
-  {
     id: 'story-ra-solar-voyage',
     slug: 'ra-solar-voyage',
     mythologyId: 'myth-egyptian',
@@ -455,8 +370,10 @@ const storyDrafts: readonly StoryDraft[] = [
  */
 export const mythStories: MythStory[] = [
   ...storyDrafts
-    .filter((story) => story.mythologyId !== 'myth-greek' && story.mythologyId !== 'myth-norse')
+    .filter((story) => !['myth-greek', 'myth-norse', 'myth-maya', 'myth-japanese', 'myth-egyptian'].includes(story.mythologyId))
     .map((story) => ({ ...story, publishedAt: editorialDate, updatedAt: editorialDate })),
   ...greekStories,
   ...norseStories,
+  ...mayaStories,
+  ...egyptianStories,
 ];

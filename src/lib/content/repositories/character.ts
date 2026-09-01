@@ -135,7 +135,7 @@ async function loadWorldIds(db: D1Database, characterIds: readonly string[]): Pr
 export async function getCharacters(db: D1Database | undefined, query: EntityListQuery = {}): Promise<Character[]> {
   if (!db) {
     const { limit, offset } = pageClause(query);
-    return sortCharactersByHeat(seedCharacters).slice(offset, offset + limit);
+    return mergeStructuredCharacters([]).slice(offset, offset + limit);
   }
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
   const rows = await getCharacterRows(db, `SELECT ${SELECT_COLUMNS} FROM characters${where} ORDER BY click_count DESC, name COLLATE NOCASE, id`);
@@ -144,7 +144,7 @@ export async function getCharacters(db: D1Database | undefined, query: EntityLis
 }
 
 export async function getCharacterBySlug(db: D1Database | undefined, slug: string): Promise<Character | undefined> {
-  if (!db) return seedCharacters.find((item) => item.slug === slug);
+  if (!db) return mergeStructuredCharacters([]).find((item) => item.slug === slug);
   const row = await getCharacterRow(
     db,
     `SELECT ${SELECT_COLUMNS} FROM characters WHERE slug = ? AND publish_status = 'published'`,
@@ -156,7 +156,7 @@ export async function getCharacterBySlug(db: D1Database | undefined, slug: strin
 }
 
 export async function getCharacterById(db: D1Database | undefined, id: string): Promise<Character | undefined> {
-  if (!db) return seedCharacters.find((item) => item.id === id);
+  if (!db) return mergeStructuredCharacters([]).find((item) => item.id === id);
   const row = await getCharacterRow(
     db,
     `SELECT ${SELECT_COLUMNS} FROM characters WHERE id = ? AND publish_status = 'published'`,
@@ -192,7 +192,7 @@ export async function getCharactersForMythology(
 ): Promise<Character[]> {
   if (!db) {
     const { limit, offset } = pageClause(query);
-    return sortCharactersByHeat(seedCharacters.filter((item) => item.mythologyId === mythologyId)).slice(offset, offset + limit);
+    return mergeStructuredCharacters([], mythologyId).slice(offset, offset + limit);
   }
   const { limit, offset } = pageClause(query);
   const hasStructuredBundle = Boolean(getStructuredMythologyBundle(mythologyId));
@@ -215,7 +215,7 @@ export async function getCharactersForWorld(
 ): Promise<Character[]> {
   if (!db) {
     const { limit, offset } = pageClause(query);
-    return sortCharactersByHeat(seedCharacters.filter((item) => item.worldIds.includes(worldId))).slice(offset, offset + limit);
+    return mergeStructuredCharacters([], undefined).filter((item) => item.worldIds.includes(worldId)).slice(offset, offset + limit);
   }
   const { limit, offset } = pageClause(query);
   const rows = await getCharacterRows(db, `

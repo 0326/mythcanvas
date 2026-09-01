@@ -1,7 +1,10 @@
 import type {
   Character,
   CharacterRelation,
+  CharacterInterpretation,
+  CharacterName,
   ContentConcept,
+  ContentClaim,
   MythStory,
   Scene,
   TaxonomyTerm,
@@ -15,6 +18,19 @@ import { norseCharacters, norseRelations, norseScenes, norseTaxonomy, norseWorld
 import { norseStories } from './norse/stories';
 import { norseAssetProvenance } from './norse/assets';
 import { norseVisualTiers } from './norse/visual-tiers';
+import { mayaCharacters, mayaConcepts, mayaRelations, mayaScenes, mayaTaxonomy, mayaWorlds } from './maya/catalog';
+import { mayaStories } from './maya/stories';
+import { mayaAssetProvenance } from './maya/assets';
+import { mayaVisualTiers } from './maya/visual-tiers';
+import { mayaClaims, mayaInterpretations, mayaNames } from './maya/identities';
+import { japaneseCharacters, japaneseRelations, japaneseScenes, japaneseTaxonomy, japaneseWorlds } from './japanese/catalog';
+import { japaneseStories } from './japanese/stories';
+import { japaneseAssetProvenance } from './japanese/assets';
+import { japaneseVisualTiers } from './japanese/visual-tiers';
+import { egyptianCharacters, egyptianRelations, egyptianScenes, egyptianTaxonomy, egyptianWorlds } from './egyptian/catalog';
+import { egyptianStories } from './egyptian/stories';
+import { egyptianAssetProvenance } from './egyptian/assets';
+import { egyptianVisualTiers } from './egyptian/visual-tiers';
 
 export type StructuredMythologyBundle = {
   mythologyId: string;
@@ -22,6 +38,9 @@ export type StructuredMythologyBundle = {
   characters: readonly Character[];
   relations: readonly CharacterRelation[];
   concepts?: readonly ContentConcept[];
+  claims?: readonly ContentClaim[];
+  names?: readonly CharacterName[];
+  interpretations?: readonly CharacterInterpretation[];
   taxonomy?: readonly TaxonomyTerm[];
   worlds: readonly World[];
   scenes: readonly Scene[];
@@ -54,6 +73,46 @@ const bundles: readonly StructuredMythologyBundle[] = [
     stories: norseStories,
     assetProvenance: norseAssetProvenance,
     visualTiers: norseVisualTiers,
+  },
+  {
+    mythologyId: 'myth-maya',
+    slug: 'maya',
+    characters: mayaCharacters,
+    relations: mayaRelations,
+    concepts: mayaConcepts,
+    claims: mayaClaims,
+    names: mayaNames,
+    interpretations: mayaInterpretations,
+    taxonomy: mayaTaxonomy,
+    worlds: mayaWorlds,
+    scenes: mayaScenes,
+    stories: mayaStories,
+    assetProvenance: mayaAssetProvenance,
+    visualTiers: mayaVisualTiers,
+  },
+  {
+    mythologyId: 'myth-japanese',
+    slug: 'japanese',
+    characters: japaneseCharacters,
+    relations: japaneseRelations,
+    taxonomy: japaneseTaxonomy,
+    worlds: japaneseWorlds,
+    scenes: japaneseScenes,
+    stories: japaneseStories,
+    assetProvenance: japaneseAssetProvenance,
+    visualTiers: japaneseVisualTiers,
+  },
+  {
+    mythologyId: 'myth-egyptian',
+    slug: 'egyptian',
+    characters: egyptianCharacters,
+    relations: egyptianRelations,
+    taxonomy: egyptianTaxonomy,
+    worlds: egyptianWorlds,
+    scenes: egyptianScenes,
+    stories: egyptianStories,
+    assetProvenance: egyptianAssetProvenance,
+    visualTiers: egyptianVisualTiers,
   },
 ];
 

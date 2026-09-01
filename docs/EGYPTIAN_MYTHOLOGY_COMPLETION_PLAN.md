@@ -1,7 +1,7 @@
 # MythCanvas 埃及神话完整补全方案
 
-> 状态：Review Proposal  
-> 版本：V1.1  
+> 状态：V1.2 Implementation Plan
+> 版本：V1.2
 > 日期：2026-09-02  
 > 适用范围：埃及神话内容建模、Story、Character、关系、World / Scene、来源体系、Character Graph、视觉资产、AI 出图与结构化内容流水线。  
 > 相关文档：`docs/GREEK_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`docs/CHARACTER_GRAPH_PLAN.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
@@ -67,6 +67,60 @@
 6. **P0 内容完整度与 P1 视觉生产拆开**：所有 P0 Character 必须有 Generation-grade Canonical Design；Tier S 18 是视觉生产优先级，不再把 18 个正式 Portrait / Wallpaper 当 P0 内容上线门槛。
 7. **Structured Content Package 对齐 Greek / Norse**：不在 `src/content/egyptian/` 内创建 Egyptian-only validator / importer；validator、normalizer、D1 sync、coverage reporter 必须通用。
 8. **新增 Narrative Unit Quality Gate**：Story Manifest 不允许为了凑 28 篇把一次仪式拆成若干重复页面；每个 Story / religious-tradition unit 必须能独立回答一个用户问题并具备独立来源价值。
+
+## 0.2 V1.2 Review 结论与本轮落地边界
+
+对照当前仓库实现后，V1.1 还需要一个更可执行的切片边界。当前代码已经具备：
+
+- Greek / Norse 共用的 structured bundle registry、validator、D1 sync 与 Story detail route；
+- `SourceRef.locator`、`MythStorySource.tradition / period / locator`、`required*Ids` 等闭包基础字段；
+- 现有 Egyptian `myth-egyptian`、`world-duat`、`character-anubis`、3 个 legacy Story 与 legacy artwork ID；
+- Repository 层将 structured content 合并到 D1 查询结果的能力。
+
+当前真正阻塞 Egyptian 上线的不是页面骨架，而是：
+
+1. Egyptian 尚未注册为 structured bundle，因此通用验证、同步和 Story 路径不会发现它；
+2. local seed 读取路径未合并 structured Egyptian 数据，离线浏览与 D1 读取的内容集合不一致；
+3. 现有 3 个 Egyptian Story 仍缺少完整的 Story dependency closure，Ra / Osiris / Isis 等核心实体没有进入同一内容包；
+4. sync 脚本仍用 Greek/Norse 白名单，新增文明会被脚本拒绝，违反“generic pipeline”目标；
+5. 现有 validator 能检查端点和 locator，但尚未把 Story claim 的 subject、source scope 和 relation canonical key 全部变成通用硬检查。
+
+因此本轮 V1.2 的可交付定义为 **P0 Content Closure Slice**：
+
+```text
+Egyptian structured package
+→ registry discovery
+→ generic validation
+→ local seed / repository consumption
+→ generic D1 dry-run SQL
+→ 28 Story manifest units
+→ required entity / relation / source closure tests
+```
+
+本轮明确不把以下工作伪装成已完成：
+
+- P1 Tier S / Tier A 正式肖像、桌面与移动壁纸生产；
+- Amun-Ra、Ra-Horakhty、Horus the Elder、Harpocrates 等需要独立 Identity Resolution 的后期扩展；
+- 生产环境 D1 写入、部署 smoke 与真实浏览器视觉对比；这些需要发布权限或远程运行环境，不属于本地代码落地的默认授权。
+
+V1.2 的验收顺序改为：先通过内容包与通用流水线的自动化闭包，再逐项打开 P1 视觉和后期身份扩展。这样“28 个 Story”是经过 validator 证明可发布的 structured data，而不是只写在规划文档中的数量承诺。
+
+## 0.3 本轮执行记录（2026-09-02）
+
+已完成：
+
+- 新增 src/content/egyptian/ structured package：25 Character、2 World、17 Scene、23 taxonomy term、24 relation、28 Story；
+- 保留 character-anubis、world-duat、scene-river-of-stars、story-ra-solar-voyage、story-osiris-isis、story-weighing-heart 的既有 ID / slug；
+- 将 Egyptian 注册到通用 registry，并合并进 local seed / Story / D1 dry-run 路径；
+- 为每个 P0 Character 提供 sourceRefs、period、Canonical Design、originalDesignChoices 与 generation prompt；
+- 用通用 content:validate 和 Egyptian 专项契约测试验证依赖闭包、来源 locator、canonical relation、World / Scene 边界和视觉 Tier。
+
+未在本轮伪造完成：
+
+- 真实生产环境 D1 写入与部署 smoke；
+- P1 正式角色 / World / Story 图像资产；
+- Egyptian alias / transliteration、Interpretation、Amun-Ra / Ra-Horakhty 等复合身份产品化；
+- Source Registry 的 attestationType 与 claim-level 跨实体审计。当前包用已有 locator / tradition / period 字段保持兼容，下一阶段应先通用化再扩展。
 
 ---
 
@@ -1314,36 +1368,36 @@ Graph 不应退化为 family tree，也不能把弱 `associated-with` 边当作�
 
 ## P0-0：冻结内容规范
 
-- [ ] Stable Character Type 与 taxonomy 对齐 Greek / Norse；
-- [ ] Source Tier / locator / attestationType 规则；
-- [ ] Canonical Relation Storage Rule；
-- [ ] Identity Resolution Matrix；
-- [ ] Horus Identity Policy；
-- [ ] World / Scene / Concept 语义；
-- [ ] 28 个 Story Manifest 通过 Narrative Unit Review。
+- [x] Stable Character Type 与 taxonomy 对齐 Greek / Norse；
+- [x] Source Tier / locator 规则（`attestationType` 延后到通用 Source Registry 扩展，不在本轮伪造 schema 字段）；
+- [x] Canonical Relation Storage Rule；
+- [x] Identity Resolution Matrix；
+- [x] Horus Identity Policy；
+- [x] World / Scene / Concept 语义；
+- [x] 28 个 Story Manifest 通过 Narrative Unit Review。
 
 ## P0-1：确保 Generic Structured Content Pipeline 可用
 
 复用北欧通用化工作：
 
-- [ ] mythology registry；
-- [ ] generic validator；
-- [ ] generic normalizer；
-- [ ] generic D1 sync；
-- [ ] generic artwork coverage reporter；
-- [ ] CI 自动验证全部 registered mythology。
+- [x] mythology registry；
+- [x] generic validator；
+- [x] generic normalizer；
+- [x] generic D1 sync；
+- [x] generic artwork coverage reporter；
+- [x] CI 自动验证全部 registered mythology。
 
 **必须在大量新增 Egyptian 数据前完成，避免第三套 importer。**
 
 ## P0-2：建立 `src/content/egyptian/`
 
-- [ ] `catalog.ts`；
-- [ ] `stories.ts`；
-- [ ] `assets.ts`；
-- [ ] `visual-tiers.ts`；
-- [ ] optional `sources.ts`；
-- [ ] `index.md`；
-- [ ] 迁移现有 Anubis 与 3 篇 legacy Story，保持 ID / slug。
+- [x] `catalog.ts`；
+- [x] `stories.ts`；
+- [x] `assets.ts`；
+- [x] `visual-tiers.ts`；
+- [x] optional `sources.ts`（本轮 source registry 规模较小，source data 内聚在 catalog / stories）；
+- [x] `index.md`；
+- [x] 迁移现有 Anubis 与 3 篇 legacy Story，保持 ID / slug。
 
 ## P0-3：Story Dependency Closure
 
@@ -1384,22 +1438,22 @@ Story 25–28：
 
 ## P0-4：Character / Relation / Source Closure
 
-- [ ] all P0 stable identities sourced；
-- [ ] all P0 Characters canonical-design complete；
-- [ ] genealogy source coverage 100%；
-- [ ] required narrative relation coverage 100%；
-- [ ] duplicate canonical relation = 0；
-- [ ] conflicting relation without scope = 0；
-- [ ] syncretic identity records pass Identity Resolution Matrix。
+- [x] all P0 stable identities sourced；
+- [x] all P0 Characters canonical-design complete；
+- [x] genealogy source coverage 100%；
+- [x] required narrative relation coverage 100%；
+- [x] duplicate canonical relation = 0；
+- [x] conflicting relation without scope = 0；
+- [x] syncretic identity records pass Identity Resolution Matrix（本轮没有引入复合神 Character；相关 policy fixture 留给后续扩展）。
 
 ## P0-5：World / Scene / Visual DNA 数据化
 
-- [ ] `world-duat` 增强；
-- [ ] Celestial Sky 是否升级 World 由 closure + reuse 决定；
-- [ ] Nun / First Mound / Aaru 不被机械 World 化；
-- [ ] Story 不再无脑挂 Duat；
-- [ ] Egyptian Base DNA + domain DNA；
-- [ ] sparse-source visual areas 显式区分 original design choices。
+- [x] `world-duat` 增强；
+- [x] Celestial Sky 是否升级 World 由 closure + reuse 决定；
+- [x] Nun / First Mound / Aaru 不被机械 World 化；
+- [x] Story 不再无脑挂 Duat；
+- [x] Egyptian Base DNA + domain DNA；
+- [x] sparse-source visual areas 显式区分 original design choices。
 
 ## P0-6：Story 正文
 
@@ -1419,27 +1473,32 @@ no modern encyclopedia mash-up
 
 复用共享能力：
 
-- [ ] `/mythology/egyptian/` Story volumes；
-- [ ] Story detail；
-- [ ] Character taxonomy；
-- [ ] Character relations / graph；
-- [ ] source / period / tradition display；
-- [ ] syncretism display；
-- [ ] alias / transliteration search；
-- [ ] World / Scene browse；
-- [ ] sitemap 自动发现 Story；
-- [ ] Creator 消费 Canonical Design / iconographic forms。
+- [x] `/mythology/egyptian/` Story volumes；
+- [x] Story detail；
+- [x] Character taxonomy；
+- [x] Character relations / graph；
+- [x] source / period / tradition display；
+- [ ] syncretism display（本轮没有新增复合神身份，保留为后续通用 identity work）；
+- [ ] alias / transliteration search（Character names 已有通用 D1 能力，但 Egyptian aliases 尚未进入 structured package）；
+- [x] World / Scene browse；
+- [x] sitemap 自动发现 Story；
+- [x] Creator 消费 Canonical Design / iconographic forms。
 
 ## P0-8：验证与上线
 
-- [ ] `npm test`；
-- [ ] `npm run content:validate`；
-- [ ] `npm run check`；
-- [ ] local D1 idempotent sync；
+- [x] `npm test`；
+- [x] `npm run content:validate`；
+- [x] `npm run check`；
+- [x] local D1 idempotent sync（连续执行两次，276 条 SQL commands 均成功）；
 - [ ] local browser smoke；
 - [ ] production D1 sync；
 - [ ] deployed routes smoke；
-- [ ] no orphan / duplicate / source-scope violations。
+- [x] package-level no orphan / duplicate relation / missing source locator violations；
+- [ ] full cross-entity source-scope audit。
+
+补充：本轮已完成本地 SSR route smoke（`/mythology/egyptian/` 与
+`/mythology/egyptian/weighing-heart/` 均返回 200）；由于未进行真实浏览器截图，
+不将其标记为 browser smoke。
 
 ## P1：视觉资产
 

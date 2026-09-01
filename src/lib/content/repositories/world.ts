@@ -43,7 +43,7 @@ export function mapWorldRow(row: WorldRow): World {
 export async function getWorlds(db: D1Database | undefined, query: EntityListQuery = {}): Promise<World[]> {
   if (!db) {
     const { limit, offset } = pageClause(query);
-    return seedWorlds.slice(offset, offset + limit);
+    return mergeStructuredWorlds([]).slice(offset, offset + limit);
   }
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
   const { limit, offset } = pageClause(query);
@@ -56,7 +56,7 @@ export async function getWorlds(db: D1Database | undefined, query: EntityListQue
 }
 
 export async function getWorldBySlug(db: D1Database | undefined, slug: string): Promise<World | undefined> {
-  if (!db) return seedWorlds.find((item) => item.slug === slug);
+  if (!db) return mergeStructuredWorlds([]).find((item) => item.slug === slug);
   const row = await db
     .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE slug = ? AND publish_status = 'published'`)
     .bind(slug)
@@ -65,7 +65,7 @@ export async function getWorldBySlug(db: D1Database | undefined, slug: string): 
 }
 
 export async function getWorldById(db: D1Database | undefined, id: string): Promise<World | undefined> {
-  if (!db) return seedWorlds.find((item) => item.id === id);
+  if (!db) return mergeStructuredWorlds([]).find((item) => item.id === id);
   const row = await db
     .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE id = ? AND publish_status = 'published'`)
     .bind(id)
@@ -78,7 +78,10 @@ export async function getWorldsForMythology(
   mythologyId: string,
   query: EntityListQuery = {},
 ): Promise<World[]> {
-  if (!db) return seedWorlds.filter((item) => item.mythologyId === mythologyId);
+  if (!db) {
+    const { limit, offset } = pageClause(query);
+    return mergeStructuredWorlds([], mythologyId).slice(offset, offset + limit);
+  }
   const { limit, offset } = pageClause(query);
   const hasStructuredBundle = Boolean(getStructuredMythologyBundle(mythologyId));
   const rows = await db

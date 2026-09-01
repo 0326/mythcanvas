@@ -1,5 +1,13 @@
-import { mythStories } from '../../data/stories';
+import { mythStories as seedMythStories } from '../../data/stories';
+import { getStructuredStories } from '../../content/registry';
 import type { MythStory } from './types';
+
+/** Structured packages are the source of truth for migrated mythologies; old
+ * seed stories remain available for packages that have not migrated yet. */
+export const mythStories: MythStory[] = [
+  ...seedMythStories.filter((story) => !getStructuredStories(story.mythologyId).some((item) => item.id === story.id)),
+  ...getStructuredStories(),
+];
 
 export type MythStoryVolume = {
   id: string;

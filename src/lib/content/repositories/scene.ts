@@ -45,14 +45,14 @@ export function mapSceneRow(row: SceneRow): Scene {
 }
 
 export async function getScenes(db: D1Database | undefined, query: EntityListQuery = {}): Promise<Scene[]> {
-  if (!db) return seedScenes;
+  if (!db) return mergeStructuredScenes([]);
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
   const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM scenes${where} ORDER BY name`).all();
   return mergeStructuredScenes(rows.results.map(mapSceneRow));
 }
 
 export async function getSceneBySlug(db: D1Database | undefined, slug: string): Promise<Scene | undefined> {
-  if (!db) return seedScenes.find((item) => item.slug === slug);
+  if (!db) return mergeStructuredScenes([]).find((item) => item.slug === slug);
   const row = await db
     .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE slug = ? AND publish_status = 'published'`)
     .bind(slug)
@@ -61,7 +61,7 @@ export async function getSceneBySlug(db: D1Database | undefined, slug: string): 
 }
 
 export async function getSceneById(db: D1Database | undefined, id: string): Promise<Scene | undefined> {
-  if (!db) return seedScenes.find((item) => item.id === id);
+  if (!db) return mergeStructuredScenes([]).find((item) => item.id === id);
   const row = await db
     .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE id = ? AND publish_status = 'published'`)
     .bind(id)
@@ -74,7 +74,7 @@ export async function getScenesForMythology(
   mythologyId: string,
   query: EntityListQuery = {},
 ): Promise<Scene[]> {
-  if (!db) return seedScenes.filter((item) => item.mythologyId === mythologyId);
+  if (!db) return mergeStructuredScenes([], mythologyId).filter((item) => item.mythologyId === mythologyId);
   const rows = await db
     .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name`)
     .bind(mythologyId)
@@ -87,7 +87,7 @@ export async function getScenesForWorld(
   worldId: string,
   query: EntityListQuery = {},
 ): Promise<Scene[]> {
-  if (!db) return seedScenes.filter((item) => item.worldId === worldId);
+  if (!db) return mergeStructuredScenes([]).filter((item) => item.worldId === worldId);
   const rows = await db
     .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE world_id = ? AND publish_status = 'published' ORDER BY name`)
     .bind(worldId)

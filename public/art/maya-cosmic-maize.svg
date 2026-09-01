@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Maya cosmic maize</title>
+  <desc id="desc">An original abstract composition of maize, stars, limestone and a stepped temple.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071f27"/><stop offset=".55" stop-color="#123f42"/><stop offset="1" stop-color="#1e6258"/></linearGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d7d1b8"/><stop offset="1" stop-color="#817f6c"/></linearGradient>
+    <radialGradient id="halo"><stop stop-color="#e6c66b" stop-opacity=".52"/><stop offset="1" stop-color="#e6c66b" stop-opacity="0"/></radialGradient>
+    <pattern id="stars" width="180" height="130" patternUnits="userSpaceOnUse"><circle cx="24" cy="28" r="2" fill="#d8e8d0" opacity=".7"/><circle cx="112" cy="72" r="1.5" fill="#d8e8d0" opacity=".55"/><path d="M153 22l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#d9c675" opacity=".8"/></pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect width="1600" height="620" fill="url(#stars)" opacity=".6"/>
+  <circle cx="1190" cy="270" r="290" fill="url(#halo)"/>
+  <circle cx="1190" cy="270" r="94" fill="#d5c77e" opacity=".86"/>
+  <path d="M0 690C235 590 380 620 572 700s390 72 566-12 300-95 462-12V900H0z" fill="#0c3031"/>
+  <path d="M0 760c206-68 330-35 506 20 201 63 357 60 552-18 185-74 345-76 542-8V900H0z" fill="#092326"/>
+  <g transform="translate(750 342)">
+    <path d="M-380 388H380L320 326H-320z" fill="url(#stone)"/>
+    <path d="M-322 326H322L265 267H-265z" fill="#b4ad91"/>
+    <path d="M-266 267H266L208 210H-208z" fill="url(#stone)"/>
+    <path d="M-210 210H210L153 154H-153z" fill="#b9b49a"/>
+    <path d="M-150 154H150L92 98H-92z" fill="url(#stone)"/>
+    <path d="M-90 98H90L0 8z" fill="#d8d0b4"/>
+    <path d="M0 8v380" stroke="#5c6257" stroke-width="8" opacity=".6"/>
+    <path d="M-130 154h260M-188 210h376M-246 267h492M-304 326h608" stroke="#64695c" stroke-width="5" opacity=".55"/>
+  </g>
+  <g transform="translate(750 420)" fill="none" stroke="#d6bf6b" stroke-width="10" stroke-linecap="round" opacity=".9">
+    <path d="M0 295C-18 180-12 80 0-15c12-95 18-193 0-300"/>
+    <path d="M0 220C-130 120-195 5-216-135"/>
+    <path d="M0 170C120 92 181-8 205-128"/>
+    <path d="M0 75c-78-43-119-99-133-178"/>
+    <path d="M0 30c67-36 103-88 118-156"/>
+  </g>
+  <g transform="translate(750 420)" fill="#d7c36f"><path d="M-18 78h36l-8 232h-20z"/><path d="M-20-6c-18-76-12-144 20-208 32 64 38 132 20 208z"/></g>
+  <g fill="#c4d0a5" opacity=".45"><circle cx="310" cy="170" r="3"/><circle cx="440" cy="260" r="2"/><circle cx="1450" cy="170" r="3"/><circle cx="1360" cy="470" r="2"/></g>
+</svg>

@@ -19,4 +19,11 @@ const norse = defineCollection({
   }),
 });
 
-export const collections = { greek, norse };
+const egyptian = defineCollection({
+  schema: z.object({
+    title: z.string(),
+    internal: z.literal(true),
+  }),
+});
+
+export const collections = { greek, norse, egyptian };

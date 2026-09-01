@@ -1,7 +1,7 @@
 # MythCanvas 日本神话完整补全方案
 
-> 状态：Review Proposal  
-> 版本：V1.1  
+> 状态：Optimized Baseline + Implementation Record
+> 版本：V1.2
 > 日期：2026-09-02  
 > 适用范围：日本神话内容建模、神代人物扩充、神谱关系、World / Scene、Story、来源体系、视觉资产、Character Detail / Graph、结构化内容流水线与后续 AI 出图。  
 > 相关文档：`docs/GREEK_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
@@ -300,7 +300,7 @@ V1.0 的 30 篇列表覆盖面基本正确，但存在两类问题：
 
 V1.1 改为：
 
-> **先固定 Narrative Units；实施时允许按篇幅与来源边界合并 / 拆分。当前 Manifest 约 29 个 Story unit，但“29”不是验收 KPI。**
+> **先固定 Narrative Units；实施时允许按篇幅与来源边界合并 / 拆分。当前 Manifest 约 30 个 Story unit，但数量不是验收 KPI。**
 
 ## Volume 1：天地初成、国生与黄泉
 
@@ -968,6 +968,7 @@ src/content/
 ├── registry.ts
 ├── greek/
 ├── norse/
+├── maya/
 └── japanese/
     ├── catalog.ts
     ├── stories.ts
@@ -1661,3 +1662,53 @@ P0 内容审核至少对照：
 - 现代学术研究只用于校勘、版本与语义讨论，不替代 primary source。
 
 所有 MythCanvas 正文应原创转述，不复制现代译本长段落；具体来源差异通过 `SourceRef / ContentClaim / sourceNotes / traditionScope` 表达，而不是伪装成唯一版本。
+
+---
+
+# 19. V1.2 优化后的执行记录与边界
+
+本轮已经按本方案完成一条可运行的 P0 内容工程切片，结果如下：
+
+```text
+Japanese Bundle：已注册到 shared registry
+Characters：38
+Worlds：5
+Scenes：14
+Stories：30（仅为当前编辑结果，不是数量 KPI）
+Relations：30，含可主动选择的 Nihon Shoki alternate scope
+Legacy Story ID / slug：3 条全部保留
+Kaguya：hero + literary + worldIds=[]，不再归属 Takamagahara
+Static fallback：已读取 structured Bundle
+D1 importer：支持 --mythology=japanese，并按 content package 自动发现
+Local D1 apply：已执行；日本核心包 38 Characters / 5 Worlds / 14 Scenes / 30 Relations 回读成功
+```
+
+本轮代码落地范围：
+
+- `src/content/japanese/`：catalog、Story、视觉 tier、asset provenance 与统一导出；
+- `src/content/registry.ts`：注册 Japanese Bundle；
+- `src/lib/content/structured-content-validation.ts`：通用 Character type、World/Scene 语义与 assertion scope 校验；
+- `src/lib/content/stories.ts` 与 Character / World / Scene Repository：structured static fallback 与 legacy merge；
+- `scripts/sync-structured-content.mjs`：从 registered package 自动发现可导入文明；
+- `tests/japanese-content.test.ts` 与 shared content tests：依赖闭包、legacy、source-scoped relation、fallback 回归；
+- `src/data/stories.ts`：删除 Japanese inline duplicate，避免双份 Story source of truth。
+
+验证命令：
+
+```bash
+npm test
+npm run content:validate
+npm run content:import -- --mythology=japanese
+npm run typecheck
+```
+
+本地 D1 中还保留 4 条历史迁移写入的日本 P1 popular Character（稻荷、八幡、雷神、风神）；本轮不删除历史数据，后续纳入 Japanese P1 package 时再补齐来源与视觉 tier。
+
+尚未在本轮声称完成的事项：
+
+- 尚未执行需要凭据或部署权限的 production D1 apply；local apply 已通过，production 仍需发布窗口与凭据；
+- Tier S 正式 PC / Mobile 壁纸仍属于 P1，当前复用已审核的旧有氛围图作为 P0 Story / World fallback；
+- 日本角色 alias / Hepburn 名称表、Graph UI 的 tradition switch、专门 Japanese Scene 详情路由仍按共享能力后续接入；
+- `Nihon Shoki` 的每一条“一书”仍需内容编辑逐段核对 `SourceRef.locator`，不能以当前包的主题级 locator 代替最终校勘。
+
+因此本轮验收口径是：**工程闭包与可追溯内容骨架已落地；生产视觉、逐段学术校勘和部署同步不被伪装成已完成。**

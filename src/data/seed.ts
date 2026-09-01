@@ -1,6 +1,7 @@
 import type { Artwork, Character, CharacterVariant, Mythology, World, Scene, Style } from '../lib/content/types';
 import { greekCharacters, greekScenes, greekWorlds } from '../content/greek/catalog';
 import { norseCharacters, norseScenes, norseWorlds } from '../content/norse/catalog';
+import { egyptianCharacters, egyptianScenes, egyptianWorlds } from '../content/egyptian/catalog';
 
 const legacyOriginalLicense = {
   sourceType: 'original' as const,
@@ -61,12 +62,12 @@ export const mythologies: Mythology[] = [
     slug: 'japanese',
     name: '日本神话',
     nameEn: 'Japanese Mythology',
-    summary: '月色、鸟居、神社与幽静山林共同形成克制而神秘的高天原想象。',
+    summary: '天地初成、黄泉、高天原、出云与海神之国共同展开日本神代。',
     visualDna: {
-      palette: ['月白', '墨青', '克制朱红'],
-      motifs: ['鸟居', '神乐铃', '樱', '月'],
-      materials: ['木', '和纸', '石'],
-      atmosphere: ['幽玄', '静谧', '灵性'],
+      palette: ['云白', '珍珠灰', '克制朱红', '深靛青', '芦苇金', '海玉色'],
+      motifs: ['镜', '勾玉', '剑', '榊', '芦苇', '岩户与边界'],
+      materials: ['未上漆木材', '植物纤维', '古铜', '石', '雾与水'],
+      atmosphere: ['初生', '神圣', '幽玄', '临界', '自然光'],
     },
     heroImage: { src: '/media/content/japanese-takamagahara.jpg', alt: '高天原:月下鸟居与雾中神社', width: 1280, height: 720 },
   },
@@ -204,14 +205,19 @@ const baseCharacters: Character[] = [
   {
     id: 'character-kaguya',
     mythologyId: 'myth-japanese',
-    worldIds: ['world-takamagahara'],
+    worldIds: [],
     slug: 'kaguya',
     name: '辉夜姬',
     nameEn: 'Kaguya-hime',
     role: '月之公主',
-    summary: '以竹影、月轮和层叠衣装形成安静、疏离、带有月光感的主形象。',
+    summary: '以竹影、月轮和层叠衣装形成安静、疏离、带有月光感的文学主形象；不归入高天原神系。',
     symbols: ['月', '竹', '十二单', '月光'],
-    canonicalDesign: { anchors: ['月轮', '竹影', '层叠衣装'] },
+    characterType: 'hero',
+    traditionTags: ['classical-tale', 'lunar-origin'],
+    sourcePeriods: ['平安时代《竹取物语》文学传统'],
+    sourceRefs: [{ type: 'literature', title: '《竹取物语》', locator: '辉夜姬归月相关段落', language: 'ja-classical', period: '10 世纪前后' }],
+    canonicality: 'literary',
+    canonicalDesign: { anchors: ['月轮', '竹影', '层叠衣装'], originalDesignChoices: ['MythCanvas 原创月界文学视觉；不将平安宫廷服饰或现代改编当成神代事实。'] },
     portrait: { src: '/media/content/char-kaguya.jpg', alt: '辉夜姬:竹影月光下的月之公主', width: 864, height: 1152 },
   },
   {
@@ -531,6 +537,6 @@ const mergeById = <T extends { id: string }>(base: readonly T[], additions: read
 };
 
 /** Structured mythology bundles are editorial source sets, not accidental local-only fixtures. */
-export const worlds: World[] = mergeById(mergeById(baseWorlds, greekWorlds), norseWorlds);
-export const characters: Character[] = mergeById(mergeById(baseCharacters, greekCharacters), norseCharacters);
-export const scenes: Scene[] = mergeById(mergeById(baseScenes, greekScenes), norseScenes);
+export const worlds: World[] = mergeById(mergeById(mergeById(baseWorlds, greekWorlds), norseWorlds), egyptianWorlds);
+export const characters: Character[] = mergeById(mergeById(mergeById(baseCharacters, greekCharacters), norseCharacters), egyptianCharacters);
+export const scenes: Scene[] = mergeById(mergeById(mergeById(baseScenes, greekScenes), norseScenes), egyptianScenes);
