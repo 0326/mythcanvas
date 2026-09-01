@@ -1,5 +1,6 @@
 import type { Artwork, Character, CharacterVariant, Mythology, World, Scene, Style } from '../lib/content/types';
 import { greekCharacters, greekScenes, greekWorlds } from '../content/greek/catalog';
+import { norseCharacters, norseScenes, norseWorlds } from '../content/norse/catalog';
 
 const legacyOriginalLicense = {
   sourceType: 'original' as const,
@@ -53,7 +54,7 @@ export const mythologies: Mythology[] = [
       materials: ['巨石', '冰晶', '铁'],
       atmosphere: ['苍茫', '寒冷', '史诗'],
     },
-    heroImage: { src: '/media/content/norse-asgard.jpg', alt: '阿斯加德:极光之下的世界树与巨石堡垒', width: 1280, height: 720 },
+    heroImage: { src: '/art/norse-asgard.jpg', alt: '阿斯加德:极光之下的世界树与巨石堡垒', width: 1280, height: 720 },
   },
   {
     id: 'myth-japanese',
@@ -124,7 +125,7 @@ const baseWorlds: World[] = [
       anchors: ['世界巨树', '彩虹桥', '北境宫殿', '极光天空'],
       signatureMaterials: ['巨石', '铁', '冰晶'],
     },
-    heroImage: { src: '/media/content/norse-asgard.jpg', alt: '阿斯加德:巨石、金属与彩虹桥连接的北境神域', width: 1280, height: 720 },
+    heroImage: { src: '/art/norse-asgard.jpg', alt: '阿斯加德:巨石、金属与彩虹桥连接的北境神域', width: 1280, height: 720 },
   },
   {
     id: 'world-takamagahara',
@@ -198,7 +199,7 @@ const baseCharacters: Character[] = [
     summary: '以布里辛嘉曼项链、猎鹰羽饰与北境金属材质建立稳定身份。',
     symbols: ['项链', '猎鹰', '猫', '金色'],
     canonicalDesign: { anchors: ['布里辛嘉曼', '猎鹰羽饰', '北境金属'] },
-    portrait: { src: '/media/content/char-freyja.jpg', alt: '芙蕾雅:佩戴布里辛嘉曼项链的北境女神', width: 864, height: 1152 },
+    portrait: { src: '/art/char-freyja.jpg', alt: '芙蕾雅:佩戴布里辛嘉曼项链的北境女神', width: 864, height: 1152 },
   },
   {
     id: 'character-kaguya',
@@ -424,7 +425,7 @@ export const artworks: Artwork[] = [
     worldId: 'world-asgard',
     styleId: 'cinematic',
     moodIds: ['epic', 'cold'],
-    image: { src: '/media/content/art-asgard-aurora.jpg', alt: '极光下的阿斯加德:雪崖上的金色灯火殿堂', width: 720, height: 1280 },
+    image: { src: '/art/art-asgard-aurora.jpg', alt: '极光下的阿斯加德:雪崖上的金色灯火殿堂', width: 720, height: 1280 },
     license: legacyOriginalLicense,
     reviewStatus: 'approved',
   },
@@ -497,7 +498,7 @@ const baseScenes: Scene[] = [
     nameEn: 'Roots of the World Tree',
     summary: '巨树根系贯穿九界，极光在北境夜空流动。',
     canonicalDesign: { anchors: ['世界树', '根系', '极光', '符文'] },
-    heroImage: { src: '/media/content/norse-asgard.jpg', alt: '极光之下的世界树与巨石堡垒', width: 1280, height: 720 },
+    heroImage: { src: '/art/norse-asgard.jpg', alt: '极光之下的世界树与巨石堡垒', width: 1280, height: 720 },
   },
   {
     id: 'scene-bamboo-moon',
@@ -529,7 +530,7 @@ const mergeById = <T extends { id: string }>(base: readonly T[], additions: read
   return Array.from(byId.values());
 };
 
-/** Greek P0 content is an editorial source set, not an accidental local-only fixture. */
-export const worlds: World[] = mergeById(baseWorlds, greekWorlds);
-export const characters: Character[] = mergeById(baseCharacters, greekCharacters);
-export const scenes: Scene[] = mergeById(baseScenes, greekScenes);
+/** Structured mythology bundles are editorial source sets, not accidental local-only fixtures. */
+export const worlds: World[] = mergeById(mergeById(baseWorlds, greekWorlds), norseWorlds);
+export const characters: Character[] = mergeById(mergeById(baseCharacters, greekCharacters), norseCharacters);
+export const scenes: Scene[] = mergeById(mergeById(baseScenes, greekScenes), norseScenes);

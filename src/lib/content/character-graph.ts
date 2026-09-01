@@ -1,4 +1,5 @@
 import type { Character, CharacterRelation, ContentConcept, SourceRef } from './types';
+import { getRelationSemantic } from './relation-semantics';
 
 export type CharacterGraphNodeKind = 'character' | 'concept';
 
@@ -10,6 +11,7 @@ export type CharacterGraphNode = {
   role?: string;
   slug?: string;
   symbol?: string;
+  portrait?: { src: string; width: number; height: number; alt: string };
 };
 
 export type CharacterGraphLink = {
@@ -17,6 +19,8 @@ export type CharacterGraphLink = {
   source: string;
   target: string;
   relationType: string;
+  category: ReturnType<typeof getRelationSemantic>['category'];
+  neutralLabel: string;
   label: string;
   directional: boolean;
   traditionScope?: string;
@@ -28,13 +32,19 @@ export type CharacterGraphData = {
   focusId: string;
   mythologyId: string;
   selectedScope?: string;
+  /** Kept as strings for V1 clients; scopeOptions is the V2 structured form. */
   availableScopes: readonly string[];
+  scopeOptions: readonly GraphScopeOption[];
+  interpretationId?: string;
   requiresScopeSelection: boolean;
   nodes: readonly CharacterGraphNode[];
   links: readonly CharacterGraphLink[];
+  hiddenNodeCount: number;
   hiddenRelationCount: number;
   canExpand: boolean;
 };
+
+export type GraphScopeOption = { id: string; label: string; isDefault: boolean; sourceRefs: readonly SourceRef[] };
 
 export type BuildCharacterGraphInput = {
   focusId: string;
@@ -43,29 +53,10 @@ export type BuildCharacterGraphInput = {
   concepts?: readonly ContentConcept[];
   relations: readonly CharacterRelation[];
   scope?: string;
+  interpretationId?: string;
   depth?: 1 | 2;
   nodeLimit?: number;
 };
-
-const RELATION_LABELS: Record<string, string> = {
-  parent: '亲子',
-  child: '亲子',
-  consort: '配偶',
-  sibling: '手足',
-  master: '师承',
-  disciple: '弟子',
-  ally: '同盟',
-  rival: '竞争',
-  enemy: '敌对',
-  serves: '侍奉',
-  'rules-over': '统属',
-  'syncretized-with': '神格关联',
-  'associated-with': '关联',
-  created: '创造',
-  'transformed-into': '化作',
-};
-
-const SYMMETRIC_RELATIONS = new Set(['consort', 'sibling', 'ally', 'rival', 'enemy', 'associated-with']);
 
 function endpointIds(relation: CharacterRelation): string[] {
   return [relation.fromCharacterId, relation.toCharacterId ?? relation.toConceptId].filter((id): id is string => Boolean(id));
@@ -76,9 +67,14 @@ function selectScope(relations: readonly CharacterRelation[], focusId: string, r
   // relationship for its focus, not every tradition present elsewhere in a mythology.
   const focusRelations = relations.filter((relation) => endpointIds(relation).includes(focusId));
   const scopedFocusRelations = focusRelations.length > 0 ? focusRelations : relations;
-  const availableScopes = Array.from(new Set(scopedFocusRelations.flatMap((relation) => relation.traditionScope ? [relation.traditionScope] : []))).sort((a, b) => a.localeCompare(b, 'zh-CN'));
+  const scopeEntries = Array.from(new Map(scopedFocusRelations
+    .filter((relation) => relation.traditionScope)
+    .map((relation) => [relation.traditionScope!, relation])).values())
+    .sort((a, b) => (a.traditionScope ?? '').localeCompare(b.traditionScope ?? '', 'zh-CN'));
+  const scopeOptions = scopeEntries.map((relation): GraphScopeOption => ({ id: relation.traditionScope!, label: relation.traditionScope!, isDefault: relation.isDefault !== false, sourceRefs: relation.sourceRefs }));
+  const availableScopes = scopeOptions.map((scope) => scope.id);
   if (requestedScope && availableScopes.includes(requestedScope)) {
-    return { availableScopes, selectedScope: requestedScope, requiresScopeSelection: false };
+    return { availableScopes, scopeOptions, selectedScope: requestedScope, requiresScopeSelection: false };
   }
 
   const defaultScopes = Array.from(new Set(scopedFocusRelations
@@ -86,7 +82,7 @@ function selectScope(relations: readonly CharacterRelation[], focusId: string, r
     .map((relation) => relation.traditionScope!)));
 
   if (defaultScopes.length === 1) {
-    return { availableScopes, selectedScope: defaultScopes[0], requiresScopeSelection: false };
+    return { availableScopes, scopeOptions, selectedScope: defaultScopes[0], requiresScopeSelection: false };
   }
 
   // Zero or multiple default scopes means the graph cannot safely infer which
@@ -94,12 +90,16 @@ function selectScope(relations: readonly CharacterRelation[], focusId: string, r
   // alternate tradition: it must remain reachable through an explicit choice.
   return {
     availableScopes,
+    scopeOptions,
     selectedScope: undefined,
     requiresScopeSelection: availableScopes.length > 0,
   };
 }
 
-function isIncludedByScope(relation: CharacterRelation, selectedScope?: string, requiresScopeSelection = false): boolean {
+function isIncludedByScope(relation: CharacterRelation, focusId: string, selectedScope?: string, interpretationId?: string, requiresScopeSelection = false): boolean {
+  const focusInterpretation = relation.fromCharacterId === focusId ? relation.fromInterpretationId : relation.toCharacterId === focusId ? relation.toInterpretationId : undefined;
+  if (focusInterpretation && focusInterpretation !== interpretationId) return false;
+  if (!interpretationId && focusInterpretation) return false;
   if (!relation.traditionScope) return relation.isDefault !== false;
   if (requiresScopeSelection && !selectedScope) return false;
   if (!selectedScope) return false;
@@ -113,13 +113,16 @@ function isIncludedByScope(relation: CharacterRelation, selectedScope?: string, 
 function relationToLink(relation: CharacterRelation): CharacterGraphLink | undefined {
   const target = relation.toCharacterId ?? relation.toConceptId;
   if (!target) return undefined;
+  const semantic = getRelationSemantic(relation.relationType);
   return {
     id: relation.id,
     source: relation.fromCharacterId,
     target,
     relationType: relation.relationType,
-    label: RELATION_LABELS[relation.relationType] ?? relation.relationType,
-    directional: !SYMMETRIC_RELATIONS.has(relation.relationType),
+    category: semantic.category,
+    neutralLabel: semantic.neutralLabel,
+    label: semantic.neutralLabel,
+    directional: semantic.directional,
     traditionScope: relation.traditionScope,
     confidence: relation.confidence,
     sourceRefs: relation.sourceRefs,
@@ -133,7 +136,7 @@ function relationToLink(relation: CharacterRelation): CharacterGraphLink | undef
 export function buildCharacterGraph(input: BuildCharacterGraphInput): CharacterGraphData {
   const depth = input.depth === 2 ? 2 : 1;
   const nodeLimit = Math.min(Math.max(input.nodeLimit ?? 24, 2), 80);
-  const { availableScopes, selectedScope, requiresScopeSelection } = selectScope(input.relations, input.focusId, input.scope);
+  const { availableScopes, scopeOptions, selectedScope, requiresScopeSelection } = selectScope(input.relations, input.focusId, input.scope);
   const knownNodes = new Map<string, CharacterGraphNode>();
 
   for (const character of input.characters) {
@@ -146,6 +149,7 @@ export function buildCharacterGraph(input: BuildCharacterGraphInput): CharacterG
       role: character.role,
       slug: character.slug,
       symbol: character.symbols[0],
+      portrait: character.portrait ? { ...character.portrait } : undefined,
     });
   }
   for (const concept of input.concepts ?? []) {
@@ -154,7 +158,7 @@ export function buildCharacterGraph(input: BuildCharacterGraphInput): CharacterG
   }
 
   const scopedRelations = input.relations.filter((relation) =>
-    isIncludedByScope(relation, selectedScope, requiresScopeSelection)
+    isIncludedByScope(relation, input.focusId, selectedScope, input.interpretationId, requiresScopeSelection)
     && endpointIds(relation).every((id) => knownNodes.has(id)),
   );
   const adjacency = new Map<string, CharacterRelation[]>();
@@ -187,6 +191,7 @@ export function buildCharacterGraph(input: BuildCharacterGraphInput): CharacterG
   const nodes = Array.from(visited)
     .map((id) => knownNodes.get(id))
     .filter((node): node is CharacterGraphNode => Boolean(node));
+  const hiddenNodeCount = Math.max(0, knownNodes.size - visited.size);
   const hiddenRelationCount = scopedRelations.filter((relation) => endpointIds(relation).some((id) => !visited.has(id))).length;
   const canExpand = depth === 1 && scopedRelations.some((relation) =>
     endpointIds(relation).some((id) => visited.has(id)) && endpointIds(relation).some((id) => !visited.has(id)),
@@ -197,9 +202,12 @@ export function buildCharacterGraph(input: BuildCharacterGraphInput): CharacterG
     mythologyId: input.mythologyId,
     selectedScope,
     availableScopes,
+    scopeOptions,
+    interpretationId: input.interpretationId,
     requiresScopeSelection,
     nodes,
     links,
+    hiddenNodeCount,
     hiddenRelationCount,
     canExpand,
   };

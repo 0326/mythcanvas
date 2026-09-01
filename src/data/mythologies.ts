@@ -56,7 +56,7 @@ export const mythologies: Mythology[] = [
       materials: ['巨石', '木', '铁', '冰晶'],
       atmosphere: ['苍茫', '寒冷', '史诗'],
     },
-    heroImage: { src: '/media/content/norse-asgard.jpg', alt: '世界树与阿斯加德的北欧神域', width: 1280, height: 720 },
+    heroImage: { src: '/art/norse-asgard.jpg', alt: '世界树与阿斯加德的北欧神域', width: 1280, height: 720 },
     homeHero: {},
   },
   {

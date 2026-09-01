@@ -1,3 +1,5 @@
+import { defineCollection, z } from 'astro:content';
+
 /**
  * Editorial TypeScript modules live next to future collection content. Defining
  * the configuration explicitly prevents Astro from treating implementation
@@ -10,5 +12,11 @@ const greek = defineCollection({
   }),
 });
 
-export const collections = { greek };
-import { defineCollection, z } from 'astro:content';
+const norse = defineCollection({
+  schema: z.object({
+    title: z.string(),
+    internal: z.literal(true),
+  }),
+});
+
+export const collections = { greek, norse };

@@ -1,16 +1,27 @@
 ---
-import type { Character, ImageAsset, Mythology } from '../../lib/content/types';
+import type { Character, CharacterRelation, ImageAsset, Mythology } from '../../lib/content/types';
 import { ArrowLeft, ArrowRight, RotateCcw } from '@lucide/astro';
 import { cloudflareImageUrl, shouldUseCloudflareImageTransformations } from '../../lib/media/cloudflare-images';
+import { getRelationLabel } from '../../lib/content/relation-semantics';
 
 interface Props {
   character: Character;
   mythology?: Mythology;
   heroImage: ImageAsset;
   createHref: string;
+  relations?: readonly CharacterRelation[];
+  characters?: readonly Character[];
+  interpretationId?: string;
 }
 
-const { character, mythology, heroImage, createHref } = Astro.props;
+const { character, mythology, heroImage, createHref, relations = [], characters = [], interpretationId = '' } = Astro.props;
+const characterById = new Map(characters.map((item) => [item.id, item]));
+const textualRelations = relations.flatMap((relation) => {
+  const outgoing = relation.fromCharacterId === character.id;
+  const counterpartId = outgoing ? relation.toCharacterId ?? relation.toConceptId : relation.fromCharacterId;
+  const counterpart = characterById.get(counterpartId ?? '');
+  return counterpart ? [{ relation, counterpart, label: getRelationLabel(relation.relationType, outgoing ? 'from' : 'to') }] : [];
+});
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
 const heroImageSrc = cloudflareImageUrl(
   heroImage.src,
@@ -56,14 +67,14 @@ const heroImageSrc = cloudflareImageUrl(
       <div class="hero-actions">
         <a class="btn btn-primary" href={createHref} data-create-cta>绘制我的 {character.name}</a>
         <a class="hero-scroll-link" href="#wallpapers">查看作品 ↓</a>
-        <button class="hero-graph-trigger" type="button" data-graph-open>
+        <button class="hero-graph-trigger" type="button" data-graph-open aria-expanded="false" aria-controls={`character-graph-${character.slug}`}>
           查看神谱 <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
         </button>
       </div>
     </div>
   </div>
 
-  <div class="character-graph-layer" data-character-graph hidden>
+  <div class="character-graph-layer" id={`character-graph-${character.slug}`} data-character-graph data-graph-interpretation={interpretationId} hidden inert>
     <div class="container-wide character-graph-toolbar">
       <button class="graph-back-button" type="button" data-graph-back aria-label="返回角色介绍">
         <ArrowLeft size={18} strokeWidth={1.8} aria-hidden="true" />
@@ -86,6 +97,25 @@ const heroImageSrc = cloudflareImageUrl(
     </div>
   </div>
 </section>
+
+{textualRelations.length > 0 && (
+  <section class="character-relations-fallback" aria-labelledby="character-relations-fallback-title">
+    <div class="container-wide">
+      <details>
+        <summary id="character-relations-fallback-title">文字关系 · {character.name}的神谱</summary>
+        <div class="fallback-relation-list">
+          {textualRelations.map(({ relation, counterpart, label }) => (
+            <article class="fallback-relation-item">
+              <span>{label}</span>
+              <a href={`/character/${counterpart.slug}/`}>{counterpart.name}</a>
+              <small>{relation.traditionScope ?? '跨传统稳定关系'} · {relation.sourceRefs.map((ref) => `${ref.title}${ref.locator ? ` · ${ref.locator}` : ''}`).join('；')}</small>
+            </article>
+          ))}
+        </div>
+      </details>
+    </div>
+  </section>
+)}
 
 <style>
   .character-hero {
@@ -351,6 +381,10 @@ const heroImageSrc = cloudflareImageUrl(
     font-size: 0.73rem;
     line-height: 1.6;
   }
+  .graph-detail .graph-relation-row {
+    padding-top: .3rem;
+    border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  }
   .graph-status {
     grid-column: 1 / -1;
     min-height: 1.2em;
@@ -374,6 +408,24 @@ const heroImageSrc = cloudflareImageUrl(
   .character-hero.is-graph-open .character-graph-layer {
     opacity: 1;
   }
+  .character-relations-fallback {
+    position: relative;
+    z-index: 1;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-muted);
+  }
+  .character-relations-fallback summary {
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: .82rem;
+    font-weight: 700;
+  }
+  .fallback-relation-list { display: grid; gap: .55rem; margin-top: .75rem; }
+  .fallback-relation-item { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: .25rem .8rem; padding: .7rem .8rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+  .fallback-relation-item > span { color: var(--accent-strong); font-size: .72rem; font-weight: 700; }
+  .fallback-relation-item a { color: var(--text-primary); font-weight: 700; }
+  .fallback-relation-item small { grid-column: 2; color: var(--text-muted); font-size: .68rem; line-height: 1.5; }
 
   @media (max-width: 1240px) {
     .character-copy {
@@ -412,6 +464,7 @@ const heroImageSrc = cloudflareImageUrl(
     const openButton = hero.querySelector<HTMLButtonElement>('[data-graph-open]');
     const backButton = hero.querySelector<HTMLButtonElement>('[data-graph-back]');
     const resetButton = hero.querySelector<HTMLButtonElement>('[data-graph-reset]');
+    const intro = hero.querySelector<HTMLElement>('[data-character-intro]');
     const layer = hero.querySelector<HTMLElement>('[data-character-graph]');
     const stage = hero.querySelector<HTMLElement>('[data-character-graph-stage]');
     const scopes = hero.querySelector<HTMLElement>('[data-graph-scopes]');
@@ -426,6 +479,11 @@ const heroImageSrc = cloudflareImageUrl(
     let requestVersion = 0;
     let activeDepth = 1;
     let resizeObserver: ResizeObserver | undefined;
+    let visibilityObserver: IntersectionObserver | undefined;
+    let themeObserver: MutationObserver | undefined;
+    let abortController: AbortController | undefined;
+    const endpointId = (endpoint: any) => typeof endpoint === 'object' && endpoint ? endpoint.id : endpoint;
+    const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const setStatus = (message = '') => { status.textContent = message; };
     const themeColor = (token: string, fallback: string) => getComputedStyle(document.documentElement).getPropertyValue(token).trim() || fallback;
@@ -434,11 +492,11 @@ const heroImageSrc = cloudflareImageUrl(
       const context = canvas.getContext('2d');
       if (!context) return null;
       const ratio = window.devicePixelRatio > 1 ? 2 : 1;
+      context.font = '600 14px system-ui, sans-serif';
       const width = Math.max(80, Math.ceil(context.measureText(text).width + 26));
       canvas.width = width * ratio;
       canvas.height = 34 * ratio;
       context.scale(ratio, ratio);
-      context.font = '600 14px system-ui, sans-serif';
       context.textAlign = 'center';
       context.fillStyle = color;
       context.shadowColor = 'rgba(0, 0, 0, .65)';
@@ -503,7 +561,7 @@ const heroImageSrc = cloudflareImageUrl(
     const focusNode = (nodeId: string) => {
       const node = activeData?.nodes.find((item: any) => item.id === nodeId);
       if (!node || !graph) return;
-      const related = activeData.links.filter((link: any) => link.source === nodeId || link.target === nodeId);
+      const related = activeData.links.filter((link: any) => endpointId(link.source) === nodeId || endpointId(link.target) === nodeId);
       detail.replaceChildren();
       const eyebrow = document.createElement('span');
       eyebrow.className = 'graph-detail-eyebrow';
@@ -513,8 +571,19 @@ const heroImageSrc = cloudflareImageUrl(
       const copy = document.createElement('p');
       copy.textContent = related.length ? `已收录 ${related.length} 条直接关联。` : '暂无已收录的直接关联。';
       detail.append(eyebrow, title, copy);
+      related.slice(0, 8).forEach((link: any) => {
+        const counterpartId = endpointId(link.source) === nodeId ? endpointId(link.target) : endpointId(link.source);
+        const counterpart = activeData.nodes.find((item: any) => item.id === counterpartId);
+        const relation = document.createElement('p');
+        relation.className = 'graph-relation-row';
+        relation.textContent = `${link.neutralLabel || link.label} · ${counterpart?.name || counterpartId}`;
+        if (link.traditionScope) relation.textContent += ` · ${link.traditionScope}`;
+        const ref = link.sourceRefs?.[0];
+        if (ref) relation.textContent += ` · ${ref.title}${ref.locator ? ` · ${ref.locator}` : ''}`;
+        detail.append(relation);
+      });
       const engineNode = graph.graphData().nodes.find((item: any) => item.id === nodeId);
-      if (engineNode) graph.cameraPosition({ x: engineNode.x || 0, y: engineNode.y || 0, z: (engineNode.z || 0) + 145 }, engineNode, 700);
+      if (engineNode) graph.cameraPosition({ x: engineNode.x || 0, y: engineNode.y || 0, z: (engineNode.z || 0) + 145 }, engineNode, reducedMotion() ? 0 : 700);
     };
 
     const disposeGraph = () => {
@@ -527,14 +596,18 @@ const heroImageSrc = cloudflareImageUrl(
 
     const renderScopes = () => {
       scopes.replaceChildren();
-      if (activeData?.availableScopes?.length > 1 || activeData?.requiresScopeSelection) {
-        activeData.availableScopes.forEach((scope: string) => {
+      const scopeOptions = activeData?.scopeOptions?.length
+        ? activeData.scopeOptions
+        : (activeData?.availableScopes ?? []).map((id: string) => ({ id, label: id, isDefault: true }));
+      if (scopeOptions.length > 1 || activeData?.requiresScopeSelection) {
+        scopeOptions.forEach((option: any) => {
           const button = document.createElement('button');
           button.type = 'button';
           button.className = 'graph-scope-button';
-          button.textContent = scope;
-          button.setAttribute('aria-pressed', String(scope === activeData.selectedScope));
-          button.addEventListener('click', () => loadGraph(scope, 1));
+          button.textContent = option.label;
+          button.setAttribute('aria-label', `选择传统范围：${option.label}`);
+          button.setAttribute('aria-pressed', String(option.id === activeData.selectedScope));
+          button.addEventListener('click', () => loadGraph(option.id, 1));
           scopes.append(button);
         });
       }
@@ -543,6 +616,7 @@ const heroImageSrc = cloudflareImageUrl(
         expand.type = 'button';
         expand.className = 'graph-scope-button';
         expand.textContent = '展开二度关系';
+        expand.setAttribute('aria-pressed', 'false');
         expand.addEventListener('click', () => loadGraph(selectedScope, 2));
         scopes.append(expand);
       }
@@ -562,15 +636,27 @@ const heroImageSrc = cloudflareImageUrl(
         .graphData(graphData)
         .nodeThreeObject(nodeObject)
         .nodeThreeObjectExtend(false)
-        .linkColor((link: any) => link.relationType === 'enemy' ? themeColor('--error', '#bd5d57') : themeColor('--border-strong', '#a38f6d'))
+        .linkColor((link: any) => link.category === 'conflict' ? themeColor('--error', '#bd5d57') : themeColor('--border-strong', '#a38f6d'))
         .linkOpacity(0.58)
-        .linkWidth((link: any) => link.relationType === 'parent' || link.relationType === 'child' ? 1.8 : 1.05)
+        .linkWidth((link: any) => link.category === 'kinship' ? 1.8 : 1.05)
         .linkCurvature(0.1)
         .linkDirectionalArrowLength((link: any) => link.directional ? 3.2 : 0)
         .linkDirectionalArrowRelPos(0.84)
         .linkDirectionalParticles((link: any) => link.directional ? 1 : 0)
         .linkDirectionalParticleWidth(1.2)
-        .onNodeClick((node: any) => focusNode(node.id));
+        .onNodeClick((node: any) => focusNode(node.id))
+        .onLinkClick((link: any) => {
+          const sourceId = endpointId(link.source);
+          const targetId = endpointId(link.target);
+          const from = activeData.nodes.find((item: any) => item.id === sourceId);
+          const to = activeData.nodes.find((item: any) => item.id === targetId);
+          detail.replaceChildren();
+          const eyebrow = document.createElement('span'); eyebrow.className = 'graph-detail-eyebrow'; eyebrow.textContent = 'Relation Source';
+          const title = document.createElement('strong'); title.textContent = link.neutralLabel || link.label;
+          const copy = document.createElement('p'); copy.textContent = `${from?.name || sourceId} → ${to?.name || targetId}${link.traditionScope ? ` · ${link.traditionScope}` : ''}`;
+          detail.append(eyebrow, title, copy);
+          (link.sourceRefs ?? []).forEach((ref: any) => { const source = document.createElement('p'); source.className = 'graph-relation-row'; source.textContent = `${ref.title}${ref.locator ? ` · ${ref.locator}` : ''}`; detail.append(source); });
+        });
       graph.d3Force('charge')?.strength(-125);
       graph.d3Force('link')?.distance(42);
       graph.cooldownTime(950);
@@ -585,7 +671,7 @@ const heroImageSrc = cloudflareImageUrl(
       });
       resizeObserver.observe(stage);
       window.setTimeout(() => {
-        graph?.zoomToFit(500, 95, (node: any) => node.id === activeData.focusId || activeData.links.some((link: any) => link.source === node.id || link.target === node.id));
+        graph?.zoomToFit(reducedMotion() ? 0 : 500, 95, (node: any) => node.id === activeData.focusId || activeData.links.some((link: any) => endpointId(link.source) === node.id || endpointId(link.target) === node.id));
         focusNode(activeData.focusId);
       }, 80);
     };
@@ -594,11 +680,15 @@ const heroImageSrc = cloudflareImageUrl(
       const version = ++requestVersion;
       selectedScope = scope;
       activeDepth = depth;
+      abortController?.abort();
+      abortController = new AbortController();
       setStatus('正在召唤神谱…');
       try {
-        const params = new URLSearchParams({ character: slug, depth: String(depth), limit: depth === 2 ? '48' : '24' });
+        const params = new URLSearchParams({ character: slug, depth: String(depth), limit: depth === 2 ? (window.innerWidth < 700 ? '32' : '48') : (window.innerWidth < 700 ? '18' : '24') });
         if (scope) params.set('scope', scope);
-        const response = await fetch(`/api/character-graph?${params}`);
+        const interpretation = layer.dataset.graphInterpretation;
+        if (interpretation) params.set('interpretation', interpretation);
+        const response = await fetch(`/api/character-graph?${params}`, { signal: abortController.signal });
         if (!response.ok) throw new Error('无法加载神谱');
         const data = await response.json();
         if (version !== requestVersion || !hero.classList.contains('is-graph-open')) return;
@@ -608,8 +698,13 @@ const heroImageSrc = cloudflareImageUrl(
         await drawGraph();
         if (version !== requestVersion || !hero.classList.contains('is-graph-open')) return;
         setStatus(data.requiresScopeSelection ? '请选择一种传统范围以查看其专属关系。' : data.hiddenRelationCount && depth === 2 ? `当前范围内还有 ${data.hiddenRelationCount} 条关联未展示。` : '');
-      } catch {
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
         if (version !== requestVersion) return;
+        detail.replaceChildren();
+        const fallback = document.createElement('p');
+        fallback.textContent = '神谱暂时无法载入；下方文字关系仍可阅读。';
+        detail.append(fallback);
         setStatus('神谱暂时无法载入，请稍后重试。');
       }
     };
@@ -618,12 +713,17 @@ const heroImageSrc = cloudflareImageUrl(
       hero.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
       hero.classList.add('is-graph-open');
       layer.hidden = false;
+      layer.inert = false;
+      if (intro) intro.inert = true;
       openButton.setAttribute('aria-expanded', 'true');
       loadGraph();
     };
     const closeGraph = () => {
       requestVersion += 1;
+      abortController?.abort();
       hero.classList.remove('is-graph-open');
+      layer.inert = true;
+      if (intro) intro.inert = false;
       openButton.setAttribute('aria-expanded', 'false');
       window.setTimeout(() => {
         if (!hero.classList.contains('is-graph-open')) layer.hidden = true;
@@ -638,5 +738,21 @@ const heroImageSrc = cloudflareImageUrl(
     openButton.addEventListener('click', openGraph);
     backButton.addEventListener('click', closeGraph);
     resetButton.addEventListener('click', () => focusNode(activeData?.focusId));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && hero.classList.contains('is-graph-open')) closeGraph();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!graph) return;
+      if (document.hidden) graph.pauseAnimation?.(); else graph.resumeAnimation?.();
+    });
+    visibilityObserver = new IntersectionObserver(([entry]) => {
+      if (!graph) return;
+      if (!entry.isIntersecting) graph.pauseAnimation?.(); else if (!document.hidden) graph.resumeAnimation?.();
+    }, { threshold: 0.05 });
+    visibilityObserver.observe(hero);
+    themeObserver = new MutationObserver(() => {
+      if (graph && activeData) drawGraph().catch(() => setStatus('神谱主题刷新失败。'));
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
   });
 </script>

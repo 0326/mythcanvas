@@ -7,16 +7,10 @@ import CharacterArtworkGrid, {
   type WallpaperDevice,
 } from '../../components/character/CharacterArtworkGrid.astro';
 import RelatedCharacters from '../../components/character/RelatedCharacters.astro';
-import {
-  getArtworksForCharacter,
-  getCharacterBySlug,
-  getCharacterNames,
-  getCharacters,
-  getMythologies,
-  getMythologyById,
-  getWorlds,
-  incrementCharacterView,
-} from '../../lib/content/repositories';
+import CharacterInterpretationSelector from '../../components/character/CharacterInterpretationSelector.astro';
+import CharacterVariantSelector from '../../components/character/CharacterVariantSelector.astro';
+import { incrementCharacterView } from '../../lib/content/repositories';
+import { getCharacterDetailViewModel } from '../../lib/content/character-detail';
 import {
   getCharacterStyle,
   normalizeCharacterStyleId,
@@ -28,37 +22,20 @@ export const prerender = false;
 
 const db = Astro.locals.runtime.env.DB;
 const { slug } = Astro.params;
-const character = await getCharacterBySlug(db, slug ?? '');
-if (!character) return Astro.redirect('/404');
+const viewModel = await getCharacterDetailViewModel(db, slug ?? '');
+if (!viewModel) return Astro.redirect('/404');
+const { character, mythology, artworks: relatedArtworks, worlds, names, interpretations, variants, stories, directRelations, relationCharacters } = viewModel;
 
 await incrementCharacterView(db, character.id);
 
-const [mythology, relatedArtworks, worlds, names, allCharacters, allMythologies] = await Promise.all([
-  getMythologyById(db, character.mythologyId),
-  getArtworksForCharacter(db, character.id),
-  getWorlds(db),
-  getCharacterNames(db, character.id),
-  getCharacters(db),
-  getMythologies(db, { published: 'all' }),
-]);
-
-const mythologyById = new Map(allMythologies.map((item) => [item.id, item]));
+const mythologyById = mythology ? new Map([[mythology.id, mythology]]) : new Map();
 
 const worldsById = new Map(worlds.map((item) => [item.id, item]));
 const characterWorlds = character.worldIds
   .map((id) => worldsById.get(id))
   .filter((item): item is World => item != null);
 
-const sameWorld = characterWorlds.length > 0
-  ? allCharacters.filter((c) => c.id !== character.id && c.worldIds.some((w) => character.worldIds.includes(w)))
-  : [];
-const sameMythology = allCharacters.filter(
-  (c) => c.id !== character.id && c.mythologyId === character.mythologyId && !sameWorld.includes(c),
-);
-const fallback = allCharacters.filter(
-  (c) => c.id !== character.id && !sameWorld.includes(c) && !sameMythology.includes(c),
-);
-const relatedCharacters = [...sameWorld, ...sameMythology, ...fallback].slice(0, 6);
+const relatedCharacters = viewModel.relatedCharacters;
 
 const requestedStyleParam = Astro.url.searchParams.get('style');
 const selectedStyle: StyleFilter =
@@ -164,7 +141,7 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
     data-selected-interpretation={selectedInterpretationSlug}
     data-selected-device={selectedDevice}
   >
-    <CharacterHero character={character} mythology={mythology} heroImage={heroImage} createHref={buildCreateHref()} />
+    <CharacterHero character={character} mythology={mythology} heroImage={heroImage} createHref={buildCreateHref()} relations={directRelations} characters={relationCharacters.concat(character)} interpretationId={selectedInterpretationSlug} />
 
     <section class="wallpapers-section" id="wallpapers" aria-labelledby="wallpapers-title">
       <div class="container-wide">
@@ -187,6 +164,59 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
         />
       </div>
     </section>
+
+    {(interpretations.length > 0 || variants.length > 0 || worlds.length > 0 || stories.length > 0) && (
+      <section class="character-context-section" id="interpretations" aria-labelledby="character-context-title">
+        <div class="container-wide">
+          <div class="context-heading">
+            <span class="eyebrow">Canonical Context</span>
+            <h2 id="character-context-title">身份、形态与叙事入口</h2>
+            <p>将角色身份、来源解释、持久形态与其所在世界分开呈现，方便继续探索而不混淆层级。</p>
+          </div>
+          {interpretations.length > 0 && (
+            <div class="context-block">
+              <h3>传统解释</h3>
+              <CharacterInterpretationSelector
+                character={character}
+                interpretations={interpretations}
+                names={names}
+                selectedInterpretationSlug={selectedInterpretationSlug}
+                selectedVariantSlug={selectedVariantSlug}
+                selectedStyleId={selectedStyle === 'all' ? 'canonical' : selectedStyle}
+              />
+            </div>
+          )}
+          {variants.length > 0 && (
+            <div class="context-block" id="forms">
+              <h3>持久形态</h3>
+              <CharacterVariantSelector
+                character={character}
+                variants={variants}
+                selectedInterpretationSlug={selectedInterpretationSlug}
+                selectedVariantSlug={selectedVariantSlug}
+                selectedStyleId={selectedStyle === 'all' ? 'canonical' : selectedStyle}
+              />
+            </div>
+          )}
+          {(worlds.length > 0 || stories.length > 0) && (
+            <div class="context-links-grid">
+              {worlds.length > 0 && (
+                <div class="context-link-group">
+                  <h3>所在神域</h3>
+                  {worlds.map((world) => <a href={`/world/${world.slug}/`}><span>{world.name}</span><small>{world.nameEn}</small></a>)}
+                </div>
+              )}
+              {stories.length > 0 && mythology && (
+                <div class="context-link-group">
+                  <h3>相关故事</h3>
+                  {stories.slice(0, 6).map((story) => <a href={`/mythology/${mythology.slug}/${story.slug}/`}><span>{story.title}</span><small>{story.readingMinutes ? `${story.readingMinutes} 分钟` : '继续阅读'}</small></a>)}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+    )}
 
     <RelatedCharacters characters={relatedCharacters} mythologyById={mythologyById} />
   </div>
@@ -232,6 +262,8 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
     const buildCreateHref = (style: string, variant: string, device: string) => {
       const params = new URLSearchParams();
       params.set('character', characterSlug);
+      const interpretation = page?.dataset.selectedInterpretation ?? '';
+      if (interpretation) params.set('interpretation', interpretation);
       if (variant) params.set('variant', variant);
       params.set('style', style === 'all' ? 'canonical' : style);
       const outputDevice = device === 'mobile' ? 'mobile' : 'pc';
@@ -316,6 +348,18 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
 
 <style>
   .character-page { background: var(--bg-primary); }
+  .character-context-section { padding: clamp(3rem, 7vw, 6rem) 0; background: var(--surface); border-top: 1px solid var(--border); }
+  .context-heading { max-width: 680px; margin-bottom: 2rem; }
+  .context-heading h2 { margin: .45rem 0 .6rem; font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.8rem); }
+  .context-heading p { margin: 0; color: var(--text-secondary); line-height: 1.75; }
+  .context-block + .context-block { margin-top: 2.5rem; }
+  .context-block h3, .context-link-group h3 { margin: 0 0 1rem; font-size: .8rem; letter-spacing: .08em; color: var(--text-secondary); }
+  .context-links-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; margin-top: 2.5rem; }
+  .context-link-group { display: grid; align-content: start; gap: .55rem; }
+  .context-link-group a { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--border); color: var(--text-primary); text-decoration: none; }
+  .context-link-group a:hover, .context-link-group a:focus-visible { color: var(--accent-strong); }
+  .context-link-group small { color: var(--text-muted); font-size: .68rem; }
+  @media (max-width: 700px) { .context-links-grid { grid-template-columns: 1fr; } }
 
   .wallpapers-section {
     min-height: 100svh;

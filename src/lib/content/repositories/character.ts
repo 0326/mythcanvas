@@ -1,5 +1,5 @@
 import { characters as seedCharacters } from '../../../data/seed';
-import { greekCharacters } from '../../../content/greek/catalog';
+import { getStructuredCharacters, getStructuredMythologyBundle } from '../../../content/registry';
 import type { Character, SourceRef } from '../types';
 import { optionalNumber, optionalString, pageClause, parseJson, parseStringArray } from './shared';
 import type { EntityListQuery } from './types';
@@ -79,9 +79,19 @@ function sortCharactersByHeat(items: readonly Character[]): Character[] {
   );
 }
 
-function mergeGreekCharacters(items: readonly Character[]): Character[] {
-  const byId = new Map(greekCharacters.map((item) => [item.id, item]));
-  items.forEach((item) => byId.set(item.id, item));
+function mergeStructuredCharacters(items: readonly Character[], mythologyId?: string): Character[] {
+  const staticItems = mythologyId
+    ? seedCharacters.filter((item) => item.mythologyId === mythologyId)
+    : seedCharacters;
+  const byId = new Map(staticItems.map((item) => [item.id, item]));
+  getStructuredCharacters(mythologyId).forEach((item) => {
+    const existing = byId.get(item.id);
+    byId.set(item.id, existing?.portrait && !item.portrait ? { ...item, portrait: existing.portrait } : item);
+  });
+  items.forEach((item) => {
+    const authored = byId.get(item.id);
+    byId.set(item.id, authored?.portrait && !item.portrait ? { ...authored, ...item, portrait: authored.portrait } : item);
+  });
   return sortCharactersByHeat(Array.from(byId.values()));
 }
 
@@ -130,7 +140,7 @@ export async function getCharacters(db: D1Database | undefined, query: EntityLis
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
   const rows = await getCharacterRows(db, `SELECT ${SELECT_COLUMNS} FROM characters${where} ORDER BY click_count DESC, name COLLATE NOCASE, id`);
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
-  return mergeGreekCharacters(rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? [])));
+  return mergeStructuredCharacters(rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? [])));
 }
 
 export async function getCharacterBySlug(db: D1Database | undefined, slug: string): Promise<Character | undefined> {
@@ -140,9 +150,9 @@ export async function getCharacterBySlug(db: D1Database | undefined, slug: strin
     `SELECT ${SELECT_COLUMNS} FROM characters WHERE slug = ? AND publish_status = 'published'`,
     slug,
   );
-  if (!row) return greekCharacters.find((item) => item.slug === slug);
+  if (!row) return mergeStructuredCharacters([]).find((item) => item.slug === slug);
   const worldMap = await loadWorldIds(db, [String(row.id)]);
-  return mapCharacterRow(row, worldMap.get(String(row.id)) ?? []);
+  return mergeStructuredCharacters([mapCharacterRow(row, worldMap.get(String(row.id)) ?? [])]).find((item) => item.slug === slug);
 }
 
 export async function getCharacterById(db: D1Database | undefined, id: string): Promise<Character | undefined> {
@@ -152,9 +162,27 @@ export async function getCharacterById(db: D1Database | undefined, id: string): 
     `SELECT ${SELECT_COLUMNS} FROM characters WHERE id = ? AND publish_status = 'published'`,
     id,
   );
-  if (!row) return greekCharacters.find((item) => item.id === id);
+  if (!row) return mergeStructuredCharacters([]).find((item) => item.id === id);
   const worldMap = await loadWorldIds(db, [String(row.id)]);
-  return mapCharacterRow(row, worldMap.get(String(row.id)) ?? []);
+  return mergeStructuredCharacters([mapCharacterRow(row, worldMap.get(String(row.id)) ?? [])]).find((item) => item.id === id);
+}
+
+/** Load only published Characters needed by a graph neighborhood. */
+export async function getCharactersByIds(
+  db: D1Database | undefined,
+  mythologyId: string,
+  characterIds: readonly string[],
+): Promise<Character[]> {
+  const ids = [...new Set(characterIds)].filter(Boolean);
+  if (ids.length === 0) return [];
+  if (!db) return getStructuredCharacters(mythologyId).filter((item) => ids.includes(item.id));
+  const placeholders = ids.map(() => '?').join(',');
+  const rows = await getCharacterRows(db, `SELECT ${SELECT_COLUMNS} FROM characters WHERE mythology_id = ? AND publish_status = 'published' AND id IN (${placeholders})`, mythologyId, ...ids);
+  const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
+  return mergeStructuredCharacters(
+    rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? [])),
+    mythologyId,
+  ).filter((item) => ids.includes(item.id));
 }
 
 export async function getCharactersForMythology(
@@ -167,17 +195,17 @@ export async function getCharactersForMythology(
     return sortCharactersByHeat(seedCharacters.filter((item) => item.mythologyId === mythologyId)).slice(offset, offset + limit);
   }
   const { limit, offset } = pageClause(query);
-  const isGreek = mythologyId === 'myth-greek';
+  const hasStructuredBundle = Boolean(getStructuredMythologyBundle(mythologyId));
   const rows = await getCharacterRows(
     db,
-    `SELECT ${SELECT_COLUMNS} FROM characters WHERE mythology_id = ? AND publish_status = 'published' ORDER BY click_count DESC, name COLLATE NOCASE, id${isGreek ? '' : ' LIMIT ? OFFSET ?'}`,
+    `SELECT ${SELECT_COLUMNS} FROM characters WHERE mythology_id = ? AND publish_status = 'published' ORDER BY click_count DESC, name COLLATE NOCASE, id${hasStructuredBundle ? '' : ' LIMIT ? OFFSET ?'}`,
     mythologyId,
-    ...(isGreek ? [] : [limit, offset]),
+    ...(hasStructuredBundle ? [] : [limit, offset]),
   );
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
   const items = rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
-  const merged = isGreek ? mergeGreekCharacters(items).filter((item) => item.mythologyId === mythologyId) : items;
-  return isGreek ? merged.slice(offset, offset + limit) : merged;
+  const merged = mergeStructuredCharacters(items, mythologyId).filter((item) => item.mythologyId === mythologyId);
+  return hasStructuredBundle ? merged.slice(offset, offset + limit) : items;
 }
 
 export async function getCharactersForWorld(
@@ -202,6 +230,6 @@ export async function getCharactersForWorld(
     `, worldId, limit, offset);
   const worldMap = await loadWorldIds(db, rows.results.map((row) => String(row.id)));
   const items = rows.results.map((row) => mapCharacterRow(row, worldMap.get(String(row.id)) ?? []));
-  const merged = mergeGreekCharacters(items);
+  const merged = mergeStructuredCharacters(items);
   return merged.filter((item) => item.worldIds.includes(worldId)).slice(offset, offset + limit);
 }

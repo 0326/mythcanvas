@@ -194,6 +194,9 @@ const taxonomySeeds: readonly TaxonomySeed[] = [
   ['perseus-cycle', '珀尔修斯周期', 'Perseus cycle', 'story-cycle', 70], ['heracles-cycle', '赫拉克勒斯周期', 'Heracles cycle', 'story-cycle', 80],
   ['theseus-cycle', '忒修斯周期', 'Theseus cycle', 'story-cycle', 90], ['argonaut', '阿尔戈英雄', 'Argonauts', 'story-cycle', 100],
   ['theban-cycle', '底比斯周期', 'Theban cycle', 'story-cycle', 110], ['trojan', '特洛伊周期', 'Trojan cycle', 'story-cycle', 120], ['odyssey', '奥德赛', 'Odyssey', 'story-cycle', 130],
+  ['earth-deity', '大地神祇', 'Earth deities', 'domain', 140], ['sky-deity', '天空神祇', 'Sky deities', 'domain', 150], ['night-deity', '夜与黑暗', 'Night deities', 'domain', 160],
+  ['olympian-generation', '奥林匹斯后代', 'Olympian generation', 'lineage', 170], ['gods-and-mortals', '诸神与凡人', 'Gods and mortals', 'editorial-collection', 180],
+  ['wisdom', '智慧与谋略', 'Wisdom', 'domain', 190], ['delphi', '德尔斐传统', 'Delphi tradition', 'story-cycle', 200], ['nature-deity', '荒野与自然', 'Nature deities', 'domain', 210], ['gorgon', '戈耳工传统', 'Gorgon tradition', 'story-cycle', 220],
 ];
 
 export const greekTaxonomy: readonly TaxonomyTerm[] = taxonomySeeds.map(([slug, name, nameEn, kind, displayOrder]) => ({

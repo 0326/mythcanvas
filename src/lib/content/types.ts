@@ -18,6 +18,8 @@ export type CanonicalAppearance = {
 export type CanonicalDesign = {
   anchors: readonly string[];
   silhouette?: string;
+  /** Stable environmental light/atmosphere cues, primarily for World/Scene design. */
+  atmosphere?: readonly string[];
   appearance?: CanonicalAppearance;
   costumeLanguage?: readonly string[];
   paletteCues?: readonly string[];

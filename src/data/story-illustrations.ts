@@ -35,12 +35,12 @@ export const storyIllustrations: readonly StoryIllustrationAsset[] = [
   },
   {
     id: 'story-illustration-asgard',
-    image: { src: '/media/content/norse-asgard.jpg', alt: '冰川、巨石与世界树构成的北欧宇宙意象', width: 1280, height: 720 },
+    image: { src: '/art/norse-asgard.jpg', alt: '冰川、巨石与世界树构成的北欧宇宙意象', width: 1280, height: 720 },
     provenance: legacyOriginalProvenance,
   },
   {
     id: 'story-illustration-asgard-aurora',
-    image: { src: '/media/content/art-asgard-aurora.jpg', alt: '极光与世界树构成知识试炼的北境氛围', width: 720, height: 1280 },
+    image: { src: '/art/art-asgard-aurora.jpg', alt: '极光与世界树构成知识试炼的北境氛围', width: 720, height: 1280 },
     provenance: legacyOriginalProvenance,
     artworkId: 'art-asgard-aurora',
   },

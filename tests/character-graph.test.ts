@@ -36,6 +36,8 @@ describe('character graph DTO', () => {
     expect(graph.requiresScopeSelection).toBe(false);
     expect(graph.nodes.map((node) => node.id)).toContain(athena!.id);
     expect(graph.links.every((link) => typeof link.source === 'string' && typeof link.target === 'string')).toBe(true);
+    expect(graph.hiddenNodeCount).toBeGreaterThanOrEqual(0);
+    expect(graph.scopeOptions[0]).toMatchObject({ id: 'Greek classical tradition', isDefault: true });
   });
 
   it('does not mix multiple default traditions until one is explicitly selected', () => {

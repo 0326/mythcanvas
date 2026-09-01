@@ -1,23 +1,20 @@
 import { worlds as seedWorlds } from '../../../data/seed';
-import { greekWorlds } from '../../../content/greek/catalog';
+import { getStructuredMythologyBundle, getStructuredWorlds } from '../../../content/registry';
 import type { World } from '../types';
 import { optionalNumber, optionalString, pageClause, parseJson } from './shared';
 import type { EntityListQuery } from './types';
 
 type WorldRow = Record<string, unknown>;
 
-function mergeGreekWorlds(items: readonly World[]): World[] {
-  const byId = new Map(greekWorlds.map((item) => [item.id, item]));
+function mergeStructuredWorlds(items: readonly World[], mythologyId?: string): World[] {
+  const staticItems = mythologyId ? seedWorlds.filter((item) => item.mythologyId === mythologyId) : seedWorlds;
+  const byId = new Map(staticItems.map((item) => [item.id, item]));
+  getStructuredWorlds(mythologyId).forEach((item) => byId.set(item.id, item));
   items.forEach((item) => {
     const authored = byId.get(item.id);
     byId.set(item.id, authored ? { ...authored, ...item, heroImageMobile: authored.heroImageMobile } : item);
   });
   return Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
-}
-
-function withGreekWorldVariants(item: World): World {
-  const authored = greekWorlds.find((world) => world.id === item.id);
-  return authored ? { ...authored, ...item, heroImageMobile: authored.heroImageMobile } : item;
 }
 
 const SELECT_COLUMNS = `
@@ -50,11 +47,12 @@ export async function getWorlds(db: D1Database | undefined, query: EntityListQue
   }
   const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
   const { limit, offset } = pageClause(query);
+  const hasStructuredContent = getStructuredWorlds().length > 0;
   const rows = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds${where} ORDER BY name LIMIT ? OFFSET ?`)
-    .bind(limit, offset)
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds${where} ORDER BY name${hasStructuredContent ? '' : ' LIMIT ? OFFSET ?'}`)
+    .bind(...(hasStructuredContent ? [] : [limit, offset]))
     .all();
-  return mergeGreekWorlds(rows.results.map(mapWorldRow));
+  return mergeStructuredWorlds(rows.results.map(mapWorldRow)).slice(offset, offset + limit);
 }
 
 export async function getWorldBySlug(db: D1Database | undefined, slug: string): Promise<World | undefined> {
@@ -63,7 +61,7 @@ export async function getWorldBySlug(db: D1Database | undefined, slug: string): 
     .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE slug = ? AND publish_status = 'published'`)
     .bind(slug)
     .first();
-  return row ? withGreekWorldVariants(mapWorldRow(row)) : greekWorlds.find((item) => item.slug === slug);
+  return row ? mergeStructuredWorlds([mapWorldRow(row)]).find((item) => item.slug === slug) : mergeStructuredWorlds([]).find((item) => item.slug === slug);
 }
 
 export async function getWorldById(db: D1Database | undefined, id: string): Promise<World | undefined> {
@@ -72,7 +70,7 @@ export async function getWorldById(db: D1Database | undefined, id: string): Prom
     .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE id = ? AND publish_status = 'published'`)
     .bind(id)
     .first();
-  return row ? withGreekWorldVariants(mapWorldRow(row)) : greekWorlds.find((item) => item.id === id);
+  return row ? mergeStructuredWorlds([mapWorldRow(row)]).find((item) => item.id === id) : mergeStructuredWorlds([]).find((item) => item.id === id);
 }
 
 export async function getWorldsForMythology(
@@ -82,11 +80,12 @@ export async function getWorldsForMythology(
 ): Promise<World[]> {
   if (!db) return seedWorlds.filter((item) => item.mythologyId === mythologyId);
   const { limit, offset } = pageClause(query);
-  const isGreek = mythologyId === 'myth-greek';
+  const hasStructuredBundle = Boolean(getStructuredMythologyBundle(mythologyId));
   const rows = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name${isGreek ? '' : ' LIMIT ? OFFSET ?'}`)
-    .bind(mythologyId, ...(isGreek ? [] : [limit, offset]))
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM worlds WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name${hasStructuredBundle ? '' : ' LIMIT ? OFFSET ?'}`)
+    .bind(mythologyId, ...(hasStructuredBundle ? [] : [limit, offset]))
     .all();
   const worlds = rows.results.map(mapWorldRow);
-  return isGreek ? mergeGreekWorlds(worlds).slice(offset, offset + limit) : worlds;
+  const merged = mergeStructuredWorlds(worlds, mythologyId).filter((item) => item.mythologyId === mythologyId);
+  return hasStructuredBundle ? merged.slice(offset, offset + limit) : worlds;
 }

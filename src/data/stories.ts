@@ -1,5 +1,6 @@
 import type { MythStory, MythStorySource } from '../lib/content/types';
 import { greekStories } from '../content/greek/stories';
+import { norseStories } from '../content/norse/stories';
 
 type StoryDraft = Omit<MythStory, 'publishedAt' | 'updatedAt'>;
 
@@ -454,7 +455,8 @@ const storyDrafts: readonly StoryDraft[] = [
  */
 export const mythStories: MythStory[] = [
   ...storyDrafts
-    .filter((story) => story.mythologyId !== 'myth-greek')
+    .filter((story) => story.mythologyId !== 'myth-greek' && story.mythologyId !== 'myth-norse')
     .map((story) => ({ ...story, publishedAt: editorialDate, updatedAt: editorialDate })),
   ...greekStories,
+  ...norseStories,
 ];

@@ -2,8 +2,9 @@ import type { APIRoute } from 'astro';
 import { buildCharacterGraph } from '../../lib/content/character-graph';
 import {
   getCharacterBySlug,
-  getCharacterRelationsForMythology,
-  getCharactersForMythology,
+  getCharactersByIds,
+  getDirectCharacterRelations,
+  getRelationsForCharacterIds,
   getContentConceptsByIds,
 } from '../../lib/content/repositories';
 
@@ -17,14 +18,21 @@ export const GET: APIRoute = async ({ url, locals }) => {
   const requestedLimit = Number(url.searchParams.get('limit'));
   const nodeLimit = Number.isFinite(requestedLimit) ? Math.min(Math.max(Math.floor(requestedLimit), 2), 80) : 24;
   const scope = normalizeScope(url.searchParams.get('scope'));
+  const interpretationId = normalizeScope(url.searchParams.get('interpretation'));
   const db = locals.runtime.env.DB;
   const character = await getCharacterBySlug(db, slug);
   if (!character) return json({ error: { code: 'NOT_FOUND', message: '未找到公开角色。' } }, 404);
 
-  const [characters, relations] = await Promise.all([
-    getCharactersForMythology(db, character.mythologyId, { limit: 1000 }),
-    getCharacterRelationsForMythology(db, character.mythologyId),
-  ]);
+  const directRelations = await getDirectCharacterRelations(db, character.id);
+  const directIds = directRelations.flatMap((relation) => [relation.fromCharacterId, relation.toCharacterId].filter((id): id is string => Boolean(id)));
+  const directCharacters = await getCharactersByIds(db, character.mythologyId, [character.id, ...directIds]);
+  const firstPass = buildCharacterGraph({ focusId: character.id, mythologyId: character.mythologyId, characters: directCharacters, relations: directRelations, interpretationId, scope, depth: 1, nodeLimit });
+  const neighborhoodIds = firstPass.nodes.map((node) => node.kind === 'character' ? node.id : '').filter(Boolean);
+  const relations = depth === 2 && !firstPass.requiresScopeSelection
+    ? await getRelationsForCharacterIds(db, character.mythologyId, neighborhoodIds)
+    : directRelations;
+  const relationCharacterIds = relations.flatMap((relation) => [relation.fromCharacterId, relation.toCharacterId].filter((id): id is string => Boolean(id)));
+  const characters = await getCharactersByIds(db, character.mythologyId, [character.id, ...relationCharacterIds]);
   const conceptIds = relations.flatMap((relation) => relation.toConceptId ? [relation.toConceptId] : []);
   const concepts = await getContentConceptsByIds(db, conceptIds);
 
@@ -35,6 +43,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     concepts,
     relations,
     scope,
+    interpretationId,
     depth,
     nodeLimit,
   }));

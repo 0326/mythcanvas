@@ -1,5 +1,5 @@
 import type { CharacterRelation, SourceRef } from '../types';
-import { greekRelations } from '../../../content/greek/catalog';
+import { getStructuredRelations } from '../../../content/registry';
 import { optionalString, parseJson } from './shared';
 
 type CharacterRelationRow = Record<string, unknown>;
@@ -31,7 +31,8 @@ export async function getCharacterRelations(
   db: D1Database | undefined,
   characterId: string,
 ): Promise<CharacterRelation[]> {
-  if (!db) return greekRelations.filter((relation) => relation.fromCharacterId === characterId || relation.toCharacterId === characterId);
+  const staticRelations = getStructuredRelations().filter((relation) => relation.fromCharacterId === characterId || relation.toCharacterId === characterId);
+  if (!db) return staticRelations;
   const rows = await db.prepare(`
     SELECT ${SELECT_COLUMNS}
     FROM character_relations AS relation
@@ -39,7 +40,6 @@ export async function getCharacterRelations(
     ORDER BY relation.is_default DESC, relation.relation_type, relation.id
   `).bind(characterId, characterId).all<CharacterRelationRow>();
   const dbRelations = rows.results.map(mapCharacterRelationRow);
-  const staticRelations = greekRelations.filter((relation) => relation.fromCharacterId === characterId || relation.toCharacterId === characterId);
   const byId = new Map(staticRelations.map((relation) => [relation.id, relation]));
   dbRelations.forEach((relation) => byId.set(relation.id, relation));
   return Array.from(byId.values());
@@ -49,7 +49,8 @@ export async function getCharacterRelationsForMythology(
   db: D1Database | undefined,
   mythologyId: string,
 ): Promise<CharacterRelation[]> {
-  if (!db) return mythologyId === 'myth-greek' ? [...greekRelations] : [];
+  const staticRelations = [...getStructuredRelations(mythologyId)];
+  if (!db) return staticRelations;
   const rows = await db.prepare(`
     SELECT ${SELECT_COLUMNS}
     FROM character_relations AS relation
@@ -58,8 +59,38 @@ export async function getCharacterRelationsForMythology(
     ORDER BY relation.is_default DESC, relation.relation_type, relation.id
   `).bind(mythologyId).all<CharacterRelationRow>();
   const dbRelations = rows.results.map(mapCharacterRelationRow);
-  if (mythologyId !== 'myth-greek') return dbRelations;
-  const byId = new Map(greekRelations.map((relation) => [relation.id, relation]));
+  const byId = new Map(staticRelations.map((relation) => [relation.id, relation]));
   dbRelations.forEach((relation) => byId.set(relation.id, relation));
+  return Array.from(byId.values());
+}
+
+export async function getDirectCharacterRelations(
+  db: D1Database | undefined,
+  characterId: string,
+): Promise<CharacterRelation[]> {
+  return getCharacterRelations(db, characterId);
+}
+
+/** Load relations touching a bounded set of nodes for Graph depth-2 expansion. */
+export async function getRelationsForCharacterIds(
+  db: D1Database | undefined,
+  mythologyId: string,
+  characterIds: readonly string[],
+): Promise<CharacterRelation[]> {
+  const ids = [...new Set(characterIds)].filter(Boolean);
+  if (ids.length === 0) return [];
+  const staticRelations = getStructuredRelations(mythologyId).filter((relation) => ids.includes(relation.fromCharacterId) || (relation.toCharacterId ? ids.includes(relation.toCharacterId) : false));
+  if (!db) return staticRelations;
+  const placeholders = ids.map(() => '?').join(',');
+  const rows = await db.prepare(`
+    SELECT ${SELECT_COLUMNS}
+    FROM character_relations AS relation
+    JOIN characters AS source ON source.id = relation.from_character_id
+    WHERE relation.status = 'active' AND source.mythology_id = ?
+      AND (relation.from_character_id IN (${placeholders}) OR relation.to_character_id IN (${placeholders}))
+    ORDER BY relation.is_default DESC, relation.relation_type, relation.id
+  `).bind(mythologyId, ...ids, ...ids).all<CharacterRelationRow>();
+  const byId = new Map(staticRelations.map((relation) => [relation.id, relation]));
+  rows.results.map(mapCharacterRelationRow).forEach((relation) => byId.set(relation.id, relation));
   return Array.from(byId.values());
 }

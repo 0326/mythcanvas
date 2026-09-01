@@ -17,11 +17,14 @@ describe('MythStory editorial content', () => {
     });
 
     expect(issues).toEqual([]);
-    expect(mythStories).toHaveLength(47);
+    expect(mythStories).toHaveLength(80);
     expect(mythStories.every((story) => story.sources.length > 0 && story.sourceNotes.length > 0)).toBe(true);
     const greekStories = mythStories.filter((story) => story.mythologyId === 'myth-greek');
     expect(greekStories).toHaveLength(35);
     expect(greekStories.every((story) => story.requiredCharacterIds && story.requiredSourceIds)).toBe(true);
+    const norseStories = mythStories.filter((story) => story.mythologyId === 'myth-norse');
+    expect(norseStories).toHaveLength(36);
+    expect(norseStories.every((story) => story.requiredCharacterIds && story.requiredWorldIds && story.requiredSceneIds && story.requiredSourceIds)).toBe(true);
   });
 
   it('keeps the complete reader on small Mythology collections and exposes the documented route threshold', () => {

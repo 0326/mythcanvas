@@ -1,6 +1,7 @@
 ---
 import { BookOpenText, GitBranch } from '@lucide/astro';
 import type { Character, CharacterRelation } from '../../lib/content/types';
+import { getRelationLabel } from '../../lib/content/relation-semantics';
 
 interface Props {
   character: Character;
@@ -10,16 +11,12 @@ interface Props {
 
 const { character, relations, characters } = Astro.props;
 const characterById = new Map(characters.map((item) => [item.id, item]));
-const relationLabels: Record<string, string> = { parent: '亲子', child: '亲子', consort: '配偶', sibling: '兄弟姐妹', ally: '盟友', rival: '竞争/冲突', enemy: '敌对', 'rules-over': '统治', serves: '侍奉', 'associated-with': '关联', punishes: '惩罚', 'orders-creation': '命其诞生', defeats: '击败', 'exchanges-with': '交换/和解', opposes: '对立', captures: '捕获', aids: '援助', rides: '驾驭', companion: '同伴', encounters: '相遇', resists: '抵抗', 'departs-from': '离开' };
 const visibleRelations = relations.filter((relation) => relation.isDefault !== false);
 
 const relationLabelForPerspective = (relation: CharacterRelation, isOutgoing: boolean) => {
   // Canonical storage is parent -> child. The UI label describes the counterpart
   // from the current character's perspective rather than leaking storage direction.
-  if (relation.relationType === 'parent') return isOutgoing ? '子女' : '父母';
-  // Keep compatibility with legacy child -> parent rows until they are normalized.
-  if (relation.relationType === 'child') return isOutgoing ? '父母' : '子女';
-  return relationLabels[relation.relationType] ?? relation.relationType;
+  return getRelationLabel(relation.relationType, isOutgoing ? 'from' : 'to');
 };
 ---
 

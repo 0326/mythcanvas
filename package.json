@@ -32,10 +32,10 @@
     "astro": "astro",
     "build": "astro build",
     "cf-typegen": "wrangler types",
-    "check": "node --check scripts/import-character-artworks.mjs && node --check scripts/report-greek-artwork-coverage.mjs && node --check scripts/report-prototype-provenance.mjs && astro build && tsc && wrangler deploy --dry-run",
+    "check": "node --check scripts/import-character-artworks.mjs && node --check scripts/report-greek-artwork-coverage.mjs && node --check scripts/report-mythology-artwork-coverage.mjs && node --check scripts/sync-structured-content.mjs && node --check scripts/sync-greek-content.mjs && node --check scripts/report-prototype-provenance.mjs && npm run content:validate && npm run content:import -- --mythology=all && astro build && tsc && wrangler deploy --dry-run",
     "typecheck": "tsc --noEmit",
-    "content:validate": "vitest run tests/greek-content.test.ts",
-    "content:import": "node scripts/sync-greek-content.mjs",
+    "content:validate": "vitest run tests/structured-content-contract.test.ts tests/greek-content.test.ts tests/norse-content.test.ts",
+    "content:import": "node scripts/sync-structured-content.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "deploy": "wrangler deploy",
@@ -47,7 +47,7 @@
     "preview:remote": "astro build && MYTHCANVAS_REMOTE_DATA=true wrangler dev",
     "migration:check": "wrangler d1 migrations apply mythcanvas-db --local",
     "artwork:import": "node scripts/import-character-artworks.mjs",
-    "artwork:coverage": "node scripts/report-greek-artwork-coverage.mjs",
+    "artwork:coverage": "node scripts/report-mythology-artwork-coverage.mjs",
     "provenance:audit": "node scripts/report-prototype-provenance.mjs"
   },
   "type": "module"
