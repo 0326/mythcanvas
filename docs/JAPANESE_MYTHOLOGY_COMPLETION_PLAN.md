@@ -1,120 +1,75 @@
 # MythCanvas 日本神话完整补全方案
 
 > 状态：Review Proposal  
-> 版本：V1.0  
-> 日期：2026-09-01  
+> 版本：V1.1  
+> 日期：2026-09-02  
 > 适用范围：日本神话内容建模、神代人物扩充、神谱关系、World / Scene、Story、来源体系、视觉资产、Character Detail / Graph、结构化内容流水线与后续 AI 出图。  
-> 相关文档：`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/GREEK_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
+> 相关文档：`docs/GREEK_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
 
 ---
 
-## 0. 结论
+# 0. Review 结论
 
-当前日本神话已经具备首发骨架，但还没有形成一套真正可连续理解、可追溯来源、可支撑角色关系图与批量视觉生产的“日本神话内容宇宙”。
+V1.0 的大方向正确：Story First、记纪双源、辉夜姬纠偏、World / Scene 分层、Visual DNA 去“旅游日本化”、通用 Pipeline 都应保留。
 
-仓库当前已有：
+但对照已经实施的希腊方案与最新北欧方案后，V1.0 仍有 8 个必须修正的问题：
 
-- `myth-japanese`；
-- `world-takamagahara` / 高天原；
-- `character-kaguya` / 辉夜姬；
-- 3 篇日本相关 Story：
-  - 伊邪那岐与伊邪那美；
-  - 天照大神隐入天岩户；
-  - 辉夜姬归月；
-- 日本文明的基础 Visual DNA；
-- 通用 Character / Relation / Interpretation / Variant / World / Scene / Story Schema；
-- 希腊阶段已经落地的 Structured Content Pipeline；
-- 北欧方案已经提出的跨文明通用 Pipeline、来源化 Graph 与 Character Detail 集成方向。
+1. **“30 篇”不能成为隐性数量 KPI**：希腊、北欧都已经从固定实体数量转向 Coverage / Dependency Closure；日本 Story 也应按真实叙事单元合并或拆分，数量是结果，不是目标。
+2. **必须保留现有 3 个 Story ID / slug**：`story-izanagi-izanami`、`story-amaterasu-cave`、`story-kaguya-return` 已进入公开内容，补全时不能无说明替换成 30 个全新 Story。
+3. **Character stable type 必须与希腊 / 北欧统一**：不能新增 `primordial-deity / nature-deity / culture-deity / divine-ancestor / legendary-person` 作为日本专属 stable type；这些应进入 taxonomy / tradition tags。
+4. **Relation / Graph 必须服从当前 Schema**：现有 `CharacterRelation.confidence` 是 `high / medium / contested`，不是 V1.0 拟议的 `direct / editorial-normalized / interpretive`；编辑归一化应由 `ContentClaim.status`、`traditionScope`、`sourceRefs` 表达。
+5. **Canonical Design 不新增日本专属字段**：V1.0 中的 `sourceScopedFacts / sacredObjects` 当前不属于通用 `CanonicalDesign`；来源差异用 `ContentClaim`，圣物优先落 `Character.symbols / anchors / mythologicalFacts`，除非未来做通用 Schema 扩展。
+6. **Watatsumi Palace 不能直接当 World 名称**：宫殿是 Scene 语义；若海神叙事确需独立 World，应先建“海神之国 / 海域”级 World，再挂 `scene-watatsumi-palace`。
+7. **必须补齐测试、CI、static fallback / D1 parity**：北欧 Review 已指出 Greek-only Repository / validator / sync 是跨文明 P0 风险，日本不能只写“建 registry”，还要把无 D1 fallback、D1 merge、Graph、sitemap 一起纳入 DoD。
+8. **视觉生产不能反向阻塞内容 P0**：Tier S PC / Mobile 壁纸移到 P1；P0 先完成来源、依赖、Canonical Design 和最低可用视觉，延续希腊 / 北欧的内容图谱优先策略。
 
-但当前内容结构实际更接近：
+因此 V1.1 的定义不是“把日本方案写得更长”，而是：
 
-```text
-日本神话
-  → 高天原
-  → 辉夜姬
-  → 伊邪那岐 / 伊邪那美 Story
-  → 天岩户 Story
-  → 辉夜姬 Story
-```
-
-这存在两个根本问题：
-
-1. **神代主干缺失**：国生、神生、黄泉、禊祓、三贵子、须佐之男、八岐大蛇、大国主、国让、天孙降临、海幸山幸等关键闭环尚未结构化。
-2. **辉夜姬定位错误**：辉夜姬来自《竹取物语》的古典物语传统，不属于《古事记》《日本书纪》的高天原神系。她可以继续属于 `myth-japanese`，但必须迁移到“古典传说 / 物语层”，不能作为高天原核心角色，也不应继续绑定 `world-takamagahara`。
-
-完整目标应变成：
-
-```text
-日本神话
-  → 天地初成与别天津神
-  → 伊邪那岐 / 伊邪那美与国生、神生
-  → 黄泉与禊祓
-  → 天照 / 月读 / 须佐之男
-  → 高天原冲突与天岩户
-  → 须佐之男降临出云、八岐大蛇
-  → 大国主与出云神话循环
-  → 葦原中国平定与国让
-  → 天孙降临
-  → 木花咲耶姬与山海神话
-  → 海幸山幸与神代主线收束
-  → 古典传说层：辉夜姬等后世传统
-  → Story 驱动的 Character / World / Scene / Relation 闭包
-  → 记纪版本差异可追溯
-  → 可用于 Character Graph 与 AI 出图的文化视觉体系
-```
-
-### 本方案的五个核心决策
-
-1. **Story First**：先锁定 P0 神代 Story Manifest，再通过依赖闭包反推 Character / World / Scene / Relation，不按“日本神明大全”灌名单。
-2. **记纪双源、Claim-level Source**：`Kojiki / 古事记` 与 `Nihon Shoki / 日本书纪` 是 P0 主来源，但两者在神名、谱系、情节和多个“一书”版本上存在差异，不能压成唯一正史。
-3. **神代神话与后世民间传统分层**：神代记纪、风土记地方传统、古典物语、中世神佛习合、江户妖怪/民俗不能混成一个扁平“日本神话”。
-4. **纠正视觉上的“旅游日本化”**：当前“鸟居 + 神社 + 月色 + 樱花”只能作为现代识别层，不能成为所有神代内容的默认视觉。高天原、黄泉、出云、天孙降临需要各自独立的 Visual DNA。
-5. **不新建 Japanese-only 工具链**：日本是继希腊、北欧之后第三个完整文明，应推动通用 `mythology content registry + validator + importer`，而不是复制 `sync-japanese-content.mjs` 特例。
+> **让日本神话严格复用希腊已经验证、北欧正在泛化的同一套 Completeness Standard、Schema 和工程流水线，同时保留日本记纪异说、多传统分层和神代视觉的独特性。**
 
 ---
 
-# 1. 当前仓库盘点与需要纠正的问题
+# 1. 当前仓库基线与不可破坏约束
 
-## 1.1 当前 Mythology Visual DNA 偏窄
-
-当前日本神话 Visual DNA 主要是：
+当前已经存在：
 
 ```text
-月白 / 墨青 / 克制朱红
-鸟居 / 神社 / 注连绳 / 月
-木 / 和纸 / 石
-幽玄 / 静谧 / 灵性
+myth-japanese
+world-takamagahara
+character-kaguya
+story-izanagi-izanami
+story-amaterasu-cave
+story-kaguya-return
 ```
 
-作为站点首发识别足够，但不足以支撑完整日本神话，且容易造成以下偏差：
+以及：
 
-- 高天原被画成“山中神社旅游海报”；
-- 所有场景都塞红色鸟居；
-- 所有女神都穿平安时代十二单；
-- 出云、黄泉、海神宫缺乏空间差异；
-- 天照、须佐之男、大国主等角色滑向现代动漫 / 游戏既有设计；
-- 神代场景出现大量时代不匹配的成熟神社建筑、江户式装饰或现代祭典符号。
+- 通用 `Character / CharacterRelation / CharacterInterpretation / CharacterVariant`；
+- `World / Scene / MythStory / ContentClaim / SourceRef / TaxonomyTerm`；
+- Character Detail；
+- 3D Character Graph；
+- Greek Structured Content Pipeline；
+- Story dependency validation；
+- provenance audit；
+- sitemap / Story detail route。
 
-本轮必须将日本视觉体系从“日本氛围”升级为“神代叙事空间”。
+## 1.1 Stable ID / URL Policy
 
-## 1.2 当前高天原只有一个 World
+以下 ID / slug 必须保留：
 
-`world-takamagahara` 可以继续作为核心 World，但不能承载全部日本神话。
+```text
+character-kaguya / kaguya
+story-izanagi-izanami / izanagi-izanami
+story-amaterasu-cave / amaterasu-cave
+story-kaguya-return / kaguya-return
+world-takamagahara / takamagahara
+```
 
-Story Dependency Closure 至少会反推出：
+Story 可以重写正文、调整 volume、补依赖与来源，但不删除公开 URL。
 
-- Takamagahara / 高天原；
-- Ashihara no Nakatsukuni / 葦原中国；
-- Yomi no Kuni / 黄泉国；
-- Ne no Katasukuni / 根之坚州国（必须与黄泉区分，不默认合并）；
-- Watatsumi no Miya / 海神宫、海神之国；
-- Tokoyo no Kuni / 常世国（P1，按 Story 依赖决定是否升级为正式 World）。
+## 1.2 辉夜姬必须纠偏，但不破坏历史 URL
 
-Onogoro、天岩户、天安河原、黄泉比良坂、稻佐之滨、高千穗峰等更适合建成 Scene，而不是滥用 World。
-
-## 1.3 辉夜姬必须做“保 URL、改 taxonomy”迁移
-
-现有：
+当前问题：
 
 ```text
 character-kaguya
@@ -122,215 +77,409 @@ mythologyId = myth-japanese
 worldIds = [world-takamagahara]
 ```
 
-本轮策略：
+V1.1 规则：
 
-- 保留 `character-kaguya`、`slug=kaguya` 和公开 URL；
+- 保留 `character-kaguya` 与 `slug=kaguya`；
 - 保留 `story-kaguya-return`；
 - 从 `world-takamagahara` 解绑；
-- 将 tradition / taxonomy 调整为：
-  - `classical-tale` / 古典物语；
-  - `taketori-monogatari` / 《竹取物语》传统；
-- 后续如需扩展“月界”，只能作为《竹取物语》的 narrative world / interpretation world，不得反向解释为高天原；
-- 现有“月宫十二单”“月升神相”等 Variant 可继续作为 MythCanvas 视觉解释，但必须明确 `originalDesignChoice / interpretation`，不能被包装成原典设定。
-
-这是日本补全的第一条数据治理任务。
+- `canonicality = literary`；
+- Story `kind = literary-fantasy`；
+- tradition / taxonomy：`classical-tale`、`taketori-monogatari`、`lunar-origin`；
+- 不新增日本专属 `legendary-person` stable type；实现时优先复用通用 `hero` 作为文学叙事主角类型，如未来认为通用类型不足，应先做跨文明 Schema Review，而不是只为辉夜姬扩枚举；
+- “月宫十二单”“月升神相”等现有 Variant 可以保留，但属于 MythCanvas visual interpretation / original design，不得写回《竹取物语》原典事实。
 
 ---
 
-# 2. 来源体系与边界
+# 2. “完整”的统一定义
 
-## 2.1 P0 主要来源
+日本神话的完整不等于“八百万神大全”，也不等于神社祭神数据库。
 
-### A. 《古事记》上卷 / Kojiki Book I
+P0 的用户侧完整定义：
 
-作为 P0 主线来源之一，覆盖：
+> 用户可以从天地初成开始，连续理解国生、神生、黄泉、禊祓、三贵子、高天原冲突、天岩户、须佐之男与八岐大蛇、大国主与出云、葦原中国平定、国让、天孙降临、木花咲耶姬、海幸山幸；所有关键人物、地点、关系与版本声明都有可追溯来源，不存在核心依赖悬空。
+
+## 2.1 P0 硬指标
+
+延续 Greek / Norse Completeness Standard：
+
+```text
+Core Narrative Coverage = 100%
+P0 Story Entity Dependency Closure = 100%
+P0 Genealogy Dependency Coverage = 100%
+P0 Required Narrative Relation Coverage = 100%
+P0 Stable Identity Source Coverage = 100%
+P0 Core Relation Source Coverage = 100%
+P0 Story Primary-source Coverage = 100%
+P0 Canonical Design Coverage = 100%
+Conflicting-source Claims Without Scope = 0
+Duplicate Canonical Relation = 0
+Invalid Relation Target = 0
+Orphan Entity Reference = 0
+Kaguya Takamagahara Misclassification = 0
+```
+
+**不设**：
+
+```text
+Character >= 50
+Relation >= 150
+World = 5
+Story 必须 = 30
+```
+
+Story / Character / World / Scene / Relation 数量都由 Narrative Coverage 与 Dependency Closure 决定。
+
+## 2.2 P1
+
+- Tier S / A 正式视觉资产；
+- 核心 World desktop + mobile hero；
+- 更多《日本书纪》异传；
+- 《风土记》地方传统；
+- 月读 / 保食神独立循环；
+- 古典物语卷；
+- SEO / alias / romanization 深化；
+- Graph / Character Detail 高级交互。
+
+## 2.3 P2
+
+- 更多风土记地方神；
+- 中世神佛习合；
+- 本地垂迹；
+- 民间传说；
+- 江户妖怪图谱；
+- 现代 reception / scholarship layer。
+
+P2 不阻塞神代主干上线。
+
+---
+
+# 3. 来源体系与 Tradition Scope
+
+日本神话的核心风险不是“资料太少”，而是把不同时代、不同文本、不同异说压成一个貌似确定的答案。
+
+## 3.1 P0 Source Tier
+
+### Tier 1A：Kojiki / 《古事记》上卷
+
+P0 主来源之一：
 
 - 天地初成；
 - 别天津神 / 神世七代；
-- 伊邪那岐、伊邪那美；
+- 伊邪那岐 / 伊邪那美；
 - 国生 / 神生；
-- 火神与伊邪那美之死；
 - 黄泉；
-- 禊祓与三贵子；
-- 天照与须佐之男誓约；
+- 禊祓；
+- 三贵子；
+- 天照 / 须佐之男；
 - 天岩户；
 - 八岐大蛇；
-- 大国主循环；
+- 大国主；
 - 国让；
 - 天孙降临；
 - 木花咲耶姬；
 - 海幸山幸。
 
-### B. 《日本书纪》卷第一、卷第二 / Nihon Shoki Books I-II
+### Tier 1B：Nihon Shoki / 《日本书纪》卷第一、卷第二
 
-与《古事记》共同构成 P0 主干，但必须保存：
+与《古事记》并列作为 P0 主来源，但必须区分：
 
-- 正文与“一书”异传；
-- 神名和亲缘差异；
-- 须佐之男出生方式差异；
-- 大国主谱系差异；
-- 国让执行神祇差异；
-- 月读 / 保食神等《古事记》未展开内容。
+```text
+main text
+一书异传 A
+一书异传 B
+...
+```
 
-### C. 《风土记》体系，重点《出云国风土记》
+不得把多个“一书”合成一个 global `nihon-shoki-alt-1`。scope 必须能定位到具体 Story / passage，例如：
 
-P1 / 局部 P0 补充：
+```text
+nihon-shoki-book1-main
+nihon-shoki-book1-amaterasu-alt-01
+nihon-shoki-book1-kuniyuzuri-alt-02
+nihon-shoki-book2-tenson-main
+```
 
-- 出云地区地方神话；
-- 地名起源与地方神；
-- 与《记纪》不同的地方谱系；
-- 国引等强地域故事。
+精确章节 / 段落位置继续放 `SourceRef.locator`。
 
-### D. 《古语拾遗》等古代补充文献
+### Tier 2：Fudoki / 《风土记》
 
-用于 P1 source enrichment，不取代《记纪》主干。
+重点《出云国风土记》。用于：
 
-## 2.2 后世传统分层
+- 地方版本；
+- 国引；
+- 出云地方神；
+- 与记纪不同的地域谱系。
 
-以下内容都可以进入 `myth-japanese`，但必须独立 tradition scope：
+默认 P1；若某 P0 Story 明确依赖则可局部升为 P0 Source。
+
+### Tier 3：古代补充文本 / 仪式与祭祀材料
+
+例如：
+
+- 《古语拾遗》；
+- 《延喜式》祝词 / 相关祭祀材料；
+- 其他可明确定位的古代材料。
+
+主要用于 source enrichment、cult / ritual reception，不自动取代记纪叙事。
+
+### Tier 4：Academic Secondary
+
+用于：
+
+- 异文整理；
+- 名称辨析；
+- 语义争议；
+- 现代学术讨论。
+
+不把现代研究结论伪装成古代 primary claim。
+
+## 3.2 Tradition Layer
 
 ```text
 classical-myth         记纪神代主干
 regional-fudoki        风土记地方传统
-classical-tale         平安以前后古典物语，如辉夜姬
-medieval-syncretic     中世神佛习合 / 本地垂迹等
-folklore               民间传说、地方信仰
+classical-tale         古典物语，如《竹取物语》
+medieval-syncretic     中世神佛习合 / 本地垂迹
+folklore               民间传说 / 地方信仰
 edo-yokai              江户以后妖怪图谱传统
-modern-popular         现代流行再解释，仅可做 visual interpretation，不做 canonical source
+modern-reception       现代文学、动漫、游戏、影视再解释
 ```
 
-P0 只建设 `classical-myth`，辉夜姬作为已存在 legacy content 保留但移入 `classical-tale`。
+P0 建设 `classical-myth`；已有辉夜姬作为 legacy `classical-tale` 保留。
 
-## 2.3 Claim-level Source Policy
+## 3.3 Claim-level Source Policy
 
-所有以下字段只要存在版本差异，就必须可挂来源：
+来源不能只挂在“角色简介”上。
 
-- parent / child；
-- spouse；
-- birth / origin；
-- ruler / domain；
-- weapon / sacred object；
-- world / scene involvement；
-- Story event；
-- alternate names；
-- Character Canonical facts；
-- Interpretation 的来源范围。
+### Character
 
-禁止：
+至少区分：
 
 ```text
-Kojiki 说 A
-Nihon Shoki 一书说 B
-网络百科又说 C
-→ 数据库合并成“唯一事实 D”
+stable identity source
+name / alias source
+domain / role source
 ```
 
-应建成：
+### Relation
+
+父母、子女、配偶、谱系、盟友 / 对手直接挂 `CharacterRelation.sourceRefs`。
+
+### Story
+
+每篇 published P0 Story：
 
 ```text
-Claim A -> sourceScope: kojiki
-Claim B -> sourceScope: nihon-shoki-alt-1
-Claim C -> 不进入 canonical，除非有可靠文本来源
+sources.length >= 1
+requiredSourceIds satisfied
+requiredCharacterIds valid
+requiredWorldIds valid
+requiredSceneIds valid
 ```
+
+### Conflicting Claim
+
+使用现有：
+
+```text
+ContentClaim.status = supported | contested | editorial-synthesis
+ContentClaim.traditionScope
+ContentClaim.sourceRefs
+```
+
+不要新增 Japanese-only “editorial confidence” 字段。
 
 ---
 
-# 3. “完整”的定义
+# 4. P0 Story Manifest — Narrative Coverage First
 
-日本神话的完整不等于收录“八百万神”或所有神社祭神。
+V1.0 的 30 篇列表覆盖面基本正确，但存在两类问题：
 
-MythCanvas 的 P0 完整定义是：
+1. 为凑 30 条把同一叙事过度拆分，例如黄泉、天岩户；
+2. 反而把 `天若日子失败`、`大物主显现` 等主线依赖放在 P0.5。
 
-> 用户可以从天地初成开始，连续理解国生、神生、黄泉、禊祓、三贵子、高天原冲突、天岩户、须佐之男与八岐大蛇、大国主的出云循环、葦原中国平定、国让、天孙降临、木花咲耶姬、海幸山幸；所有关键 Story 的人物、地点、关系和来源不存在悬空依赖。
+V1.1 改为：
 
-P0 不要求：
+> **先固定 Narrative Units；实施时允许按篇幅与来源边界合并 / 拆分。当前 Manifest 约 29 个 Story unit，但“29”不是验收 KPI。**
 
-- 收录所有《延喜式》神社祭神；
-- 收录所有地方风土神；
-- 收录所有妖怪；
-- 收录所有中世神佛习合神；
-- 收录完整天皇世系；
-- 把日本神话做成宗教学百科。
-
----
-
-# 4. P0 Story Manifest — 30 篇神代主线
-
-P0 先固定 Story Manifest，再执行 dependency closure。
-
-## Volume A：天地初成与国生（7）
+## Volume 1：天地初成、国生与黄泉
 
 1. 天地初成与别天津神
-2. 神世七代与伊邪那岐、伊邪那美
-3. 天之浮桥与淤能碁吕岛
-4. 国生：日本列岛诸岛的诞生
-5. 神生：山川草木与诸神
-6. 火之神迦具土与伊邪那美之死
-7. 伊邪那岐追至黄泉
+2. 神世七代
+3. 伊邪那岐与伊邪那美：天之浮桥、淤能碁吕岛与结缘  
+   - 保留 legacy：`story-izanagi-izanami`
+4. 国生与大八洲
+5. 神生、迦具土与伊邪那美之死
+6. 黄泉之国与黄泉比良坂
+7. 伊邪那岐禊祓与三贵子诞生
 
-## Volume B：黄泉、禊祓与三贵子（4）
+说明：
 
-8. 黄泉之国与腐坏的伊邪那美
-9. 黄泉比良坂：生死边界的确立
-10. 伊邪那岐禊祓
-11. 天照、月读、须佐之男诞生
+- `story-izanagi-izanami` 不删除；正文可从当前“造岛、死亡与黄泉”宽泛故事收紧为伊邪那岐 / 伊邪那美主入口，并通过 related Story 串联后续黄泉篇。
+- “日本列岛诞生”文案避免直接套现代国家疆域概念，优先使用文本中的国生 / 大八洲叙事语境。
 
-## Volume C：高天原与天岩户（5）
+## Volume 2：高天原、誓约与天岩户
 
-12. 须佐之男哭泣与放逐命令
-13. 天照与须佐之男的誓约
-14. 须佐之男大闹高天原
-15. 天照隐入天岩户
-16. 天宇受卖、思兼与众神迎回太阳
+8. 须佐之男哭泣与放逐命令
+9. 天照与须佐之男誓约
+10. 须佐之男大闹高天原
+11. 天照隐入天岩户、众神迎回太阳  
+    - 保留 legacy：`story-amaterasu-cave`
 
-## Volume D：出云与大国主（8）
+说明：
 
-17. 须佐之男降临出云
-18. 八岐大蛇与草薙剑
-19. 因幡白兔
-20. 大国主与八十神
-21. 大国主进入根之坚州国
-22. 须势理毗卖与大国主的试炼
-23. 大国主与少彦名共同经营国土
-24. 少彦名离去与大国主完成国土
+天宇受卖、思兼、天手力男等依赖从 Story closure 进入 Character；不再把“隐入”和“迎回”强拆成两个 Story 只为增加数量。
 
-## Volume E：葦原中国平定与国让（3）
+## Volume 3：须佐之男与出云、大国主循环
 
-25. 高天原决定平定葦原中国
-26. 使者失败与建御雷降临稻佐之滨
-27. 大国主国让、事代主与建御名方
+12. 须佐之男降临出云
+13. 八岐大蛇与草薙剑
+14. 因幡白兔
+15. 大国主与八十神
+16. 大国主进入根之坚州国、须势理毗卖与试炼
+17. 少彦名与大国主共同经营国土
+18. 少彦名离去、大物主显现与国土完成
 
-## Volume F：天孙降临与山海神话（3）
+V1.1 将“大物主显现”从 P0.5 升入 P0，因为它直接承接大国主经营国土的主线闭包。
 
-28. 邇邇艺降临高千穗、猿田彦引路与天宇受卖
-29. 木花咲耶姬、石长比卖与火中生产
-30. 海幸山幸、海神宫与丰玉姬
+## Volume 4：葦原中国平定与国让
 
-### P0.5 候选 Story
+19. 高天原决定平定葦原中国、天菩比神使者线
+20. 天若日子使命失败与返矢
+21. 建御雷降临稻佐之滨  
+    - 《日本书纪》中经津主等参与差异必须 source scoped
+22. 事代主、建御名方与大国主国让
 
-- 月读与保食神（《日本书纪》传统）；
-- 天稚彦与雉之故事；
+V1.1 将天若日子从 P0.5 升入 P0，否则“使者失败 → 武神降临”的因果链会悬空。
+
+## Volume 5：天孙降临
+
+23. 天忍穗耳与邇邇艺：天孙人选与命令
+24. 邇邇艺降临高千穗、猿田彦引路、天宇受卖
+25. 木花咲耶姬与石长比卖
+26. 木花咲耶姬火中生产
+
+## Volume 6：海幸山幸与神代收束
+
+27. 火照与火远理：海幸、山幸与失钩
+28. 火远理进入海神之宫、丰玉姬与潮盈珠 / 潮干珠
+29. 丰玉姬生产、海陆边界与神代谱系过渡
+
+## P0.5 / P1 候选
+
+- 月读与保食神：《日本书纪》重要独立传统；
+- 国引神话：《出云国风土记》；
 - 大国主与沼河比卖；
-- 大物主显现；
-- 国引神话（《出云国风土记》）；
-- 鹈葺草葺不合命与神武之前的谱系过渡。
+- 更多国让异说；
+- 常世国相关传统；
+- 鹈葺草葺不合命至神武的更完整过渡；
+- 辉夜姬归月：保留 `story-kaguya-return`，归 `classical-tale`，不进入神代主线 volume。
 
-### P1 古典传说卷
+## 4.1 Story Dependency Contract
 
-- 辉夜姬归月（保留已有 Story）；
-- 浦岛子 / 浦岛太郎早期传统；
-- 常世相关古典传说；
-- 其他有明确古典文本来源的物语。
+每个 P0 Story 进入 `published` 前必须满足当前 `MythStory` 已支持的字段：
+
+```text
+requiredCharacterIds ⊆ Character dataset
+requiredWorldIds     ⊆ World dataset
+requiredSceneIds     ⊆ Scene dataset
+requiredSourceIds    satisfied
+sources              != empty
+```
+
+规则：
+
+- 核心参与者必须实体化；
+- 只在背景一句出现、且无浏览 / Graph / Artwork 复用价值的名字不强制 Character 化；
+- 任何 alternate version 只有在产品上需要浏览、Graph 或 Story 比较时才强制实体化其专属参与者；
+- 最终 Character / Scene / Relation 数量由 validator 输出后人工 Review。
 
 ---
 
-# 5. Character Dependency Closure
+# 5. Character Taxonomy 与 Dependency Closure
 
-不预设“必须 40 / 50 个角色”。最终 Character 数量由 30 篇 P0 Story 的依赖闭包决定。
+## 5.1 Stable Entity Type：完全复用 Greek / Norse
 
-## 5.1 P0 Tier S — 首页级核心角色
+```text
+deity
+hero
+mortal
+monster
+creature
+collective
+```
 
-首批视觉与 Character Detail 必须优先完成：
+禁止新建：
+
+```text
+primordial-deity
+nature-deity
+culture-deity
+divine-ancestor
+amatsukami
+kunitsukami
+legendary-person
+```
+
+作为 stable type。
+
+这些通过 `traditionTags / TaxonomyTerm` 表达。
+
+## 5.2 Japanese Taxonomy
+
+### lineage
+
+```text
+kotoamatsukami
+amatsukami
+kunitsukami
+izanagi-izanami-line
+susanoo-izumo-line
+tenson-line
+sea-line
+```
+
+### domain
+
+```text
+solar
+storm
+sea
+wisdom
+agriculture
+boundary
+mountain
+fire
+```
+
+### story-cycle
+
+```text
+origins
+yomi-misogi
+takamagahara
+izumo-cycle
+kuniyuzuri
+tenson-korin
+sea-cycle
+```
+
+### editorial-collection
+
+```text
+classical-myth
+regional-fudoki
+classical-tale
+medieval-syncretic
+folklore
+edo-yokai
+```
+
+原则：
+
+> `characterType` 回答“它是什么”；taxonomy 回答“它属于哪一神系、领域、故事循环或编辑传统”。
+
+## 5.3 Tier S — 品牌级核心角色
 
 1. 伊邪那岐 / Izanagi
 2. 伊邪那美 / Izanami
@@ -345,19 +494,11 @@ P0 先固定 Story Manifest，再执行 dependency closure。
 11. 猿田彦 / Sarutahiko
 12. 八岐大蛇 / Yamata no Orochi
 
-Tier S 要求：
+Tier S 是视觉优先级，不是 P0 Character 总名单。
 
-- Canonical Design 完整；
-- Character Detail 内容完整；
-- Source Coverage 100%；
-- Graph 关键关系完整；
-- 至少 1 张 production portrait；
-- 至少 1 组 PC / Mobile wallpaper candidate；
-- 不依赖现代 IP 视觉设计。
+## 5.4 P0 Tier A / Closure 候选
 
-## 5.2 P0 Tier A — Story 闭包关键角色
-
-预计包括但不限于：
+Story closure 大概率自然引入：
 
 - 天之御中主 / Ame-no-Minakanushi；
 - 高御产巢日 / Takamimusubi；
@@ -372,373 +513,199 @@ Tier S 要求：
 - 手名椎 / Tenazuchi；
 - 须势理毗卖 / Suseribime；
 - 少彦名 / Sukunahikona；
+- 大物主 / Ōmononushi；
+- 天菩比神 / Ame-no-Hohi；
+- 天若日子 / Ame-no-Wakahiko；
 - 事代主 / Kotoshironushi；
 - 建御名方 / Takeminakata；
+- 经津主 / Futsunushi（《日本书纪》国让相关重要异说依赖）；
 - 天忍穗耳 / Amenooshihomimi；
-- 火远理 / Hoori；
+- 石长比卖 / Iwanagahime；
 - 火照 / Hoderi；
+- 火远理 / Hoori；
 - 丰玉姬 / Toyotama-hime；
 - 海神 / Watatsumi。
 
-最终列表以 Story validator 输出为准。
-
-## 5.3 Character Taxonomy
-
-至少拆分：
-
-```text
-characterType
-  deity
-  primordial-deity
-  nature-deity
-  culture-deity
-  monster
-  legendary-person
-  divine-ancestor
-
-traditionGroup
-  amatsukami
-  kunitsukami
-  izumo-cycle
-  sea-deity
-  classical-tale
-```
-
-注意：
-
-- `amatsukami / kunitsukami` 是神话语境中的来源/阵营标签，不应与 `characterType` 混在一个枚举；
-- 八岐大蛇应为 `monster`，但仍是 Character Entity；
-- 辉夜姬应为 `legendary-person + classical-tale`，不是 `deity / amatsukami`。
+最终名单必须由 Story dependency report 决定，不按本候选表凑齐。
 
 ---
 
-# 6. Relation / Character Graph 规则
+# 6. Character Production 与 Interpretation 边界
 
-日本神话非常适合 Graph，但也非常容易因版本差异制造“伪确定关系”。
-
-## 6.1 必须支持 traditionScope
-
-例如：
-
-- 须佐之男的出生方式；
-- 大国主与须佐之男的世代关系；
-- 国让执行神是建御雷、经津主还是共同出现；
-- 某些神的配偶与子嗣；
-- 月读与保食神事件。
-
-Graph API 不应只返回一套扁平边。
-
-每条关系至少应支持：
-
-```ts
-{
-  sourceRefs: [...],
-  traditionScope: 'kojiki' | 'nihon-shoki-main' | 'nihon-shoki-alt-*' | 'izumo-fudoki',
-  isDefault: boolean,
-  confidence: 'direct' | 'editorial-normalized' | 'interpretive',
-}
-```
-
-## 6.2 默认图谱策略
-
-默认图谱只显示：
-
-1. 多个核心来源一致的关系；或
-2. 编辑团队明确选定、并标注来源的主版本关系。
-
-切换 tradition 后显示差异边。
-
-禁止为了让图谱“看起来完整”而把互斥版本同时画成无说明的事实。
-
-## 6.3 Graph 需要优先覆盖的关系组
-
-- 伊邪那岐 ↔ 伊邪那美；
-- 三贵子；
-- 天照 / 须佐之男誓约所生神；
-- 须佐之男 → 出云谱系；
-- 大国主配偶 / 子嗣中与 P0 Story 有关的部分；
-- 天照 → 天忍穗耳 → 邇邇艺；
-- 邇邇艺 ↔ 木花咲耶姬；
-- 火照 / 火远理；
-- 火远理 ↔ 丰玉姬。
-
----
-
-# 7. World / Scene 建模
-
-## 7.1 P0 World
-
-### `world-takamagahara` — 高天原
-
-保留现有 ID / slug，但更新：
-
-- summary；
-- Canonical Design；
-- hero；
-- Visual DNA；
-- 关联 Character；
-- Scene。
-
-禁止默认设计为“成熟神社建筑群”。应更多依赖：
-
-- 云上原野；
-- 神圣织殿 / 高天原议场等叙事元素；
-- 天安河；
-- 神木、镜、玉、神圣绳等 Story 级 symbol；
-- 远古、开放、非旅游景区化的空间。
-
-### `world-ashihara-no-nakatsukuni` — 葦原中国
-
-承载地上世界的神话主线：
-
-- 出云；
-- 稻佐之滨；
-- 人间山野、芦原、海岸；
-- 国让与天孙降临之前的地上秩序。
-
-### `world-yomi` — 黄泉国
-
-核心视觉：
-
-- 封闭、腐朽、黑暗；
-- 黄泉比良坂作为边界 Scene；
-- 不直接套用佛教地狱视觉。
-
-### `world-ne-no-katasukuni` — 根之坚州国
-
-用于大国主试炼。
-
-必须与黄泉保持可区分的 source semantics；是否视觉上部分共享可后续设计，但数据上不先合并。
-
-### `world-watatsumi-palace` — 海神宫 / 海神之国
-
-用于海幸山幸、丰玉姬。
-
-视觉不能直接复制中国龙宫，应建立日本神代海洋语汇。
-
-## 7.2 P0 Scene
-
-建议至少包括：
-
-- `scene-ame-no-ukihashi` / 天之浮桥；
-- `scene-onogoro-island` / 淤能碁吕岛；
-- `scene-yomotsu-hirasaka` / 黄泉比良坂；
-- `scene-misogi-shore` / 禊祓之滨；
-- `scene-ame-no-yasukawara` / 天安河原；
-- `scene-ama-no-iwato` / 天岩户；
-- `scene-hii-river` / 出云肥河与八岐大蛇；
-- `scene-inaba-shore` / 因幡白兔；
-- `scene-inasa-beach` / 稻佐之滨；
-- `scene-takachiho-peak` / 高千穗峰；
-- `scene-fire-birth-hut` / 木花咲耶姬火中生产；
-- `scene-watatsumi-court` / 海神宫内庭。
-
----
-
-# 8. 日本神话 Visual DNA V2
-
-## 8.1 文明级视觉不再只有“鸟居神社”
-
-建议改为：
+每个 P0 Character 最低要求：
 
 ```text
-Palette
-  cloud-white / pearl-gray / ancient-vermillion / deep-indigo / bronze / reed-gold / sea-jade
-
-Motifs
-  magatama / sacred mirror / sword / sakaki / shimenawa / reeds / ancient timber / sacred rock / cloud bridge
-
-Materials
-  unfinished timber / bronze / stone / woven fiber / silk-like textile / jade-magata / mist / water
-
-Atmosphere
-  primordial / sacred / liminal / restrained / luminous / uncanny / natural
+Character
+├── stable identity
+├── characterType
+├── traditionTags / taxonomy
+├── names / aliases
+├── sourcePeriods
+├── sourceRefs
+├── canonicality
+├── symbols
+├── canonicalDesign
+├── core relations
+├── world / scene affinity
+├── story linkage
+└── generation prompt
 ```
 
-## 8.2 不同叙事域独立视觉
+## 6.1 Canonical Design 必须使用当前通用字段
 
-### 高天原
-
-```text
-明亮云海 + 神圣开放空间 + 原始木构 + 镜 / 玉 / 榊
-```
-
-### 黄泉
-
-```text
-黑岩 + 湿冷洞窟 + 腐朽 + 封界巨石 + 极少暖色
-```
-
-### 出云
-
-```text
-芦原 + 山林 + 海岸 + 古木 + 青铜剑 + 蛇 / 水气
-```
-
-### 天孙降临
-
-```text
-高山云层 + 稻穗金 + 天浮桥 / 云路 + 日光
-```
-
-### 海神宫
-
-```text
-深海青绿 + 珠光 + 贝 / 潮汐 + 日本神代式木构幻想
-```
-
-## 8.3 服装与角色视觉防错
-
-必须写入 Japanese Character Art Rules：
-
-- 天照不默认穿平安贵族十二单；
-- 须佐之男不默认现代武士铠甲；
-- 建御雷不默认战国武将甲胄；
-- 大国主不默认神社神官服；
-- 天宇受卖不做现代巫女制服；
-- 猿田彦避免简单做成“红脸天狗”；
-- 八岐大蛇必须是八首 / 八尾这一核心锚点，不被泛化成普通东方龙；
-- 辉夜姬可以使用古典宫廷审美，但应归属于《竹取物语》的 interpretation，而不是神代默认美术规范。
-
----
-
-# 9. Canonical Design 策略
-
-每个 Tier S / A Character 至少需要：
+优先使用：
 
 ```text
 anchors
 silhouette
 appearance
 costumeLanguage
-symbols
-sacredObjects
+paletteCues
+signatureMaterials
+temperament
 mythologicalFacts
-sourceScopedFacts
 originalDesignChoices
 avoid
 canonicalPrompt
 ```
 
-### 示例：天照大神
+`Character.symbols` 承担稳定符号 / 圣物入口。
 
-稳定锚点应优先来自：
+存在来源冲突的事实不要新造 `sourceScopedFacts` 字段，而是进入：
 
-- 太阳 / 光明身份；
-- 高天原统治者；
-- 神镜与天岩户叙事；
-- 与须佐之男冲突；
-- 勾玉 / 镜 / 榊等 Story 相关符号。
+```text
+ContentClaim
++ traditionScope
++ sourceRefs
+```
 
-避免：
+如果未来确需 `sacredObjects` 等字段，必须作为跨文明 Schema 提案评估，不能只在 Japanese data package 中私自扩语义。
 
-- 固定照搬伊势神宫现代祭服；
-- 现代动漫太阳女神模板；
-- 过度中国化的“日轮仙女”；
-- 没有来源的巨大金色日轮盔甲。
+## 6.2 Interpretation 创建规则
 
-### 示例：须佐之男
+延续 Greek / Norse：只有来源差异会实质改变以下至少一项时才建 Interpretation：
 
-稳定锚点：
+- 稳定身份；
+- 神职 / 权能；
+- 用户真正需要切换的传统角色形态；
+- 稳定视觉锚点；
+- Generation Prompt。
 
-- 风暴 / 海原相关神性；
-- 高天原冲突；
-- 出云流亡；
-- 八岐大蛇；
-- 草薙剑发现者。
+以下通常**不**单独建 Interpretation：
 
-避免：
+- 父母 / 子女差异；
+- 国让执行者差异；
+- 同一 Story 的事件顺序差异；
+- 某一文本多一个参与者；
+- 月读 / 保食神只出现在某一来源。
 
-- 直接复制现代游戏的浪人 / 武士造型；
-- 只有雷电、没有神话叙事锚点；
-- 把他固定成“邪神反派”。
+这些优先进入 source-scoped Relation / Story / ContentClaim。
+
+原则：
+
+> **relation difference != interpretation difference**
 
 ---
 
-# 10. Structured Content Pipeline
+# 7. Character Relation Storage Rule 与 Graph
 
-日本补全不允许新增第三套文明专用代码路径。
+日本神话的 Graph 必须比“漂亮的家谱图”更重视版本选择。
 
-目标结构：
+## 7.1 直接复用当前 CharacterRelation 字段
+
+```ts
+{
+  assertionKey?: string,
+  traditionScope?: string,
+  isDefault?: boolean,
+  sourceRefs: SourceRef[],
+  confidence: 'high' | 'medium' | 'contested'
+}
+```
+
+不要写入当前 Schema 不支持的：
 
 ```text
-src/content/
-├── greek/
-├── norse/
-└── japanese/
-    ├── catalog.ts
-    ├── stories.ts
-    ├── assets.ts
-    ├── visual-tiers.ts
-    ├── sources.ts
-    └── index.md
+confidence = direct | editorial-normalized | interpretive
 ```
 
-同时推动通用：
+若需要表达编辑归一化，使用：
 
 ```text
-src/content/registry.ts
-scripts/validate-mythology-content.mjs
-scripts/sync-mythology-content.mjs
+ContentClaim.status = editorial-synthesis
 ```
 
-调用方式：
+## 7.2 Canonical Relation Storage
 
-```bash
-pnpm content:validate japanese
-pnpm content:sync japanese
-```
+### parent
 
-而不是：
-
-```bash
-node scripts/sync-japanese-content.mjs
-```
-
-## 10.1 Validator 必须覆盖
-
-- Story dependency closure；
-- dangling character / world / scene ID；
-- source coverage；
-- sourceScope 合法值；
-- mutually-exclusive relation variants；
-- duplicate slug / alias；
-- Story 顺序；
-- Character taxonomy；
-- Canonical Design 必填项；
-- Tier S 视觉资产完整性；
-- Kaguya 不再绑定 Takamagahara；
-- World / Scene 语义不能混用；
-- 图片 provenance / license metadata。
-
----
-
-# 11. Character Detail / Graph 集成
-
-日本补全必须直接适配最新 Character Detail 与 3D Graph，不再把内容当作“数据录入之后 UI 自然会工作”。
-
-## 11.1 Character Detail ViewModel
-
-每个日本角色页面应组合：
+只存：
 
 ```text
-Identity
-Source-scoped Canonical Facts
-Symbols / Sacred Objects
-Story appearances
-World / Scene affinity
-Relations
-Interpretations
-Variants
-Visual DNA / Canonical Design
-Artwork
+parent -> child
+relationType = parent
 ```
 
-## 11.2 Graph 文本回退
+UI 从当前人物视角显示“父母 / 子女”，3D 边使用中性“亲子”。
 
-3D Graph 不能成为关系唯一出口。
+### consort / sibling / ally / rival / enemy
 
-SSR 页面必须可读：
+对称关系只存一次，按稳定 ID 排序决定 from / to。
+
+### rules-over / serves / created / associated-with 等
+
+保持方向性。
+
+### narrative relation
+
+优先复用通用 relation type + Story linkage，不因为日本神话增加几十个一次性边类型。
+
+## 7.3 Assertion Uniqueness
+
+建议唯一语义：
+
+```text
+assertionKey + traditionScope
+```
+
+同一 `assertionKey` 可以在不同 source scope 下存在互斥 relation，但必须：
+
+- 各自有 sourceRefs；
+- 非默认异说可被用户主动选择；
+- 不得在 compact default view 无说明叠加。
+
+## 7.4 Default / Alternate Graph
+
+默认图谱：
+
+1. neutral / cross-tradition assertions；
+2. `isDefault=true` 的明确主读法，并显示来源范围。
+
+用户显式选择 `traditionScope` 后：
+
+- 展示该 scope 下 active assertions；
+- `isDefault=false` 不得再被过滤；
+- 不把互斥异说同时画成无说明事实。
+
+## 7.5 P0 Graph 关系组
+
+至少覆盖：
+
+- 伊邪那岐 ↔ 伊邪那美；
+- 三贵子；
+- 天照 / 须佐之男誓约所生神；
+- 须佐之男 → 出云主线；
+- 大国主与 P0 Story 必需配偶 / 子嗣；
+- 天照 / 高御产巢日 → 天忍穗耳 → 邇邇艺的来源化关系；
+- 邇邇艺 ↔ 木花咲耶姬 / 石长比卖；
+- 火照 / 火远理；
+- 火远理 ↔ 丰玉姬。
+
+## 7.6 SSR 文本回退
+
+3D Graph 不是关系唯一出口。
+
+角色页 SSR 必须可读：
 
 ```text
 父母
@@ -746,287 +713,939 @@ SSR 页面必须可读：
 子女
 兄弟姊妹
 盟友 / 对手
-Story 关键关系
-来源差异
+关键叙事关系
+来源 / 异说
 ```
 
-日本神话尤其需要文本回退，因为 relation variant 很多，纯 3D 边无法表达来源差异。
-
 ---
 
-# 12. 视觉资产生产分层
+# 8. World / Scene Semantics
 
-P0 不以“壁纸总数”作为完成标准。
+延续 Greek / Norse：
 
-## Tier S
+> World = 神话宇宙中的稳定空间层；Scene = 可复用的具体地点、边界、建筑、事件空间。
 
-12 个核心角色：
+不按数量凑 World。
 
-- production portrait 100%；
-- Character Hero 100%；
-- PC wallpaper 至少 1 套；
-- Mobile wallpaper 至少 1 套；
-- 关键 Story illustration 可复用但必须有 narrative fit。
+## 8.1 P0 确定 World
 
-## Tier A
+### `world-takamagahara` — 高天原
 
-Story 闭包关键角色：
+保留 ID / slug，升级：
 
-- portrait 100%；
-- 至少 1 个可进入 Character Hero 的正式视觉；
-- wallpaper 可在 P0.5 补齐。
+- summary；
+- Canonical Design；
+- Visual DNA；
+- Hero；
+- Character / Story / Scene linkage。
 
-## World Tier
+禁止默认设计成成熟神社景区。
 
-5 个 P0 World：
+### `world-ashihara-no-nakatsukuni` — 葦原中国
 
-- Hero 100%；
-- PC / Mobile 构图至少各 1；
-- 每个 World 至少 2 个 Scene 视觉候选。
+承载：
 
-## Story Tier
+- 地上国土；
+- 出云；
+- 国让；
+- 天孙降临之前的地上秩序。
 
-30 篇 P0 Story：
+### `world-yomi` — 黄泉国
 
-- 不要求 30 张独立图；
-- 但每篇必须有 Hero Asset；
-- 关键节点优先独立 illustration：
-  - 黄泉；
-  - 禊祓；
-  - 天岩户；
-  - 八岐大蛇；
-  - 国让；
-  - 天孙降临；
-  - 海神宫。
+与佛教地狱视觉严格区分。
 
----
+### `world-ne-no-katasukuni` — 根之坚州国
 
-# 13. 实施批次
+用于大国主试炼。
 
-## Batch 0 — 数据治理与通用 Pipeline
+不能静默等同于黄泉；若后续学术 / source review 认为产品应降级为 Scene / scoped subdomain，再由 World semantic review 决定。
 
-1. 将 Norse 方案中的 generic registry / validator / importer 先落地；
-2. 建立 `src/content/japanese/`；
-3. 定义 source scope enum；
-4. 对 Character Graph relation model 做日本版本差异兼容检查；
-5. 修正 Kaguya taxonomy 与 Takamagahara 绑定。
+## 8.2 Sea Realm：先解决 Palace / World 混淆
 
-**DoD**：日本内容可以走与 Greek 相同的通用读取 / 校验 / 同步入口。
-
-## Batch 1 — Story Manifest + Source Manifest
-
-1. 落 30 篇 P0 Story metadata；
-2. 每篇 Story 绑定具体主来源；
-3. 对《日本书纪》异传建立 scope；
-4. 输出 dependency manifest；
-5. validator 反推出缺失 Entity。
-
-**DoD**：Story Dependency Closure 报告可生成，缺口明确。
-
-## Batch 2 — Character / Relation Closure
-
-1. 保留 Kaguya URL，完成重分类；
-2. 创建 Tier S；
-3. 创建全部 Story 依赖 Character；
-4. 建 genealogy / conflict / spouse / lineage Relation；
-5. 所有争议关系带 sourceScope。
-
-**DoD**：P0 Story 无 dangling Character，Graph 无未解释互斥边。
-
-## Batch 3 — World / Scene Closure
-
-1. 升级 Takamagahara；
-2. 新建 Ashihara no Nakatsukuni；
-3. 新建 Yomi；
-4. 新建 Ne no Katasukuni；
-5. 新建 Watatsumi Palace；
-6. 新建关键 Scene。
-
-**DoD**：30 篇 Story 不再全部复用高天原或泛化背景。
-
-## Batch 4 — Canonical Design + Visual DNA V2
-
-1. Mythology Visual DNA V2；
-2. World Visual DNA；
-3. Tier S Canonical Design；
-4. Tier A Canonical Design；
-5. Japanese anti-anachronism rules；
-6. Prompt composer 读取 source / tradition / world visual constraints。
-
-**DoD**：不会再默认生成“鸟居 + 神社 + 月色”的泛日本图。
-
-## Batch 5 — Story 正文与 Character Detail
-
-1. 30 篇 Story 正文；
-2. Character Story linkage；
-3. Character Detail source facts；
-4. SSR relation fallback；
-5. Graph tradition 切换验证；
-6. Mythology 详情页 Story volume。
-
-**DoD**：用户可从天地初成连续读到海幸山幸。
-
-## Batch 6 — Visual Production
-
-1. Tier S portrait；
-2. Tier S PC / Mobile wallpaper；
-3. 5 World Hero；
-4. 关键 Story illustration；
-5. provenance / license metadata；
-6. R2 / D1 sync。
-
-**DoD**：日本 Mythology、World、Character、Story 页面不存在核心占位视觉。
-
-## Batch 7 — QA / SEO / Release
-
-1. Sitemap；
-2. JSON-LD / ImageObject；
-3. 角色别名与日英检索；
-4. Japanese romanization；
-5. Graph mobile / performance；
-6. accessibility；
-7. source attribution；
-8. broken media audit；
-9. visual anachronism review；
-10. content accuracy review。
-
----
-
-# 14. 验收指标
-
-不使用“Character >= 50”“Relation >= 150”这类数量 KPI。
-
-P0 验收以覆盖率为准：
+V1.0 的：
 
 ```text
-Core Story Coverage = 30 / 30
-Story Dependency Closure = 100%
-Dangling Entity = 0
-P0 Claim Source Coverage = 100%
-Critical Relation Source Scope = 100%
-Tier S Canonical Design = 100%
-Tier S Character Detail = 100%
-Tier S Production Portrait = 100%
-P0 World Hero = 100%
-Kaguya Takamagahara Misclassification = 0
-Critical Cultural Anachronism = 0
-Broken Production Media = 0
+world-watatsumi-palace
 ```
 
-P0.5 / P1 再扩：
+语义不够干净，因为“宫”是具体地点。
 
-- 月读独立循环；
-- 风土记；
-- 地方神；
-- 古典物语；
-- 中世神佛习合；
-- 妖怪 / 民俗传统。
+V1.1 采用两阶段策略：
 
----
+```text
+候选 World：world-watatsumi-realm / 海神之国（最终 display name 由 source review 决定）
+Scene：scene-watatsumi-palace / 海神之宫
+```
 
-# 15. 明确不做的错误方案
+如果实现前确认文本与产品语义不足以支撑独立 World，则：
 
-## 不做 1：先列“日本 100 神”再逐个录入
+- 不为了“5 个 World”硬建；
+- `scene-watatsumi-palace` 作为超自然海域 Scene；
+- Story 仍完整工作。
 
-会得到百科名单，不会得到可连续浏览的神话宇宙。
+## 8.3 P0 Scene 候选
 
-## 不做 2：把所有日本传统都算成同一个“神道正史”
+- 天之浮桥；
+- 淤能碁吕岛；
+- 黄泉比良坂；
+- 禊祓之滨；
+- 天安河；
+- 天岩户；
+- 出云肥河 / 八岐大蛇现场；
+- 因幡海岸；
+- 根之坚州国试炼空间；
+- 稻佐之滨；
+- 高千穗峰；
+- 木花咲耶姬火中生产之屋；
+- 海神之宫。
 
-《古事记》《日本书纪》《风土记》《竹取物语》、中世神佛习合与江户妖怪传统不是同一层级来源。
+实体化判断：
 
-## 不做 3：把黄泉、根之国、常世统一成一个 Underworld
-
-这些空间在不同文本中的语义并不相同，必须按来源和 Story 独立建模。
-
-## 不做 4：把辉夜姬继续放在高天原
-
-保留角色与 URL，但迁移 tradition / world linkage。
-
-## 不做 5：所有视觉都使用红鸟居、樱花、神社、十二单
-
-这会把神代神话做成“日本旅游 / 和风幻想合集”。
-
-## 不做 6：创建 Japanese-only importer
-
-第三个完整文明必须推动基础设施泛化。
+> 被至少一个 P0 Story 直接依赖，或具有高复用视觉 / Artwork 价值。
 
 ---
 
-# 16. 推荐最终信息架构
+# 9. Japanese Visual DNA V2
+
+当前：
+
+```text
+月白 / 墨青 / 朱红
+鸟居 / 神社 / 注连绳 / 月
+木 / 和纸 / 石
+幽玄 / 静谧 / 灵性
+```
+
+适合“日本氛围”，不足以表达神代宇宙。
+
+## 9.1 Mythology Base DNA
+
+```text
+palette:
+- cloud white
+- pearl grey
+- ancient restrained vermilion
+- deep indigo
+- bronze
+- reed gold
+- sea jade
+
+materials:
+- unfinished timber
+- stone
+- bronze
+- woven plant fiber / textile
+- restrained silk-like textile where editorially appropriate
+- magatama material
+- mist / water
+
+motifs:
+- mirror
+- magatama
+- sword
+- sakaki
+- sacred rope as story / ritual motif
+- reeds
+- sacred rock
+- cloud / bridge / boundary
+
+atmosphere:
+- primordial
+- sacred
+- liminal
+- restrained
+- luminous
+- uncanny
+- natural
+```
+
+### Base Avoid
+
+```text
+- every scene = red torii + shrine + cherry blossom
+- mature modern shrine precinct as primordial default
+- every goddess = Heian twelve-layer robe
+- every male deity = samurai
+- modern miko uniform as ancient default
+- Sengoku armor
+- franchise-specific anime/game silhouettes
+- Chinese celestial-palace language copied wholesale
+- Buddhist hell used for Yomi
+- tourist-poster Japan
+```
+
+## 9.2 Narrative-domain DNA
+
+### Takamagahara
+
+```text
+bright cloud / open sacred expanse / primordial timber / mirror / jewel / sakaki
+```
+
+### Yomi
+
+```text
+dark rock / damp cold / decay / boundary boulder / minimal warm light
+```
+
+### Izumo / Ashihara
+
+```text
+reeds / forest / river / coast / ancient timber / sword / serpent / water mist
+```
+
+### Tenson Kōrin
+
+```text
+high mountain / cloud path / rice-gold / sunlight / descent axis
+```
+
+### Sea Cycle
+
+```text
+deep sea jade / pearl light / tide / shell / liminal marine architecture
+```
+
+## 9.3 Text Facts vs Historical Reconstruction vs Original Design
+
+日本神代没有一套可直接照抄的“角色设定集”。视觉必须三层分离：
+
+```text
+A. source-grounded mythological facts
+B. historically / archaeologically inspired reconstruction
+C. MythCanvas original design choices
+```
+
+B、C 均不能写入 `mythologicalFacts` 冒充《古事记》《日本书纪》直接记载。
+
+例如：
+
+- 天照的太阳 / 天岩户 / 镜关联可做 source-grounded anchor；
+- 某种具体古代服装裁剪属于 historical inspiration / design choice；
+- 发光日轮盔甲属于原创视觉，不是古典事实。
+
+## 9.4 角色防错
+
+- 天照不默认十二单；
+- 须佐之男不默认现代武士；
+- 建御雷不默认战国武将；
+- 大国主不默认现代神官服；
+- 天宇受卖不默认现代巫女制服；
+- 猿田彦不简化为红脸天狗；
+- 八岐大蛇保留八首 / 八尾核心身份，不泛化成普通东方龙；
+- 辉夜姬的宫廷美学归《竹取物语》层，不反向污染神代 Visual DNA。
+
+Prompt 继续保持正交：
+
+```text
+Mythology Base DNA
++ World DNA
++ Character Canonical Design
++ Interpretation
++ Variant
++ Style
++ Scene
++ OutputSpec
+```
+
+---
+
+# 10. Structured Content Pipeline：第三文明必须真正通用化
+
+日本不允许新增：
+
+```text
+sync-japanese-content.mjs
+japanese-only repository fallback
+japanese-only sitemap
+japanese-only graph loader
+```
+
+## 10.1 目标 Bundle
+
+```text
+src/content/
+├── registry.ts
+├── greek/
+├── norse/
+└── japanese/
+    ├── catalog.ts
+    ├── stories.ts
+    ├── assets.ts
+    ├── visual-tiers.ts
+    └── index.md
+```
+
+如通用 Source Registry 实施后证明有必要，可增加：
+
+```text
+sources.ts
+```
+
+但它必须是所有文明都可选用的能力，而不是 Japanese-only contract。
+
+## 10.2 Generic Registry
+
+目标：
+
+```ts
+type StructuredMythologyBundle = {
+  mythologyId: string;
+  slug: string;
+  characters: readonly Character[];
+  relations: readonly CharacterRelation[];
+  concepts: readonly ContentConcept[];
+  worlds: readonly World[];
+  scenes: readonly Scene[];
+  stories: readonly MythStory[];
+  assets?: readonly unknown[];
+}
+```
+
+Repository 统一：
+
+```text
+getStructuredBundle(mythologyId)
+getStructuredCharacters(mythologyId)
+getStructuredRelations(mythologyId)
+```
+
+不再出现：
+
+```text
+mythologyId === 'myth-greek'
+mergeGreekCharacters()
+```
+
+## 10.3 Pipeline
+
+```text
+structured mythology package
+        ↓
+schema validation
+        ↓
+dependency validation
+        ↓
+source / relation validation
+        ↓
+normalized manifest
+        ↓
+idempotent D1 sync
+```
+
+统一命令：
+
+```bash
+npm run content:validate
+npm run content:import -- --mythology=japanese
+```
+
+或由 registry 自动发现全部 bundle。
+
+## 10.4 Static Fallback / D1 Parity
+
+P0 DoD：
+
+- `DB === undefined` 时 Japanese structured Character / Relation / Story 可被 Repository 读取；
+- D1 存在时按 stable ID merge / override；
+- local static fallback、local D1、production D1 的实体 ID / slug /关系语义一致；
+- 新增第四文明时只注册 Bundle，不改 Repository。
+
+## 10.5 Legacy Story Migration
+
+当前 `src/data/stories.ts` 中的 3 个 Japanese Story 迁入 `src/content/japanese/stories.ts`：
+
+```text
+story-izanagi-izanami
+story-amaterasu-cave
+story-kaguya-return
+```
+
+迁移后删除 inline duplicate，避免双份 source of truth。
+
+## 10.6 Validator
+
+至少检查：
+
+```text
+stable id / slug uniqueness
+legacy id / slug preservation
+story dependency closure
+required source coverage
+relation target validity
+assertionKey + traditionScope conflicts
+canonical relation duplicates
+characterType generic vocabulary
+world / scene semantics
+interpretation ownership
+Kaguya world / taxonomy correction
+asset provenance completeness
+```
+
+---
+
+# 11. 页面、Character Detail 与 Search
+
+日本不新造一套页面体系，直接消费通用内容模型。
+
+## 11.1 `/mythology/japanese/`
+
+应展示：
+
+```text
+Hero
+→ 神代导览
+→ Story Volumes
+→ Core Characters
+→ Character Taxonomy
+→ Core Worlds
+→ Genealogy / Character Graph entry
+→ Sources / Version Note
+→ Artwork
+→ Classical Tale 入口（P1）
+```
+
+## 11.2 Story Detail
+
+共享：
+
+```text
+/mythology/japanese/[story]/
+```
+
+每篇包括：
+
+- source context；
+- 正文；
+- related Characters；
+- related Worlds / Scenes；
+- previous / next；
+- alternate tradition note；
+- illustration / Artwork。
+
+## 11.3 Character Detail ViewModel
+
+```text
+Identity
+Source-scoped Claims
+Symbols
+Canonical DNA
+Interpretation（按需）
+Variant
+Relations
+Stories
+World / Scenes
+Artwork
+Creation
+```
+
+## 11.4 Japanese Name / Romanization Policy
+
+每个高价值角色至少支持：
+
+```text
+中文常用名
+日文表记（汉字 / 假名，适用时）
+Hepburn romanization
+ASCII alias
+常见 English form
+```
+
+URL slug：
+
+- ASCII；
+- human-readable；
+- 不含 macron；
+- 一旦发布保持稳定。
+
+例如：
+
+```text
+display: Ōkuninushi
+slug: okuninushi
+aliases: 大国主 / 大国主神 / Okuninushi
+```
+
+## 11.5 Sitemap / SEO
+
+只要 Japanese Story 进入共享 `getPublicStories()` / registry：
+
+- 自动进入 sitemap；
+- 不增加 Japanese-only sitemap；
+- Story / Character / World 的 JSON-LD 使用共享实现；
+- alias search 支持中文、日文、Romanization。
+
+---
+
+# 12. Visual Tier：P0 内容闭包，P1 大规模出图
+
+V1.0 把 Tier S PC / Mobile 全部放在主实施批次，容易让图像生产阻塞内容闭包。
+
+V1.1 与 Greek / Norse 对齐。
+
+## 12.1 P0 Content Gate
+
+每个 P0 Character：
+
+```text
+Canonical Design = complete
+source coverage = complete
+story / relation linkage = complete
+```
+
+Tier S 在公开发布前至少：
+
+```text
+production portrait / reference = 100%
+```
+
+若某 Tier A 暂无正式肖像：
+
+- 使用 Canonical symbols + role 的高质量 Symbol Fallback；
+- 禁止用通用 AI 人像冒充正式角色肖像。
+
+## 12.2 P1 Tier S
+
+12 个 Tier S：
+
+```text
+Canonical mobile portrait/reference
+PC wallpaper >= 1
+Mobile wallpaper >= 1
+高价值角色多 Style
+```
+
+## 12.3 P1 Tier A
+
+```text
+Canonical portrait/reference
++ PC / Mobile 至少一种 Wallpaper（按价值排序）
+```
+
+## 12.4 World
+
+每个正式发布的 P0 World 在 public release 前至少有：
+
+```text
+desktop hero
+mobile hero（若 World 页面当前产品规范要求双端独立构图）
+alt / width / height
+creator / license / source_type
+AI provenance when applicable
+```
+
+## 12.5 Story
+
+不要求“一篇 Story = 一张独立新图”。
+
+每篇 published Story 必须有有效 Hero Asset，可复用：
+
+- Character Artwork；
+- World Artwork；
+- Scene Artwork；
+- 已有 Story Illustration；
+
+前提：narrative fit + provenance 完整。
+
+优先独立制作：
+
+- 黄泉；
+- 禊祓；
+- 天岩户；
+- 八岐大蛇；
+- 国让；
+- 天孙降临；
+- 海神之宫。
+
+---
+
+# 13. 测试与 CI
+
+日本作为第三个 structured mythology package，必须证明系统已经文明无关。
+
+## 13.1 Content Tests
+
+建议：
+
+```text
+tests/japanese-content.test.*
+```
+
+至少覆盖：
+
+- `character-kaguya` ID / slug 不变；
+- 3 个 legacy Story ID / slug 不变；
+- Kaguya 不属于 `world-takamagahara`；
+- Kaguya Story `kind = literary-fantasy`；
+- P0 Story required dependency 全部存在；
+- P0 Story required source 全部存在；
+- `characterType` 只使用通用 stable vocabulary；
+- relation source coverage 100%；
+- alternate `traditionScope` 可以被 Graph 主动选择；
+- `isDefault=false` 的异说不会永远不可达；
+- parent relation 从当前角色视角正确显示父母 / 子女；
+- Watatsumi World / Palace Scene 不混淆；
+- Japanese structured Story 可以被 `getStoriesForMythology('myth-japanese')` 读取；
+- sitemap 可以发现 published Japanese Story。
+
+## 13.2 Static / D1 Integration
+
+必须测：
+
+```text
+static fallback
+local D1
+production-like D1 merge contract
+```
+
+至少保证同一 Character / Relation 的 stable ID、scope、默认边语义一致。
+
+## 13.3 CI
+
+最终只使用通用命令：
+
+```bash
+npm test
+npm run content:validate
+npm run provenance:audit -- --strict
+npm run check
+```
+
+不要新增：
+
+```text
+japanese:validate
+japanese:test
+japanese:deploy
+```
+
+---
+
+# 14. 实施顺序
+
+## P0-0：冻结规范
+
+- [ ] Narrative Coverage 与 Story unit 边界；
+- [ ] Source Tier / tradition scope；
+- [ ] common `characterType` vocabulary；
+- [ ] Canonical Relation Storage Rule；
+- [ ] Interpretation boundary；
+- [ ] Kaguya migration rule；
+- [ ] World / Scene semantics；
+- [ ] Visual fact / reconstruction / original-design boundary。
+
+## P0-1：通用化 Structured Content Pipeline
+
+- [ ] `src/content/registry.ts`；
+- [ ] Repository 去 Greek-only；
+- [ ] validator 通用化；
+- [ ] D1 sync 通用化；
+- [ ] coverage reporter 通用化；
+- [ ] CI 自动验证全部 registered mythology；
+- [ ] static fallback / D1 parity tests。
+
+**DoD**：新增 mythology package 只需注册 Bundle，不改 Repository / Sitemap / Graph loader。
+
+## P0-2：建立 Japanese Package + Legacy Migration
+
+- [ ] `src/content/japanese/catalog.ts`；
+- [ ] `stories.ts`；
+- [ ] `assets.ts`；
+- [ ] `visual-tiers.ts`；
+- [ ] `index.md`；
+- [ ] 迁移并保留 3 个 legacy Story ID / slug；
+- [ ] Kaguya 从 Takamagahara 解绑并改为 literary layer。
+
+## P0-3：Story Manifest + Dependency Closure
+
+建议按叙事批次：
+
+### Batch A：Origins / Yomi
+
+Story 1–7。
+
+### Batch B：Takamagahara
+
+Story 8–11。
+
+### Batch C：Izumo / Ōkuninushi
+
+Story 12–18。
+
+### Batch D：Kuniyuzuri
+
+Story 19–22。
+
+### Batch E：Tenson / Sea Cycle
+
+Story 23–29。
+
+每批都执行：
+
+```text
+Story metadata
+→ required dependencies
+→ Character closure
+→ Relation closure
+→ World / Scene closure
+→ Source coverage
+```
+
+## P0-4：Character / Relation / Claim
+
+- [ ] Stable Identity Source Coverage 100%；
+- [ ] Genealogy Coverage 100%；
+- [ ] Required Narrative Relation Coverage 100%；
+- [ ] conflicting claim without scope = 0；
+- [ ] duplicate canonical relation = 0；
+- [ ] Graph tradition behavior 验证。
+
+## P0-5：World / Scene + Visual DNA
+
+- [ ] Takamagahara 升级；
+- [ ] Ashihara no Nakatsukuni；
+- [ ] Yomi；
+- [ ] Ne no Katasukuni；
+- [ ] Watatsumi realm semantic decision；
+- [ ] Story-required Scene；
+- [ ] Japanese Base DNA V2；
+- [ ] World DNA；
+- [ ] anti-anachronism rules。
+
+## P0-6：Story 正文 + 页面集成
+
+- [ ] P0 Story 正文；
+- [ ] Mythology Story volumes；
+- [ ] Character Detail；
+- [ ] SSR relation fallback；
+- [ ] Graph tradition switch；
+- [ ] World / Scene linkage；
+- [ ] source notes；
+- [ ] alias search；
+- [ ] sitemap。
+
+## P0-7：验证与发布
+
+- [ ] `npm test`；
+- [ ] `npm run content:validate`；
+- [ ] `npm run check`；
+- [ ] provenance static audit；
+- [ ] local D1 sync dry-run；
+- [ ] local browser smoke；
+- [ ] production sync；
+- [ ] production provenance audit；
+- [ ] deployed route smoke；
+- [ ] content accuracy review；
+- [ ] visual anachronism review。
+
+## P1：Visual Production + Expansion
+
+- [ ] Tier S PC / Mobile；
+- [ ] Tier A portrait / wallpaper；
+- [ ] World 正式视觉增强；
+- [ ] 高价值 Story 独立插画；
+- [ ] 月读 / 保食神；
+- [ ] 风土记；
+- [ ] 古典物语卷；
+- [ ] 更多异说与地方传统。
+
+---
+
+# 15. 验收标准
+
+## 15.1 Narrative Coverage
+
+用户可以连续理解：
+
+```text
+天地初成
+→ 国生 / 神生
+→ 黄泉
+→ 禊祓 / 三贵子
+→ 高天原与天岩户
+→ 须佐之男 / 八岐大蛇
+→ 大国主 / 出云
+→ 葦原中国平定 / 国让
+→ 天孙降临
+→ 木花咲耶姬
+→ 海幸山幸
+```
+
+## 15.2 Entity Dependency Closure
+
+```text
+P0 Story Character dependency closure = 100%
+P0 Story World dependency closure = 100%
+P0 Story Scene dependency closure = 100%
+orphan ref = 0
+```
+
+## 15.3 Source Coverage
+
+```text
+P0 stable identity source coverage = 100%
+P0 genealogy source coverage = 100%
+P0 required narrative relation source coverage = 100%
+P0 active interpretation source coverage = 100%
+P0 story primary-source coverage = 100%
+conflicting claim without tradition scope = 0
+```
+
+## 15.4 Relationship Coverage
+
+```text
+required genealogy edge coverage = 100%
+required narrative edge coverage = 100%
+duplicate canonical relation = 0
+invalid relation target = 0
+alternate scope unreachable = 0
+```
+
+## 15.5 Model Quality
+
+```text
+characterType common-vocabulary coverage = 100%
+taxonomy coverage = 100%
+Interpretation only used for identity-level divergence
+World does not contain a building-only Scene semantic
+Scene does not duplicate World semantic
+Kaguya Takamagahara misclassification = 0
+legacy public id / slug breakage = 0
+```
+
+## 15.6 Visual / Provenance
+
+P0 不以全部 PC / Mobile 壁纸为阻塞条件。
+
+Public release：
+
+```text
+Tier S minimum portrait/reference coverage = 100%
+published World hero metadata complete = 100%
+published Story hero asset valid = 100%
+public prototype provenance = 0
+critical cultural anachronism = 0
+broken production media = 0
+```
+
+P1：
+
+```text
+Tier S PC / Mobile wallpaper coverage = 100%
+Tier A minimum visual coverage = 100%
+```
+
+## 15.7 用户侧认知验收
+
+用户访问 `/mythology/japanese/` 后应该能回答：
+
+1. 日本神代叙事从哪里开始？
+2. 伊邪那岐、伊邪那美如何连接国生、神生、死亡与黄泉？
+3. 天照、月读、须佐之男如何出现？
+4. 天岩户为什么发生，众神如何让太阳重返世界？
+5. 须佐之男为何进入出云，八岐大蛇与草薙剑是什么关系？
+6. 大国主如何进入出云主线并完成国土经营？
+7. 国让之前发生了哪些使者失败与谈判 / 对抗？
+8. 天孙降临如何承接国让？
+9. 海幸山幸如何收束神代主线？
+10. 《古事记》《日本书纪》不同版本冲突时，页面能否明确告诉用户来源？
+11. 辉夜姬为什么属于日本文化内容，但不属于高天原神系？
+
+---
+
+# 16. 最终信息架构
 
 ```text
 Japanese Mythology
-├── Origins / 天地初成
-│   ├── Primordial Kami
-│   ├── Izanagi / Izanami
-│   ├── Kuni-umi
-│   └── Kami-umi
-├── Yomi & Purification / 黄泉与禊祓
+│
+├── STORY MANIFEST
+│   ├── Origins / Kuni-umi / Kami-umi
+│   ├── Yomi / Misogi
+│   ├── Takamagahara / Ama-no-Iwato
+│   ├── Izumo / Ōkuninushi
+│   ├── Kuniyuzuri
+│   ├── Tenson Kōrin
+│   └── Sea Cycle
+│
+├── CHARACTERS
+│   ├── Deities
+│   │   ├── Kotoamatsukami [taxonomy]
+│   │   ├── Amatsukami [taxonomy]
+│   │   ├── Kunitsukami [taxonomy]
+│   │   └── Tenson Line [taxonomy]
+│   ├── Heroes / Literary Protagonists
+│   ├── Monsters
+│   ├── Creatures
+│   └── Collectives
+│
+├── WORLDS
+│   ├── Takamagahara
+│   ├── Ashihara no Nakatsukuni
 │   ├── Yomi
-│   ├── Misogi
-│   └── Three Noble Children
-├── Takamagahara / 高天原
-│   ├── Amaterasu
-│   ├── Susanoo
-│   ├── Ukei
-│   └── Ama-no-Iwato
-├── Izumo Cycle / 出云神话
-│   ├── Yamata no Orochi
-│   ├── Ōkuninushi
-│   ├── Sukunahikona
-│   └── Ne-no-Katasukuni
-├── Kuniyuzuri / 国让
-│   ├── Takemikazuchi
-│   ├── Kotoshironushi
-│   └── Takeminakata
-├── Tenson Kōrin / 天孙降临
-│   ├── Ninigi
-│   ├── Sarutahiko
-│   ├── Ame-no-Uzume
-│   └── Konohanasakuya-hime
-├── Sea Cycle / 山海神话
-│   ├── Hoderi
-│   ├── Hoori
-│   ├── Watatsumi
-│   └── Toyotama-hime
-└── Classical Tales / 古典传说（P1）
-    └── Kaguya-hime
+│   ├── Ne no Katasukuni
+│   └── Watatsumi Realm（source / semantic review 后决定）
+│
+├── SCENES
+│   ├── Ama-no-Ukihashi
+│   ├── Onogoro
+│   ├── Yomotsu Hirasaka
+│   ├── Misogi Shore
+│   ├── Ama-no-Iwato
+│   ├── Hii River
+│   ├── Inasa Beach
+│   ├── Takachiho
+│   ├── Watatsumi Palace
+│   └── ...
+│
+├── RELATIONS / GRAPH
+│   └── source-scoped canonical + alternate assertions
+│
+├── SOURCES
+│   ├── Kojiki
+│   ├── Nihon Shoki main text
+│   ├── Nihon Shoki alternate writings
+│   ├── Fudoki
+│   └── later scoped traditions
+│
+├── CLASSICAL TALES（P1）
+│   └── Kaguya-hime / Taketori Monogatari
+│
+└── ARTWORKS
+    ├── Character
+    ├── World
+    ├── Scene
+    ├── Creature
+    └── Story-linked Artwork
 ```
 
 ---
 
-# 17. 执行顺序结论
+# 17. V1.1 已固定的 Review 决策
 
-日本神话补全的正确顺序：
-
-```text
-1. Generic Mythology Pipeline
-2. Kaguya 数据纠偏
-3. Source Manifest
-4. 30 Story Manifest
-5. Story Dependency Closure
-6. Character / Relation
-7. World / Scene
-8. Visual DNA V2
-9. Canonical Design
-10. Story 正文
-11. Character Detail / Graph
-12. Visual Tier Production
-13. D1 / R2 Sync
-14. QA / SEO / Release
-```
-
-而不是：
+本轮不再留作模糊讨论，默认按以下规则执行：
 
 ```text
-先生成几十个日本神
-→ 再补几张神社壁纸
-→ 最后试图把它们拼成故事
+Story-first
+Story count = editorial result, not KPI
+Character count = dependency closure result
+Stable characterType = common cross-mythology vocabulary
+Taxonomy = civilization-specific classification
+Source = claim-level
+Kojiki / Nihon Shoki conflicts = scoped, never flattened
+Interpretation = identity-level divergence only
+Relation storage = shared canonical semantics
+Graph = alternate traditions explicitly selectable
+World = strict spatial semantics
+Palace / landmark = Scene, not World
+P0 = content graph + minimum production readiness
+P1 = large-scale visual production
+Pipeline = mythology-agnostic
+Legacy IDs / URLs = preserved
 ```
 
-最终目标不是“日本角色更多了”，而是：
+最终目标不是“日本角色变多”，而是：
 
-> **让 MythCanvas 中的日本神话成为一套从记纪神代主线出发、版本差异可追溯、人物关系可探索、空间语义清晰、视觉不落入泛和风模板，并能直接驱动 AI 出图的完整内容系统。**
+> **让 MythCanvas 中的日本神话成为一套从记纪神代主线出发、版本差异可追溯、人物关系可探索、空间语义清晰、视觉不落入泛和风模板，并能与希腊 / 北欧共享同一套内容工程基础设施的完整神话内容系统。**
 
 ---
 
@@ -1035,9 +1654,10 @@ Japanese Mythology
 P0 内容审核至少对照：
 
 - 《古事记》上卷 / Kojiki Book I；
-- 《日本书纪》卷第一、卷第二 / Nihon Shoki Books I-II，并保留“一书”异传；
-- 國學院大學 Encyclopedia of Shinto（用于神名、来源差异与术语交叉校验）；
-- 《出云国风土记》等风土记材料（进入 P1 或 Story 明确依赖时）；
-- 《古语拾遗》等古代补充文献（P1 source enrichment）。
+- 《日本书纪》卷第一、卷第二 / Nihon Shoki Books I-II，并保留正文与“一书”异传；
+- 國學院大學 Encyclopedia of Shinto，用于名称、神格、来源差异与术语交叉校验；
+- 《出云国风土记》等风土记材料，在 Story 明确依赖或进入 P1 时使用；
+- 《古语拾遗》等古代补充材料，用于 P1 source enrichment；
+- 现代学术研究只用于校勘、版本与语义讨论，不替代 primary source。
 
-所有 MythCanvas 正文应原创转述，不复制现代译本长段落；关键异文通过 SourceRef / sourceNotes 解释，而不是伪装成唯一版本。
+所有 MythCanvas 正文应原创转述，不复制现代译本长段落；具体来源差异通过 `SourceRef / ContentClaim / sourceNotes / traditionScope` 表达，而不是伪装成唯一版本。
