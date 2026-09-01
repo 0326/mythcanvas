@@ -1,7 +1,7 @@
 import { characters as seedCharacters } from '../../../data/seed';
 import { getStructuredCharacters, getStructuredMythologyBundle } from '../../../content/registry';
 import type { Character, SourceRef } from '../types';
-import { optionalNumber, optionalString, pageClause, parseJson, parseStringArray } from './shared';
+import { isD1ReadQuotaError, optionalNumber, optionalString, pageClause, parseJson, parseStringArray } from './shared';
 import type { EntityListQuery } from './types';
 
 type CharacterRow = Record<string, unknown>;
@@ -27,6 +27,7 @@ async function getCharacterRows(db: D1Database, sql: string, ...bindings: unknow
   try {
     return await db.prepare(sql).bind(...bindings).all();
   } catch (error) {
+    if (isD1ReadQuotaError(error)) return { results: [] };
     if (!isMissingClickCountColumnError(error)) throw error;
     return db.prepare(withoutClickCountColumn(sql)).bind(...bindings).all();
   }
@@ -36,6 +37,7 @@ async function getCharacterRow(db: D1Database, sql: string, ...bindings: unknown
   try {
     return await db.prepare(sql).bind(...bindings).first();
   } catch (error) {
+    if (isD1ReadQuotaError(error)) return null;
     if (!isMissingClickCountColumnError(error)) throw error;
     return db.prepare(withoutClickCountColumn(sql)).bind(...bindings).first();
   }
@@ -118,10 +120,16 @@ async function loadWorldIds(db: D1Database, characterIds: readonly string[]): Pr
   for (let start = 0; start < characterIds.length; start += batchSize) {
     const batch = characterIds.slice(start, start + batchSize);
     const placeholders = batch.map(() => '?').join(',');
-    const rows = await db
-      .prepare(`SELECT character_id, world_id FROM character_worlds WHERE character_id IN (${placeholders})`)
-      .bind(...batch)
-      .all();
+    let rows;
+    try {
+      rows = await db
+        .prepare(`SELECT character_id, world_id FROM character_worlds WHERE character_id IN (${placeholders})`)
+        .bind(...batch)
+        .all();
+    } catch (error) {
+      if (isD1ReadQuotaError(error)) return map;
+      throw error;
+    }
     for (const row of rows.results) {
       const characterId = String(row.character_id);
       const list = map.get(characterId) ?? [];

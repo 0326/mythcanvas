@@ -1,6 +1,6 @@
 import { styles as seedStyles } from '../../../data/seed';
 import type { Style } from '../types';
-import { optionalString } from './shared';
+import { optionalString, withD1ReadFallback } from './shared';
 
 type StyleRow = Record<string, unknown>;
 
@@ -18,24 +18,30 @@ export function mapStyleRow(row: StyleRow): Style {
 
 export async function getStyles(db: D1Database | undefined): Promise<Style[]> {
   if (!db) return seedStyles;
-  const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM styles ORDER BY name`).all();
-  return rows.results.map(mapStyleRow);
+  return withD1ReadFallback(async () => {
+    const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM styles ORDER BY name`).all();
+    return rows.results.map(mapStyleRow);
+  }, () => seedStyles);
 }
 
 export async function getStyleBySlug(db: D1Database | undefined, slug: string): Promise<Style | undefined> {
   if (!db) return seedStyles.find((item) => item.slug === slug);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM styles WHERE slug = ?`)
-    .bind(slug)
-    .first();
-  return row ? mapStyleRow(row) : undefined;
+  return withD1ReadFallback(async () => {
+    const row = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM styles WHERE slug = ?`)
+      .bind(slug)
+      .first();
+    return row ? mapStyleRow(row) : seedStyles.find((item) => item.slug === slug);
+  }, () => seedStyles.find((item) => item.slug === slug));
 }
 
 export async function getStyleById(db: D1Database | undefined, id: string): Promise<Style | undefined> {
   if (!db) return seedStyles.find((item) => item.id === id);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM styles WHERE id = ?`)
-    .bind(id)
-    .first();
-  return row ? mapStyleRow(row) : undefined;
+  return withD1ReadFallback(async () => {
+    const row = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM styles WHERE id = ?`)
+      .bind(id)
+      .first();
+    return row ? mapStyleRow(row) : seedStyles.find((item) => item.id === id);
+  }, () => seedStyles.find((item) => item.id === id));
 }

@@ -1,6 +1,6 @@
 import { characterVariants as seedCharacterVariants } from '../../../data/seed';
 import type { CharacterVariant, CharacterVariantType } from '../types';
-import { parseJson, parseStringArray } from './shared';
+import { parseJson, parseStringArray, withD1ReadFallback } from './shared';
 
 type CharacterVariantRow = Record<string, unknown>;
 
@@ -28,12 +28,15 @@ export async function getCharacterVariants(
   db: D1Database | undefined,
   characterId: string,
 ): Promise<CharacterVariant[]> {
-  if (!db) return seedCharacterVariants.filter((variant) => variant.characterId === characterId);
-  const rows = await db
-    .prepare(
-      `SELECT ${SELECT_COLUMNS} FROM character_variants WHERE character_id = ? AND status = 'active' ORDER BY created_at, id`,
-    )
-    .bind(characterId)
-    .all();
-  return rows.results.map(mapCharacterVariantRow);
+  const fallback = () => seedCharacterVariants.filter((variant) => variant.characterId === characterId);
+  if (!db) return fallback();
+  return withD1ReadFallback(async () => {
+    const rows = await db
+      .prepare(
+        `SELECT ${SELECT_COLUMNS} FROM character_variants WHERE character_id = ? AND status = 'active' ORDER BY created_at, id`,
+      )
+      .bind(characterId)
+      .all();
+    return rows.results.map(mapCharacterVariantRow);
+  }, fallback);
 }

@@ -4,7 +4,7 @@ import type {
   CharacterNameKind,
   SourceRef,
 } from '../types';
-import { optionalString, parseJson, parseStringArray } from './shared';
+import { optionalString, parseJson, parseStringArray, withD1ReadFallback } from './shared';
 import { listStructuredMythologyBundles } from '../../../content/registry';
 
 type CharacterInterpretationRow = Record<string, unknown>;
@@ -40,17 +40,22 @@ export async function getCharacterInterpretationById(
   interpretationId: string,
   characterId?: string,
 ): Promise<CharacterInterpretation | undefined> {
-  if (!db) return undefined;
+  const staticItem = listStructuredMythologyBundles()
+    .flatMap((bundle) => bundle.interpretations ?? [])
+    .find((item) => item.id === interpretationId && (!characterId || item.characterId === characterId));
+  if (!db) return staticItem;
   const where = characterId
     ? 'id = ? AND character_id = ? AND status = \'active\''
     : 'id = ? AND status = \'active\'';
   const bindings = characterId ? [interpretationId, characterId] : [interpretationId];
-  const row = await db.prepare(`
-    SELECT ${INTERPRETATION_COLUMNS}
-    FROM character_interpretations
-    WHERE ${where}
-  `).bind(...bindings).first<CharacterInterpretationRow>();
-  return row ? mapCharacterInterpretationRow(row) : undefined;
+  return withD1ReadFallback(async () => {
+    const row = await db.prepare(`
+      SELECT ${INTERPRETATION_COLUMNS}
+      FROM character_interpretations
+      WHERE ${where}
+    `).bind(...bindings).first<CharacterInterpretationRow>();
+    return row ? mapCharacterInterpretationRow(row) : staticItem;
+  }, () => staticItem);
 }
 
 export async function getCharacterInterpretations(
@@ -59,15 +64,17 @@ export async function getCharacterInterpretations(
 ): Promise<CharacterInterpretation[]> {
   const staticItems = listStructuredMythologyBundles().flatMap((bundle) => bundle.interpretations ?? []).filter((item) => item.characterId === characterId);
   if (!db) return staticItems;
-  const rows = await db.prepare(`
-    SELECT ${INTERPRETATION_COLUMNS}
-    FROM character_interpretations
-    WHERE character_id = ? AND status = 'active'
-    ORDER BY created_at, id
-  `).bind(characterId).all<CharacterInterpretationRow>();
-  const byId = new Map(staticItems.map((item) => [item.id, item]));
-  rows.results.map(mapCharacterInterpretationRow).forEach((item) => byId.set(item.id, item));
-  return Array.from(byId.values());
+  return withD1ReadFallback(async () => {
+    const rows = await db.prepare(`
+      SELECT ${INTERPRETATION_COLUMNS}
+      FROM character_interpretations
+      WHERE character_id = ? AND status = 'active'
+      ORDER BY created_at, id
+    `).bind(characterId).all<CharacterInterpretationRow>();
+    const byId = new Map(staticItems.map((item) => [item.id, item]));
+    rows.results.map(mapCharacterInterpretationRow).forEach((item) => byId.set(item.id, item));
+    return Array.from(byId.values());
+  }, () => staticItems);
 }
 
 export function mapCharacterNameRow(row: CharacterNameRow): CharacterName {
@@ -90,14 +97,16 @@ export async function getCharacterNames(
 ): Promise<CharacterName[]> {
   const staticItems = listStructuredMythologyBundles().flatMap((bundle) => bundle.names ?? []).filter((item) => item.characterId === characterId);
   if (!db) return staticItems;
-  const rows = await db.prepare(`
-    SELECT id, character_id, interpretation_id, name, name_en, name_kind,
-           is_primary_for_scope, source_refs_json, confidence
-    FROM character_names
-    WHERE character_id = ? AND status = 'active'
-    ORDER BY interpretation_id IS NOT NULL, is_primary_for_scope DESC, created_at, id
-  `).bind(characterId).all<CharacterNameRow>();
-  const byId = new Map(staticItems.map((item) => [item.id, item]));
-  rows.results.map(mapCharacterNameRow).forEach((item) => byId.set(item.id, item));
-  return Array.from(byId.values());
+  return withD1ReadFallback(async () => {
+    const rows = await db.prepare(`
+      SELECT id, character_id, interpretation_id, name, name_en, name_kind,
+             is_primary_for_scope, source_refs_json, confidence
+      FROM character_names
+      WHERE character_id = ? AND status = 'active'
+      ORDER BY interpretation_id IS NOT NULL, is_primary_for_scope DESC, created_at, id
+    `).bind(characterId).all<CharacterNameRow>();
+    const byId = new Map(staticItems.map((item) => [item.id, item]));
+    rows.results.map(mapCharacterNameRow).forEach((item) => byId.set(item.id, item));
+    return Array.from(byId.values());
+  }, () => staticItems);
 }

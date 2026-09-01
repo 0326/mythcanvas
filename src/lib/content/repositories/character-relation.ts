@@ -1,6 +1,6 @@
 import type { CharacterRelation, SourceRef } from '../types';
 import { getStructuredRelations } from '../../../content/registry';
-import { optionalString, parseJson } from './shared';
+import { optionalString, parseJson, withD1ReadFallback } from './shared';
 
 type CharacterRelationRow = Record<string, unknown>;
 
@@ -33,16 +33,18 @@ export async function getCharacterRelations(
 ): Promise<CharacterRelation[]> {
   const staticRelations = getStructuredRelations().filter((relation) => relation.fromCharacterId === characterId || relation.toCharacterId === characterId);
   if (!db) return staticRelations;
-  const rows = await db.prepare(`
-    SELECT ${SELECT_COLUMNS}
-    FROM character_relations AS relation
-    WHERE relation.status = 'active' AND (relation.from_character_id = ? OR relation.to_character_id = ?)
-    ORDER BY relation.is_default DESC, relation.relation_type, relation.id
-  `).bind(characterId, characterId).all<CharacterRelationRow>();
-  const dbRelations = rows.results.map(mapCharacterRelationRow);
-  const byId = new Map(staticRelations.map((relation) => [relation.id, relation]));
-  dbRelations.forEach((relation) => byId.set(relation.id, relation));
-  return Array.from(byId.values());
+  return withD1ReadFallback(async () => {
+    const rows = await db.prepare(`
+      SELECT ${SELECT_COLUMNS}
+      FROM character_relations AS relation
+      WHERE relation.status = 'active' AND (relation.from_character_id = ? OR relation.to_character_id = ?)
+      ORDER BY relation.is_default DESC, relation.relation_type, relation.id
+    `).bind(characterId, characterId).all<CharacterRelationRow>();
+    const dbRelations = rows.results.map(mapCharacterRelationRow);
+    const byId = new Map(staticRelations.map((relation) => [relation.id, relation]));
+    dbRelations.forEach((relation) => byId.set(relation.id, relation));
+    return Array.from(byId.values());
+  }, () => staticRelations);
 }
 
 export async function getCharacterRelationsForMythology(
@@ -51,17 +53,19 @@ export async function getCharacterRelationsForMythology(
 ): Promise<CharacterRelation[]> {
   const staticRelations = [...getStructuredRelations(mythologyId)];
   if (!db) return staticRelations;
-  const rows = await db.prepare(`
-    SELECT ${SELECT_COLUMNS}
-    FROM character_relations AS relation
-    JOIN characters AS source ON source.id = relation.from_character_id
-    WHERE relation.status = 'active' AND source.mythology_id = ?
-    ORDER BY relation.is_default DESC, relation.relation_type, relation.id
-  `).bind(mythologyId).all<CharacterRelationRow>();
-  const dbRelations = rows.results.map(mapCharacterRelationRow);
-  const byId = new Map(staticRelations.map((relation) => [relation.id, relation]));
-  dbRelations.forEach((relation) => byId.set(relation.id, relation));
-  return Array.from(byId.values());
+  return withD1ReadFallback(async () => {
+    const rows = await db.prepare(`
+      SELECT ${SELECT_COLUMNS}
+      FROM character_relations AS relation
+      JOIN characters AS source ON source.id = relation.from_character_id
+      WHERE relation.status = 'active' AND source.mythology_id = ?
+      ORDER BY relation.is_default DESC, relation.relation_type, relation.id
+    `).bind(mythologyId).all<CharacterRelationRow>();
+    const dbRelations = rows.results.map(mapCharacterRelationRow);
+    const byId = new Map(staticRelations.map((relation) => [relation.id, relation]));
+    dbRelations.forEach((relation) => byId.set(relation.id, relation));
+    return Array.from(byId.values());
+  }, () => staticRelations);
 }
 
 export async function getDirectCharacterRelations(
@@ -81,16 +85,18 @@ export async function getRelationsForCharacterIds(
   if (ids.length === 0) return [];
   const staticRelations = getStructuredRelations(mythologyId).filter((relation) => ids.includes(relation.fromCharacterId) || (relation.toCharacterId ? ids.includes(relation.toCharacterId) : false));
   if (!db) return staticRelations;
-  const placeholders = ids.map(() => '?').join(',');
-  const rows = await db.prepare(`
-    SELECT ${SELECT_COLUMNS}
-    FROM character_relations AS relation
-    JOIN characters AS source ON source.id = relation.from_character_id
-    WHERE relation.status = 'active' AND source.mythology_id = ?
-      AND (relation.from_character_id IN (${placeholders}) OR relation.to_character_id IN (${placeholders}))
-    ORDER BY relation.is_default DESC, relation.relation_type, relation.id
-  `).bind(mythologyId, ...ids, ...ids).all<CharacterRelationRow>();
-  const byId = new Map(staticRelations.map((relation) => [relation.id, relation]));
-  rows.results.map(mapCharacterRelationRow).forEach((relation) => byId.set(relation.id, relation));
-  return Array.from(byId.values());
+  return withD1ReadFallback(async () => {
+    const placeholders = ids.map(() => '?').join(',');
+    const rows = await db.prepare(`
+      SELECT ${SELECT_COLUMNS}
+      FROM character_relations AS relation
+      JOIN characters AS source ON source.id = relation.from_character_id
+      WHERE relation.status = 'active' AND source.mythology_id = ?
+        AND (relation.from_character_id IN (${placeholders}) OR relation.to_character_id IN (${placeholders}))
+      ORDER BY relation.is_default DESC, relation.relation_type, relation.id
+    `).bind(mythologyId, ...ids, ...ids).all<CharacterRelationRow>();
+    const byId = new Map(staticRelations.map((relation) => [relation.id, relation]));
+    rows.results.map(mapCharacterRelationRow).forEach((relation) => byId.set(relation.id, relation));
+    return Array.from(byId.values());
+  }, () => staticRelations);
 }

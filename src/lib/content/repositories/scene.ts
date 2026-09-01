@@ -1,7 +1,7 @@
 import { scenes as seedScenes } from '../../../data/seed';
 import { getStructuredScenes } from '../../../content/registry';
 import type { Scene } from '../types';
-import { optionalNumber, optionalString, parseJson } from './shared';
+import { optionalNumber, optionalString, parseJson, withD1ReadFallback } from './shared';
 import type { EntityListQuery } from './types';
 
 type SceneRow = Record<string, unknown>;
@@ -46,27 +46,33 @@ export function mapSceneRow(row: SceneRow): Scene {
 
 export async function getScenes(db: D1Database | undefined, query: EntityListQuery = {}): Promise<Scene[]> {
   if (!db) return mergeStructuredScenes([]);
-  const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
-  const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM scenes${where} ORDER BY name`).all();
-  return mergeStructuredScenes(rows.results.map(mapSceneRow));
+  return withD1ReadFallback(async () => {
+    const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
+    const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM scenes${where} ORDER BY name`).all();
+    return mergeStructuredScenes(rows.results.map(mapSceneRow));
+  }, () => mergeStructuredScenes([]));
 }
 
 export async function getSceneBySlug(db: D1Database | undefined, slug: string): Promise<Scene | undefined> {
   if (!db) return mergeStructuredScenes([]).find((item) => item.slug === slug);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE slug = ? AND publish_status = 'published'`)
-    .bind(slug)
-    .first();
-  return row ? mergeStructuredScenes([mapSceneRow(row)]).find((item) => item.slug === slug) : mergeStructuredScenes([]).find((item) => item.slug === slug);
+  return withD1ReadFallback(async () => {
+    const row = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE slug = ? AND publish_status = 'published'`)
+      .bind(slug)
+      .first();
+    return row ? mergeStructuredScenes([mapSceneRow(row)]).find((item) => item.slug === slug) : mergeStructuredScenes([]).find((item) => item.slug === slug);
+  }, () => mergeStructuredScenes([]).find((item) => item.slug === slug));
 }
 
 export async function getSceneById(db: D1Database | undefined, id: string): Promise<Scene | undefined> {
   if (!db) return mergeStructuredScenes([]).find((item) => item.id === id);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE id = ? AND publish_status = 'published'`)
-    .bind(id)
-    .first();
-  return row ? mergeStructuredScenes([mapSceneRow(row)]).find((item) => item.id === id) : mergeStructuredScenes([]).find((item) => item.id === id);
+  return withD1ReadFallback(async () => {
+    const row = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE id = ? AND publish_status = 'published'`)
+      .bind(id)
+      .first();
+    return row ? mergeStructuredScenes([mapSceneRow(row)]).find((item) => item.id === id) : mergeStructuredScenes([]).find((item) => item.id === id);
+  }, () => mergeStructuredScenes([]).find((item) => item.id === id));
 }
 
 export async function getScenesForMythology(
@@ -75,11 +81,13 @@ export async function getScenesForMythology(
   query: EntityListQuery = {},
 ): Promise<Scene[]> {
   if (!db) return mergeStructuredScenes([], mythologyId).filter((item) => item.mythologyId === mythologyId);
-  const rows = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name`)
-    .bind(mythologyId)
-    .all();
-  return mergeStructuredScenes(rows.results.map(mapSceneRow), mythologyId).filter((item) => item.mythologyId === mythologyId);
+  return withD1ReadFallback(async () => {
+    const rows = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE mythology_id = ? AND publish_status = 'published' ORDER BY name`)
+      .bind(mythologyId)
+      .all();
+    return mergeStructuredScenes(rows.results.map(mapSceneRow), mythologyId).filter((item) => item.mythologyId === mythologyId);
+  }, () => mergeStructuredScenes([], mythologyId).filter((item) => item.mythologyId === mythologyId));
 }
 
 export async function getScenesForWorld(
@@ -88,9 +96,11 @@ export async function getScenesForWorld(
   query: EntityListQuery = {},
 ): Promise<Scene[]> {
   if (!db) return mergeStructuredScenes([]).filter((item) => item.worldId === worldId);
-  const rows = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE world_id = ? AND publish_status = 'published' ORDER BY name`)
-    .bind(worldId)
-    .all();
-  return mergeStructuredScenes(rows.results.map(mapSceneRow)).filter((item) => item.worldId === worldId);
+  return withD1ReadFallback(async () => {
+    const rows = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM scenes WHERE world_id = ? AND publish_status = 'published' ORDER BY name`)
+      .bind(worldId)
+      .all();
+    return mergeStructuredScenes(rows.results.map(mapSceneRow)).filter((item) => item.worldId === worldId);
+  }, () => mergeStructuredScenes([]).filter((item) => item.worldId === worldId));
 }

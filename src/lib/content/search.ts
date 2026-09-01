@@ -1,3 +1,5 @@
+import { isD1ReadQuotaError } from './repositories/shared';
+
 /**
  * 全站搜索数据访问层（D1 LIKE 前缀/包含匹配，V1 MVP）。
  * 支持 Mythology / World / Character / Artwork 四类结果，中英文名称匹配。
@@ -164,6 +166,11 @@ async function queryRows(
   limit = 30,
 ): Promise<Record<string, unknown>[]> {
   if (!db) return [];
-  const rows = await db.prepare(`${sql} LIMIT ?`).bind(...params, String(limit)).all();
-  return rows.results;
+  try {
+    const rows = await db.prepare(`${sql} LIMIT ?`).bind(...params, String(limit)).all();
+    return rows.results;
+  } catch (error) {
+    if (isD1ReadQuotaError(error)) return [];
+    throw error;
+  }
 }

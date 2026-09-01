@@ -1,6 +1,6 @@
 import { artworks as seedArtworks } from '../../../data/seed';
 import type { Artwork, ArtworkType, LicenseMeta } from '../types';
-import { optionalNumber, optionalString, pageClause, parseStringArray } from './shared';
+import { isD1ReadQuotaError, optionalNumber, optionalString, pageClause, parseStringArray } from './shared';
 import type { ArtworkListQuery } from './types';
 
 type ArtworkRow = Record<string, unknown>;
@@ -47,10 +47,16 @@ export function mapArtworkRow(row: ArtworkRow, characterIds: readonly string[] =
 async function loadCharacterIds(db: D1Database, artworkIds: readonly string[]): Promise<Map<string, string[]>> {
   if (artworkIds.length === 0) return new Map();
   const placeholders = artworkIds.map(() => '?').join(',');
-  const rows = await db
-    .prepare(`SELECT artwork_id, character_id FROM artwork_characters WHERE artwork_id IN (${placeholders})`)
-    .bind(...artworkIds)
-    .all();
+  let rows;
+  try {
+    rows = await db
+      .prepare(`SELECT artwork_id, character_id FROM artwork_characters WHERE artwork_id IN (${placeholders})`)
+      .bind(...artworkIds)
+      .all();
+  } catch (error) {
+    if (isD1ReadQuotaError(error)) return new Map();
+    throw error;
+  }
   const map = new Map<string, string[]>();
   for (const row of rows.results) {
     const artworkId = String(row.artwork_id);
@@ -150,6 +156,7 @@ export async function getArtworks(db: D1Database | undefined, query: ArtworkList
       .bind(...values, limit, offset)
       .all();
   } catch (error) {
+    if (isD1ReadQuotaError(error)) return applySeedFilters(seedArtworks, query);
     // 线上 D1 可能尚未应用参与度字段迁移。字段缺失时退化为发布时间排序，并返回 0 计数。
     if (!isMissingEngagementColumnError(error)) throw error;
     rows = await db
@@ -164,10 +171,15 @@ export async function getArtworks(db: D1Database | undefined, query: ArtworkList
 
 export async function countPublishedArtworks(db: D1Database | undefined): Promise<number> {
   if (!db) return seedArtworks.filter((item) => item.reviewStatus === 'approved').length;
-  const row = await db
-    .prepare("SELECT COUNT(*) AS count FROM artworks WHERE publish_status = 'published' AND review_status = 'approved'")
-    .first<{ count: number }>();
-  return Number(row?.count ?? 0);
+  try {
+    const row = await db
+      .prepare("SELECT COUNT(*) AS count FROM artworks WHERE publish_status = 'published' AND review_status = 'approved'")
+      .first<{ count: number }>();
+    return Number(row?.count ?? 0);
+  } catch (error) {
+    if (!isD1ReadQuotaError(error)) throw error;
+    return seedArtworks.filter((item) => item.reviewStatus === 'approved').length;
+  }
 }
 
 async function getArtworkRowWithEngagement(
@@ -181,6 +193,7 @@ async function getArtworkRowWithEngagement(
       .bind(value)
       .first<ArtworkRow>();
   } catch (error) {
+    if (isD1ReadQuotaError(error)) return null;
     if (!isMissingEngagementColumnError(error)) throw error;
     return db
       .prepare(`SELECT ${BASE_SELECT_COLUMNS}, 0 AS download_count, 0 AS view_count FROM artworks WHERE ${column} = ? AND publish_status = 'published' AND review_status = 'approved'`)
@@ -208,7 +221,10 @@ export async function getArtworkBySlug(db: D1Database | undefined, slug: string)
     return artwork ? { ...artwork, downloadCount: 0, viewCount: 0 } : undefined;
   }
   const row = await getArtworkRowWithEngagement(db, 'slug', slug);
-  if (!row) return undefined;
+  if (!row) {
+    const artwork = seedArtworks.find((item) => item.slug === slug);
+    return artwork ? { ...artwork, downloadCount: 0, viewCount: 0 } : undefined;
+  }
   // 当前按 slug 获取只用于公开作品详情页，因此在这里覆盖直接访问/新标签打开等非弹窗访问。
   await incrementArtworkView(db, String(row.id));
   const characterMap = await loadCharacterIds(db, [String(row.id)]);
@@ -221,7 +237,10 @@ export async function getArtworkById(db: D1Database | undefined, id: string): Pr
     return artwork ? { ...artwork, downloadCount: 0, viewCount: 0 } : undefined;
   }
   const row = await getArtworkRowWithEngagement(db, 'id', id);
-  if (!row) return undefined;
+  if (!row) {
+    const artwork = seedArtworks.find((item) => item.id === id);
+    return artwork ? { ...artwork, downloadCount: 0, viewCount: 0 } : undefined;
+  }
   const characterMap = await loadCharacterIds(db, [String(row.id)]);
   return mapArtworkRow(row, characterMap.get(String(row.id)) ?? []);
 }

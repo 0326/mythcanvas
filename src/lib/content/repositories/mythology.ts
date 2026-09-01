@@ -1,6 +1,6 @@
 import { mythologies as seedMythologies } from '../../../data/mythologies';
 import type { Mythology } from '../types';
-import { optionalNumber, optionalString, pageClause, parseJson } from './shared';
+import { optionalNumber, optionalString, pageClause, parseJson, withD1ReadFallback } from './shared';
 import type { EntityListQuery } from './types';
 
 type MythologyRow = Record<string, unknown>;
@@ -39,34 +39,41 @@ export function mapMythologyRow(row: MythologyRow): Mythology {
 }
 
 export async function getMythologies(db: D1Database | undefined, query: EntityListQuery = {}): Promise<Mythology[]> {
-  if (!db) {
+  const fallback = () => {
     const { limit, offset } = pageClause(query);
     return seedMythologies.slice(offset, offset + limit);
-  }
-  const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
-  const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM mythologies${where} ORDER BY display_order, name`).all();
-  const stored = rows.results.map(mapMythologyRow);
-  const storedIds = new Set(stored.map((item) => item.id));
-  const merged = [...stored, ...seedMythologies.filter((item) => !storedIds.has(item.id))]
-    .toSorted((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999) || a.name.localeCompare(b.name, 'zh-CN'));
-  const { limit, offset } = pageClause(query);
-  return merged.slice(offset, offset + limit);
+  };
+  if (!db) return fallback();
+  return withD1ReadFallback(async () => {
+    const where = query.published === 'all' ? '' : " WHERE publish_status = 'published'";
+    const rows = await db.prepare(`SELECT ${SELECT_COLUMNS} FROM mythologies${where} ORDER BY display_order, name`).all();
+    const stored = rows.results.map(mapMythologyRow);
+    const storedIds = new Set(stored.map((item) => item.id));
+    const merged = [...stored, ...seedMythologies.filter((item) => !storedIds.has(item.id))]
+      .toSorted((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999) || a.name.localeCompare(b.name, 'zh-CN'));
+    const { limit, offset } = pageClause(query);
+    return merged.slice(offset, offset + limit);
+  }, fallback);
 }
 
 export async function getMythologyBySlug(db: D1Database | undefined, slug: string): Promise<Mythology | undefined> {
   if (!db) return seedMythologies.find((item) => item.slug === slug);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM mythologies WHERE slug = ? AND publish_status = 'published'`)
-    .bind(slug)
-    .first();
-  return row ? mapMythologyRow(row) : seedMythologies.find((item) => item.slug === slug);
+  return withD1ReadFallback(async () => {
+    const row = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM mythologies WHERE slug = ? AND publish_status = 'published'`)
+      .bind(slug)
+      .first();
+    return row ? mapMythologyRow(row) : seedMythologies.find((item) => item.slug === slug);
+  }, () => seedMythologies.find((item) => item.slug === slug));
 }
 
 export async function getMythologyById(db: D1Database | undefined, id: string): Promise<Mythology | undefined> {
   if (!db) return seedMythologies.find((item) => item.id === id);
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM mythologies WHERE id = ? AND publish_status = 'published'`)
-    .bind(id)
-    .first();
-  return row ? mapMythologyRow(row) : seedMythologies.find((item) => item.id === id);
+  return withD1ReadFallback(async () => {
+    const row = await db
+      .prepare(`SELECT ${SELECT_COLUMNS} FROM mythologies WHERE id = ? AND publish_status = 'published'`)
+      .bind(id)
+      .first();
+    return row ? mapMythologyRow(row) : seedMythologies.find((item) => item.id === id);
+  }, () => seedMythologies.find((item) => item.id === id));
 }

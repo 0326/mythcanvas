@@ -1,5 +1,5 @@
 import type { ContentConcept, SourceRef } from '../types';
-import { parseJson } from './shared';
+import { parseJson, withD1ReadFallback } from './shared';
 import { listStructuredMythologyBundles } from '../../../content/registry';
 
 type ContentConceptRow = Record<string, unknown>;
@@ -30,13 +30,15 @@ export async function getContentConceptsByIds(
     return [];
   }))];
   if (!db) return staticConcepts;
-  const placeholders = uniqueIds.map(() => '?').join(',');
-  const rows = await db.prepare(`
-    SELECT id, mythology_id, slug, name, summary, source_refs_json
-    FROM content_concepts
-    WHERE status = 'active' AND id IN (${placeholders})
-  `).bind(...uniqueIds).all<ContentConceptRow>();
-  const byId = new Map(staticConcepts.map((item) => [item.id, item]));
-  rows.results.map(mapContentConceptRow).forEach((item) => byId.set(item.id, item));
-  return Array.from(byId.values());
+  return withD1ReadFallback(async () => {
+    const placeholders = uniqueIds.map(() => '?').join(',');
+    const rows = await db.prepare(`
+      SELECT id, mythology_id, slug, name, summary, source_refs_json
+      FROM content_concepts
+      WHERE status = 'active' AND id IN (${placeholders})
+    `).bind(...uniqueIds).all<ContentConceptRow>();
+    const byId = new Map(staticConcepts.map((item) => [item.id, item]));
+    rows.results.map(mapContentConceptRow).forEach((item) => byId.set(item.id, item));
+    return Array.from(byId.values());
+  }, () => staticConcepts);
 }

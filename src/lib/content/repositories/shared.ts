@@ -1,5 +1,28 @@
 import type { Pagination } from './types';
 
+/**
+ * D1 can temporarily reject reads when an account reaches its daily free-tier
+ * row-read quota. Public pages have a complete static content fallback, so a
+ * quota rejection should degrade to that fallback instead of taking the page
+ * down with a 500.
+ */
+export function isD1ReadQuotaError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /D1_ERROR:[^\n]*(?:free tier|daily row read limit)/i.test(message);
+}
+
+export async function withD1ReadFallback<T>(
+  operation: () => Promise<T>,
+  fallback: () => T | Promise<T>,
+): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    if (!isD1ReadQuotaError(error)) throw error;
+    return fallback();
+  }
+}
+
 /** D1 行字段 -> 可选字符串 */
 export function optionalString(value: unknown): string | undefined {
   return value == null ? undefined : String(value);
