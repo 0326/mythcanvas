@@ -1,739 +1,160 @@
 # MythCanvas 玛雅神话完整补全方案
 
 > 状态：Review Proposal  
-> 版本：V1.0  
+> 版本：V1.1  
 > 日期：2026-09-02  
-> 适用范围：玛雅神话内容建模、人物扩充、传统/时期分层、Character Relation / Graph、World / Scene、Story、来源体系、视觉资产、结构化内容流水线与后续 AI 出图。  
-> 相关文档：`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/GREEK_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
+> 适用范围：玛雅神话内容建模、传统/时期分层、Story、Character、Relation / Graph、World / Scene、来源体系、视觉资产、结构化内容流水线与后续 AI 出图。  
+> 相关文档：`docs/GREEK_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md`、`docs/JAPANESE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/EGYPTIAN_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
 
 ---
 
-## 0. 结论
+# 0. Review 结论
 
-当前玛雅神话在 MythCanvas 中还处于“文明入口”阶段，尚未形成可连续浏览、可追溯来源、可支撑 Character Graph 与视觉生产的内容宇宙。
+V1.0 的核心方向成立，而且玛雅相比希腊 / 北欧 / 日本 / 埃及，更需要把 **Tradition / Period / Evidence** 放在内容建模前面：
 
-当前主干已经具备：
+- 不建立一个虚构的 Pan-Maya 统一神系；
+- `Popol Vuh` 首先按 K'iche' 传统处理；
+- Classic Lowland、Postclassic Codices、Colonial Yucatec 不自动互相回填；
+- Seven Macaw、Maize God、Ix Chel、Death God、Feathered Serpent 等高风险身份不强行 `same-as`；
+- World 少、Scene 多；
+- Visual DNA 按时期 / 地区控制，严格防 Aztec / Mexica 污染；
+- 不新增 Maya-only importer。
 
-- `myth-maya` / 玛雅神话入口；
-- 基础 Visual DNA：玉石绿、石灰岩、热带绿、天青、世界树、阶梯神庙、星历、玛雅文字；
-- 通用 Character / Relation / Interpretation / Variant / World / Scene / Story Schema；
-- 希腊阶段已落地的 Structured Content Pipeline 经验；
-- 北欧阶段提出的通用 mythology registry / validator / importer 与来源化 Character Graph 方向。
+这些原则全部保留。
 
-但在当前主干数据中，玛雅仍基本只有：
+但对照已经实施的 Greek V1.1、Norse Completion + Graph Integration，以及最新 Japanese / Egyptian V1.1 后，V1.0 仍有 **10 个必须修正的问题**。
 
-```text
-Maya Mythology
-  → mythology metadata
-  → placeholder hero
-  → no formal Maya Character closure
-  → no formal Maya World closure
-  → no formal Maya Story manifest
-```
+## 0.1 V1.1 的十个修正
 
-因此本轮不是“补几个玛雅神”，而是建立 MythCanvas 第一套真正需要处理 **跨时期、跨语言群、跨地区传统差异** 的神话内容体系。
+### 1. 删除“36 个 unit”硬 KPI
 
-### 本方案最重要的判断
-
-玛雅神话不能建模成：
-
-```text
-统一玛雅神系
-  → 一个最高神
-  → 一套固定神谱
-  → 一个统一地下世界 Xibalba
-  → 一棵固定世界树
-  → 一张 13 天界 + 9 冥界地图
-```
-
-更接近真实资料结构的方式是：
-
-```text
-Maya Mythology
-├── K'iche' Highland Tradition
-│   └── Popol Vuh narrative spine
-├── Classic Lowland Tradition
-│   └── inscriptions + painted ceramics + monumental iconography
-├── Postclassic Codical Tradition
-│   └── Dresden / Madrid / Paris / Mexico codices
-└── Colonial Yucatec Tradition
-    └── Chilam Balam / Ritual of the Bacabs / contact-period records
-```
-
-这些传统之间存在大量连续性、相似意象和可能的神祇对应，但不能默认做 `same-as`。
-
-### 本方案的六个核心决策
-
-1. **Tradition First + Story First**：先把来源传统分层，再建立 Story / mythic-ritual manifest，由依赖闭包反推 Character / World / Scene / Relation。
-2. **禁止 Pan-Maya Flattening**：`Popol Vuh` 是基切玛雅（K'iche'）传统的核心文本，不是全体玛雅文明统一“圣经”；Xibalba、Hunahpu、Xbalanque、Q'uq'umatz 等首先属于其明确来源范围。
-3. **Identity 必须允许“不确定对应”**：Classic 图像神、Postclassic codex 神与 Colonial 命名之间常只有学术对应，不允许为了产品整齐直接强制合并。
-4. **World 少、Scene 多**：玛雅资料中的宇宙空间经常通过洞穴、山、球场、树、天体道路、雨神空间表达，不应为了凑 World 数量制造一张现代奇幻地图。
-5. **Visual DNA 按时期/地区拆层**：Classic Lowland、Postclassic Yucatán、K'iche' Highlands 不共享一套“雨林金字塔皮肤”；同时严格防止阿兹特克 / 墨西加视觉污染。
-6. **不创建 Maya-only importer**：玛雅应直接进入通用 mythology content registry / validator / sync pipeline，推动 Greek-only 能力真正文明无关化。
-
----
-
-# 1. 当前仓库盘点
-
-## 1.1 当前 `myth-maya`
-
-`src/data/mythologies.ts` 已有：
-
-```text
-id: myth-maya
-slug: maya
-name: 玛雅神话
-nameEn: Maya Mythology
-tagline: 世界树与西巴尔巴
-```
-
-基础视觉字段包括：
-
-```text
-palette: 玉石绿 / 石灰岩灰 / 热带绿 / 天青
-motifs: 世界树 / 阶梯神庙 / 星历 / 玛雅文字
-materials: 石灰岩 / 玉石 / 木 / 灰泥
-atmosphere: 宇宙感 / 热带 / 古老 / 神秘
-```
-
-该入口可以保留，但 V2 必须修正两个过度概括：
-
-- “世界树与西巴尔巴”容易把 `Xibalba` 误当作所有玛雅传统的统一地下世界名称；
-- “热带雨林 + 阶梯神庙”不足以覆盖高地基切传统、古典低地宫廷、后古典尤卡坦和手抄本视觉。
-
-建议后续 tagline 改为更中性的：
-
-> **玉米 · 星辰 · 地下世界**
-
-或在产品支持 tradition-aware tagline 后按传统动态展示。
-
-## 1.2 当前没有玛雅实体闭包
-
-与希腊、北欧当前状态相比，玛雅尚未形成正式：
-
-- P0 Character 集；
-- Maya World；
-- Maya Scene network；
-- Maya Story；
-- Maya source manifest；
-- Maya canonical design；
-- Maya production artwork。
-
-因此本轮可以从一开始就使用正确的内容工程结构，不需要背负大量 legacy ID。
-
-## 1.3 玛雅比前几套神话更需要来源分层
-
-希腊、北欧已经存在明显文本差异，但玛雅还有额外复杂度：
-
-```text
-时间跨度：Preclassic → Classic → Postclassic → Colonial
-地区跨度：Highlands → Southern Lowlands → Northern Yucatán
-语言跨度：K'iche' / Yucatecan / Ch'olan 等
-资料形态：碑铭 / 陶器图像 / 手抄本 / 殖民时期字母文本 / 西班牙记录
-```
-
-如果不增加 Tradition / Period Scope，后续最容易出现：
-
-- 把 16 世纪 K'iche' 的 Seven Macaw 直接等同于早两千年出现的 Principal Bird Deity；
-- 把 Hun Hunahpu 直接标记为 Classic Maize God；
-- 把 Q'uq'umatz、K'uk'ulkan、Quetzalcoatl 做成同一个 Character Variant；
-- 把 Ix Chel 统一描述成“年轻月亮女神”；
-- 把所有 Death God 都命名为 Ah Puch；
-- 把所有玛雅地下空间都叫 Xibalba。
-
-这些都必须在数据模型与 validator 层阻断。
-
----
-
-# 2. “完整”的定义
-
-玛雅神话的完整不等于收录所有已知神名，也不意味着从不同地区拼出一套不存在的统一神谱。
-
-MythCanvas P0 完整定义是：
-
-> 用户能够清楚理解基切《Popol Vuh》的创世、人类多次创造、Seven Macaw、Hero Twins、Xibalba 与玉米造人主线；同时能够进入古典期低地和后古典尤卡坦的重要神祇/宇宙意象，并明确知道哪些是同一传统、哪些只是可能对应或跨时期连续传统。所有核心 Story / dossier 的实体依赖与来源不存在悬空。
-
-P0 硬目标：
+V1.0 同时写了：
 
 ```text
 Core Narrative / Mythic-Ritual Units >= 36
-P0 Entity Dependency Closure = 100%
-P0 Stable Identity Source Coverage = 100%
-P0 Critical Relation Source Coverage = 100%
-P0 Tradition Scope Coverage = 100%
-P0 Period Scope Coverage = 100%
-Tier S Canonical Design Coverage = 100%
-Conflicting Identity Forced Merge = 0
-Orphan Entity Reference = 0
-Critical Aztec/Maya Visual Contamination = 0
+Core Narrative / Mythic-Ritual Units = 36 / 36
 ```
 
-Character / World / Scene / Relation 最终数量由 Story / dossier 依赖闭包产生，不先定“玛雅必须 50 神”。
+这与 Greek / Japanese 最新的 Dependency Closure 原则冲突，也会诱导把 Xibalba 一段连续叙事拆成很多低价值页面。
 
----
+V1.1 改为：
 
-# 3. 来源体系与 Tradition Scope
+> **Core Narrative Coverage = 100%，Story 数量是 Narrative Unit Quality Gate Review 后的结果，不是目标。**
 
-## 3.1 K'iche' Highland — `Popol Vuh`
+`Popol Vuh` 主线仍按 V1.0 的 32 个事件节点作为 dependency manifest 草案，但不要求 32 个节点都成为独立 Story URL。
 
-P0 最完整的连续叙事主干来自 `Popol Vuh`。
+### 2. P0 内容完整度与 P1 壁纸生产拆开
 
-必须明确：
-
-- 它记录的是 K'iche' Maya 传统；
-- 现存文本属于殖民初期字母记录传统；
-- 它极其重要，但不是所有古代玛雅地区共享的一本统一经典；
-- 可以用于建立最完整的 Story spine，但跨到 Classic / Yucatec 时只能建立 source-scoped comparison。
-
-建议 source scope：
+V1.0 把 Tier S：
 
 ```text
-kiche-popol-vuh
+portrait 100%
+PC wallpaper >= 1
+Mobile wallpaper >= 1
 ```
 
-P0 正文引用应尽量记录：
+写进 P0 验收，过重。
+
+V1.1 对齐 Greek / Japanese / Egyptian：
 
 ```text
-work
-+ translation / edition
-+ narrative section
-+ page / paragraph locator（稳定时）
+P0 = 来源 + Narrative Coverage + Dependency Closure + Relation + Canonical Design + 最低可用视觉
+P1 = Tier S / A 正式 Portrait、PC / Mobile Wallpaper、World / Scene 高质量视觉扩展
 ```
 
-## 3.2 Classic Lowland — 碑铭、陶器与考古图像
+P0 不再因为几十张图未生产完成而阻塞内容宇宙上线。
 
-古典期大量神话不是以今天熟悉的“故事书”形态保存，而是存在于：
+### 3. Canonical Design 严格复用当前通用字段
 
-- stelae / lintels / altars；
-- painted ceramics；
-- funerary / royal contexts；
-- glyphic texts；
-- iconographic sequences。
-
-核心可以支撑：
-
-- Maize God；
-- K'awiil；
-- Chaak；
-- K'inich Ajaw；
-- God L；
-- Principal Bird Deity；
-- Classic Hero Twins / youthful gods 的学术重建；
-- Witz / cave / world tree / watery underworld 等宇宙意象。
-
-规则：
-
-> **图像学重建可以进入 MythCanvas，但必须标 `evidenceType=iconographic-reconstruction`，不能伪装成一篇完整保存的古代文字故事。**
-
-建议 scope：
+V1.0 提议的：
 
 ```text
-classic-lowland
-classic-lowland-iconography
-classic-lowland-inscription
-```
-
-## 3.3 Postclassic Codices
-
-四部现存前西班牙征服时期玛雅手抄本是 P0/P1 重要来源：
-
-- Dresden Codex；
-- Madrid Codex；
-- Paris Codex；
-- Maya Codex of Mexico（旧称 Grolier Codex）。
-
-它们特别适合支撑：
-
-- Chaak / rain almanacs；
-- God D / old deity；
-- Goddess O / aged goddess；
-- Death God；
-- Venus warfare；
-- calendar patrons；
-- ritual acts；
-- astronomy / divination。
-
-它们不是传统意义上的“神话小说”，因此内容模型需要允许：
-
-```text
-kind = ritual-tradition | astronomical-tradition | mythic-dossier
-```
-
-而不是强行改写成虚构剧情。
-
-建议 scope：
-
-```text
-postclassic-codex-dresden
-postclassic-codex-madrid
-postclassic-codex-paris
-postclassic-codex-mexico
-```
-
-## 3.4 Colonial Yucatec
-
-重要来源包括：
-
-- Books of Chilam Balam；
-- Ritual of the Bacabs；
-- contact-period Yucatec records。
-
-这些材料对：
-
-- deity names；
-- healing；
-- cosmology；
-- ritual language；
-- Bacabs / directional beings；
-- Ix Chel / related goddess traditions
-
-非常重要，但必须标 Colonial scope，不能自动回填到 Classic period。
-
-建议 scope：
-
-```text
-colonial-yucatec
-colonial-yucatec-chilam-balam
-colonial-yucatec-ritual-bacabs
-```
-
-## 3.5 Diego de Landa 等西班牙记录
-
-`Relación de las Cosas de Yucatán` 等接触期记录具有很高资料价值，但属于殖民观察者文本。
-
-规则：
-
-- 可作为重要 historical witness；
-- 不与 indigenous text 设为完全相同证据等级；
-- 对 deity identity、ritual practice 等 claim 必须显示观察者来源。
-
-## 3.6 现代学术资料
-
-博物馆、碑铭数据库、Maya epigraphy / iconography 研究用于：
-
-- 解读 glyph；
-- 识别 deity attributes；
-- 判断可能对应；
-- 建立 period / region context；
-- 追溯原始对象。
-
-但 SourceRef 应尽量回落到：
-
-```text
-specific monument / vessel / codex page / colonial manuscript section
-```
-
----
-
-# 4. Identity / Equivalence Policy — 本轮最关键的数据规则
-
-## 4.1 不允许只有 `same-as`
-
-玛雅跨时期神祇关系至少需要支持：
-
-```text
-same-identity
-possible-equivalence
-scholarly-equivalence
-later-cognate
-motif-continuity
-iconographic-analogue
-name-continuity
-uncertain
-```
-
-并挂：
-
-```text
+identityAnchors
 traditionScope
 periodScope
-sourceRefs
+sacredObjects
+sourceScopedFacts
+iconographicEvidence
+interpretationNotes
+```
+
+不属于当前 `CanonicalDesign`。
+
+V1.1 只使用：
+
+```text
+anchors
+silhouette
+appearance
+costumeLanguage
+paletteCues
+signatureMaterials
+temperament
+mythologicalFacts
+originalDesignChoices
+avoid
+canonicalPrompt
+```
+
+来源差异进入：
+
+```text
+ContentClaim
+Character.sourceRefs / sourcePeriods
+CharacterInterpretation
+CharacterName
+CharacterRelation.sourceRefs / traditionScope
+```
+
+不为玛雅单独扩一套 Canonical Design Schema。
+
+### 4. 不创建当前 Schema 不支持的 Story kind / Dossier 实体
+
+V1.0 提议：
+
+```text
+mythic-dossier
+ritual-tradition
+astronomical-tradition
+```
+
+当前 `MythStoryKind` 只支持：
+
+```text
+myth
+folk-legend
+religious-tradition
+literary-fantasy
+```
+
+V1.1 规则：
+
+- 连续神话叙事使用 `myth`；
+- Codex / ritual / astronomy 中能独立回答用户问题的内容，可使用 `religious-tradition`；
+- 纯身份研究不伪装成 Story，优先进入 Character / Interpretation / ContentConcept / ContentClaim；
+- 若未来确实需要通用 `Dossier` 页面，必须作为跨文明产品 / Schema 能力单独评审，不在 Maya package 私造类型。
+
+### 5. `periodScope / evidenceLevel` 不作为 Maya-only 字段
+
+当前：
+
+- `Character.sourcePeriods` 已能表达角色来源时期；
+- `SourceRef.period` 已能表达证据时期；
+- `CharacterRelation.confidence = high | medium | contested` 已能表达对应置信度；
+- `ContentClaim.status = supported | contested | editorial-synthesis` 已能表达编辑判断。
+
+因此 V1.1 不要求直接新增：
+
+```text
+periodScope
 evidenceLevel
-note
 ```
 
-## 4.2 Seven Macaw ≠ Principal Bird Deity（默认）
+若后续产品确认需要统一的 period filter / evidence classification，必须提成跨 Greek / Norse / Japanese / Egyptian / Maya 的 Generic Schema Proposal。
 
-产品规则：
+### 6. Tradition Membership 不是 Character Relation
 
-```text
-Vucub Caquix / Seven Macaw
-  = K'iche' Popol Vuh Character
-
-Principal Bird Deity
-  = Preclassic / Classic iconographic entity
-
-relation
-  = possible / scholarly analogue
-  != same-identity by default
-```
-
-两者跨越极长时间，不能因为视觉和故事相似直接合并。
-
-## 4.3 Hun Hunahpu ≠ Classic Maize God（默认）
-
-可以建立：
-
-```text
-mythic / iconographic correspondence
-```
-
-但不能把 Classic Maize God 的所有图像属性自动写进 Hun Hunahpu Canonical Design。
-
-## 4.4 Q'uq'umatz ≠ K'uk'ulkan ≠ Quetzalcoatl（默认）
-
-三者都属于 Mesoamerican feathered-serpent complex，但产品必须保留独立文化语境：
-
-- Q'uq'umatz：K'iche' / Popol Vuh；
-- K'uk'ulkan：Yucatec Maya；
-- Quetzalcoatl：Central Mexican traditions。
-
-MythCanvas 中可以 cross-link，但不做同一 Character 的三个 alias。
-
-## 4.5 Ix Chel 身份政策
-
-禁止默认文案：
-
-> “Ix Chel = 年轻、美丽、温柔的玛雅月亮女神。”
-
-原因：Postclassic / Colonial goddess identities 与现代大众“月亮女神 Ixchel”形象之间存在明显重建和混合。
-
-P0 建模建议：
-
-- `Chak Chel / Goddess O`：老年女神、治愈/分娩/洪水等 source-backed attributes；
-- `Goddess I / youthful female deity`：保持独立 iconographic identity；
-- `Ix Chel` 名称通过 Colonial / Postclassic evidence 建立 source-scoped mapping；
-- “young moon goddess Ix Chel”只能进入 modern interpretation / reception，不做 canonical merge。
-
-## 4.6 Itzamna / God D
-
-可以保留传统学术对应，但必须允许后续研究修正：
-
-```text
-God D
-↔ Itzamna
-relationType = scholarly-equivalence / high-confidence if sources support
-```
-
-不要让旧的 Schellhas letter labels 消失；它们对图像资料检索仍有价值。
-
-## 4.7 Death God 命名
-
-不要把所有 Death God 固定叫 `Ah Puch`。
-
-P0 建议：
-
-```text
-God A / skeletal death deity
-Kisin / Yum Kimil 等名称
-```
-
-按 source scope 建 alias / correspondence。
-
-## 4.8 Xibalba 不是全体玛雅统一地下世界专名
-
-`Xibalba` 建成正式 World 时必须：
-
-```text
-traditionScope = kiche-popol-vuh
-```
-
-Classic Maya underworld scenes、caves、watery realms 不应默认绑定 `world-xibalba`。
-
----
-
-# 5. P0 Content Manifest — 36 个 Narrative / Mythic-Ritual Units
-
-玛雅不应该伪造一条跨两千年的统一时间线。
-
-产品上应拆为三条可并行浏览的卷轴：
-
-```text
-A. Popol Vuh Narrative
-B. Classic Maya Mythic Images
-C. Postclassic / Yucatec Sacred Order
-```
-
-## Volume A：天地创造与失败的人类 — K'iche' / Popol Vuh
-
-### 1. 原初寂静：Heart of Sky 与 Plumed Serpent
-
-依赖候选：
-
-- Heart of Sky / Huracán complex；
-- Q'uq'umatz / Sovereign Plumed Serpent；
-- creator figures，按具体译本拆分。
-
-### 2. 大地从水与黑暗中被唤出
-
-Scene：primordial water / emerging earth。
-
-### 3. 动物被创造，却不能正确赞颂创造者
-
-不把动物失败简单写成人类式“惩罚故事”，按原文叙事表达。
-
-### 4. 泥土人创造失败
-
-### 5. 木头人创造与毁灭
-
-需要严格来源化洪水、器物反叛、动物攻击等细节，不跨译本拼接。
-
-### 6. Seven Macaw 宣称自己是太阳与月亮般的光辉
-
-Character：Vucub Caquix / Seven Macaw。
-
-### 7. Hunahpu 与 Xbalanque 击败 Seven Macaw
-
-### 8. Zipacna 与四百少年
-
-### 9. Hero Twins 击败 Zipacna
-
-### 10. Hero Twins 击败 Cabrakan
-
----
-
-## Volume B：第一代球员与 Xibalba
-
-### 11. Hun Hunahpu 与 Vucub Hunahpu 的球赛
-
-### 12. Xibalba Lords 发出邀请
-
-核心 antagonists 按 Popol Vuh 具体命名建 Character / group，不先用“12 Death Gods”现代简化。
-
-### 13. 第一代球员在 Xibalba 被欺骗与杀死
-
-### 14. Hun Hunahpu 的头进入葫芦树
-
-Scene：calabash tree。
-
-### 15. Xquic / Blood Moon 的受孕
-
-避免现代“virgin goddess”固定标签，按文本身份和翻译记录。
-
-### 16. Hunahpu 与 Xbalanque 出生
-
-### 17. Hun Batz / Hun Chouen 与 Hero Twins
-
-猴变叙事独立 Story，连接艺术 / music / artisan reception 时放 P1 enrichment。
-
-### 18. 第二代 Hero Twins 收到 Xibalba 召唤
-
-### 19. 通往 Xibalba 的道路与识破诸王
-
-Scene：crossroads / council of Xibalba。
-
-### 20. Xibalba 的试炼之屋
-
-优先做一个 Story + 多 Scene：
-
-- Dark House；
-- Cold House；
-- Jaguar House；
-- Razor House；
-- Fire House；
-- Bat House。
-
-具体 house 名称和顺序按选定版本校准。
-
-### 21. Bat House 与 Hunahpu 被斩首
-
-### 22. 球场上的头颅与恢复
-
-### 23. Twins 主动赴死与复生
-
-### 24. Twins 以表演者身份重返 Xibalba
-
-### 25. Xibalba Lords 被击败
-
-### 26. Hero Twins 升天与宇宙秩序恢复
-
-不要默认正文写成“二人明确变成太阳与月亮”，除非所采用原文 / 译本足够支撑具体表述；可在 Interpretation 中说明后世常见解释。
-
----
-
-## Volume C：玉米造人与 K'iche' 黎明
-
-### 27. 白玉米与黄玉米创造真正的人类
-
-### 28. 第一批人拥有过于完美的视野
-
-### 29. 造物者限制人类视野
-
-### 30. 第一批人的伴侣与人类繁衍
-
-### 31. Tohil、Awilix、Jacawitz 与火
-
-该段开始进入 K'iche' ethnogonic / lineage tradition，Story UI 必须明确不是“全玛雅共同神谱”。
-
-### 32. 第一次黎明：太阳、月亮与星辰出现
-
-可作为 Popol Vuh P0 主线收束。
-
-K'iche' 迁徙、族群谱系、统治者历史进入 P0.5，不阻塞神话主干。
-
----
-
-## Volume D：Classic Maya Mythic Image Dossiers
-
-以下不是假装有完整“古典期神话小说”，而是基于图像 / 碑铭建立可浏览 mythic dossier。
-
-### 33. Maize God 的死亡、地下与再生图像传统
-
-- tonsured Maize God；
-- emergence / rebirth imagery；
-- watery / earth-monster / turtle imagery，按具体器物证据记录。
-
-禁止自动写：`Maize God = Hun Hunahpu`。
-
-### 34. K'awiil：闪电、丰饶与王权
-
-重点：
-
-- serpent leg / smoking element 等 iconographic anchors；
-- royal legitimacy；
-- abundance / lightning complex。
-
-### 35. Chaak：雨、雷与劈开山石
-
-建立 Classic + Codex source packages，不把所有长鼻 deity 都当 Chaak。
-
-### 36. K'inich Ajaw 与太阳运行
-
-P0 到此满足 36 unit 目标。
-
-P0.5 紧接着补：
-
-- Principal Bird Deity；
-- God L；
-- Classic Moon Goddess；
-- Witz / cave / watery underworld；
-- Classic Hero Twins / youthful deities 的学术重建。
-
----
-
-# 6. Postclassic / Yucatec P0.5 Dossiers
-
-这些不阻塞第一轮 36 units 上线，但应与视觉生产并行准备。
-
-1. God D / Itzamna dossier；
-2. Goddess O / Chak Chel / Ix Chel identity dossier；
-3. Goddess I / youthful female deity dossier；
-4. Death God / God A / Kisin dossier；
-5. K'uk'ulkan / Feathered Serpent of Yucatán；
-6. Dresden Venus Tables；
-7. Chaak rain almanacs；
-8. New Year / directional ritual；
-9. Bacabs / Pauahtun identity problem；
-10. Dresden flood / water-pouring imagery，避免包装成“玛雅世界末日唯一版本”。
-
----
-
-# 7. Character Dependency Closure 与视觉分级
-
-不先锁总人数。
-
-## Tier S — 首批生产角色
-
-建议首批 16 个高价值 Character / identity dossier：
-
-### Popol Vuh 核心
-
-1. Hunahpu
-2. Xbalanque
-3. Xquic / Blood Moon
-4. Hun Hunahpu
-5. Seven Macaw / Vucub Caquix
-6. Q'uq'umatz
-7. Huracán / Heart of Sky complex（先明确是否拆实体）
-8. Xmucane
-
-### Classic / Yucatec 核心
-
-9. Maize God
-10. Chaak
-11. K'awiil
-12. K'inich Ajaw
-13. God D / Itzamna
-14. Goddess O / Chak Chel / Ix Chel scoped identity
-15. K'uk'ulkan
-16. Death God / God A / Kisin scoped identity
-
-Tier S 的目的不是“最流行 16 神”，而是覆盖：
-
-```text
-Creation
-Hero cycle
-Underworld
-Maize
-Rain
-Sun
-Lightning / kingship
-Feathered serpent
-Female deity tradition
-Death
-```
-
-## Tier A
-
-Story Dependency Closure 很可能继续反推出：
-
-- Vucub Hunahpu；
-- Zipacna；
-- Cabrakan；
-- Hun Batz；
-- Hun Chouen；
-- One Death / Seven Death 与其他 Xibalba Lords；
-- Xpiyacoc；
-- Tohil；
-- Awilix；
-- Jacawitz；
-- first maize humans；
-- Principal Bird Deity；
-- God L；
-- Goddess I；
-- Bacabs / Pauahtun 等。
-
-只有真正进入 Story / relation / visual experience 的实体才升级为正式 Character。
-
----
-
-# 8. Relation / Character Graph 策略
-
-玛雅 Character Graph 必须避免给用户制造“一个统一神族家谱”的错觉。
-
-## 8.1 Relation 分三类
-
-### A. Narrative Relation
-
-例如：
-
-```text
-parent / child
-sibling
-enemy
-ally
-creator / created-by
-ruler / subject
-defeats / defeated-by
-```
-
-主要用于 Popol Vuh。
-
-### B. Identity Correspondence
-
-例如：
-
-```text
-possible-equivalence
-scholarly-equivalence
-later-cognate
-iconographic-analogue
-motif-continuity
-```
-
-必须弱化视觉，不与亲缘关系使用同一种边。
-
-### C. Tradition Membership
+V1.0 把：
 
 ```text
 K'iche' Popol Vuh
@@ -742,109 +163,1131 @@ Postclassic Codical
 Colonial Yucatec
 ```
 
-Graph UI 应允许筛 tradition，而不是默认把所有神全连到一个球体。
+列为 Graph Relation 一类。
 
-## 8.2 SSR 文本回退必须显示 scope
+V1.1 修正为：
 
-例如 Character Detail 不只显示：
+```text
+Character.traditionTags
+Character.sourcePeriods
+Story.tradition
+SourceRef.period
+Taxonomy / editorial collection
+```
 
-> “与 Ix Chel 相关”
+Graph 可以按这些 metadata 筛选，但不要生成“角色 -> K'iche'”这种伪人物关系边。
 
-而应显示：
+### 7. Identity Dossier 与 Character 必须分开
 
-> “部分研究将 Postclassic Goddess O / Chak Chel 与殖民文献中的 Ix Chel 联系；现代常见的年轻月亮女神形象并不等同于这一对应。”
+V1.0 Tier S 把 Character 和“身份问题”混成 16 个视觉对象，例如：
 
-Graph 的简化边永远不能替代正文解释。
+```text
+Goddess O / Chak Chel / Ix Chel scoped identity
+Death God / God A / Kisin scoped identity
+```
+
+V1.1 先做 Identity Resolution，再决定实体形态：
+
+```text
+确定是同一稳定身份
+→ 1 Character + CharacterInterpretation / CharacterName
+
+只有学术对应或证据仍有争议
+→ 独立 Character / ContentConcept + source-scoped correspondence Relation
+```
+
+Tier S 只列“已通过 Identity Gate 的 Character”，不把研究问题当 Character。
+
+### 8. P0 不应只剩 Popol Vuh + 4 个 Classic 条目
+
+V1.0 的“完整定义”强调用户能进入 Classic 与 Postclassic / Yucatec，但 P0 实际把 Postclassic / Yucatec 全部推到 P0.5，同时 Tier S 又提前包含 Itzamna、Ix Chel、K'uk'ulkan 等角色，内部不一致。
+
+V1.1 改成 **P0 Coverage Matrix**：
+
+1. K'iche' / `Popol Vuh` 主叙事闭包；
+2. Classic Lowland 核心 identity / iconography bridge；
+3. Postclassic Codex 最低 sacred-order bridge；
+4. Colonial Yucatec 只用于名称 / 身份追溯，不强行回填古典期。
+
+P0 不要求四条线等量，但不能让“Maya Mythology”最终等同“Popol Vuh Mythology”。
+
+### 9. Relation Storage 对齐 Greek / Norse / Japanese
+
+不同时存：
+
+```text
+parent + child
+defeats + defeated-by
+creator + created-by
+```
+
+同一事实只存一个 canonical direction，通过 UI 从当前人物视角反向展示。
+
+关系唯一性继续使用：
+
+```text
+assertionKey + traditionScope
+```
+
+对应关系直接复用：
+
+```text
+relationType
+sourceRefs
+confidence
+traditionScope
+isDefault
+```
+
+不新增平行关系系统。
+
+### 10. P0 必须补 static fallback / D1 / Graph / CI parity
+
+Maya 不能只做到：
+
+```text
+src/content/maya/*
+→ sync D1
+```
+
+P0 必须满足：
+
+```text
+static fallback
+local D1
+production D1
+```
+
+三种形态内容语义一致，并进入：
+
+- Character Detail；
+- SSR Relations；
+- Graph API；
+- Mythology page；
+- Story detail；
+- sitemap；
+- validator；
+- deploy sync；
+- provenance audit。
+
+这也是 Norse Integration Review 已明确暴露的 Greek-only 基础设施问题。
 
 ---
 
-# 9. World / Scene 策略 — 玛雅必须 Scene-heavy
+# 1. 当前仓库基线与不可破坏约束
 
-## 9.1 P0 不设固定 World 数量
-
-明确可建的第一个 World：
+当前主干已经存在：
 
 ```text
-world-xibalba
-traditionScope = kiche-popol-vuh
+myth-maya
+slug = maya
 ```
 
-只有当后续来源足够明确时再建立其他 narrative world。
-
-禁止为了“看起来像完整宇宙”直接创建：
+以及入口级 Visual DNA：
 
 ```text
-13 Heavens
-9 Underworlds
-Maya Heaven
-Universal Maya Underworld
+palette: 玉石绿 / 石灰岩灰 / 热带绿 / 天青
+motifs: 世界树 / 阶梯神庙 / 星历 / 玛雅文字
+materials: 石灰岩 / 玉石 / 木 / 灰泥
+atmosphere: 宇宙感 / 热带 / 古老 / 神秘
 ```
 
-作为固定 World hierarchy。
+但还没有正式：
 
-## 9.2 P0 Scene 候选
+- Maya Character closure；
+- Maya World closure；
+- Maya Scene network；
+- Maya Story manifest；
+- Maya relation graph；
+- Maya source manifest；
+- Maya canonical design；
+- Maya production artwork。
+
+## 1.1 Stable ID Policy
+
+`myth-maya / maya` 必须保留。
+
+因为当前尚无公开 Maya Character / World / Story URL，本轮可以一次性建立正确 ID 规范：
+
+```text
+character-<stable-ascii-name>
+world-<stable-ascii-name>
+scene-<stable-ascii-name>
+story-<stable-ascii-name>
+```
+
+发布后不因后续拼写偏好变化修改 URL。
+
+## 1.2 Tagline 纠偏
+
+当前：
+
+> 世界树与西巴尔巴
+
+容易把 Xibalba 表述成整个玛雅文明唯一地下世界专名。
+
+建议改成更中性的：
+
+> **玉米 · 星辰 · 地下世界**
+
+或未来支持 tradition-aware tagline 后动态展示。
+
+---
+
+# 2. “完整”的统一定义
+
+玛雅神话的完整不等于：
+
+- 收录所有已知神名；
+- 做一套“玛雅十二主神”；
+- 拼出一张统一神谱；
+- 用一份后世整理的 13 天界 / 9 冥界图解释所有地区和时期。
+
+MythCanvas P0 的用户侧完整定义是：
+
+> 用户能够连续理解 K'iche'《Popol Vuh》的创世、失败的人类、Seven Macaw、Hero Twins、Xibalba、玉米造人与第一次黎明；同时能够识别 Classic Maya 的玉米、雨、闪电 / 王权、太阳、神山 / 洞穴等核心神圣意象，并能进入 Postclassic Codex / Yucatec 关键身份与仪式传统，且页面明确告诉用户哪些内容属于同一传统、哪些只是跨时期可能对应。
+
+## 2.1 P0 Coverage Matrix
+
+### A. K'iche' Narrative Coverage
+
+必须覆盖：
+
+```text
+Creation
+→ Animals
+→ Failed Humans
+→ Seven Macaw cycle
+→ First Ballplayers
+→ Hero Twins
+→ Xibalba
+→ Maize Humanity
+→ First Dawn
+```
+
+### B. Classic Lowland Bridge
+
+至少覆盖：
+
+```text
+Maize God
+K'awiil
+Chaak
+Solar deity / K'inich Ajaw
+Witz / cave / watery-underworld imagery
+```
+
+不要求每项都创建 Story URL。
+
+### C. Postclassic Codex Bridge
+
+至少覆盖：
+
+```text
+Chaak / rain almanac tradition
+old deity / God D identity evidence
+aged female deity / Goddess O identity evidence
+death deity tradition
+Venus / calendar / ritual evidence as source context
+```
+
+### D. Colonial Yucatec Identity Bridge
+
+用于：
+
+```text
+Itzamna naming / identity evidence
+Ix Chel related naming / identity evidence
+Kisin / death-deity naming
+Bacabs / directional beings
+ritual / healing terminology
+```
+
+规则：
+
+> Colonial witness 可以帮助理解后期名称和传统，但不得静默覆盖 Classic Maya 身份。
+
+## 2.2 P0 硬指标
+
+```text
+Core Narrative Coverage = 100%
+P0 Story Entity Dependency Closure = 100%
+P0 Required Narrative Relation Coverage = 100%
+P0 Stable Identity Source Coverage = 100%
+P0 Core Relation Source Coverage = 100%
+P0 Story Primary-source Coverage = 100%
+P0 Tradition Scope Coverage = 100%
+P0 Source Period Coverage = 100%
+P0 Canonical Design Coverage = 100%
+Conflicting Identity Forced Merge = 0
+Duplicate Canonical Relation = 0
+Invalid Relation Target = 0
+Orphan Entity Reference = 0
+Critical Aztec/Maya Visual Contamination = 0
+Fake Readable Glyph Claim = 0
+```
+
+明确不设：
+
+```text
+Story = 36
+Character >= 50
+Relation >= 150
+World = N
+```
+
+## 2.3 P1
+
+- Tier S / Tier A 正式 production portrait；
+- Tier S PC + Mobile wallpaper；
+- 核心 World / Scene desktop + mobile Hero；
+- Story illustration 深化；
+- Character Graph 高级 period / tradition filter；
+- Identity correspondence 高级 UI；
+- SEO / alias / transliteration 深化；
+- provenance audit 清零。
+
+## 2.4 P2
+
+- 更多 Classic identity reconstruction；
+- site-specific mythic programs；
+- K'iche' migration / lineage history；
+- Chilam Balam creation cycles；
+- Ritual of the Bacabs healing cosmology；
+- Bacabs / directional cosmology 深化；
+- regional Maya traditions；
+- living Maya traditions，作为独立 living-tradition layer。
+
+Living tradition 不与古代材料静默混合，也不把现代社区当成“古文明残片”展示。
+
+---
+
+# 3. 来源体系与 Evidence Policy
+
+玛雅资料与希腊 / 北欧最大的差异，是大量核心内容并不来自一部连续叙事文本。
+
+资料横跨：
+
+```text
+Preclassic
+Classic
+Postclassic
+Colonial
+Modern scholarship
+```
+
+以及：
+
+```text
+K'iche' Highlands
+Southern / Central Lowlands
+Northern Yucatán
+其他地区与语言群
+```
+
+因此必须区分“来源是什么”和“编辑如何解释来源”。
+
+## 3.1 Tier 1A — K'iche' `Popol Vuh`
+
+P0 最完整的连续 Story spine。
+
+规则：
+
+- 明确 K'iche' tradition；
+- 现存文本属于殖民初期字母记录传统；
+- 不包装成全体 Maya 的统一 Canon；
+- 每篇 Story 记录具体 edition / translation / locator；
+- 不跨多个译本静默拼接专名与细节。
+
+建议 tradition tag：
+
+```text
+kiche-popol-vuh
+```
+
+## 3.2 Tier 1B — Classic Maya 直接证据
+
+优先回落到具体：
+
+```text
+monument
+stela
+lintel
+altar
+painted vessel
+mural
+architectural program
+glyphic inscription
+funerary / royal context
+```
+
+这些证据可以支持：
+
+- deity identity；
+- iconographic anchor；
+- ritual action；
+- royal legitimacy；
+- cosmological imagery；
+- 可能的 mythic sequence。
+
+但不要把图像学重建伪装成“失传神话全文”。
+
+## 3.3 Tier 1C — Postclassic Codices
+
+核心包括：
+
+- Dresden Codex；
+- Madrid Codex；
+- Paris Codex；
+- Maya Codex of Mexico。
+
+重点用于：
+
+- rain / Chaak almanacs；
+- deity iconography；
+- ritual cycles；
+- calendar patrons；
+- astronomy / Venus；
+- directional / New Year material。
+
+它们不是现代意义的“故事书”。只有能够形成独立用户问题与独立来源价值的内容才创建 `MythStory(kind='religious-tradition')`。
+
+## 3.4 Tier 1D — Indigenous Colonial Texts
+
+包括：
+
+- Books of Chilam Balam；
+- Ritual of the Bacabs；
+- 其他可明确定位的 Yucatec / Maya language records。
+
+用途：
+
+- deity names；
+- ritual language；
+- healing；
+- directional cosmology；
+- identity continuity / discontinuity evidence。
+
+## 3.5 Tier 2 — Colonial External Witness
+
+例如 Diego de Landa 等接触期西班牙记录。
+
+规则：
+
+- 作为 historical witness；
+- 明确观察者身份与时期；
+- 不与 indigenous text / pre-contact object 自动设为同等级身份事实；
+- 不能单独承担高风险跨时期 `same identity` 结论。
+
+## 3.6 Tier 3 — Academic Secondary
+
+用于：
+
+- epigraphy；
+- iconography；
+- object identification；
+- language normalization；
+- identity correspondence；
+- period / site context；
+- scholarly dispute。
+
+现代研究结论进入：
+
+```text
+ContentClaim.status = supported | contested | editorial-synthesis
+```
+
+不伪装成 ancient primary claim。
+
+## 3.7 SourceRef 直接复用当前 Schema
+
+优先使用当前：
+
+```text
+type
+title
+section
+author
+period
+edition
+locator
+language
+translation
+url
+note
+```
+
+例如一个 Classic vessel 可以写成：
+
+```text
+title = 具体器物 / catalog identity
+section = iconographic scene / glyph block
+period = Classic Maya
+locator = museum / corpus locator
+url = stable object page
+note = object context
+```
+
+V1.1 不先扩 `objectId / site / evidenceLevel / periodScope` 等 Maya-only 字段。
+
+若真实数据证明通用 `SourceRef` 不够，再提交 Generic SourceRef Schema Review。
+
+---
+
+# 4. Name / Translation / URL Policy
+
+玛雅补全必须提前解决专名不稳定问题，否则 Character ID、SEO 与来源对照会在第二轮全部返工。
+
+## 4.1 Primary Display Name
+
+每个 Character / Story 在 Source Manifest 中确定：
+
+```text
+primary display name
+nameEn
+source-language form
+legacy scholarly spelling
+common English spelling
+Chinese display name
+```
+
+例如同一名字在不同译本中出现拼写差异时，不通过改 URL 解决。
+
+## 4.2 CharacterName
+
+复用当前：
+
+```text
+primary
+alias
+title
+literary-identity
+```
+
+所有 alias 必须带 `sourceRefs` 与 `confidence`。
+
+## 4.3 URL
+
+URL 使用稳定 ASCII slug，避免：
+
+- K'iche' glottal mark；
+- Unicode apostrophe；
+- 后续正字法变化；
+- 不同译本拼法
+
+导致公开 URL 改动。
+
+显示名称可以进化，slug 不变。
+
+---
+
+# 5. Identity Resolution Policy
+
+这是 Maya V1.1 最关键的数据治理规则。
+
+## 5.1 先决定“一个 Character 还是两个 Character”
+
+判断顺序：
+
+```text
+A. 是否存在稳定、可来源化的同一身份？
+   YES → 同一 Character
+
+B. 来源差异是否只是名称 / 视觉表现 / 某时期神职差异？
+   YES → CharacterName / CharacterInterpretation
+
+C. 是否只是学术可能对应、图像类似或后世 cognate？
+   YES → 独立 Character / ContentConcept + correspondence Relation
+
+D. 证据不足？
+   → 不合并，保持 contested
+```
+
+原则：
+
+> **错误地多建两个实体，比错误地把两个历史身份永久合并成一个实体更容易修正。**
+
+## 5.2 Seven Macaw / Principal Bird Deity
+
+默认：
+
+```text
+Seven Macaw = K'iche' Popol Vuh Character
+Principal Bird Deity = Classic Maya identity
+```
+
+不默认同一 Character。
+
+如建立 correspondence：
+
+```text
+relationType = iconographic-analogue / possible-equivalence
+confidence = contested | medium
+traditionScope = explicit
+sourceRefs != empty
+```
+
+具体 relationType 最终从通用关系 vocabulary Review 中选择，不为了一个 case 新增专属枚举。
+
+## 5.3 Hun Hunahpu / Classic Maize God
+
+默认独立。
+
+可以：
+
+- 在 Character Detail 解释学术比较；
+- 建 source-scoped correspondence；
+- 在 Story / visual explanation 中提示连续母题。
+
+不能：
+
+```text
+Hun Hunahpu.variant = Classic Maize God
+```
+
+## 5.4 Q'uq'umatz / K'uk'ulkan / Quetzalcoatl
+
+至少区分：
+
+```text
+Q'uq'umatz -> K'iche' tradition
+K'uk'ulkan -> Yucatec Maya tradition
+Quetzalcoatl -> Central Mexican tradition
+```
+
+不做 alias。
+
+跨文明 relation 可以在 P1 单独做 Mesoamerican correspondence，不阻塞 Maya P0。
+
+## 5.5 Goddess O / Chak Chel / Ix Chel / Goddess I
+
+V1.1 不提前承诺：
+
+```text
+Goddess O = Chak Chel = Ix Chel
+```
+
+也不把 youthful Goddess I 自动并入 Ix Chel。
+
+实施前必须完成 Identity Gate：
+
+1. Codex evidence；
+2. Colonial naming evidence；
+3. academic correspondence；
+4. stable visual anchors；
+5. 现代流行形象污染检查。
+
+若不能稳定合并，保持多个实体 / Interpretation，并让用户看到 contested scope。
+
+## 5.6 Death God / God A / Kisin / Yum Kimil
+
+不使用一个无 scope 的 `Ah Puch` 统包所有死亡神。
+
+同样走 Identity Gate：
+
+```text
+stable iconographic identity
++ scoped names
++ source periods
++ aliases
+```
+
+## 5.7 God D / Itzamna
+
+不因为现代百科常见写法就无条件把所有 Old God D 图像与殖民时期 Itzamna 描述合并成一套稳定视觉。
+
+先 source review，再决定：
+
+```text
+1 Character + Interpretations
+or
+separate identities + correspondence
+```
+
+---
+
+# 6. Story Manifest — 从“事件清单”改为“可独立阅读的叙事单元”
+
+V1.0 的 32 个 `Popol Vuh` 节点保留为 dependency checklist，但 V1.1 不要求每个节点成为 Story。
+
+## 6.1 Narrative Unit Quality Gate
+
+一个 P0 Story URL 必须同时满足：
+
+1. 能独立回答一个明确用户问题；
+2. 有独立的叙事起点 / 冲突 / 结果，或明确 ritual / religious subject；
+3. 至少一个可定位 primary source；
+4. 不只是上一 Story 的 1–2 个段落；
+5. 有独立 Character / Scene / Concept 浏览价值；
+6. 不为了凑数量拆页。
+
+因此最终 Story 数量允许：
+
+```text
+18
+21
+24
+...
+```
+
+只要 Core Narrative Coverage = 100%。
+
+## 6.2 Volume A — Creation & False Radiance
+
+建议 Story units：
+
+1. 原初寂静与创造者；
+2. 大地与动物的创造；
+3. 泥土人的失败；
+4. 木头人的失败与毁灭；
+5. Seven Macaw 的虚假光辉；
+6. Hero Twins 击败 Seven Macaw；
+7. Zipacna 与四百少年；
+8. Zipacna / Cabrakan cycle，按实际 source review 决定合并或拆分。
+
+依赖节点仍完整记录：
+
+- primordial water；
+- emerging earth；
+- animals；
+- mud people；
+- wood people；
+- Seven Macaw；
+- Zipacna；
+- Cabrakan。
+
+## 6.3 Volume B — Ballgame & Xibalba
+
+建议 Story units：
+
+1. 第一代球员与 Xibalba 的召唤；
+2. 第一代球员之死与葫芦树；
+3. Xquic 的受孕与逃离；
+4. Hunahpu / Xbalanque 的出生与成长；
+5. Monkey Brothers cycle；
+6. Hero Twins 再赴 Xibalba；
+7. 道路、假诸王与试炼之屋；
+8. Bat House 与球赛反转；
+9. Twins 的死亡、复生与表演；
+10. Xibalba Lords 的失败与 Hero Twins 主线收束。
+
+Trial Houses 优先建一个 Story + 多 Scene，不一屋一 Story。
+
+## 6.4 Volume C — Maize Humanity & Dawn
+
+建议 Story units：
+
+1. 白玉米与黄玉米创造真正的人类；
+2. 第一批人的完美视野与限制；
+3. 第一批人的伴侣与繁衍；
+4. Tohil / Awilix / Jacawitz 与火；
+5. 第一次黎明。
+
+K'iche' migration / lineage history 默认 P1 / P2，不阻塞神话主干。
+
+## 6.5 Classic / Codex 内容不伪造成“连续古典故事”
+
+以下优先作为：
+
+```text
+Character
+ContentConcept
+ContentClaim
+CharacterInterpretation
+religious-tradition Story（仅当可独立回答用户问题）
+```
+
+候选主题：
+
+- Maize God death / emergence imagery；
+- K'awiil 与王权；
+- Chaak 与雨 / 雷；
+- solar deity / K'inich Ajaw；
+- Witz / cave / watery-underworld；
+- Chaak rain almanacs；
+- Venus / calendrical sacred order。
+
+不要创建当前 Schema 不支持的 `mythic-dossier`。
+
+---
+
+# 7. Character Dependency Closure 与 Stable Type
+
+## 7.1 统一 Stable Character Type
+
+严格复用 Greek / Norse：
+
+```text
+deity
+hero
+mortal
+monster
+creature
+collective
+```
+
+不新增 Maya-only：
+
+```text
+creator-god
+codex-god
+underworld-lord
+ancestral-being
+calendar-deity
+```
+
+这些进入：
+
+```text
+traditionTags
+editorialCollections
+role
+ContentClaim
+```
+
+## 7.2 P0 Character Closure
+
+最终 Character 数量由 Story / identity dependency report 生成。
+
+高概率核心包括：
+
+### K'iche' Narrative
+
+- Hunahpu；
+- Xbalanque；
+- Xquic / source-reviewed primary name；
+- Hun Hunahpu；
+- Vucub Hunahpu；
+- Seven Macaw；
+- Zipacna；
+- Cabrakan；
+- Hun Batz；
+- Hun Chouen；
+- Xmucane；
+- Xpiyacoc；
+- creator figures，按选定 edition；
+- Xibalba Lords，按 dependency 决定 individual / collective；
+- Tohil；
+- Awilix；
+- Jacawitz。
+
+### Classic / Postclassic Bridge
+
+- Maize God；
+- K'awiil；
+- Chaak；
+- solar deity / K'inich Ajaw；
+- God D / Itzamna identity，Identity Gate 后决定；
+- Goddess O / Chak Chel / Ix Chel identity，Identity Gate 后决定；
+- Death deity identity，Identity Gate 后决定；
+- K'uk'ulkan，若进入 P0 bridge dependency。
+
+## 7.3 Collective 使用规则
+
+不要因为 Xibalba Lords 名称多就全部强制建 Character。
+
+如果一个个体：
+
+- 在多个 Story 复用；
+- 有独立关系；
+- 有独立视觉 / SEO / Character Detail 价值；
+
+则实体化。
+
+否则允许：
+
+```text
+characterType = collective
+```
+
+以群体角色承载。
+
+---
+
+# 8. Character Relation / Graph
+
+## 8.1 直接复用当前 Schema
+
+```text
+assertionKey?: string
+traditionScope?: string
+isDefault?: boolean
+sourceRefs: SourceRef[]
+confidence: high | medium | contested
+fromInterpretationId?: string
+toInterpretationId?: string
+```
+
+不新增 `evidenceLevel`。
+
+## 8.2 Canonical Relation Storage
+
+### parent
+
+只存：
+
+```text
+parent -> child
+```
+
+UI 从当前人物视角显示“父母 / 子女”。
+
+### symmetric relations
+
+例如：
+
+```text
+sibling
+ally
+rival
+```
+
+只存一次。
+
+### directional narrative relations
+
+例如：
+
+```text
+defeats
+creates
+rules
+serves
+```
+
+只存 canonical direction，不同时存 inverse。
+
+## 8.3 Correspondence Relation
+
+当两个实体没有足够证据合成一个 Character 时，允许 source-scoped correspondence：
+
+```text
+possible-equivalence
+iconographic-analogue
+later-cognate
+motif-continuity
+```
+
+但具体 vocabulary 必须进入 Generic Relation Vocabulary Review。
+
+规则：
+
+```text
+sourceRefs != empty
+confidence != implicit
+traditionScope != empty when needed
+assertionKey != empty for contested alternatives
+```
+
+## 8.4 Tradition Membership 不建边
+
+使用：
+
+```text
+Character.traditionTags
+Character.sourcePeriods
+Story.tradition
+Taxonomy
+```
+
+Graph filter 读取 metadata。
+
+## 8.5 Default / Alternate Graph
+
+默认图只展示：
+
+- stable narrative relations；
+- neutral relations；
+- source-reviewed default identity correspondence。
+
+contested correspondence：
+
+- 默认不伪装成确定关系；
+- 用户展开详情后显示；
+- 必须有来源和 confidence。
+
+## 8.6 SSR 文本回退
+
+3D Graph 不得成为唯一关系入口。
+
+Character Detail SSR 至少显示：
+
+```text
+身份
+传统 / 时期
+父母 / 子女 / 兄弟
+盟友 / 对手
+关键叙事关系
+可能身份对应
+来源 / 争议说明
+```
+
+---
+
+# 9. World / Scene Semantics
+
+延续 Greek / Norse / Japanese：
+
+> World = 稳定神话空间层；Scene = 可复用的具体地点、建筑、边界或事件空间。
+
+## 9.1 Xibalba
+
+`world-xibalba` 是 P0 World 候选。
+
+但当前 `World` Schema 没有 `traditionScope` 字段，因此不能直接写：
+
+```text
+world.traditionScope = kiche-popol-vuh
+```
+
+V1.1 使用：
+
+```text
+World identity ContentClaim
++ traditionScope = kiche-popol-vuh
++ sourceRefs
++ K'iche' Story linkage
+```
+
+同时在 summary / source UI 明确：
+
+> Xibalba 是 `Popol Vuh` / K'iche' 传统中的地下世界名称，不作为所有 Maya underworld imagery 的统一专名。
+
+如果未来所有 World 都需要来源时期 / tradition metadata，再做 Generic World Schema Review。
+
+## 9.2 不创建统一宇宙地图
+
+P0 禁止直接硬编码：
+
+```text
+13 heavens
+9 underworlds
+one universal world tree
+one universal Maya heaven
+one universal Maya underworld
+```
+
+具体数字 / 方向 / cosmological scheme 可以作为 source-scoped ContentConcept / Story / Claim。
+
+## 9.3 P0 Scene 候选
 
 ### Popol Vuh
 
-- primordial-dark-water；
-- emerging-earth；
-- seven-macaw-tree；
-- hero-twins-ballcourt；
-- calabash-tree；
-- road-to-xibalba；
-- xibalba-council；
-- dark-house；
-- bat-house；
-- other trial houses；
-- maize-creation-place；
-- first-dawn-highlands。
+- primordial dark water；
+- emerging earth；
+- Seven Macaw tree；
+- ballcourt；
+- calabash tree；
+- road to Xibalba；
+- Xibalba council；
+- trial houses；
+- Bat House；
+- maize creation place；
+- first dawn highlands。
 
 ### Classic
 
-- witz-sacred-mountain；
-- cave-mouth / earth-monster portal；
-- watery-underworld；
-- maize-rebirth-scene；
-- royal-kawiil-vision；
-- chaak-rain-storm；
-- solar-path；
-- cosmic-tree。
+- Witz sacred mountain；
+- cave / earth-monster portal；
+- watery-underworld imagery；
+- maize emergence；
+- K'awiil royal vision；
+- Chaak rain / mountain opening；
+- solar path；
+- cosmic tree imagery。
 
 ### Postclassic / Yucatán
 
-- codex-ritual-space；
+- codex ritual space；
 - cenote / cave ritual；
-- rain almanac scene；
-- venus-warrior sky；
-- directional new-year rite。
+- rain almanac context；
+- Venus / sky ritual imagery；
+- directional / New Year context。
+
+实体化标准：
+
+> 至少被一个 P0 Story / Character Detail / Artwork 强依赖，或具有高复用视觉价值。
 
 ---
 
-# 10. Visual DNA V2
+# 10. Maya Visual DNA V2
 
-## 10.1 不再使用单一“玛雅雨林皮肤”
+## 10.1 Base Visual DNA
 
-### K'iche' Highland
+当前 `VisualDNA` 只有：
 
-视觉关键词：
+```text
+palette
+motifs
+materials
+atmosphere
+```
+
+P0 先升级 base：
+
+```text
+palette:
+- jade green
+- limestone white / grey
+- Maya blue
+- cacao / earth brown
+- restrained red
+- obsidian black
+
+motifs:
+- maize
+- quetzal
+- ballgame
+- cave / mountain portal
+- celestial bands
+- jade regalia
+- source-reviewed glyph motifs
+
+materials:
+- limestone
+- stucco
+- jade
+- shell
+- obsidian
+- wood
+- bark paper
+
+atmosphere:
+- sacred
+- astronomical
+- humid-lowland / highland where scoped
+- courtly
+- liminal
+- ancient
+```
+
+## 10.2 Tradition-specific Visual Guides
+
+不直接给 `Mythology.visualDna` 私加 nested schema。
+
+优先通过：
+
+```text
+Character.traditionTags
+Character.sourcePeriods
+Scene / Character CanonicalDesign
+prompt context
+src/content/maya visual guide data
+```
+
+约束三大视觉域。
+
+### K'iche' Highlands
 
 - volcanic highlands；
 - cloud forest；
 - maize fields；
-- quetzal feathers；
 - mountain dawn；
-- dark caves / ballcourt；
-- woven-material inspiration 需谨慎，不直接复制现代具体社区纹样。
+- dark cave / ballcourt；
+- quetzal feather as scoped motif；
+- 不复制现代具体社区服饰纹样当“古代统一服装”。
 
-Atmosphere：
-
-```text
-高地 / 黎明 / 玉米 / 山雾 / 仪式 / 英雄叙事
-```
-
-### Classic Lowland
-
-视觉关键词：
+### Classic Lowlands
 
 - limestone palace / temple；
 - stucco façade；
@@ -852,80 +1295,100 @@ Atmosphere：
 - stela；
 - polychrome ceramic；
 - jade / shell / obsidian；
-- cacao / maize / quetzal；
-- courtly regalia。
-
-Atmosphere：
-
-```text
-宫廷 / 仪式 / 湿热低地 / 玉石 / 彩绘 / 王权
-```
+- courtly regalia；
+- cacao / maize / quetzal。
 
 ### Postclassic Yucatán / Codical
 
-视觉关键词：
-
-- bark-paper codex palette；
+- bark-paper palette；
 - black / red linework；
 - Maya blue；
 - cenote；
 - dry tropical Yucatán；
-- Mayapan / Tulum / northern Yucatán reference when period matches；
-- astronomical / calendrical composition。
+- astronomical / calendrical composition；
+- site architecture only when period / region matches。
 
-## 10.2 强制 anti-contamination
+如果后续多个文明都需要 `TraditionVisualProfile`，再把它提升为 Generic Schema。
 
-所有玛雅 Prompt / Canonical Design 默认禁止：
+## 10.3 Anti-contamination
+
+所有 Maya generation 默认禁止：
 
 - Aztec Sun Stone / Calendar Stone；
 - Templo Mayor；
-- Huitzilopochtli / Coatlicue 的专属造型；
+- Huitzilopochtli / Coatlicue 专属造型；
 - Mexica eagle-serpent national iconography；
-- 把 Teotihuacan 当成“玛雅首都”；
+- 把 Teotihuacan 当作“Maya capital”；
 - 所有角色统一巨大羽毛冠；
-- 所有建筑统一 Chichén Itzá 金字塔；
-- 随机生成看似可读的玛雅象形文字；
-- 现代 New Age “Mayan astrology” 符号反写成古典事实。
+- 所有建筑统一 Chichén Itzá；
+- generic jungle pyramid fantasy；
+- modern New Age “Mayan astrology” 反写古代事实；
+- modern franchise-specific silhouette。
 
-## 10.3 Glyph 规则
-
-AI 出图最容易生成伪文字。
-
-产品规则：
+## 10.4 Glyph Policy
 
 ```text
-装饰场景：可以使用非语义化 glyph-like texture，但不得宣称可读
-教育 / Story / Character 关键图：使用经过核对的具体 glyph 或完全不出现文字
-UI 标题：不使用 AI 生成 glyph 代替真实 Maya script
+装饰视觉：可使用 non-semantic glyph-like texture，但不得宣称可读
+教育 / Story 关键图：使用经过核对的具体 glyph，或不出现文字
+UI：不使用 AI 生成 glyph 代替真实 Maya script
+```
+
+验收：
+
+```text
+Fake Readable Glyph Claim = 0
 ```
 
 ---
 
-# 11. Canonical Design 策略
+# 11. Canonical Design
 
-Tier S Character 至少具备：
+每个 P0 Character 至少使用当前字段：
 
 ```text
-identityAnchors
-traditionScope
-periodScope
+anchors
 silhouette
 appearance
 costumeLanguage
-symbols
-sacredObjects
+paletteCues
+signatureMaterials
+temperament
 mythologicalFacts
-sourceScopedFacts
-iconographicEvidence
-interpretationNotes
 originalDesignChoices
 avoid
 canonicalPrompt
 ```
 
-## 11.1 Hero Twins
+## 11.1 来源事实不塞进新字段
 
-稳定锚点来自 Popol Vuh 叙事：
+例如：
+
+```text
+某 visual anchor 只见于 Classic vessel
+某 identity mapping 仅是 contested scholarship
+某名字只见于 Colonial source
+```
+
+进入：
+
+```text
+ContentClaim
+SourceRef
+CharacterInterpretation
+CharacterName
+```
+
+而不是新造：
+
+```text
+sourceScopedFacts
+iconographicEvidence
+interpretationNotes
+```
+
+## 11.2 Hero Twins
+
+稳定锚点优先来自所选 `Popol Vuh` edition / narrative：
 
 - blowgun / hunting；
 - ballgame；
@@ -934,66 +1397,69 @@ canonicalPrompt
 
 避免：
 
-- 直接复制某一现代游戏 / 动画 Hero Twins；
-- 固定成 Classic ceramic 上某一组“孪生青年神”造型并宣称唯一正典；
-- 两人做成完全镜像导致无法辨认。
+- 直接复制现代游戏 / 动画；
+- 把某一组 Classic youthful deity imagery 宣称为唯一正典 Hero Twins 外观；
+- 两人完全镜像导致身份不可辨。
 
-## 11.2 Chaak
+## 11.3 Chaak
 
-需要从 Classic / Codex source 提取：
+优先来源化：
 
-- rain / storm identity；
-- axe / lightning associations；
-- diagnostic facial / nose traits 需要尊重具体时期图像。
+- rain / storm；
+- axe / lightning association；
+- period-specific facial traits；
+- Classic / Codex visual evidence。
 
 避免：
 
-- 直接画成 Aztec Tlaloc；
-- 把所有长鼻 deity 等同 Chaak；
-- 现代“蓝色雷神”模板。
+- 画成 Aztec Tlaloc；
+- 所有 long-nosed deity = Chaak；
+- generic blue thunder god。
 
-## 11.3 Maize God
+## 11.4 Maize God
 
-Canonical Design 必须区分：
+强制区分：
 
 ```text
 Classic Maize God iconography
 vs
-Popol Vuh Hun Hunahpu interpretation
+Popol Vuh Hun Hunahpu
 ```
 
-不能互相自动继承 hairstyle / costume / death-rebirth scene。
+不能互相自动继承 hairstyle / costume / death-rebirth event。
 
-## 11.4 Ix Chel / Chak Chel
+## 11.5 Ix Chel related identity
 
-P0 首先做身份研究卡，而不是先出“性感月亮女神”壁纸。
+在 Identity Gate 完成前，不先生产一个“年轻性感月亮女神”作为唯一 canonical portrait。
 
-视觉资产在 identity scope 定稿前只允许：
+先解决：
 
-- source-backed Goddess O / Chak Chel production；
-- source-backed Colonial Ix Chel interpretation；
-- youthful moon-goddess 作为明确 modern / artistic interpretation。
+- stable identity；
+- source period；
+- Goddess O / Goddess I 边界；
+- Colonial name evidence；
+- modern-popular interpretation。
 
 ---
 
 # 12. Structured Content Pipeline
 
-目标结构：
+目标内容包：
 
 ```text
-src/content/
-├── greek/
-├── norse/
-└── maya/
-    ├── catalog.ts
-    ├── stories.ts
-    ├── dossiers.ts
-    ├── sources.ts
-    ├── identities.ts
-    ├── assets.ts
-    ├── visual-tiers.ts
-    └── index.md
+src/content/maya/
+├── catalog.ts
+├── stories.ts
+├── sources.ts
+├── names.ts
+├── identities.ts
+├── claims.ts
+├── assets.ts
+├── visual-tiers.ts
+└── index.md
 ```
+
+不要求每个文件都一定存在；以通用 registry 能注册为准。
 
 通用入口：
 
@@ -1010,348 +1476,430 @@ pnpm content:validate maya
 pnpm content:sync maya
 ```
 
-不要创建：
+禁止：
 
 ```text
 scripts/sync-maya-content.mjs
+repository if mythologyId === 'myth-maya'
+Maya-only graph API
+Maya-only source parser
 ```
 
-## 12.1 Validator 新增玛雅通用能力
+## 12.1 Validator
 
-这些规则应设计为 schema-level，而不是 hardcode `if maya`：
-
-- Story dependency closure；
-- source coverage；
-- traditionScope 必填；
-- periodScope 必填；
-- identity correspondence 必须带 evidenceLevel；
-- `same-identity` 跨时期使用时必须有显式 source；
-- mutually-exclusive identity mapping 检查；
-- World scope 与 Story scope 兼容；
-- no dangling Character / World / Scene；
-- alias collision；
-- Canonical Design required fields；
-- production artwork provenance；
-- glyph / image QA metadata。
-
-## 12.2 建议补充 SourceRef 字段
-
-若现有 SourceRef 不足，优先泛化为：
+必须覆盖：
 
 ```text
-sourceType
-work
-objectId
-site
-period
-language
-traditionScope
-locator
-edition
-translation
-url
-note
+Story required dependency closure
+Story primary source coverage
+Character stable identity source coverage
+CharacterName source coverage
+Relation source coverage
+assertionKey + traditionScope uniqueness
+invalid inverse duplicate relation
+Character / World / Scene dangling ids
+invalid source ids
+alias collision
+stable slug
+CanonicalDesign required fields
+wrong mythology linkage
+production artwork provenance
 ```
 
-例如 Classic vase 不应该被硬塞成 `work='Maya Mythology'`。
+Maya 额外规则应尽量配置化，而不是 `if (maya)`：
+
+```text
+required tradition tag policy
+source period coverage policy
+identity correspondence confidence policy
+wrong-tradition World / Story linkage policy
+```
+
+## 12.2 Static / D1 Parity
+
+P0 必须验证：
+
+```text
+static fallback
+local D1
+production D1
+```
+
+以下查询结果核心语义一致：
+
+- mythology characters；
+- character detail；
+- relations；
+- content concepts；
+- Story dependencies；
+- World / Scene；
+- Graph neighborhood。
+
+## 12.3 CI / Deploy
+
+CI 至少包含：
+
+```text
+content:validate maya
+unit tests
+Astro build / typecheck
+local D1 migration / sync test
+Graph relation tests
+sitemap route test
+provenance audit
+```
+
+production deploy 前使用同一 generic sync pipeline。
 
 ---
 
-# 13. Character Detail / Graph 集成
+# 13. Character Detail / Graph 产品集成
 
-## 13.1 Character Detail ViewModel
+## 13.1 P0 Character Detail
 
-玛雅角色详情至少显示：
+每个 P0 Character 至少可读：
 
 ```text
 Identity
-Tradition / Period
-Aliases
-Canonical Facts
-Iconographic Evidence
-Story / Dossier appearances
+Tradition tags
+Source periods
+Aliases / names
+Canonical facts
+Symbols
+Story appearances
 World / Scene affinity
 Relations
-Identity Correspondences
 Interpretations
-Variants
+Source-scoped correspondence
 Canonical Design
-Artwork
 Sources
 ```
 
-## 13.2 Identity Card 是玛雅的 P0 UI 能力
+## 13.2 Identity Boundary 是内容能力，不先变成新实体类型
 
-对以下角色必须显式显示“身份边界”：
+对以下高风险对象必须在详情页显式解释边界：
 
-- Ix Chel / Chak Chel / Goddess O；
+- Seven Macaw / Principal Bird Deity；
+- Hun Hunahpu / Maize God；
+- Q'uq'umatz / K'uk'ulkan；
 - God D / Itzamna；
-- Death God / God A / Kisin；
-- Principal Bird Deity / Seven Macaw；
-- Maize God / Hun Hunahpu；
-- Q'uq'umatz / K'uk'ulkan。
+- Goddess O / Chak Chel / Ix Chel / Goddess I；
+- Death God / Kisin related names。
 
-用户应能一眼区分：
+P0 可以先用：
 
 ```text
-确定身份
-高置信学术对应
-可能对应
-相似母题
-现代流行解释
+SSR section
+ContentClaim
+Interpretation
+Relation source detail
 ```
+
+实现。
+
+不要求先新增一个 Maya-only `IdentityCard` entity。
+
+## 13.3 Graph
+
+P0 要求：
+
+- source-scoped relation 不丢失；
+- contested correspondence 不伪装成确定 family edge；
+- tradition filter 能读取 metadata；
+- 图谱不可用时 SSR relation fallback 完整。
+
+高级 period filter / correspondence visualization 可进入 P1，但数据模型 P0 必须准备好。
 
 ---
 
-# 14. 视觉资产生产分层
+# 14. Visual Production — P1，不阻塞内容 P0
 
-## Tier S Character
+## 14.1 P0 最低视觉
 
-16 个 Tier S：
+P0 只要求：
 
-- production portrait 100%；
-- Character Hero 100%；
-- PC wallpaper >= 1；
-- Mobile wallpaper >= 1；
-- canonical source / period QA 100%。
+- `myth-maya` 非空白 hero；
+- P0 Character 有可用 symbol / portrait fallback；
+- P0 Story 有不错误复用传统的 Hero Asset；
+- `world-xibalba` 若上线，有最低可用 Hero；
+- provenance metadata 完整。
 
-## Tier A Character
+## 14.2 P1 Tier S
 
-- portrait 100%；
-- Character Hero asset >= 1；
-- wallpaper 可在 P0.5 补。
+Identity Gate 完成后确定 Tier S。
 
-## World / Scene
+建议优先候选：
 
-P0 不要求“5 个 World”。
+### K'iche'
 
-要求：
+- Hunahpu；
+- Xbalanque；
+- Xquic；
+- Seven Macaw；
+- Q'uq'umatz；
+- Huracán / Heart of Sky，Identity Review 后；
+- Xmucane。
 
-- `world-xibalba` Hero desktop + mobile；
-- Story dependency 中所有 Tier-S Scene 至少有 production visual；
-- Classic / K'iche' / Yucatec 三种视觉域可明显区分。
+### Classic / Postclassic
 
-## Story
+- Maize God；
+- Chaak；
+- K'awiil；
+- solar deity / K'inich Ajaw；
+- God D / Itzamna，Identity Gate 后；
+- Goddess O / Chak Chel / Ix Chel，Identity Gate 后；
+- K'uk'ulkan；
+- Death deity，Identity Gate 后。
 
-36 个 unit 不要求 36 张完全独立图片，但必须：
+最终名单不是固定 16 人，而由：
 
 ```text
-Hero Asset Coverage = 100%
-Narrative Fit = 100%
-Wrong Tradition Visual Reuse = 0
+P0 dependency importance
++ user recognition
++ visual distinctiveness
++ identity confidence
 ```
 
-优先独立 illustration：
+共同决定。
 
-- primordial creation；
-- wood people destruction；
-- Seven Macaw；
-- calabash tree；
+Tier S P1：
+
+```text
+production portrait = 100%
+PC wallpaper >= 1
+Mobile wallpaper >= 1
+canonical source / period QA = 100%
+```
+
+## 14.3 World / Scene P1
+
+- Xibalba desktop + mobile；
+- Hero Twins ballcourt；
 - road to Xibalba；
 - Bat House；
-- Twins resurrection / performance；
-- maize human creation；
+- maize creation；
 - first dawn；
-- Maize God rebirth；
-- Chaak storm。
+- Classic maize emergence；
+- Chaak storm；
+- Witz / cave portal。
 
 ---
 
 # 15. 实施批次
 
-## Batch 0 — 通用 Pipeline 与 Scope Model
+## Batch 0 — Generic Pipeline / Schema Alignment
 
 1. 落地 generic mythology registry；
-2. 落地 generic validator / importer；
-3. 为 source / relation 增加 traditionScope / periodScope / evidenceLevel；
-4. 支持 identity correspondence relation types；
-5. 新建 `src/content/maya/`；
-6. 建 Maya source manifest。
+2. 落地 generic validator / sync；
+3. 清理 Greek-only repository fallback；
+4. 确认 Character / Relation / ContentClaim / Interpretation 足够承载 Maya；
+5. 不直接新增 Maya-only `periodScope / evidenceLevel / dossier kind`；
+6. 建 `src/content/maya/` 注册入口。
 
-**DoD**：玛雅内容不需要任何 Maya-only 读取/同步路径。
+**DoD**：Maya 内容可以在 static fallback / local D1 / production D1 使用同一数据语义。
 
-## Batch 1 — Popol Vuh Story Manifest
+## Batch 1 — Source / Name Manifest
 
-1. 落 Volume A-C 32 个 K'iche' units；
-2. 每个 unit 绑定具体 Popol Vuh section；
-3. dependency closure 反推 Character / Scene；
-4. 建 Xibalba World；
-5. 建 K'iche' source / translation policy。
+1. 建 `Popol Vuh` edition / translation policy；
+2. 建 Classic object / inscription source registry；
+3. 建 Codex source registry；
+4. 建 Colonial Yucatec source registry；
+5. 定 Character primary name / alias / slug policy；
+6. 输出 high-risk identity checklist。
 
-**DoD**：从创世到第一次黎明可以连续浏览，Character / Scene dangling = 0。
+**DoD**：所有 P0 计划实体都有明确 source lane，不使用“玛雅神话资料”这种无法定位的来源。
 
-## Batch 2 — Popol Vuh Character / Relation Closure
+## Batch 2 — Story Manifest + Quality Gate
 
-1. Hero Twins；
-2. Xquic；
-3. Hun Hunahpu / Vucub Hunahpu；
-4. Seven Macaw family；
-5. creator figures；
-6. Xibalba Lords；
-7. first humans / Tohil group，按依赖决定实体化；
-8. narrative relations 全部来源化。
+1. 将 V1.0 32 个 Popol Vuh 节点转成 dependency checklist；
+2. 按 Narrative Unit Quality Gate 合并成真正 Story Manifest；
+3. 每篇 Story 声明 requiredCharacterIds / requiredWorldIds / requiredSceneIds / requiredSourceIds；
+4. 每篇绑定至少一个 primary source；
+5. 输出 Core Narrative Coverage report。
 
-**DoD**：Popol Vuh Graph 在 `kiche-popol-vuh` scope 下完整，不借 Classic 对应补洞。
+**DoD**：Story 数量可以变化，但 K'iche' 主线 Coverage = 100%。
 
-## Batch 3 — Classic Maya Dossiers
+## Batch 3 — Character / Relation Closure
 
-1. Maize God；
+1. 创建所有 P0 Story required Character；
+2. 使用通用 stable character type；
+3. Xibalba Lords 按 dependency 决定 individual / collective；
+4. 创建 source-scoped relations；
+5. 建 assertion uniqueness；
+6. inverse duplicate relation = 0。
+
+**DoD**：P0 Story Character dangling = 0；Graph 不需要借 Classic identity 给 Popol Vuh 补洞。
+
+## Batch 4 — World / Scene Closure
+
+1. Review `world-xibalba` World semantics；
+2. 用 ContentClaim 明确 K'iche' scope；
+3. 建 Popol Vuh Scene network；
+4. 建 Classic Witz / cave / watery-underworld Scene；
+5. 禁止 universal 13+9 map。
+
+**DoD**：Story 空间语义清晰，不把所有 underworld scene 绑定 Xibalba。
+
+## Batch 5 — Classic / Postclassic / Yucatec Bridge
+
+1. Maize God identity；
 2. K'awiil；
 3. Chaak；
-4. K'inich Ajaw；
-5. Principal Bird Deity；
-6. God L；
-7. Classic underworld / Witz / cave scenes；
-8. 每个 dossier 回链具体 monument / vessel / glyph evidence。
+4. solar deity；
+5. Witz / cave concepts；
+6. God D / Itzamna Identity Gate；
+7. Goddess O / Ix Chel Identity Gate；
+8. Death deity Identity Gate；
+9. Codex rain / Venus / ritual source context；
+10. Colonial aliases / identity evidence。
 
-**DoD**：Classic 内容不存在“来源 = Popol Vuh”这种跨时期偷懒。
+**DoD**：Maya landing 不等于 Popol Vuh landing；跨时期 identity 无 forced merge。
 
-## Batch 4 — Postclassic / Yucatec Identity Dossiers
+## Batch 6 — Canonical Design / Visual DNA V2
 
-1. God D / Itzamna；
-2. Goddess O / Chak Chel / Ix Chel；
-3. Goddess I；
-4. Death God；
-5. K'uk'ulkan；
-6. Chaak almanacs；
-7. Venus tables；
-8. Bacabs / Pauahtun。
+1. Base Visual DNA；
+2. K'iche' visual guide；
+3. Classic visual guide；
+4. Postclassic / Yucatán visual guide；
+5. P0 Character Canonical Design；
+6. anti-Aztec rules；
+7. glyph rules；
+8. prompt context 接 traditionTags / sourcePeriods。
 
-**DoD**：所有跨传统 correspondence 都能在 UI / Graph 显示 certainty 与 source scope。
+**DoD**：CanonicalDesign 使用通用字段；随机 prompt 不稳定产出泛 Aztec / jungle-pyramid imagery。
 
-## Batch 5 — Visual DNA V2 + Canonical Design
+## Batch 7 — Product Integration
 
-1. Mythology Visual DNA V2；
-2. K'iche' Highland Visual DNA；
-3. Classic Lowland Visual DNA；
-4. Postclassic Yucatán / Codex Visual DNA；
-5. Tier S Canonical Design；
-6. anti-Aztec contamination rules；
-7. glyph QA rules；
-8. prompt composer 接 tradition / period constraints。
+1. Mythology landing tradition lanes；
+2. Story volumes；
+3. Character Detail source section；
+4. SSR relation fallback；
+5. Character Graph scoped relation；
+6. static fallback / D1 parity；
+7. sitemap；
+8. SEO aliases；
+9. accessibility / mobile / performance baseline。
 
-**DoD**：随机抽取 Tier S Prompt，不再稳定产出“阿兹特克日历 + 雨林金字塔 + 巨型羽毛冠”的泛中美洲画面。
+**DoD**：P0 Character / Story / Relation 在 static、local D1、production D1 三种形态均可正确消费。
 
-## Batch 6 — Character Detail / Graph / Story UX
+## Batch 8 — P0 QA / Release
 
-1. Character identity card；
-2. tradition filter；
-3. period filter；
-4. correspondence edge detail；
-5. SSR relation fallback；
-6. Story volumes；
-7. Dossier 页面 / Story kind 兼容；
-8. Maya mythology landing 按三条 tradition lane 展示。
+1. Core Narrative Coverage report；
+2. dependency closure；
+3. source coverage；
+4. identity forced-merge audit；
+5. relation duplicate audit；
+6. Aztec contamination audit；
+7. fake readable glyph audit；
+8. broken media；
+9. provenance；
+10. CI / deploy sync。
 
-**DoD**：用户不会把 Popol Vuh、Classic ceramic 和 Dresden Codex 内容误解成同一时代的一套神谱。
-
-## Batch 7 — Visual Production
+## Batch 9 — P1 Visual Production
 
 1. Tier S portraits；
-2. Tier S PC / Mobile；
-3. Xibalba World Hero；
-4. Tier-S Scenes；
+2. Tier S PC / Mobile wallpaper；
+3. Xibalba dual hero；
+4. Tier-S Scene visuals；
 5. key Story illustrations；
-6. provenance / license；
-7. R2 / D1 sync。
-
-## Batch 8 — QA / SEO / Release
-
-1. alias / K'iche' / Yucatec spellings；
-2. apostrophe / glottal notation URL strategy；
-3. English / Chinese naming；
-4. sitemap；
-5. structured data；
-6. source attribution；
-7. artwork provenance；
-8. broken media；
-9. visual period review；
-10. Aztec contamination audit；
-11. identity forced-merge audit；
-12. mobile Graph / accessibility / performance。
+6. R2 / D1 sync；
+7. artwork provenance audit。
 
 ---
 
-# 16. 验收指标
-
-P0 不用角色总数作为成功指标。
+# 16. P0 验收指标
 
 ```text
-Core Narrative / Mythic-Ritual Units = 36 / 36
-Story / Dossier Dependency Closure = 100%
-Tradition Scope Coverage = 100%
-Period Scope Coverage = 100%
-Critical Identity Source Coverage = 100%
+Core Narrative Coverage = 100%
+Story Entity Dependency Closure = 100%
+Required Narrative Relation Coverage = 100%
+Stable Identity Source Coverage = 100%
+Story Primary-source Coverage = 100%
 Critical Relation Source Coverage = 100%
-Cross-period Forced same-as = 0
+Tradition Scope Coverage = 100%
+Source Period Coverage = 100%
+P0 Canonical Design Coverage = 100%
+Static / Local D1 / Production D1 Semantic Parity = 100%
+Conflicting Identity Forced Merge = 0
+Duplicate Canonical Relation = 0
+Invalid Relation Target = 0
 Dangling Entity = 0
-Tier S Canonical Design = 100%
-Tier S Character Detail = 100%
-Tier S Production Portrait = 100%
-P0 Hero Asset Coverage = 100%
-Wrong-tradition Hero Reuse = 0
+Wrong-tradition World / Story Linkage = 0
 Critical Aztec/Maya Visual Contamination = 0
 Fake Readable Glyph Claim = 0
-Broken Production Media = 0
+Broken P0 Media = 0
 ```
 
-P0.5 / P1 再扩：
+P0 **不验收**：
 
-- K'iche' migration / lineage history；
-- more Xibalba Lords；
-- Classic Hero Twins reconstruction；
-- Moon Goddess traditions；
-- God L / merchant traditions；
-- Bacabs / directional cosmology；
-- Chilam Balam creation cycles；
-- Ritual of the Bacabs healing cosmology；
-- local cave / cenote traditions；
-- site-specific mythic programs：Palenque / Copán / Yaxchilán / Tikal / Chichén Itzá / Mayapán；
-- modern Maya living traditions，作为独立 living-tradition layer，禁止与古代材料静默混合。
+```text
+Story 必须 36
+Character 必须 N
+Tier S 必须 16
+PC wallpaper 必须 16
+Mobile wallpaper 必须 16
+World 必须 N
+```
 
 ---
 
 # 17. 明确不做的错误方案
 
-## 不做 1：做“玛雅十二主神”排行榜
+## 不做 1：先列“玛雅十二主神 / 五十神”再灌数据
 
-玛雅神祇没有一个可跨两千年、跨地区稳定成立的奥林匹斯十二神式名单。
+会得到现代百科名单，不会得到来源可信的 Maya 内容宇宙。
 
-## 不做 2：把 Popol Vuh 当成所有 Maya 的统一 Canon
+## 不做 2：把 `Popol Vuh` 当作全 Maya 统一 Canon
 
-它是最重要的 Maya 文本之一，但首先是 K'iche' 传统。
+它是核心来源，但首先属于 K'iche' tradition。
 
-## 不做 3：把所有羽蛇神合成一个 Character
+## 不做 3：把所有 Feathered Serpent 合成一个 Character
 
-Q'uq'umatz、K'uk'ulkan、Quetzalcoatl 建 cross-cultural relation，不做 alias。
+Q'uq'umatz、K'uk'ulkan、Quetzalcoatl 不做 alias。
 
-## 不做 4：把 Ix Chel 固定成年轻月神
+## 不做 4：把 Seven Macaw = Principal Bird Deity 写成确定事实
 
-先解决 source identity，再生产 canonical visual。
+只允许 source-scoped correspondence。
 
-## 不做 5：把 Hun Hunahpu 直接等于 Classic Maize God
+## 不做 5：Hun Hunahpu = Classic Maize God
 
-允许 correspondence，不允许无来源 identity merge。
+不做自动 identity merge。
 
-## 不做 6：所有地下场景都叫 Xibalba
+## 不做 6：Ix Chel = 所有 Maya 月亮女神 / 年轻女神
 
-Xibalba 默认只属于 K'iche' / Popol Vuh World scope。
+先做 Identity Gate。
 
-## 不做 7：固定“13 层天界 + 9 层冥界 + 世界树”的现代信息图
+## 不做 7：所有 Death God 都叫 Ah Puch
 
-可以收录具体来源中的 cosmological numbers / directions，但不制造一张全玛雅统一地图。
+名称和 identity 按具体 source scope。
 
-## 不做 8：玛雅视觉 = 丛林金字塔 + 羽毛头冠 + 阿兹特克太阳石
+## 不做 8：所有地下空间都叫 Xibalba
 
-必须做 period / region visual scope。
+Xibalba 默认按 K'iche' / Popol Vuh scope 解释。
 
-## 不做 9：AI 随机生成可读玛雅文字
+## 不做 9：固定 13 层天界 + 9 层冥界 + 世界树统一地图
 
-教育内容不能把模型乱码包装成真实 glyph。
+具体宇宙数字进入 source-scoped claim，不做现代统一地图。
 
-## 不做 10：新建 Maya-only importer
+## 不做 10：Classic iconography 被改写成一篇“古典期神话小说”
 
-玛雅是验证通用内容工程是否真正跨文明的关键测试集。
+图像 / inscription reconstruction 必须明确证据性质。
+
+## 不做 11：新增 Maya-only Story kind / CanonicalDesign / SourceRef 字段
+
+确有缺口先做 Generic Schema Review。
+
+## 不做 12：玛雅视觉 = jungle pyramid + giant feather crown + Aztec Sun Stone
+
+按 period / region / source visual guide。
+
+## 不做 13：AI 乱码冒充可读 Maya glyph
+
+教育内容必须 fail closed。
+
+## 不做 14：新建 Maya-only importer / repository / graph API
+
+Maya 是通用内容工程能力的验证集，不是第五套特例。
 
 ---
 
@@ -1359,49 +1907,42 @@ Xibalba 默认只属于 K'iche' / Popol Vuh World scope。
 
 ```text
 Maya Mythology
-├── K'iche' Popol Vuh
+├── K'iche' / Popol Vuh
 │   ├── Creation
-│   │   ├── Primordial World
-│   │   ├── Animals
-│   │   ├── Mud People
-│   │   └── Wood People
-│   ├── False Sun Cycle
-│   │   ├── Seven Macaw
-│   │   ├── Zipacna
-│   │   └── Cabrakan
+│   ├── Failed Humanity
+│   ├── Seven Macaw Cycle
+│   ├── First Ballplayers
 │   ├── Hero Twins
-│   │   ├── First Ballplayers
-│   │   ├── Xquic
-│   │   ├── Hunahpu / Xbalanque
-│   │   └── Xibalba
+│   ├── Xibalba
 │   └── Maize Humanity & Dawn
-│       ├── Maize Creation
-│       ├── First People
-│       ├── Tohil / Awilix / Jacawitz
-│       └── First Dawn
+│
 ├── Classic Maya
 │   ├── Maize God
 │   ├── K'awiil
 │   ├── Chaak
-│   ├── K'inich Ajaw
-│   ├── Principal Bird Deity
-│   └── Witz / Cave / Underworld Imagery
+│   ├── Solar Deity
+│   ├── Witz / Cave
+│   └── Underworld / Cosmic Imagery
+│
 ├── Postclassic Codices
-│   ├── Dresden
-│   ├── Madrid
-│   ├── Paris
-│   └── Maya Codex of Mexico
-└── Colonial Yucatec
-    ├── Itzamna / God D
-    ├── Ix Chel / Chak Chel identity traditions
-    ├── Death deity traditions
-    ├── Bacabs / Pauahtun
-    └── Healing / Calendar / Directional cosmology
+│   ├── Rain / Chaak Almanacs
+│   ├── Old Deity Tradition
+│   ├── Female Deity Traditions
+│   ├── Death Deity
+│   ├── Venus
+│   └── Calendar / Directional Ritual
+│
+└── Colonial Yucatec Sources
+    ├── Itzamna Naming / Identity Evidence
+    ├── Ix Chel Related Traditions
+    ├── Kisin / Death Naming
+    ├── Bacabs
+    └── Healing / Ritual / Directional Cosmology
 ```
 
-用户进入玛雅神话后，页面必须表达：
+页面必须让用户理解：
 
-> **这是一个跨越两千多年、由多地区和多语言群共同构成的文明传统，而不是一张现代人整理出来的统一“玛雅众神谱”。**
+> **Maya Mythology 是跨时期、跨地区、跨语言群、跨文本与图像证据构成的传统网络，而不是一张现代人拼出来的统一众神谱。**
 
 ---
 
@@ -1409,28 +1950,32 @@ Maya Mythology
 
 ```text
 P0
-1. Generic scope-aware content model
-2. Popol Vuh 32-unit narrative closure
-3. Core Classic dossiers to reach 36 units
-4. Character / Relation dependency closure
-5. Xibalba + Scene network
-6. Tier S identity policy
-7. Visual DNA V2 + anti-contamination
-8. Character Detail / Graph scope UX
-9. Tier S production assets
-10. Source / identity / visual QA
-
-P0.5
-11. Postclassic codex dossiers
-12. Yucatec identity dossiers
-13. More Classic mythic imagery
-14. Site-specific Scene packages
+1. Generic registry / validator / repository parity
+2. Source + Name Manifest
+3. Popol Vuh Narrative Coverage
+4. Character / Relation Dependency Closure
+5. Xibalba + Scene Network
+6. Classic / Postclassic / Yucatec Identity Bridge
+7. Identity Gate + ContentClaim
+8. Canonical Design + Visual DNA V2
+9. Character Detail / SSR / Graph integration
+10. QA / CI / deploy sync
 
 P1
-15. Colonial Yucatec expansion
-16. K'iche' lineage / migration tradition
-17. Regional Maya traditions
-18. Living Maya traditions as a separate, respectful layer
+11. Tier S visual production
+12. World / Scene dual-device Hero
+13. Story illustration expansion
+14. Advanced period / tradition Graph UX
+15. SEO / alias / transliteration expansion
+
+P2
+16. Site-specific Classic programs
+17. More Codex / Yucatec cycles
+18. K'iche' lineage / migration tradition
+19. Regional Maya traditions
+20. Living Maya traditions as a separate respectful layer
 ```
 
-这套方案完成后，玛雅神话不会只是“Hero Twins + 金字塔 + Ixchel”的角色集合，而会成为 MythCanvas 中第一套真正具备 **时间维度、地区维度、文本/图像证据维度与身份不确定性表达** 的神话内容体系。
+V1.1 的目标不是把 V1.0 写得更保守，而是让玛雅方案真正与 Greek / Norse / Japanese / Egyptian 共用一套 Completeness Standard：
+
+> **文明差异进入内容、来源与解释；工程模型尽量保持通用。**
