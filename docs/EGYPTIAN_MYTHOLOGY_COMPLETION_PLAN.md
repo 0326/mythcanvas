@@ -1,30 +1,31 @@
 # MythCanvas 埃及神话完整补全方案
 
 > 状态：Review Proposal  
-> 版本：V1.0  
-> 日期：2026-09-01  
-> 适用范围：埃及神话内容建模、Story、Character、神祇关系、World / Scene、来源体系、视觉资产、Character Graph、AI 出图与结构化内容流水线。  
-> 相关文档：`docs/GREEK_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`docs/CHARACTER_GRAPH_PLAN.md`
+> 版本：V1.1  
+> 日期：2026-09-02  
+> 适用范围：埃及神话内容建模、Story、Character、关系、World / Scene、来源体系、Character Graph、视觉资产、AI 出图与结构化内容流水线。  
+> 相关文档：`docs/GREEK_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`、`docs/NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`、`docs/CHARACTER_GRAPH_PLAN.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
 
 ---
 
-## 0. 结论
+# 0. 结论
 
-当前埃及神话已经具备一个可浏览的首发骨架，但离“完整神话体系”还很远。
+当前埃及神话已经有一个可浏览的首发骨架，但距离 MythCanvas 所定义的“完整神话体系”仍然很远。
 
 仓库当前已有：
 
 - `myth-egyptian`；
 - `world-duat` / 杜阿特；
 - `character-anubis` / 阿努比斯；
-- 2 个阿努比斯 Variant；
-- 3 篇核心 Story：拉神的太阳神舟、奥西里斯之死与复生、心脏称量；
+- 2 个 Anubis Variant；
+- 3 篇核心 Story：拉神太阳神舟、奥西里斯死亡与复生、心脏称量；
 - `scene-river-of-stars` 等基础 Scene；
-- 太阳金、砂岩、青金石、黑石、太阳圆盘、圣甲虫等基础 Visual DNA；
+- 太阳金、砂岩、青金石、黑石、太阳圆盘、圣甲虫等第一版 Visual DNA；
 - 通用 Character / Relation / Interpretation / Variant / World / Scene / Story Schema；
-- 希腊阶段已经落地、北欧阶段正在复用的 Structured Content Pipeline 与 Character Graph 能力。
+- 希腊已经验证的 Structured Content、来源、Story 页面、关系图与内容验证能力；
+- 北欧方案正在推动的 mythology-agnostic registry / validator / sync / Character Detail / Graph 通用化方向。
 
-当前内容实际上仍然是：
+当前内容实际上仍接近：
 
 ```text
 埃及神话
@@ -38,91 +39,98 @@
 
 ```text
 埃及神话
-  → 原初之水与创世
-  → 太阳神循环与玛阿特秩序
-  → 拉 / 阿图姆 / 普塔等不同创世神学
-  → 奥西里斯—伊西斯—荷鲁斯—塞特王权循环
-  → 荷鲁斯与塞特的王位争夺
-  → 死亡、木乃伊化、审判与永生
-  → 杜阿特十二时辰与太阳再生
-  → 尼罗河、沼泽、神庙、天空、墓室等多域视觉空间
-  → 跨时期、跨城邦、跨神学中心的来源化版本
-  → Story 驱动的 Character / World / Scene / Relation 闭包
-  → 完整角色视觉系统与 AI 出图能力
+  → 原初状态与多个创世框架
+  → 太阳循环与 Ma'at 秩序
+  → Osiris–Isis–Horus–Seth 王权循环
+  → 死亡、木乃伊化、审判与有效亡者的永生
+  → Duat 夜航与太阳每日更新
+  → Story 驱动的 Character / Relation / World / Scene 闭包
+  → 跨时期、跨文本、跨地方神学中心的来源范围
+  → 神祇合流与身份层叠
+  → Nile / Temple / Royal / Solar / Funerary / Cosmic / Duat 多视觉域
+  → 可追溯 Character Graph 与可控 AI 出图
 ```
 
-本轮不应定义为“补几十个埃及神”，而应定义为：
+本轮不定义为“再补几十个埃及神”，而定义为：
 
-> **把埃及神话建设成一套能够表达三千年历史层叠、地方神学并存、神祇合流和葬祭宇宙观的完整内容宇宙，同时避免把古埃及简化成现代流行文化里的“金字塔 + 沙漠 + 阿努比斯”。**
+> **把埃及神话建设成一套能够表达三千年历史层叠、地方神学并存、神祇合流、王权与葬祭宇宙观的完整内容宇宙，并验证 MythCanvas 的通用内容工程可以处理比希腊 / 北欧更复杂的身份与来源问题，而不是制造 Egyptian-only 特例。**
 
-### 本方案五个核心决策
+## 0.1 V1.1 相比 V1.0 的核心修正
 
-1. **Story First**：先建立 P0 Story Manifest，再通过 Story Dependency Closure 反推 Character / World / Scene / Relation。
-2. **Period + Tradition Scoped**：埃及宗教跨越数千年，不存在一部统一“埃及神话圣经”；关键声明必须挂具体时期、文本与地方神学范围。
-3. **不把地方创世传统强行排成互斥正史**：所谓“赫利奥波利斯 / 赫尔摩波利斯 / 孟斐斯创世神学”应作为来源化传统并存，而不是产品层选择唯一版本。
-4. **Syncretism First-Class**：`Amun-Ra`、`Ra-Horakhty` 等合流神格不能简单建成“换装 Variant”；需要明确身份合流、时期与来源语义。
-5. **反沙漠化 Visual DNA**：尼罗河、纸莎草沼泽、黑土地、星空墓室、彩绘神庙、太阳舟、圣湖与植物生命必须与沙漠共同构成视觉语言。
+本次 Review 参考希腊 V1.1 与北欧方案，重点修正 8 个问题：
+
+1. **统一 Stable Character Type**：不再为埃及单独引入 `primordial-being / personified-principle / divine-animal` 等 type；继续使用通用 stable type，埃及差异进入 taxonomy / identity attributes。
+2. **固定 Canonical Relation Storage Rule**：继承希腊 / 北欧单边存储规则，不同时存 parent + child，不让埃及图谱形成重复边。
+3. **Syncretism 从“实现时再决定”升级为确定性 Identity Resolution Matrix**：Alias、Iconographic Form、Interpretation、独立 Syncretic Character 四层明确分界。
+4. **Horus 身份边界具体化**：P0 `Horus` 默认承载 Osirian kingship cycle；Horus the Elder、Harpocrates、Ra-Horakhty 不再含糊塞进年龄 Variant。
+5. **World 语义收紧**：默认 P0 World 只建立真正稳定、复用的宇宙空间；Nun、First Mound、Aaru 等优先作为 Concept / Scene / Region，而不是为了“丰富地图”机械升级 World。
+6. **P0 内容完整度与 P1 视觉生产拆开**：所有 P0 Character 必须有 Generation-grade Canonical Design；Tier S 18 是视觉生产优先级，不再把 18 个正式 Portrait / Wallpaper 当 P0 内容上线门槛。
+7. **Structured Content Package 对齐 Greek / Norse**：不在 `src/content/egyptian/` 内创建 Egyptian-only validator / importer；validator、normalizer、D1 sync、coverage reporter 必须通用。
+8. **新增 Narrative Unit Quality Gate**：Story Manifest 不允许为了凑 28 篇把一次仪式拆成若干重复页面；每个 Story / religious-tradition unit 必须能独立回答一个用户问题并具备独立来源价值。
 
 ---
 
 # 1. 当前仓库盘点
 
-## 1.1 当前 Character：只有阿努比斯
+## 1.1 当前 Character：只有 Anubis
 
 现有正式埃及 Character：
 
-- `character-anubis`
-- slug：`anubis`
-- role：亡者守护神
-- 当前 anchors：胡狼头 / 天平 / 黑金 / 安卡
+```text
+id: character-anubis
+slug: anubis
+role: 亡者守护神
+```
 
 现有 Variant：
 
-- `ceremonial-judge` / 审判礼装
-- `duat-guardian` / 冥界守门神相
+- `ceremonial-judge` / 审判礼装；
+- `duat-guardian` / 冥界守门神相。
 
-需要保留现有 ID / slug / URL，不做破坏性迁移。
+现有 ID / slug / URL 必须稳定保留。
 
-但当前阿努比斯模型需要在补全时校正：
+但现有 Canonical Design 需要升级：
 
-- 阿努比斯确实参与亡者仪式与心脏称量，但“天平”不应成为其所有场景的唯一主识别物；
-- 其核心还包括木乃伊化、墓地守护、亡者引导等职责；
-- 黑色具有再生、尼罗河沃土、死亡与复生等宗教象征，不应只解释成“暗黑”；
-- 胡狼 / 犬科形态需要支持完整动物形、胡狼头人形等不同古代图像形式，而不是固定现代兽人设计。
+- “天平”不能成为 Anubis 所有场景的唯一锚点；
+- 补木乃伊化、墓地 / necropolis 守护、亡者引导等核心职责；
+- 黑色的意义应区分再生、沃土、死亡 / 复生等宗教语境，而不是等同 dark fantasy；
+- 支持完整犬科动物形与犬科头人形等古代图像形式；
+- 禁止狼人化、重甲 Boss 化。
 
 ## 1.2 当前 Story：3 篇
 
-当前已经有：
+现有埃及 Story：
 
 1. `story-ra-solar-voyage` / 拉神的太阳神舟；
 2. 奥西里斯死亡与复生相关 Story；
 3. `story-weighing-heart` / 心脏称量。
 
-这三篇都应该保留公开 ID / slug，并升级为正式埃及 P0 Story。
+三篇均保留既有 ID / slug，并迁入结构化埃及内容包。
 
 当前主要缺口：
 
-- 拉神 Story 没有正式 `Ra` Character；
-- 奥西里斯 Story 没有 `Osiris / Isis / Horus / Seth / Nephthys` 等参与者；
-- 心脏称量只有 Anubis，没有 `Ma'at / Thoth / Ammit / Osiris`；
-- 三篇都高度依赖 `world-duat`，World / Scene 空间层过于粗糙；
-- 来源已经有意识区分《阿姆杜阿特书》《金字塔文》《棺材文》《亡灵书》，但还没有形成 claim-level source policy。
+- Ra 尚无正式 Character；
+- Osiris Story 缺 Osiris / Isis / Horus / Seth / Nephthys 等核心参与者；
+- 心脏称量仅有 Anubis，没有 Ma'at / Thoth / Ammit / Osiris；
+- Story 大量复用 `world-duat`；
+- 已开始区分《阿姆杜阿特书》《金字塔文》《棺材文》《亡灵书》，但尚未形成 Claim-level Source Coverage；
+- Story、Character、Relation 和 iconography 之间尚未形成来源闭包。
 
-## 1.3 当前 World：只有杜阿特
+## 1.3 当前 World：只有 Duat
 
-`world-duat` 是正确且重要的核心 World，但不能承载全部埃及神话。
+`world-duat` 是正确的核心 World，但不能承载所有埃及故事。
 
-当前“所有埃及故事 → Duat”的结果会造成：
+当前单 World 会导致：
 
-- 创世故事被错误塞进冥界；
-- 荷鲁斯与塞特的王权故事缺少人间 / 神庭 / 尼罗河空间；
-- 拉神白昼航行与夜间航行没有空间差异；
-- 芦苇之野、墓室、神庙、沼泽、原初之水全部被压扁；
-- 视觉上每张图都是黑金墓室和星河。
+- 创世被错误塞进冥界；
+- 白昼太阳航行与夜航没有空间差异；
+- Horus / Seth 王权故事缺乏人间、沼泽、神庭等具体 Scene；
+- Aaru、墓室、神庙、原初状态被压扁；
+- 视觉上所有内容趋同为黑金墓室 + 星河。
 
-## 1.4 当前 Visual DNA 过于单一
+## 1.4 当前 Visual DNA 只是入口层
 
-现有识别：
+现有：
 
 ```text
 太阳金 / 砂岩 / 青金石 / 黑石
@@ -130,675 +138,954 @@
 炽热 / 永恒 / 神秘
 ```
 
-适合作为入口，但不足以支持规模化出图。
-
-若不扩展，容易产生：
+如果直接规模化，会产生：
 
 - 每张图都有金字塔；
-- 每个神都黑金重甲；
-- 神庙建筑变成现代奇幻宫殿；
-- 象形文字被当成随机发光符文；
-- 动物头神全部变成欧美游戏兽人；
-- 女性神祇全部使用同一“埃及艳后”模板；
-- 新王国冥界文本、古王国金字塔文本、晚期神庙图像被混成同一视觉时代。
+- 每个角色都穿黑金重甲；
+- 神庙变成现代 fantasy palace；
+- 随机发光象形文字；
+- 动物头神兽人化；
+- 女性神祇统一 Cleopatra / Nefertiti 模板；
+- 不同时期图像语言被混成同一“埃及风”。
 
 ---
 
-# 2. 内容边界：什么算 MythCanvas 的“埃及神话”
+# 2. “完整”的定义与 P0 / P1 / P2 边界
 
-P0 应覆盖：
+埃及神话的“完整”不等于收录所有地方神、所有神名或所有墓葬咒文。
 
-- 古埃及创世与宇宙秩序；
-- 太阳神传统；
-- 奥西里斯—伊西斯—荷鲁斯—塞特主循环；
-- 王权神学；
-- 死亡、木乃伊化、审判与再生；
-- 杜阿特太阳夜航；
-- 与核心故事直接相关的重要神祇、怪物、空间与仪式。
+MythCanvas 的完整定义是：
 
-P0 不应混入：
+> 用户可以连续理解创世框架、太阳与 Ma'at、Osirian 王权循环、Horus / Seth 王位冲突、死亡与审判、Duat 夜航与永生；所有核心参与者、空间、关系、关键身份和视觉事实都有来源范围，且不存在关键依赖悬空或不加说明的历史层叠。
 
-- 希腊罗马时代把埃及神祇重新解释后的全部后期秘教；
-- 现代神秘学、塔罗、炼金术、New Age “埃及秘法”；
-- 《木乃伊》等现代影视设定；
-- 把 Cleopatra 当神话 Character；
-- 泛“法老诅咒”；
-- 现代阴谋论式金字塔神秘学。
+## 2.1 P0：内容主干闭包
 
-P1 / Later 可独立扩展：
+P0 硬目标：
 
+```text
+Core Story / Religious Narrative Manifest = 28 reviewed units
+P0 Story Entity Dependency Closure = 100%
+P0 Stable Identity Source Coverage = 100%
+P0 Required Genealogy / Narrative Relation Coverage = 100%
+P0 Core Relation Source Coverage = 100%
+P0 Story Source Coverage = 100%
+P0 Canonical Design Coverage = 100%
+Conflicting-source Claims Without Scope = 0
+Orphan Entity Reference = 0
+Duplicate Canonical Relation = 0
+Critical Historical / Cultural Error = 0
+```
+
+Character / World / Scene / Relation 最终数量由 Story Dependency Closure 决定，不设百科式硬数量。
+
+## 2.2 P1：高质量视觉宇宙
+
+- Tier S / Tier A 正式视觉资产；
+- 核心 World desktop + mobile hero；
+- Story hero / illustration 原创化；
+- Character Graph / syncretism 视觉产品化；
+- SEO / GEO / alias / transliteration 完善；
+- provenance audit 清零；
+- 热门角色多 Style / Variant。
+
+## 2.3 P2：长尾与接收传统
+
+- 更多地方神与神庙神学；
 - Ptolemaic / Greco-Egyptian syncretism；
 - Serapis 等后期复合神；
-- 地方神庙神学与节庆；
-- 历史法老的神格化传统；
-- 更多魔法 / 治愈文本；
-- 神庙赞歌与地方传说。
+- 历史法老神格化；
+- 更多魔法 / 医疗 / 节庆文本；
+- 后期 Isis reception；
+- 现代 Egyptology scholarship / reception layer。
+
+P2 不阻塞埃及 P0 主体系上线。
 
 ---
 
-# 3. 来源体系：埃及补全的核心基础设施
+# 3. 内容边界
 
-## 3.1 不存在“一本埃及神话大全”
+## 3.1 P0 应覆盖
 
-埃及神话与希腊不同，大量内容来自：
+- 创世与宇宙秩序；
+- Heliopolitan / Memphite / Hermopolitan 等来源范围化的创世框架；
+- 太阳循环与 Ma'at；
+- Osiris–Isis–Horus–Seth 主循环；
+- 王权神学；
+- 木乃伊化、死亡、审判与永生；
+- Duat 夜航；
+- 与上述 Story 直接相关的重要 deity / monster / creature / collective / space / ritual。
 
-- 葬祭文本；
-- 金字塔铭文；
-- 棺材铭文；
-- 墓室壁画；
-- 神庙铭文；
-- 魔法 / 医疗文本；
-- 赞歌；
-- 王权文本；
-- 后期希腊作者记录。
+## 3.2 P0 不混入
 
-因此 Story 的来源不应该被写成一个笼统的 `Egyptian mythology tradition`。
+- 现代神秘学 / New Age；
+- “法老诅咒”流行文化；
+- 影视游戏原创设定；
+- Cleopatra 作为神话 Character；
+- 泛金字塔阴谋论；
+- 不加 period scope 的希腊罗马时期重解释。
 
-## 3.2 P0 Source Scope
+---
 
-### A. 古王国 / 王权与早期死后传统
+# 4. 来源体系与 Claim-level Source Policy
 
-- Pyramid Texts / 《金字塔文》
+埃及比希腊、北欧更需要把“故事事实”和“后世重建”分开。
+
+大量内容来自：
+
+- Pyramid Texts；
+- Coffin Texts；
+- Book of the Dead；
+- Amduat；
+- Book of Gates；
+- Book of the Heavenly Cow；
+- temple inscriptions / hymns；
+- royal / theological texts；
+- magical / healing texts；
+- later Greco-Roman witnesses。
+
+不存在一部可直接当作统一“埃及神话圣经”的单一文本。
+
+## 4.1 Source Tier
+
+### Tier 1 — 古埃及直接文本 / 图像证据
+
+P0 优先：
+
+- Pyramid Texts；
+- Coffin Texts；
+- Amduat；
+- Book of Gates；
+- Book of the Dead；
+- Book of the Heavenly Cow；
+- Shabaka Stone / Memphite Theology；
+- The Contendings of Horus and Seth / Papyrus Chester Beatty I；
+- relevant temple / funerary / magical texts。
+
+### Tier 2 — 古代后期 / 外部见证
+
+例如：
+
+- Plutarch, *De Iside et Osiride*。
+
+允许用于：
+
+- later witness；
+- 保存较完整晚期版本；
+- 与更早材料对照。
+
+禁止把其全部细节反投射成古王国 / 中王国唯一版本。
+
+### Tier 3 — 现代学术与博物馆资料
 
 用途：
 
-- 王权升天；
-- 奥西里斯早期传统；
-- 神谱声明；
-- 死后世界；
-- 太阳 / 星空关联。
+- 定位原始材料；
+- 解释时期 / cult center / iconography；
+- 区分现代术语与古代术语；
+- 提供编辑背景。
 
-### B. 中王国扩展
+正式关键 claim 尽量落回 Tier 1 / 2 的可定位来源。
 
-- Coffin Texts / 《棺材文》
+## 4.2 SourceRef 最低字段
 
-用途：
-
-- 更广泛的死后文本；
-- 创世材料；
-- Shu / Tefnut / Ogdoad 等宇宙论线索；
-- 死者转化与冥界通行。
-
-### C. 新王国冥界文本
-
-- Amduat / 《阿姆杜阿特书》
-- Book of Gates / 《门之书》
-- Book of Caverns / 后续 P1
-- Book of the Heavenly Cow / 《天牛之书》
-
-用途：
-
-- 太阳夜航；
-- 杜阿特十二时辰；
-- Ra 与 Osiris 的夜间结合 / 再生；
-- Apophis / Apep；
-- 毁灭人类 / Eye of Ra 传统。
-
-### D. Book of the Dead
-
-- Book of Coming Forth by Day / 《亡灵书》
-
-其中 P0 重点：
-
-- Spell 125 / 心脏称量；
-- 亡者声明；
-- 通往永生的图像与咒文系统；
-- Aaru / Field of Reeds 等死后目标空间。
-
-注意：`Book of the Dead` 不是线性叙事故事书，而是不同咒文与图像组成的集合，不能直接当作“埃及神话小说”。
-
-### E. 创世 / 神学文本
-
-- Shabaka Stone / 孟斐斯神学文本；
-- Heliopolitan creation references；
-- Hermopolitan / Ogdoad related texts。
-
-要求：
-
-- 不把现代 Egyptology 方便使用的 “Heliopolitan Theology / Hermopolitan Theology” 标签误写成古埃及自身统一教义名称；
-- 标记具体文本和时期；
-- 不把不同创世框架互相覆盖。
-
-### F. 荷鲁斯与塞特
-
-- The Contendings of Horus and Seth / 《荷鲁斯与塞特之争》Papyrus Chester Beatty I
-
-这是 P0 王权主线的重要文本来源，应直接进入 Story Manifest。
-
-### G. 后期外部来源
-
-- Plutarch, *De Iside et Osiride*
-
-仅作为：
-
-- later Greco-Roman witness；
-- 对奥西里斯故事较完整后期版本的辅助材料。
-
-不能反向把其全部细节当作古王国 / 中王国时期已经存在的统一原典。
-
-## 3.3 Claim-level Source Policy
-
-每一个重要声明需要允许：
+关键来源记录应至少支持：
 
 ```ts
 {
   sourceId,
-  textScope,
+  work,
+  locator,            // spell / utterance / chapter / column / scene / inscription 等
   periodScope,
   traditionScope,
+  cultCenter?,
   claimType,
+  attestationType,    // direct | reconstruction | later-witness | scholarly-note
   confidence,
   note
 }
 ```
 
-重点挂来源的内容：
+`locator` 不能长期停留在“《亡灵书》”这种宽泛粒度；可稳定定位时应落到 Spell / Chapter / Utterance / text section。
 
-- parent / child；
-- spouse / consort；
-- creator identity；
-- deity fusion；
-- deity role；
-- Horus identity；
-- Seth genealogy；
-- Osiris murder details；
-- Ra / Atum / Amun / Ptah relationship；
-- underworld geography；
-- iconographic attributes；
-- Story event ordering。
+## 4.3 Claim-level Coverage
 
----
+以下必须来源化：
 
-# 4. P0 Story Manifest
+```text
+Character stable identity
+role / domain
+parent / child / consort
+creator identity
+syncretic identity
+Horus identity
+Seth genealogy
+Osiris death / restoration detail
+Ra / Atum / Amun / Ptah relationship
+underworld geography
+iconographic attribute
+Story event ordering
+active Interpretation
+```
 
-P0 建议先以 **28 篇核心 Story / Religious Narrative 单元**作为骨架。
+不同来源冲突：
 
-数量不是最终 KPI；最终人物和空间数量仍由 Dependency Closure 决定。
+```text
+claim A + source scope A
+claim B + source scope B
+```
 
-## Volume A — 创世与第一次秩序
+禁止：
 
-1. 原初之水 Nun 与第一次陆地
-2. Atum 的自我生成
-3. Shu 与 Tefnut 的出现
-4. Geb 与 Nut 被分离
-5. Ennead 神谱与宇宙世代
-6. Ptah 以心与言创造世界（孟斐斯传统）
-7. Ogdoad 与创世前状态（来源范围化）
-
-## Volume B — 太阳与玛阿特
-
-8. 拉神的白昼太阳航行
-9. 拉神进入杜阿特
-10. Apep 对太阳神舟的袭击
-11. Ra 与 Osiris 在夜间结合与更新
-12. Khepri 与黎明再生
-13. Eye of Ra 离去与归来
-14. Sekhmet 与“毁灭人类”传统
-
-## Volume C — 奥西里斯家族与王权
-
-15. Osiris 的王权与死亡
-16. Isis 寻找并恢复 Osiris
-17. Horus 的出生与隐藏
-18. Isis 在纸莎草沼泽保护幼年 Horus
-19. Horus 与 Seth 开始王位争夺
-20. 《荷鲁斯与塞特之争》主要竞赛
-21. 神庭裁决与 Horus 继承王权
-22. Osiris 成为冥界之王
-
-## Volume D — 死亡、审判与永生
-
-23. Anubis 与木乃伊化 / 亡者准备
-24. 亡者进入杜阿特与通过门域
-25. 心脏称量
-26. Thoth 记录审判结果
-27. Ammit 与第二次死亡风险
-28. Aaru / Field of Reeds 与理想永生
-
-### P0.5 候选
-
-- Isis 获取 Ra 的秘密名字；
-- Thoth 与月亮 / 时间；
-- Khnum 在陶轮塑造生命；
-- Hathor 的不同神话角色；
-- Neith 创世传统；
-- Khonsu；
-- Sobek；
-- Bastet；
-- Min；
-- Montu；
--更多地方神庙叙事。
+```text
+AI merge → 一个貌似无争议的“标准答案”
+```
 
 ---
 
-# 5. Character 规划
+# 5. P0 Story Manifest：28 个可独立阅读的核心单元
 
-## 5.1 Tier S：首批正式视觉角色
+Story First 仍是补全入口。
 
-建议首批 **18 个 Tier-S Character**：
+这里的 `Story` 包括：
 
-1. Ra / Re / 拉
-2. Atum / 阿图姆
-3. Osiris / 奥西里斯
-4. Isis / 伊西斯
-5. Horus / 荷鲁斯
-6. Seth / Set / 塞特
-7. Anubis / 阿努比斯（保留现有）
-8. Thoth / 托特
-9. Ma'at / 玛阿特
-10. Hathor / 哈索尔
-11. Sekhmet / 塞赫麦特
-12. Ptah / 普塔
-13. Nut / 努特
-14. Geb / 盖布
-15. Nephthys / 奈芙蒂斯
-16. Khepri / 凯布利
-17. Apep / Apophis / 阿佩普
-18. Ammit / 阿米特
+- narrative myth；
+- religious narrative；
+- independently meaningful theological / afterlife reading unit。
 
-Tier S 必须具备：
+它不是要求所有条目都像希腊英雄故事一样具有单线戏剧结构。
 
-- canonical design；
-- identity anchors；
-- mythological facts；
-- iconographic forms；
-- period / source notes；
-- avoid rules；
-- production prompt；
-- mobile portrait；
-- graph portrait；
--至少一个 Story linkage。
+## 5.1 Narrative Unit Quality Gate
 
-## 5.2 Dependency Closure 必然补充池
+每个单元进入 Manifest 前必须满足：
 
-Story 闭包大概率会引入：
+1. 能独立回答一个用户问题；
+2. 至少一个核心来源或明确 reconstruction source set；
+3. 与相邻 Story 不只是同一仪式的一句拆分；
+4. 有独立 Character / Scene / Concept 依赖价值，或承担必要叙事桥梁；
+5. 页面正文可以写成 3–6 分钟阅读，而不是百科条目拼接。
+
+如果不能满足，应合并为同一 Story 的 section，而不是为了凑数量拆页。
+
+## Volume A — 创世与宇宙结构
+
+1. **Nun 与第一次陆地**：原初状态、第一丘 / first emergence。
+2. **Atum 与 Shu / Tefnut 的出现**：Heliopolitan creation claims，按具体材料范围化。
+3. **Geb 与 Nut 的分离**：天空、大地、空气形成有序结构。
+4. **Heliopolitan Ennead 的世代秩序**：作为神谱 / cosmic succession reading unit，不冒充单一叙事原典。
+5. **Ptah 以心与言创造世界**：Memphite / Shabaka Stone 范围。
+6. **Ogdoad 与创世前状态**：Hermopolitan material，避免现代“八神统一创世故事”过度整理。
+7. **Nut、天空与太阳每日循环**：天空身体 / horizon / 日夜运行的宇宙图景，按来源限定。
+
+## Volume B — 太阳与 Ma'at
+
+8. **Ra 的白昼太阳航行**：天空、日舟与维持宇宙秩序。
+9. **Ra 进入 Duat**：日落不是终点，而是夜间更新开始。
+10. **Apep 对太阳神舟的袭击**：chaos 与每日秩序维持。
+11. **Ra 与 Osiris 的夜间结合 / 更新**：仅按明确新王国冥界文本范围表达。
+12. **Khepri 与黎明再生**：不把 scarab 变成泛用“复活符号”。
+13. **Isis 获取 Ra 的秘密名字**：魔法、神名与权能边界；按具体文本范围化。
+14. **毁灭人类与 Eye of Ra / Sekhmet 传统**：以《天牛之书》等材料为核心，不把所有 Eye of Ra 女神关系硬合并。
+
+## Volume C — Osirian 王权循环
+
+15. **Osiris 的王权与死亡**：明确早期材料与后期完整叙事重建之间的区别。
+16. **Isis 寻找 Osiris**：Story 文本必须说明哪些细节来自晚期见证。
+17. **Osiris 的恢复与 Horus 的受孕**：避免把“复生”写成 Osiris 回到人间继续统治。
+18. **Horus 的出生与隐藏**：Osirian kingship 主线。
+19. **Isis 在纸莎草沼泽保护幼年 Horus**：若采用魔法 / 治愈文本，明确 source tier 与时期。
+20. **Horus 与 Seth 提出王位主张**：建立冲突、继承与神庭网络。
+21. **Horus 与 Seth 的主要竞赛**：以 Chester Beatty I 等材料为中心，不混入所有地方版本。
+22. **神庭裁决**：独立承担 tribunal / succession relation closure。
+23. **Horus 继承王权**：连接神话王权与现世王权象征。
+24. **Osiris 成为亡者世界之王**：强调“死亡后获得新的王权”而非简单复活。
+
+## Volume D — 死亡、审判与有效亡者
+
+25. **Anubis 与木乃伊化 / 亡者准备**：embalming、necropolis、ritual preparation。
+26. **亡者进入 Duat 与通过门域**：不同 funerary corpus 的地理不能无来源拼成一张统一地图。
+27. **心脏称量**：一个 Story 内完整覆盖 Anubis、Ma'at、Thoth、Ammit、Osiris，不再拆出“Thoth 记录”“Ammit 风险”重复页面。
+28. **Aaru / Field of Reeds 与理想永生**：说明它是死后目标 / region 概念，而不是默认独立“天堂世界”。
+
+## 5.2 Story Dependency Closure Rule
+
+每个 P0 Story 进入 `published` 前：
+
+```text
+requiredCharacterIds ⊆ Character dataset
+requiredWorldIds     ⊆ World dataset
+requiredSceneIds     ⊆ Scene dataset
+requiredSources      != empty
+```
+
+埃及附加检查：
+
+```text
+periodScope required when historically material
+traditionScope required when alternatives conflict
+attestationType required for reconstruction / later witness
+critical identity claims have source refs
+modern-pop-culture leakage = 0
+```
+
+核心参与者必须实体化；只在正文一句带过、无浏览 / 关系 / 创作价值的名字可留在文本中，不强制建 Character。
+
+最终 P0 Character 数量由 28 Story 依赖闭包计算后人工 Review。
+
+---
+
+# 6. Character Stable Type 与 Taxonomy
+
+## 6.1 Stable Character Type：与 Greek / Norse 完全一致
+
+禁止为埃及再建一套独有的 stable type。
+
+继续使用：
+
+```text
+character_type
+├── deity
+├── hero
+├── mortal
+├── monster
+├── creature
+└── collective
+```
+
+例如：
+
+```text
+Ma'at
+character_type = deity
+taxonomy = [personified-principle, cosmic-order, maat]
+
+Nun
+character_type = deity
+taxonomy = [primordial, primeval-water, cosmogony]
+
+Apep
+character_type = monster
+taxonomy = [chaos-being, solar-cycle, duat]
+```
+
+不要新增：
+
+```text
+primordial-being
+personified-principle
+divine-animal
+chaos-being
+```
+
+作为 stable `character_type`。
+
+这些属于 taxonomy / identity attributes。
+
+## 6.2 Editorial / Functional Taxonomy
+
+建议：
+
+```text
+primordial
+heliopolitan
+memphite
+hermopolitan
+ennead
+ogdoad
+solar-cycle
+osirian-cycle
+kingship
+duat
+afterlife
+embalming
+writing
+magic
+maat
+cosmic-order
+sky
+sun
+fertility
+protection
+chaos-being
+syncretic-deity
+animal-iconography
+```
+
+原则：
+
+> `character_type` 解决“它是什么”；taxonomy 解决“它属于哪个神学 / 故事 / 功能 / 视觉分类”。
+
+---
+
+# 7. P0 Character Production 标准
+
+每个 P0 Character，无论是否 Tier S，最低都必须具备：
+
+```text
+Character
+├── stable identity
+├── character_type
+├── taxonomy / tradition tags
+├── names / aliases
+├── period scope
+├── identity source refs
+├── canonicality
+├── symbols
+├── canonical design
+├── iconographic forms（需要时）
+├── core relations
+├── world / scene affinity
+├── story linkage
+├── syncretism notes（需要时）
+└── generation prompt
+```
+
+以下仅按需创建：
+
+```text
+CharacterInterpretation
+CharacterVariant
+ReferenceAsset
+```
+
+**P0 Canonical Design Coverage = 100%。**
+
+这和视觉图片是否已生产是两件事。
+
+## 7.1 视觉 Tier 不是 Character 完整度 Tier
+
+V1.0 的“18 个 Tier S 全部完成”容易被误解为：只需要 18 个角色有完整 Canonical Design。
+
+V1.1 明确：
+
+```text
+所有 P0 Character → structured canonical design
+Tier S / A / B       → 只决定正式图片生产优先级
+```
+
+---
+
+# 8. Identity Resolution Matrix：Epithet / Form / Interpretation / Syncretism
+
+埃及补全最大的模型风险是“什么都做成 Variant”或“什么都拆成 Character”。
+
+V1.1 固定如下规则。
+
+## 8.1 Alias / Epithet
+
+如果只是：
+
+- 名称拼写差异；
+- 常见希腊化 / English form；
+- 称号；
+- 文本中的修饰性 epithets；
+
+使用：
+
+```text
+character_names / aliases
+```
+
+不创建 Character / Variant。
+
+## 8.2 Iconographic Form
+
+如果是同一神祇的标准图像形式，例如：
+
+```text
+human
+falcon-headed human
+full falcon
+recumbent canid
+scarab
+```
+
+使用：
+
+```text
+Canonical Design.iconographicForms
+```
+
+不是 Character Variant。
+
+Variant 只描述 MythCanvas 创作层允许切换的年龄 / 服装 /神相 /造型等，不承担古代神学身份问题。
+
+## 8.3 CharacterInterpretation
+
+仅当来源差异实质改变：
+
+- 稳定身份理解；
+- 神职 / 权能；
+- 关键视觉锚点；
+- Generation Prompt；
+- 用户确实需要主动切换传统；
+
+才建立 Interpretation。
+
+仍坚持：
+
+```text
+relation difference != interpretation difference
+```
+
+## 8.4 Syncretic Character
+
+当复合神格同时满足以下多个条件：
+
+- 有稳定独立名称；
+- 有明确 period / cult / textual identity；
+- 有独立搜索 / 页面价值；
+- 有独立 Story / relation / iconographic value；
+
+则建立独立 Character，例如未来可能的：
+
+```text
+Amun-Ra
+Ra-Horakhty
+```
+
+并使用通用 `character_relations` 表达组成关系：
+
+```text
+base deity -> syncretic deity
+relation_type = syncretic-component
+```
+
+例如：
+
+```text
+Amun -> Amun-Ra
+Ra   -> Amun-Ra
+```
+
+每条 edge 必须 source scoped。
+
+`sync / validator / graph` 不应为埃及单独造另一套 Identity Graph。
+
+若现有 relation enum 尚无 `syncretic-component`，只在 Graph /产品确实需要时增加这一条**通用关系语义**，不得创建 Egyptian-only relation table。
+
+## 8.5 明确禁止
+
+```text
+Amun-Ra = Ra costume Variant
+Ra-Horakhty = Ra costume Variant
+Horus the Child = Horus age Variant（默认）
+```
+
+---
+
+# 9. Horus Identity Policy
+
+“Horus”不能被压缩成一个跨三千年完全稳定的“鹰头儿子”。
+
+V1.1 采用确定性默认策略。
+
+## 9.1 P0 主入口
+
+`character-horus` 默认服务 P0 Osirian kingship cycle：
+
+```text
+Horus son of Isis / Osiris
++ kingship claimant / successor
++ falcon / royal sky associations
+```
+
+其父母、继承、与 Seth 冲突必须全部 source scoped。
+
+## 9.2 Horus the Elder
+
+不默认塞进 `character-horus` 的一段简介。
+
+规则：
+
+- 如果后续 Story Dependency Closure 需要独立身份 / relation / page → 独立 Character；
+- 如果只是解释性对照 → Interpretation / source note；
+- 不使用 age Variant。
+
+## 9.3 Harpocrates / Horus the Child
+
+默认 P1 / later tradition。
+
+若进入产品：
+
+- 按独立身份 / Interpretation 规则评审；
+- 必须有 period scope；
+- 不因“child”字面意义直接建年龄 Variant。
+
+## 9.4 Ra-Horakhty
+
+按 Syncretic Character Rule 处理，不作为 Horus 或 Ra 的普通 Variant。
+
+---
+
+# 10. Character Relation Canonical Storage Rule
+
+完全复用 Greek / Norse 规则。
+
+## 10.1 parent
+
+只存：
+
+```text
+parent -> child
+relation_type = parent
+```
+
+UI 反向查询得到 children。
+
+**不同时存 `child` 反向边。**
+
+## 10.2 对称关系
+
+```text
+consort
+sibling
+ally
+rival
+enemy
+syncretized-with（若未来保留该弱语义）
+```
+
+默认只存一次，以稳定排序决定 from / to。
+
+## 10.3 单向关系
+
+```text
+rules-over
+serves
+created
+manifestation-of
+protector-of
+attendant-of
+successor-of
+syncretic-component
+```
+
+按语义保持方向。
+
+## 10.4 不滥增 relation type
+
+Horus / Seth 的比赛、Isis 的保护、Anubis 的 embalming 等，如果通过：
+
+```text
+existing relation
++ Story linkage
++ source scoped note
+```
+
+已能表达，就不为了埃及新增几十个关系枚举。
+
+## 10.5 Relation DoD
+
+```text
+required genealogy edges covered = 100%
+required narrative edges covered = 100%
+relation source coverage = 100%
+invalid target = 0
+duplicate canonical relation = 0
+conflicting relation without source scope = 0
+```
+
+---
+
+# 11. P0 Character Closure 与视觉 Tier
+
+## 11.1 Tier S：视觉生产优先级，不是 P0 Character 总数
+
+建议 18 个 Tier S：
+
+1. Ra / Re
+2. Atum
+3. Osiris
+4. Isis
+5. Horus
+6. Seth / Set
+7. Anubis
+8. Thoth
+9. Ma'at
+10. Hathor
+11. Sekhmet
+12. Ptah
+13. Nut
+14. Geb
+15. Nephthys
+16. Khepri
+17. Apep / Apophis
+18. Ammit
+
+这 18 个是：
+
+- 品牌认知；
+- Story 连接度；
+- 图谱价值；
+- 出图价值；
+
+综合后的 P1 视觉优先池。
+
+**不是固定 P0 Character Closure。**
+
+## 11.2 Dependency Closure 预计还会产生
+
+例如：
 
 - Nun；
 - Shu；
 - Tefnut；
 - Wepwawet；
-- Neith；
 - Sia；
-- Heka；
 - Hu；
+- Heka；
 - Mehen；
-- Serqet；
-- Four Sons of Horus；
-- Ogdoad 成员；
-- tribunal / Ennead 相关神祇。
+- relevant Ennead / tribunal members；
+- Story 真正依赖的 Ogdoad / protective deity。
 
-不预设最终数量，只要求：
-
-> **P0 Story Dependency Coverage = 100%**
-
-## 5.3 Taxonomy 不要混维度
-
-建议至少拆开：
-
-```text
-characterType:
-  deity
-  primordial-being
-  demon/chaos-being
-  divine-animal
-  monster
-  personified-principle
-
-culticGroup / theologicalGroup:
-  Ennead
-  Ogdoad
-  Osirian-cycle
-  solar-cycle
-  ...
-
-functionalDomains:
-  kingship
-  sun
-  sky
-  death
-  embalming
-  writing
-  maat/order
-  fertility
-  protection
-  magic
-  ...
-```
-
-不要把 `deity / solar / ennead / female` 塞进同一个 type 字段。
+最终是否进入 P0 由 Story / Relation 依赖决定，不按百科名单提前灌入。
 
 ---
 
-# 6. 埃及神祇身份模型：必须解决 Syncretism
+# 12. World / Scene / Concept：严格空间语义
 
-这是埃及神话相对希腊、北欧最重要的模型差异之一。
+Greek / Norse 已证明，World 不能承担“时代 / 标签 / 任意地点”。埃及更应收紧。
 
-常见情况：
+## 12.1 World 定义
 
-- Ra / Atum-Ra；
-- Amun / Amun-Ra；
-- Ra-Horakhty；
-- Horus 的不同地方 / 年龄 / 神学形态；
-- Hathor 与 Eye of Ra；
-- Sekhmet / Hathor 在部分叙事中的角色转换；
-- Anubis 与 Osiris 在不同时期死者神职上的重心变化。
+> World = 神话宇宙中稳定、可复用、可被多个 Story / Character 感知为同一空间层的神话域。
 
-### 不允许的处理
+默认 P0：
+
+### Duat
+
+保留现有 `world-duat`。
+
+承担：
+
+- 太阳夜航；
+- Osiris 亡者王权；
+- 门域 / 深夜更新；
+- afterlife journey 的部分空间。
+
+### Celestial Sky / Solar Sky
+
+只有满足下列条件才升级 P0 World：
+
+- 至少多个 P0 Story 直接依赖；
+- Nut / daytime solar barque / horizon 等具有共享空间语义；
+- 页面和 Artwork 有复用价值。
+
+否则继续使用 Scene / Concept。
+
+## 12.2 默认不建 World
+
+### Nun / Primeval Waters
+
+优先：
 
 ```text
-Amun-Ra = Ra 换了一套衣服
-Ra-Horakhty = Ra 的 Variant
-Horus the Elder = Horus the Child 的年龄 Variant
+cosmology concept
++ creation Scene
 ```
 
-这会把神学身份问题错误降级为视觉换装。
+不是为了做“埃及四界地图”机械建 World。
 
-### 建议建模规则
+### First Mound
 
-#### A. Epithet
+Scene / cosmological place。
 
-若只是称号 / 神名修饰：
+### Aaru / Field of Reeds
 
-- 作为 alias / epithet；
-- 不创建独立 Character。
+优先建：
 
-#### B. Iconographic Form
+```text
+Duat / afterlife related region or Scene
+```
 
-若是同一神祇的标准图像形态：
+除非产品 World 语义经过实现 Review 证明其需要独立一级 World。
 
-- human；
-- falcon-headed human；
-- full falcon；
-- scarab；
+### Divine Egypt / Sacred Nile Realm
 
-使用 `iconographicForms` / Canonical Design，不等同 Character Variant。
+**P0 不创建。**
 
-#### C. Syncretic Identity
+现实埃及、尼罗河谷、城市、沼泽不是因为进入神话 Story 就自动升级为超自然 World。
 
-若形成具有明确历史、神学和崇拜语义的复合身份：
+## 12.3 Scene / Place 候选
 
-- 建议独立 identity node 或 CharacterInterpretation；
-- 带 `periodScope` / `cultCenter` / `sourceScope`；
-- 可关联多个 base deity。
+由 Story Closure 决定，优先：
+
+```text
+Primeval Waters / First Emergence
+First Mound
+Solar Barque at Day
+Solar Barque at Night
+Akhet / Horizon
+Gates of Duat
+Midnight Renewal Chamber / relevant Duat scene
+Hall of Two Truths
+Weighing Hall
+Throne of Osiris
+Papyrus Marsh of Isis and Horus
+Nile Floodplain
+Divine Tribunal
+Temple Hypostyle Hall
+Sacred Lake
+Star-painted Tomb Chamber
+Desert Necropolis
+Field of Reeds
+Celestial Body of Nut
+```
+
+是否实体化：
+
+> 被至少一个 P0 Story 直接依赖，或具有明显高复用视觉 /浏览价值。
+
+## 12.4 Concept 与 Scene 不强行实体化成 Character / World
 
 例如：
 
 ```text
-Amun-Ra
-  composedOf: Amun + Ra
-  periodScope: New Kingdom+
-  identityType: syncretic-deity
+Ma'at as cosmic order concept
+Akhet as horizon concept
+Ennead as theological collective / taxonomy
 ```
 
-是否升级成独立 Character，按以下标准决定：
-
-- 是否有独立故事依赖；
-- 是否有独立页面搜索价值；
-- 是否有稳定视觉识别；
-- 是否有独立关系或崇拜历史；
-- 是否仅仅是某段文本中的称号。
+应按现有 content concept / collective / taxonomy 能力选择最贴近产品语义的模型，不为了图谱“全节点化”。
 
 ---
 
-# 7. Horus 必须专项处理
+# 13. Egyptian Visual DNA V2
 
-“Horus”不能默认视为一个在三千年历史里完全稳定的单一角色。
+当前 Visual DNA 应从单一“沙漠冥界风”拆为 Base + Domain DNA。
 
-至少要在来源层区分：
-
-- Horus as king / sky god；
-- Horus son of Isis / Osiris；
-- Horus the Child / Harpocrates（后期）；
-- Horus the Elder；
-- Ra-Horakhty 等太阳合流身份。
-
-P0 产品层可以仍然保持一个主入口 `Horus`，但必须通过：
-
-- Interpretation；
-- identity note；
-- source scope；
-- period scope；
-- iconographic forms；
-
-避免将所有传统合并成一句“荷鲁斯是奥西里斯和伊西斯的鹰头儿子”。
-
----
-
-# 8. World / Scene 设计
-
-## 8.1 World 原则
-
-World 继续保持“神话空间 / 宇宙域”语义，不把所有历史城市直接建 World。
-
-建议 P0 World 候选：
-
-### 1. Duat / 杜阿特
-
-保留现有：
-
-- 夜间太阳航行；
-- 冥界诸门；
-- Osiris；
-- 死亡与再生。
-
-### 2. Celestial Sky / 天空神域
-
-用于：
-
-- Nut；
-- 日舟白昼航行；
-- 星辰；
-- horizon / akhet。
-
-### 3. Primeval Waters / 原初之水
-
-用于：
-
-- Nun；
-- 第一次陆地；
-- Atum / creation。
-
-是否最终建成 World，取决于 Story Scene 复用程度；若仅出现于 1–2 篇 Story，可降为 Scene。
-
-### 4. Aaru / Field of Reeds / 芦苇之野
-
-用于：
-
-- 审判之后的理想永生；
-- 农田、水道、芦苇与重生。
-
-### 5. Divine Egypt / Sacred Nile Realm
-
-谨慎评估。
-
-不建议简单创建 `world-egypt`；现实埃及不是神域。
-
-如果王权、幼年 Horus、尼罗河沼泽相关 Story 需要统一空间，可建立更抽象的叙事域，但必须避免把现实地理伪装成超自然 World。
-
-## 8.2 Scene 应比 World 丰富
-
-建议 P0 Scene：
-
-- Primeval Mound / 第一丘；
-- Solar Barque at Dawn；
-- Solar Barque at Night；
-- Gates of Duat；
-- Hall of Two Truths / 双真理厅；
-- Weighing Hall；
-- Throne of Osiris；
-- Papyrus Marsh of Isis and Horus；
-- Nile Floodplain；
-- Temple Hypostyle Hall；
-- Star-painted Tomb Chamber；
-- Field of Reeds；
-- Horizon / Akhet；
-- Divine Tribunal；
-- Desert Necropolis；
-- Sacred Lake；
-- Celestial Body of Nut。
-
----
-
-# 9. Character Relation / Graph
-
-P0 Graph 必须支持来源冲突与身份层叠。
-
-关系类型至少覆盖：
+## 13.1 Mythology Base
 
 ```text
-parent
-child
-sibling
-consort
-rival
-successor
-protector-of
-attendant-of
-creator-of
-manifestation-of
-syncretized-with
-associated-with
-opposes
+materials:
+- sandstone / limestone
+- painted plaster
+- linen
+- wood
+- gold where ritually appropriate
+- faience
+- lapis / blue mineral accents
+
+landscape:
+- Nile water
+- fertile black soil
+- papyrus / lotus marsh
+- desert edge
+- cultivated floodplain
+
+motifs:
+- solar disk
+- horizon
+- papyrus / lotus
+- ritual crowns / regalia
+- hieroglyphic relief as real surface language
+- divine animal iconography by deity
 ```
 
-但 `associated-with` 只能作为弱关系补充，不能成为把所有神连成一团的万能边。
-
-### 核心关系闭包
-
-至少应完整表达：
+## 13.2 Solar
 
 ```text
-Geb + Nut
-  → Osiris / Isis / Seth / Nephthys
-
-Osiris + Isis
-  → Horus
-
-Osiris ↔ Seth
-  → kingship / death conflict
-
-Horus ↔ Seth
-  → throne contest
-
-Isis → Horus
-  → mother / protector
-
-Anubis → deceased / embalming
-Thoth → judgement / recording
-Ma'at → cosmic order / weighing principle
-Apep ↔ Ra
-  → nightly chaos conflict
+white-gold sunlight
+red / gold solar disk
+horizon glow
+solar barque
+scarab dawn when source-appropriate
+ordered monumental symmetry
 ```
 
-注意：谱系关系需要 `traditionScope`，不能假设所有文本完全一致。
+## 13.3 Nile / Black Land
+
+```text
+papyrus
+lotus
+reed marsh
+fertile dark soil
+water channels
+green / blue life palette
+```
+
+## 13.4 Temple
+
+```text
+sandstone pylons
+painted columns
+lotus / papyrus capitals
+sacred lake
+incense haze
+carved / painted relief
+```
+
+禁止随机 neon hieroglyphs。
+
+## 13.5 Funerary
+
+```text
+linen
+black resin
+gold masks where appropriate
+canopic / funerary protection
+star ceilings
+restrained lamp / torch light
+```
+
+## 13.6 Duat
+
+```text
+dark blue night field
+stars
+red solar disk
+register-like composition where appropriate
+gates / serpents / barques
+funerary-painting spatial language
+```
+
+## 13.7 Royal
+
+```text
+white / red crowns when character-appropriate
+uraeus
+throne
+falcon / royal protection
+ceremonial symmetry
+```
+
+## 13.8 Primeval / Cosmic
+
+```text
+dark water
+first mound
+sky body
+stars
+air separation
+minimal monumental composition
+```
+
+## 13.9 Anti-patterns
+
+硬门禁：
+
+```text
+no every-scene pyramid
+no universal black-gold armor
+no random glowing hieroglyphs
+no fantasy glyph tattoos
+no MCU / game-boss silhouette copying
+no Anubis werewolf anatomy
+no Seth = ordinary jackal/dog/donkey shortcut
+no Apep = generic western dragon
+no Cleopatra/Nefertiti template for all goddesses
+no universal sexualized dancer costume
+no universal male bare-chest + gold collar template
+no Islamic / Arabic architectural motifs in pharaonic temple scenes
+no Greek/Roman column language without period scope
+no single modern race palette applied to all symbolic ancient skin conventions
+```
 
 ---
 
-# 10. Visual DNA V2
+# 14. Character Canonical Design：埃及专项字段
 
-## 10.1 视觉核心不再是“沙漠”
-
-建议扩展为 8 个视觉域。
-
-### A. Solar
-
-- white-gold sunlight；
-- solar disk；
-- horizon glow；
-- solar barque；
-- scarab dawn；
-- red / gold / white。
-
-### B. Nile / Black Land
-
-- papyrus；
-- lotus；
-- reed marsh；
-- fertile dark soil；
-- irrigation channels；
-- green-blue life palette。
-
-### C. Temple
-
-- sandstone pylons；
-- painted columns；
-- lotus / papyrus capitals；
-- sacred lake；
-- incense haze；
-- carved relief rather than random glowing glyphs。
-
-### D. Funerary
-
-- black resin；
-- linen；
-- gold masks；
-- canopic protection；
-- star ceilings；
-- restrained torch / oil-lamp lighting。
-
-### E. Duat
-
-- dark blue night field；
-- stars；
-- red solar disk；
-- segmented registers；
-- gates / serpents / barques；
-- tomb-painting composition language。
-
-### F. Royal
-
-- white / red crowns；
-- uraeus；
-- throne；
-- falcon protection；
-- ceremonial symmetry。
-
-### G. Divine Animal Iconography
-
-- falcon；
-- ibis；
-- jackal / canid；
-- cow；
-- lioness；
-- scarab；
-- crocodile。
-
-使用必须按具体 deity source，而不是随机动物拼装。
-
-### H. Primeval / Cosmic
-
-- dark water；
-- first mound；
-- sky goddess；
-- stars；
-- air separation；
-- minimal monumental composition。
-
-## 10.2 Anti-patterns
-
-硬性禁止：
-
-- 每张图都有金字塔；
-- 每个角色都穿金色重甲；
-- 把 Egyptian deity 做成 MCU / 游戏 Boss；
-- 随机发光象形文字；
-- 在角色皮肤上铺满“神秘符文”；
-- 全员黑皮 / 全员白皮的现代种族模板化；
-- 把象征性古代肤色直接当现代写实肤色编码；
-- Cleopatra / Nefertiti 妆容套给所有女性神；
-- 所有男性赤膊 + 金领；
-- 所有女性只剩性感舞姬造型；
-- 用阿拉伯 / 伊斯兰建筑装饰古埃及神庙；
-- 混用希腊柱式；
-- 把 Anubis 固定为黑色狼人；
-- 把 Seth 固定为普通豺狼 / 狗 / 驴；
-- 把 Apep 画成泛西方龙。
-
----
-
-# 11. Character Canonical Design 专项要求
-
-每个 Tier S Character 需要新增或强化：
+所有 P0 Character 的 Canonical Design 在通用字段基础上，按需补：
 
 ```text
 identityAnchors
@@ -810,18 +1097,28 @@ colorSymbolism
 periodNotes
 culticNotes
 mythologicalFacts
+historicallyGroundedAnchors
+originalDesignChoices
 syncretismNotes
 avoid
 canonicalPrompt
 ```
 
-### 示例：Anubis
+必须显式区分：
+
+```text
+mythological / textual facts
+historically / iconographically grounded anchors
+MythCanvas original design choices
+```
+
+### Anubis 示例
 
 ```text
 identityAnchors:
-- black canid / jackal-associated head
-- embalming and necropolis context
-- divine kilt / ritual regalia
+- black canid-associated iconography
+- embalming / necropolis context
+- ritual regalia
 
 iconographicForms:
 - recumbent black canid
@@ -830,431 +1127,616 @@ iconographicForms:
 avoid:
 - werewolf anatomy
 - generic fantasy armor
-- permanently holding scales in every scene
-- random glowing hieroglyph tattoos
+- permanent scales in every scene
+- glowing glyph tattoos
 ```
 
-### 示例：Ma'at
+### Ma'at 示例
 
-核心不是“拿羽毛的女神”这么简单：
+```text
+identity:
+- truth / order / justice / cosmic balance
+- relation to kingship / solar order
 
-- ostrich feather；
-- truth / order / justice / cosmic balance；
-- relation to kingship and solar order；
-- weighing scene uses feather as standard iconographic marker；
-- avoid angel / Greek goddess visual drift。
+iconography:
+- ostrich feather as a stable marker
+
+avoid:
+- angel visual drift
+- generic Greek goddess visual language
+```
 
 ---
 
-# 12. Structured Content 目录
+# 15. Names / Alias / Transliteration Policy
 
-埃及不再继续堆进 `src/data/seed.ts` 与 `src/data/stories.ts`。
+埃及名称存在 conventional English / Greek-derived / Egyptological transliteration 等多种形式。
 
-目标目录：
+例如：
+
+```text
+Ra / Re
+Seth / Set
+Thoth / Djehuty
+Osiris / Egyptian-name transliteration forms
+Isis / Egyptian-name transliteration forms
+```
+
+规则：
+
+1. Stable slug 保持 ASCII、用户熟悉、URL 稳定；
+2. 中文常用名作为主要中文 display；
+3. 常见 English conventional name 作为主英文 display；
+4. Egyptological / ancient-language transliteration 进入 aliases / scoped names；
+5. Greek-derived conventional names必须能在来源说明中与古埃及本名传统区分；
+6. 不因为增加更“学术”的拼写改公开 URL。
+
+Search 至少应覆盖中文名 + common English + ASCII alias + 高价值 transliteration。
+
+---
+
+# 16. Structured Content Pipeline：不得出现 Egyptian-only 工具链
+
+V1.0 的目录过度拆分，会诱导创建 `validators.ts / relations.ts / worlds.ts` 等文明专属工程逻辑。
+
+V1.1 与 Greek / Norse 对齐。
+
+## 16.1 推荐目录
 
 ```text
 src/content/egyptian/
-├── index.ts
 ├── catalog.ts
-├── characters.ts
-├── relations.ts
-├── interpretations.ts
-├── worlds.ts
-├── scenes.ts
 ├── stories.ts
-├── sources.ts
-├── visual-dna.ts
-├── aliases.ts
-└── validators.ts
+├── assets.ts
+├── visual-tiers.ts
+├── sources.ts        # 可选，仅数据；若通用 catalog 足够则不拆
+└── index.md
 ```
 
-长期应由通用 registry 注册：
+其中：
+
+- `catalog.ts`：Character / World / Scene / taxonomy / relation / interpretations / aliases 等结构化 manifest；
+- `stories.ts`：Story 正文、sources、dependencies；
+- `assets.ts`：公开资产 provenance；
+- `visual-tiers.ts`：P1 视觉优先级；
+- `sources.ts`：仅在 source registry 体量明显需要时拆分，仍是 data package，不包含 validator 逻辑。
+
+禁止：
+
+```text
+src/content/egyptian/validators.ts
+scripts/sync-egyptian-content.mjs
+egyptian:validate
+egyptian:deploy
+```
+
+## 16.2 Generic Registry
+
+目标：
 
 ```text
 src/content/greek
 src/content/norse
 src/content/japanese
 src/content/egyptian
-...
+        ↓
+mythology registry
+        ↓
+generic repository / validator / normalizer / sync
 ```
 
-而不是出现：
+若北欧阶段已经完成 generic registry，埃及直接注册，不复制代码。
+
+若尚未完成，则埃及实现前优先完成北欧方案定义的通用化工作。
+
+## 16.3 Generic Pipeline
 
 ```text
-if mythology === greek ...
-if mythology === egyptian ...
-```
-
-## 12.1 Import Pipeline
-
-```text
-structured content
+structured mythology package
   → schema validation
-  → source / claim validation
-  → dependency closure validation
+  → dependency validation
+  → source / claim coverage validation
   → relation validation
-  → image / prompt validation
-  → normalized import
-  → D1 sync
+  → world / scene validation
+  → asset provenance validation
+  → normalized manifest
+  → idempotent D1 sync
 ```
 
-必须保证：
+## 16.4 Validator 最低检查
 
-- idempotent；
-- 可回滚；
-- 无 dangling relation；
-- 无 dangling Story dependencies；
-- alias 唯一；
-- slug 稳定；
-- existing Anubis / Story IDs 不漂移。
+```text
+stable id / slug uniqueness
+mythology foreign keys
+story dependency closure
+story narrative-unit integrity manifest
+relation target validity
+canonical relation duplicates
+source coverage
+source scope / locator validity
+interpretation ownership
+syncretic-component target validity
+primary name uniqueness
+alias collisions
+world / scene validity
+asset provenance completeness
+legacy ID stability
+```
+
+## 16.5 CI
+
+仍然只运行通用命令：
+
+```bash
+npm test
+npm run content:validate
+npm run provenance:audit -- --strict
+npm run check
+```
+
+不要新增文明专属 CI 路径。
 
 ---
 
-# 13. P0 实施顺序
+# 17. Character Detail / Graph 产品集成
 
-## Batch 0 — 模型补洞
+埃及不重做 Character Detail / 3D Graph。
 
-1. 确认 generic mythology registry 已可承载 Egyptian；
-2. 增加 syncretic identity / interpretation 表达规则；
-3. 增加 iconographic forms 数据结构；
-4. 补 source period / tradition scope；
-5. 确认 Character Graph 支持 source-scoped edge。
+优先复用 `NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md` 定义的通用 ViewModel / relation fallback / Graph API / performance / accessibility 能力。
 
-## Batch 1 — Story Manifest + Sources
+埃及只新增必要的通用语义：
 
-1. 建立 28 篇 Story Manifest；
-2. 为每篇建立 source scope；
-3. 标记 period；
-4. 拆出 direct textual evidence / later reconstruction；
-5. 对 Plutarch 等后期来源做显式 later-source 标记。
+- period / tradition source display；
+- syncretic-component relation；
+- Interpretation source scope；
+- iconographic form display；
+- Horus identity notes；
+- alias / transliteration。
 
-## Batch 2 — Dependency Closure
-
-自动生成：
+## 17.1 Graph 必须能回答
 
 ```text
-Story
-  → Character dependencies
-  → Relation dependencies
-  → World dependencies
-  → Scene dependencies
-  → required Sources
+Geb + Nut → Osiris / Isis / Seth / Nephthys
+Osiris + Isis → Horus（按来源范围）
+Osiris ↔ Seth → kingship / death conflict
+Horus ↔ Seth → succession conflict
+Apep ↔ Ra → nightly chaos conflict
+Anubis → funerary / embalming network
+Ma'at / Thoth / Anubis / Osiris → judgement network
+Amun / Ra → Amun-Ra（未来进入时）
 ```
 
-输出缺口报告。
-
-## Batch 3 — Character + Relation
-
-1. 建 Tier S 角色；
-2. 补 dependency characters；
-3. 补 genealogy；
-4. 补 rivalry / succession；
-5. 补 syncretism；
-6. 补 alias / transliteration。
-
-## Batch 4 — World / Scene
-
-1. 保留 Duat；
-2. 引入真正必要的新 World；
-3. Scene 承担具体地点 / 仪式空间；
-4. 移除所有 Story 对 `world-duat` 的无脑复用。
-
-## Batch 5 — Story 正文
-
-要求每篇：
-
-- 3–6 分钟；
-- source notes；
-- version note；
-- character linkage；
-- world / scene linkage；
-- 非现代百科式硬拼；
-- 明确“文本没有提供的细节”。
-
-## Batch 6 — Character Detail + Graph
-
-- Character Detail ViewModel；
-- relation textual fallback；
-- source / tradition display；
-- syncretism display；
-- Horus interpretation switching；
-- mobile graph performance。
-
-## Batch 7 — Visual Assets
-
-优先级：
-
-```text
-Tier S Character canonical portrait
-> Story hero
-> World hero
-> Scene hero
-> wallpaper variants
-```
-
-不要让 100+ 壁纸生产阻塞内容 P0。
+Graph 不应退化为 family tree，也不能把弱 `associated-with` 边当作主网络。
 
 ---
 
-# 14. 视觉资产分层
+# 18. 实施顺序
+
+## P0-0：冻结内容规范
+
+- [ ] Stable Character Type 与 taxonomy 对齐 Greek / Norse；
+- [ ] Source Tier / locator / attestationType 规则；
+- [ ] Canonical Relation Storage Rule；
+- [ ] Identity Resolution Matrix；
+- [ ] Horus Identity Policy；
+- [ ] World / Scene / Concept 语义；
+- [ ] 28 个 Story Manifest 通过 Narrative Unit Review。
+
+## P0-1：确保 Generic Structured Content Pipeline 可用
+
+复用北欧通用化工作：
+
+- [ ] mythology registry；
+- [ ] generic validator；
+- [ ] generic normalizer；
+- [ ] generic D1 sync；
+- [ ] generic artwork coverage reporter；
+- [ ] CI 自动验证全部 registered mythology。
+
+**必须在大量新增 Egyptian 数据前完成，避免第三套 importer。**
+
+## P0-2：建立 `src/content/egyptian/`
+
+- [ ] `catalog.ts`；
+- [ ] `stories.ts`；
+- [ ] `assets.ts`；
+- [ ] `visual-tiers.ts`；
+- [ ] optional `sources.ts`；
+- [ ] `index.md`；
+- [ ] 迁移现有 Anubis 与 3 篇 legacy Story，保持 ID / slug。
+
+## P0-3：Story Dependency Closure
+
+分批推进：
+
+### Batch A — Creation / Cosmology
+
+Story 1–7：
+
+- Nun / Atum / Shu / Tefnut / Geb / Nut / Ptah / relevant Ogdoad closure；
+- creation Scene / Concept；
+- source tradition scope。
+
+### Batch B — Solar / Ma'at
+
+Story 8–14：
+
+- Ra / Khepri / Apep / Isis / Sekhmet / Eye-of-Ra related closure；
+- daytime / nighttime / horizon Scene；
+- direct vs reconstruction source notes。
+
+### Batch C — Osirian Kingship
+
+Story 15–24：
+
+- Osiris / Isis / Horus / Seth / Nephthys / tribunal closure；
+- genealogy / succession / rivalry edges；
+- papyrus marsh / tribunal / throne Scene；
+- Horus identity scope。
+
+### Batch D — Afterlife
+
+Story 25–28：
+
+- Anubis / Ma'at / Thoth / Ammit / Osiris closure；
+- Duat / gates / weighing / Field of Reeds Scene；
+- funerary text source scope。
+
+## P0-4：Character / Relation / Source Closure
+
+- [ ] all P0 stable identities sourced；
+- [ ] all P0 Characters canonical-design complete；
+- [ ] genealogy source coverage 100%；
+- [ ] required narrative relation coverage 100%；
+- [ ] duplicate canonical relation = 0；
+- [ ] conflicting relation without scope = 0；
+- [ ] syncretic identity records pass Identity Resolution Matrix。
+
+## P0-5：World / Scene / Visual DNA 数据化
+
+- [ ] `world-duat` 增强；
+- [ ] Celestial Sky 是否升级 World 由 closure + reuse 决定；
+- [ ] Nun / First Mound / Aaru 不被机械 World 化；
+- [ ] Story 不再无脑挂 Duat；
+- [ ] Egyptian Base DNA + domain DNA；
+- [ ] sparse-source visual areas 显式区分 original design choices。
+
+## P0-6：Story 正文
+
+每篇：
+
+```text
+3–6 分钟阅读
+source context
+version / period note
+related Characters
+related Worlds / Scenes
+explicit reconstruction note when needed
+no modern encyclopedia mash-up
+```
+
+## P0-7：页面 / Graph / Search / SEO
+
+复用共享能力：
+
+- [ ] `/mythology/egyptian/` Story volumes；
+- [ ] Story detail；
+- [ ] Character taxonomy；
+- [ ] Character relations / graph；
+- [ ] source / period / tradition display；
+- [ ] syncretism display；
+- [ ] alias / transliteration search；
+- [ ] World / Scene browse；
+- [ ] sitemap 自动发现 Story；
+- [ ] Creator 消费 Canonical Design / iconographic forms。
+
+## P0-8：验证与上线
+
+- [ ] `npm test`；
+- [ ] `npm run content:validate`；
+- [ ] `npm run check`；
+- [ ] local D1 idempotent sync；
+- [ ] local browser smoke；
+- [ ] production D1 sync；
+- [ ] deployed routes smoke；
+- [ ] no orphan / duplicate / source-scope violations。
+
+## P1：视觉资产
+
+- [ ] Tier S canonical mobile portrait/reference；
+- [ ] 最高价值 Tier S desktop wallpaper；
+- [ ] Tier A minimum portrait/reference；
+- [ ] Tier B symbol / iconography fallback；
+- [ ] P0 World desktop hero；
+- [ ] P0 World mobile hero；
+- [ ] Story hero / illustration 原创化；
+- [ ] provenance static + production audit；
+- [ ] artwork coverage report。
+
+## P2：长尾
+
+- [ ] 更多地方神；
+- [ ] Amun / Amun-Ra 完整扩展；
+- [ ] Horus the Elder / Harpocrates 等 identity 扩展；
+- [ ] Serapis / Greco-Egyptian layer；
+- [ ] 更多 magical / healing / temple texts；
+- [ ] 更多 deity Interpretation / Variant；
+- [ ] scholarship / reception layer。
+
+---
+
+# 19. 视觉资产 Tier
+
+P0 不要求 100+ 图片完成。
 
 ## Tier S
 
-18 个核心角色：
+建议 18 个品牌级角色。
 
-- canonical mobile portrait；
-- canonical PC wallpaper；
-- graph portrait；
-- prompt-ready identity pack。
+P1 最低目标：
+
+```text
+canonical mobile portrait/reference
++ graph portrait where graph uses image
++ identity-safe prompt
++ provenance complete
+```
+
+最高价值 subset 再补 desktop wallpaper。
 
 ## Tier A
 
-Story 高频角色 / World：
+Story 高频依赖角色：
 
-- 1 张 canonical portrait 或 hero；
-- 不要求全尺寸 wallpaper 套装。
+```text
+canonical mobile portrait/reference
+```
+
+或角色类型不适合人像时提供经过设计的正式 iconographic visual。
 
 ## Tier B
 
-Dependency-only 实体：
+Dependency-only：
 
-- 允许先无正式壁纸；
-- 使用结构化 identity / iconography；
-- Story 仍可上线。
+```text
+Canonical symbols / iconographic forms
++ high-quality Symbol Fallback
+```
+
+禁止用通用 AI 人像冒充正式角色肖像。
+
+## World
+
+每个最终 P0 World 的 P1 视觉最低：
+
+```text
+desktop hero
+mobile hero
+alt
+width / height
+creator
+license
+source_type
+prompt / generation metadata when AI-generated
+```
 
 ---
 
-# 15. 关键质量门禁
+# 20. 测试矩阵
 
-## 15.1 Narrative Coverage
-
-```text
-P0 Story manifest coverage = 100%
-```
-
-## 15.2 Dependency Coverage
+至少覆盖：
 
 ```text
-P0 story dependency closure = 100%
+Egyptian manifest integrity
+legacy Anubis ID / slug stability
+legacy 3 Story ID / slug stability
+Story dependency closure
+source scope / locator / attestationType
+Stable Character Type whitelist
+canonical relation duplicate rule
+parent reverse-edge prohibition
+Horus identity fixture
+syncretic-component fixture
+alias / transliteration collisions
+World / Scene semantic fixture
+no dangling entity / relation
+registered content repository discovery
+Story sitemap discovery
+D1 sync idempotency
 ```
 
-无：
-
-- missing character；
-- missing world；
-- missing scene；
-- dangling relation。
-
-## 15.3 Source Coverage
-
-所有 P0 Story：
-
-```text
-source coverage = 100%
-```
-
-关键 relation / identity claim：
-
-```text
-claim-level source coverage = 100%
-```
-
-## 15.4 Period / Tradition Coverage
-
-所有存在明显历史层叠的条目必须可回答：
-
-```text
-Which period?
-Which source?
-Which local / theological tradition?
-Is this reconstruction or direct attestation?
-```
-
-## 15.5 Syncretism Correctness
-
-不得出现：
-
-- Amun-Ra 被当成衣服 Variant；
-- Ra-Horakhty 被无来源合并；
-- 所有 Horus 传统被压成同一个儿童 / 鹰头角色；
-- 后期 Isis 图像反投射为所有时期唯一标准。
-
-## 15.6 Visual Correctness
-
-Tier S：
-
-```text
-canonical design coverage = 100%
-portrait coverage = 100%
-avoid rules coverage = 100%
-iconographic form coverage = 100%
-```
-
-## 15.7 Cultural / Historical QA
-
-0 个 P0 critical error：
-
-- 伊斯兰 / 阿拉伯建筑误植；
-- 希腊罗马造型误植到早期埃及；
-- 随机象形文字；
-- 神祇动物形态错误；
-- 王冠 / 神徽完全错配；
-- 现代影视角色设计复刻；
-- 明显时期错置。
-
----
-
-# 16. 测试矩阵
-
-至少新增：
-
-```text
-Egyptian content schema tests
-Egyptian story dependency tests
-Egyptian source scope tests
-Egyptian relation graph tests
-Egyptian syncretism tests
-Egyptian alias / slug tests
-Egyptian visual canonical design tests
-Egyptian import idempotency tests
-Egyptian no-dangling-entity tests
-```
-
-专项 fixture：
-
-### Horus
-
-验证不同 identity / interpretation 不被错误合并。
-
-### Amun-Ra
-
-验证 syncretic identity 不会退化为 costume variant。
-
-### Heart Weighing
+## 20.1 Horus fixture
 
 验证：
 
-- Anubis；
-- Ma'at；
-- Thoth；
-- Ammit；
-- Osiris；
+- P0 `Horus` 默认属于 Osirian kingship scope；
+- Horus the Elder 不被错误 merge；
+- Harpocrates 不退化成 age Variant；
+- Ra-Horakhty 按 Syncretism Rule 处理。
 
-关系与 Story linkage 完整。
+## 20.2 Syncretism fixture
 
-### Solar Voyage
+以未来 Amun-Ra 或测试数据验证：
+
+```text
+base deity Character 存在
+syncretic Character 独立
+syncretic-component edge source scoped
+not a costume Variant
+```
+
+## 20.3 Heart Weighing fixture
+
+一个 Story 完整验证：
+
+```text
+Anubis
+Ma'at
+Thoth
+Ammit
+Osiris
+Hall / weighing Scene
+Book of the Dead source locator
+```
+
+不再要求创建“Thoth 记录结果”“Ammit 风险”两个重复 Story。
+
+## 20.4 Solar Voyage fixture
 
 验证：
 
-- day / night scene 分离；
-- Ra；
-- Apep；
-- Khepri；
-- Duat；
-- dawn rebirth。
+```text
+Ra
+Apep
+Khepri
+Duat
+day / night scene separation
+dawn rebirth
+source-scoped night-hour claims
+```
 
 ---
 
-# 17. Definition of Done
+# 21. P0 / P1 Definition of Done
 
-埃及神话 P0 完成时，应满足：
+## 21.1 P0 DoD
 
-### 内容
+埃及内容主干完成必须同时满足：
 
-- 28 篇核心 Story 全部上线；
-- existing 3 Story 原 slug 保留；
-- Story dependency closure 100%；
-- Tier S 18 角色全部完成；
-- Dependency Character 无遗漏；
-- Relation / genealogy 无 dangling edge；
-- World / Scene 能覆盖全部 P0 Story。
+```text
+1. 28 个 reviewed Story / religious narrative units 已结构化并发布；
+2. Narrative Unit duplicate / fragment violation = 0；
+3. Story required entity dependency closure = 100%；
+4. P0 Stable Identity Source coverage = 100%；
+5. P0 required Genealogy / Narrative Relation source coverage = 100%；
+6. P0 Canonical Design coverage = 100%；
+7. period / tradition / attestation scope violations = 0；
+8. orphan refs = 0；
+9. duplicate canonical relations = 0；
+10. conflicting source claims without scope = 0；
+11. stable IDs / slugs preserved；
+12. Egyptian package uses generic registry / validator / sync；
+13. Character Detail / Graph / Story / sitemap / search use shared product paths；
+14. critical cultural / historical errors = 0。
+```
 
-### 来源
+P0 **不以 Tier S 全量正式图片完成为阻塞条件**。
 
-- P0 Story source coverage 100%；
-- 关键 claim 有 source scope；
-- period / tradition 明确；
-- late external source 不冒充 early Egyptian source。
+## 21.2 P1 DoD
 
-### 模型
-
-- syncretism 有一等表达方式；
-- Horus 多身份问题可表达；
-- iconographic forms 不再滥用 Character Variant；
-- Egyptian 使用 generic content pipeline，不引入 Egyptian-only importer。
-
-### 视觉
-
-- Tier S canonical design 100%；
-- Tier S portrait 100%；
-- 核心 Story hero 覆盖；
-- Visual DNA 不再等于“沙漠 + 金字塔 + 黑金”；
-- 0 个 critical anachronism。
-
-### 产品
-
-- Character Detail 可查看来源化关系；
-- Character Graph 能表达 genealogy / rivalry / syncretism；
-- Story 页面可展示来源与版本说明；
-- World / Scene 浏览不再全部落到 Duat；
-- Creator 可消费角色 Canonical Design / iconographic forms / style prompt。
+```text
+Tier S minimum visual coverage = 100%
+Tier A minimum visual coverage = 100%
+P0 World dual-end hero coverage = 100%
+public prototype provenance = 0
+public asset metadata completeness = 100%
+critical visual anachronism = 0
+```
 
 ---
 
-# 18. 建议最终信息架构
+# 22. 用户侧认知验收
+
+用户访问 `/mythology/egyptian/` 后，应能回答：
+
+1. 古埃及为什么不存在一套唯一创世“正史”？
+2. Nun、Atum、Ptah、Ogdoad 分别属于什么来源 / 神学框架？
+3. Ra 的白昼航行与 Duat 夜航是什么关系？
+4. Ma'at 在太阳、王权和死后审判中分别意味着什么？
+5. Osiris 为什么没有“复活后重新做人间国王”？
+6. Isis、Osiris、Horus、Seth 的王权关系是什么？
+7. Horus 为什么不能简单写成一个跨三千年完全固定的角色？
+8. Anubis、Ma'at、Thoth、Ammit、Osiris 在心脏称量中分别做什么？
+9. Aaru 与 Duat 是什么关系，为什么不应该简单等同“天堂 / 地狱”？
+10. Amun-Ra、Ra-Horakhty 等复合身份为什么不是角色换装？
+11. 同一关系 / 故事存在不同文本版本时，页面能否看到来源范围？
+12. 为什么 MythCanvas 的埃及视觉不应该只剩金字塔、黑金与发光象形文字？
+
+---
+
+# 23. 最终信息架构
 
 ```text
 Egyptian Mythology
 │
-├── Origins & Creation
-│   ├── Nun
-│   ├── Atum
-│   ├── Shu / Tefnut
-│   ├── Geb / Nut
-│   ├── Ennead
-│   ├── Ptah tradition
-│   └── Ogdoad tradition
+├── STORY MANIFEST
+│   ├── Creation & Cosmology
+│   ├── Solar Cycle & Ma'at
+│   ├── Osirian Kingship
+│   └── Death & Effective Afterlife
 │
-├── Sun & Ma'at
-│   ├── Ra
-│   ├── Solar Barque
-│   ├── Apep
-│   ├── Khepri
-│   ├── Eye of Ra
-│   └── Sekhmet
+├── CHARACTERS
+│   ├── Deities
+│   ├── Monsters / Creatures
+│   └── Collectives
 │
-├── Osirian Kingship Cycle
-│   ├── Osiris
-│   ├── Isis
-│   ├── Horus
-│   ├── Seth
-│   ├── Nephthys
-│   └── Contendings
+├── TAXONOMY
+│   ├── Primordial
+│   ├── Heliopolitan / Memphite / Hermopolitan
+│   ├── Solar Cycle
+│   ├── Osirian Cycle
+│   ├── Kingship
+│   ├── Duat / Afterlife
+│   └── Syncretic Identity
 │
-├── Death & Eternal Life
-│   ├── Anubis
+├── WORLDS
 │   ├── Duat
-│   ├── Weighing of the Heart
-│   ├── Ma'at
-│   ├── Thoth
-│   ├── Ammit
-│   └── Field of Reeds
+│   └── Celestial Sky（仅在 dependency / reuse 验证后）
 │
-└── Source / Tradition Layers
-    ├── Pyramid Texts
-    ├── Coffin Texts
-    ├── Amduat
-    ├── Book of Gates
-    ├── Book of the Dead
-    ├── Temple / Theology texts
-    └── Later Greco-Roman witnesses
+├── SCENES / CONCEPTS
+│   ├── Nun / Primeval State
+│   ├── First Mound
+│   ├── Solar Barque Day / Night
+│   ├── Akhet
+│   ├── Papyrus Marsh
+│   ├── Divine Tribunal
+│   ├── Hall of Two Truths
+│   ├── Field of Reeds
+│   └── ...
+│
+├── RELATION / IDENTITY GRAPH
+│   ├── Genealogy
+│   ├── Succession / Rivalry
+│   ├── Narrative Relation
+│   └── Syncretic Component
+│
+├── SOURCE / TRADITION LAYERS
+│   ├── Pyramid Texts
+│   ├── Coffin Texts
+│   ├── Amduat / Book of Gates
+│   ├── Book of the Dead
+│   ├── Temple / Theological Texts
+│   └── Later Witnesses
+│
+└── ARTWORKS
+    ├── Character
+    ├── World
+    ├── Scene
+    └── Story
 ```
 
 ---
 
-# 19. 最终原则
+# 24. Review 决策点
 
-埃及神话补全最危险的做法，是把现代读者熟悉的几个符号拼成一张“埃及风设定集”：
+V1.1 实施前建议固定以下决策，不再在编码阶段临时选择：
+
+1. **接受 Story Dependency Closure 决定 Character / World / Scene / Relation 数量。**
+2. **接受 Stable Character Type 与 Greek / Norse 共用同一 whitelist。**
+3. **接受 Syncretic Character + `syncretic-component` 作为高价值复合身份默认表达，不建 Egyptian-only identity table。**
+4. **接受 P0 `Horus` 默认服务 Osirian kingship scope，其他 Horus identity 按规则拆分。**
+5. **接受 Duat 为确定 World；Nun / First Mound / Aaru 默认不升级 World。**
+6. **接受所有 P0 Character Canonical Design = 100%，正式视觉图片进入 P1。**
+7. **接受 Egyptian 必须等待 / 复用 generic mythology registry / validator / sync，不复制第三套 importer。**
+8. **接受 28 个 Story 需通过 Narrative Unit Quality Gate，数量不能成为拆碎页面的理由。**
+
+默认建议全部接受。
+
+---
+
+# 25. 最终原则
+
+埃及神话补全最危险的做法，是把现代读者熟悉的符号拼成一张“埃及风设定集”：
 
 ```text
 金字塔
@@ -1265,22 +1747,23 @@ Egyptian Mythology
 + 发光象形文字
 ```
 
-MythCanvas 应做的恰恰相反：
+MythCanvas 应做的是：
 
-> **从具体文本、时期、地方传统和图像证据出发，把太阳循环、王权、死亡、复生、玛阿特秩序、尼罗河生命世界与复杂神祇身份重新连接起来。**
+> **从具体文本、时期、神学中心与图像证据出发，把创世、太阳循环、王权、死亡、复生、Ma'at、尼罗河生命世界与复杂神祇身份重新连接起来，同时用统一的内容工程标准表达来源差异，而不是替古埃及制造一套现代“唯一正史”。**
 
-因此执行优先级应始终保持：
+执行顺序固定为：
 
 ```text
-Source Policy
+Content / Source Rules
+→ Generic Pipeline
 → Story Manifest
 → Dependency Closure
-→ Identity / Syncretism Model
+→ Identity / Syncretism
 → Character / Relation
-→ World / Scene
+→ World / Scene / Concept
 → Story Content
-→ Character Detail / Graph
-→ Visual Assets
+→ Shared Character Detail / Graph / Search / SEO
+→ P1 Visual Assets
 → Wallpaper Scale-up
 ```
 
@@ -1288,8 +1771,8 @@ Source Policy
 
 ```text
 先列 100 个神
-→ 随机配几张金字塔背景图
+→ 每个配一张金字塔背景图
 → 再补百科简介
 ```
 
-这套方案完成后，埃及神话才会从当前的单点“杜阿特 + 阿努比斯”入口，升级成真正可持续扩展、可讲故事、可检索、可出图、可做角色图谱的完整神话内容宇宙。
+完成这套 V1.1 后，埃及神话才能从当前的“Duat + Anubis”入口，升级为真正可持续扩展、可讲故事、可追溯、可检索、可做关系图、可稳定出图的完整 MythCanvas 内容宇宙。
