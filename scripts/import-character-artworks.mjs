@@ -9,6 +9,7 @@ const DB_NAME = 'mythcanvas-db';
 const R2_BUCKET = 'mythcanvas-artworks';
 const IMPORT_ROOT = path.resolve('imports/characters');
 const FILE_RE = /^(?<style>[a-z0-9]+(?:-[a-z0-9]+)*)_(?<device>pc|m)_(?<sequence>[0-9]{2})\.(?<ext>png|jpg|jpeg|webp)$/i;
+const CHARACTER_SLUG_RE = /^[\p{L}\p{M}\p{N}]+(?:-[\p{L}\p{M}\p{N}]+)*$/u;
 const ACTIVE_PRODUCTION_STYLES = new Set(['canonical', 'sacred', 'cinematic', 'anime', 'cyber-myth']);
 const GENERATION_PROVIDER = 'OpenAI';
 const GENERATION_MODEL = 'gpt-image-2';
@@ -118,7 +119,7 @@ function resolveCharacterSlugs(explicit, all) {
 }
 
 function scanCharacterFolder(characterSlug) {
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(characterSlug)) {
+  if (!CHARACTER_SLUG_RE.test(characterSlug)) {
     throw new Error(`Invalid character directory slug: ${characterSlug}`);
   }
 

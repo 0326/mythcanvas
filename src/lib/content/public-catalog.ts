@@ -1,6 +1,7 @@
 import { getStructuredCharacters, getStructuredRelations, getStructuredScenes, getStructuredWorlds, listStructuredMythologyBundles } from '../../content/registry';
 import { artworks as seedArtworks, characterVariants as seedCharacterVariants, characters as seedCharacters, scenes as seedScenes, styles as seedStyles, worlds as seedWorlds } from '../../data/seed';
 import { mythologies as seedMythologies } from '../../data/mythologies';
+import { publishedArtworks } from '../../data/published-artworks';
 import { mythStories } from './stories';
 import type { Artwork, Character, CharacterInterpretation, CharacterName, CharacterRelation, CharacterVariant, ContentClaim, ContentConcept, ContentSource, Mythology, MythStory, Scene, Style, TaxonomyTerm, World } from './types';
 import type { ArtworkListQuery, EntityListQuery } from './repositories/types';
@@ -37,13 +38,40 @@ function mergeById<T extends { id: string }>(base: readonly T[], additions: read
   return Array.from(byId.values());
 }
 
+function mergeCharacters(base: readonly Character[], additions: readonly Character[]): Character[] {
+  const byId = new Map(base.map((item) => [item.id, item]));
+  additions.forEach((item) => {
+    const existing = byId.get(item.id);
+    byId.set(item.id, existing
+      ? { ...existing, ...item, ...(item.portrait ? {} : existing.portrait ? { portrait: existing.portrait } : {}) }
+      : item);
+  });
+  const merged = Array.from(byId.values());
+  return merged.map((character) => {
+    const canonicalPortrait = publishedArtworks
+      .filter((artwork) => artwork.type === 'character' && artwork.characterIds?.includes(character.id))
+      .toSorted((a, b) =>
+        Number(b.styleId === 'canonical') - Number(a.styleId === 'canonical')
+        || Number(b.image.height > b.image.width) - Number(a.image.height > a.image.width)
+        || a.id.localeCompare(b.id),
+      )[0]?.image;
+
+    // Seed/editorial portraits remain authoritative when present. The static
+    // D1 publication snapshot fills the gap for characters whose portrait was
+    // previously only stored in the runtime database.
+    return character.portrait || !canonicalPortrait
+      ? character
+      : { ...character, portrait: canonicalPortrait };
+  });
+}
+
 const structuredBundles = listStructuredMythologyBundles();
 
 const publicContentCatalog: PublicContentCatalog = {
   mythologies: [...seedMythologies].toSorted((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999) || a.name.localeCompare(b.name, 'zh-CN')),
   worlds: mergeById(seedWorlds, getStructuredWorlds()).toSorted((a, b) => a.name.localeCompare(b.name, 'zh-CN')),
   scenes: mergeById(seedScenes, getStructuredScenes()).toSorted((a, b) => a.name.localeCompare(b.name, 'zh-CN')),
-  characters: mergeById(seedCharacters, getStructuredCharacters()).toSorted((a, b) => (b.clickCount ?? 0) - (a.clickCount ?? 0) || a.name.localeCompare(b.name, 'zh-CN') || a.id.localeCompare(b.id)),
+  characters: mergeCharacters(seedCharacters, getStructuredCharacters()).toSorted((a, b) => (b.clickCount ?? 0) - (a.clickCount ?? 0) || a.name.localeCompare(b.name, 'zh-CN') || a.id.localeCompare(b.id)),
   characterRelations: getStructuredRelations(),
   characterNames: structuredBundles.flatMap((bundle) => bundle.names ?? []),
   characterInterpretations: structuredBundles.flatMap((bundle) => bundle.interpretations ?? []),
@@ -54,7 +82,7 @@ const publicContentCatalog: PublicContentCatalog = {
   stories: mythStories,
   styles: seedStyles,
   characterVariants: seedCharacterVariants,
-  curatedArtworks: seedArtworks,
+  curatedArtworks: mergeById(seedArtworks, publishedArtworks),
 };
 
 const mythologyById = new Map(publicContentCatalog.mythologies.map((item) => [item.id, item]));

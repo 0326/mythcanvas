@@ -54,6 +54,12 @@ describe('static public content catalog', () => {
     }
   });
 
+  it('keeps the published artwork snapshot and derives missing character portraits', () => {
+    expect(publicCatalog.curatedArtworks.filter((item) => item.reviewStatus === 'approved').length).toBeGreaterThanOrEqual(180);
+    expect(publicCatalog.curatedArtworks.some((item) => item.slug === 'ymir-canonical-m-01')).toBe(true);
+    expect(getPublicCharacterBySlug('ymir')?.portrait?.src).toBe('/media/characters/ymir/canonical/mobile-wallpaper/canonical_m_01.png');
+  });
+
   it('serves public entity detail, search and generation context without D1', async () => {
     expect(getPublicCharacterBySlug('athena')?.name).toBe('雅典娜');
     expect(getPublicWorldBySlug('olympus')?.name).toBe('奥林匹斯');
