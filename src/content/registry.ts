@@ -3,6 +3,7 @@ import type {
   CharacterRelation,
   CharacterInterpretation,
   CharacterName,
+  ContentSource,
   ContentConcept,
   ContentClaim,
   MythStory,
@@ -31,6 +32,24 @@ import { egyptianCharacters, egyptianRelations, egyptianScenes, egyptianTaxonomy
 import { egyptianStories } from './egyptian/stories';
 import { egyptianAssetProvenance } from './egyptian/assets';
 import { egyptianVisualTiers } from './egyptian/visual-tiers';
+import { celticCharacters, celticConcepts, celticRelations, celticScenes, celticTaxonomy, celticWorlds } from './celtic/catalog';
+import { celticStories } from './celtic/stories';
+import { celticAssetProvenance } from './celtic/assets';
+import { celticVisualTiers } from './celtic/visual-tiers';
+import { celticClaims, celticInterpretations, celticNames } from './celtic/identities';
+import { celticSources } from './celtic/sources';
+import { aztecCharacters, aztecConcepts, aztecRelations, aztecScenes, aztecTaxonomy, aztecWorlds } from './aztec/catalog';
+import { aztecStories } from './aztec/stories';
+import { aztecAssetProvenance } from './aztec/assets';
+import { aztecVisualTiers } from './aztec/visual-tiers';
+import { aztecClaims, aztecInterpretations, aztecNames } from './aztec/identities';
+import { aztecSources } from './aztec/sources';
+import { mesopotamianCharacters, mesopotamianConcepts, mesopotamianRelations, mesopotamianScenes, mesopotamianTaxonomy, mesopotamianWorlds } from './mesopotamian/catalog';
+import { mesopotamianStories } from './mesopotamian/stories';
+import { mesopotamianAssetProvenance } from './mesopotamian/assets';
+import { mesopotamianVisualTiers } from './mesopotamian/visual-tiers';
+import { mesopotamianClaims, mesopotamianInterpretations, mesopotamianNames } from './mesopotamian/identities';
+import { mesopotamianSources } from './mesopotamian/sources';
 
 export type StructuredMythologyBundle = {
   mythologyId: string;
@@ -47,6 +66,8 @@ export type StructuredMythologyBundle = {
   stories: readonly MythStory[];
   assetProvenance?: readonly unknown[];
   visualTiers?: Record<string, readonly string[]>;
+  /** Optional registry metadata; refs remain materialized on entities for portability. */
+  sources?: readonly ContentSource[];
 };
 
 const bundles: readonly StructuredMythologyBundle[] = [
@@ -113,6 +134,57 @@ const bundles: readonly StructuredMythologyBundle[] = [
     stories: egyptianStories,
     assetProvenance: egyptianAssetProvenance,
     visualTiers: egyptianVisualTiers,
+  },
+  {
+    mythologyId: 'myth-celtic',
+    slug: 'celtic',
+    characters: celticCharacters,
+    relations: celticRelations,
+    concepts: celticConcepts,
+    claims: celticClaims,
+    names: celticNames,
+    interpretations: celticInterpretations,
+    taxonomy: celticTaxonomy,
+    worlds: celticWorlds,
+    scenes: celticScenes,
+    stories: celticStories,
+    assetProvenance: celticAssetProvenance,
+    visualTiers: celticVisualTiers,
+    sources: celticSources,
+  },
+  {
+    mythologyId: 'myth-aztec',
+    slug: 'aztec',
+    characters: aztecCharacters,
+    relations: aztecRelations,
+    concepts: aztecConcepts,
+    claims: aztecClaims,
+    names: aztecNames,
+    interpretations: aztecInterpretations,
+    taxonomy: aztecTaxonomy,
+    worlds: aztecWorlds,
+    scenes: aztecScenes,
+    stories: aztecStories,
+    assetProvenance: aztecAssetProvenance,
+    visualTiers: aztecVisualTiers,
+    sources: Object.values(aztecSources),
+  },
+  {
+    mythologyId: 'myth-mesopotamian',
+    slug: 'mesopotamian',
+    characters: mesopotamianCharacters,
+    relations: mesopotamianRelations,
+    concepts: mesopotamianConcepts,
+    claims: mesopotamianClaims,
+    names: mesopotamianNames,
+    interpretations: mesopotamianInterpretations,
+    taxonomy: mesopotamianTaxonomy,
+    worlds: mesopotamianWorlds,
+    scenes: mesopotamianScenes,
+    stories: mesopotamianStories,
+    assetProvenance: mesopotamianAssetProvenance,
+    visualTiers: mesopotamianVisualTiers,
+    sources: Object.values(mesopotamianSources),
   },
 ];
 

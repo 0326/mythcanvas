@@ -8,6 +8,22 @@
 
 ---
 
+## 0.0 架构基线（2026-09-02）
+
+本方案遵循 [`docs/STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md`](./STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md)。Sumerian / Akkadian / Babylonian / Assyrian 内容完成后，以 `src/content/mesopotamian/*`、registry 和 `PublicContentCatalog` 作为静态规范内容权威源；公共页面、双语搜索、Character Detail、Graph、生成上下文和 sitemap 均不得依赖运行时 D1。
+
+D1 只保留用户、生成、收藏、投稿审核和其他运营动态数据。内容表若继续存在，只是兼容镜像；公共发布要求统一为“静态公共运行时闭包 + 可选 D1 镜像兼容性审计”，不再把三套 D1 运行环境当作公共页面运行时要求。
+
+统一命令：
+
+```bash
+npm run content:mirror:d1 -- --mythology=mesopotamian                 # dry-run
+npm run content:mirror:d1 -- --mythology=mesopotamian --apply --local # 可选审计
+npm run content:mirror:d1 -- --mythology=mesopotamian --apply --remote # 单独授权
+```
+
+当前同步脚本自动发现 `catalog.ts`、`stories.ts`，并可选读取 `identities.ts`；`sources.ts` 不是独立自动同步入口，必须由包内 `sourceRef` / `storySource` 物化到可消费的实体数据，或先补通用能力。
+
 # 0. V1.1 Review 结论
 
 V1.0 的核心方向正确，而且对 Mesopotamian 特有风险处理得比传统“神话百科式补全”更合理：
@@ -46,7 +62,7 @@ Egyptian
 - `src/content/registry.ts`；
 - generic structured validator；
 - generic D1 sync；
-- static fallback / repository merge；
+- static public catalog / repository consumption；
 - Story route / sitemap；
 - Character Detail；
 - CharacterName / CharacterInterpretation / ContentClaim；
@@ -394,7 +410,7 @@ flood hero separation
 Apsu Character vs Abzu World
 supported relation types
 Sumerian / Babylonian / Assyrian tradition scope
-static / D1 / Character Detail / Graph
+static catalog / Character Detail / Graph
 ```
 
 通过后再批量扩完整 lane，避免录入几十个实体后才发现 schema / UI 表达不够。
@@ -426,8 +442,8 @@ npm run content:validate
 同时确保：
 
 ```text
-npm run content:import -- --mythology=mesopotamian
-npm run content:import -- --mythology=all
+npm run content:mirror:d1 -- --mythology=mesopotamian
+npm run content:mirror:d1 -- --mythology=all
 ```
 
 均能 dry-run。
@@ -439,14 +455,14 @@ npm run content:import -- --mythology=all
 P0 验收：
 
 ```text
-Local D1 / production D1:
+Optional D1 mirror audit:
 Ištar / Ishtar / 伊什塔尔
 Ea / Enki / 恩基 / 埃阿
 Shamash / Šamaš / 沙玛什
 → stable Character
 ```
 
-Static fallback 的核心要求仍是：
+Static public catalog 的核心要求是：
 
 ```text
 Character / Story / Relation / Name semantic data 可读
@@ -689,7 +705,8 @@ P0 Source Witness Period Coverage = 100%
 P0 Canonical Design Coverage = 100%
 P0 High-risk Identity Review = 100%
 P0 Claim Subject Integrity = 100%
-Static / Local D1 / Production D1 Entity Semantic Parity = 100%
+Static Public Runtime / Character Detail / Graph / Search / Sitemap Parity = 100%
+D1 Mirror SQL Compatibility = pass（仅在执行镜像审计时适用）
 Forced Historical Identity Merge = 0
 Duplicate Canonical Relation = 0
 Unsupported Relation Type = 0
@@ -1988,9 +2005,9 @@ visualTiers
 必须验证：
 
 ```text
-npm run content:import -- --mythology=mesopotamian
-npm run content:import -- --mythology=mesopotamian -- --apply --local
-npm run content:import -- --mythology=all
+npm run content:mirror:d1 -- --mythology=mesopotamian
+npm run content:mirror:d1 -- --mythology=mesopotamian --apply --local
+npm run content:mirror:d1 -- --mythology=all
 ```
 
 local apply 连续两次验证 idempotency。
@@ -2258,8 +2275,8 @@ DoD：
 
 ```text
 content:validate pass
-content:import mesopotamian dry-run pass
-local D1 apply twice pass
+content:mirror:d1 mesopotamian dry-run pass
+optional local D1 mirror apply twice pass
 Character Detail names visible
 Graph no unsupported relation
 flood hero comparison stays Claim
@@ -2348,8 +2365,9 @@ Sumerian required dependency closure = 100%
 - [ ] `npm run content:validate`；
 - [ ] `npm test`；
 - [ ] `npm run check`；
-- [ ] local D1 idempotent apply；
-- [ ] production D1 sync；
+- [ ] D1 mirror SQL compatibility；
+- [ ] （可选）local D1 mirror idempotent apply；
+- [ ] （可选、单独授权）production D1 mirror sync；
 - [ ] deployed smoke。
 
 ## Phase 8 — P1 Visual Production
@@ -2455,23 +2473,23 @@ no fake-readable cuneiform claim
 no modern franchise copy
 ```
 
-## 16.7 Runtime / D1
+## 16.7 Public Runtime / Optional D1 Mirror
 
 至少：
 
 ```text
 npm run content:validate
-npm run content:import -- --mythology=mesopotamian
-npm run content:import -- --mythology=all
-npm run content:import -- --mythology=mesopotamian -- --apply --local  # twice
+npm run content:mirror:d1 -- --mythology=mesopotamian
+npm run content:mirror:d1 -- --mythology=all
+npm run content:mirror:d1 -- --mythology=mesopotamian --apply --local  # optional, twice for mirror audit
 npm test
 npm run check
 ```
 
-上线后：
+上线后（公共发布不依赖此项；仅在单独授权的 D1 镜像审计中执行）：
 
 ```text
-production sync
+optional production D1 mirror sync
 Character Detail smoke
 Story route smoke
 Graph API smoke
@@ -2522,8 +2540,9 @@ sitemap smoke
 - [ ] unsupported relation type = 0；
 - [ ] duplicate canonical relation = 0；
 - [ ] orphan entity / claim subject = 0；
-- [ ] local D1 sync idempotent；
-- [ ] Static / Local D1 / Production D1 entity semantic parity；
+- [ ] static public runtime parity；
+- [ ] D1 mirror SQL compatibility；
+- [ ] （可选）local D1 mirror sync idempotent；
 - [ ] CI pass。
 
 ## Product

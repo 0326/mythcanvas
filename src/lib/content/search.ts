@@ -1,4 +1,5 @@
 import { isD1ReadQuotaError } from './repositories/shared';
+import { publicCatalog } from './public-catalog';
 
 /**
  * 全站搜索数据访问层（D1 LIKE 前缀/包含匹配，V1 MVP）。
@@ -16,6 +17,48 @@ export type SearchResult = {
 };
 
 export async function searchAll(
+  db: D1Database | undefined,
+  query: string,
+  limit = 24,
+): Promise<SearchResult[]> {
+  const staticResults = searchStaticContent(query, limit);
+  // Canonical content is intentionally searched from the static catalog. The
+  // dynamic fallback preserves discovery of user/community rows during the
+  // migration, but public pages pass undefined and never need D1.
+  if (staticResults.length > 0 || !db) return staticResults;
+  return searchD1Content(db, query, limit);
+}
+
+function searchStaticContent(query: string, limit: number): SearchResult[] {
+  const term = query.trim().slice(0, 60);
+  if (!term) return [];
+  const termLower = term.toLowerCase();
+  const results: SearchResult[] = [];
+  const add = (result: SearchResult, searchable: string) => {
+    const score = scoreName([result.name, result.subtitle, searchable], result.subtitle, termLower);
+    if (score > 0 || searchable.toLowerCase().includes(termLower)) results.push({ ...result, score: Math.max(result.score, score) });
+  };
+
+  publicCatalog.mythologies.forEach((item) => add({
+    type: 'mythology', id: item.id, slug: item.slug, name: item.name, subtitle: item.nameEn, image: item.heroImage.src, score: 0,
+  }, item.summary));
+  publicCatalog.worlds.forEach((item) => add({
+    type: 'world', id: item.id, slug: item.slug, name: item.name, subtitle: item.nameEn, image: item.heroImage.src, score: 0,
+  }, item.summary));
+  publicCatalog.characters.forEach((item) => {
+    const aliases = publicCatalog.characterNames.filter((name) => name.characterId === item.id).flatMap((name) => [name.name, name.nameEn ?? '']);
+    add({
+      type: 'character', id: item.id, slug: item.slug, name: item.name, subtitle: item.role, image: item.portrait?.src ?? '', score: 0,
+    }, `${item.summary} ${aliases.join(' ')}`);
+  });
+  publicCatalog.curatedArtworks.forEach((item) => add({
+    type: 'artwork', id: item.id, slug: item.slug, name: item.title, subtitle: item.image.alt, image: item.image.src, score: 0,
+  }, `${item.image.alt} ${item.moodIds.join(' ')}`));
+
+  return results.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, 'zh-CN')).slice(0, limit);
+}
+
+async function searchD1Content(
   db: D1Database | undefined,
   query: string,
   limit = 24,

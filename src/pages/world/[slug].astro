@@ -8,30 +8,34 @@ import WorldVisualInterpretations from '../../components/world/WorldVisualInterp
 import WorldWallpapers from '../../components/world/WorldWallpapers.astro';
 import RelatedWorlds from '../../components/world/RelatedWorlds.astro';
 import {
-  getArtworksForWorld,
-  getCharactersForWorld,
-  getMythologyById,
-  getScenesForWorld,
-  getStyles,
-  getWorldBySlug,
-  getWorldsForMythology,
-} from '../../lib/content/repositories';
+  getPublicArtworksForWorld,
+  getPublicCharactersForWorld,
+  getPublicMythologyById,
+  getPublicScenesForWorld,
+  getPublicStyles,
+  getPublicWorldBySlug,
+  getPublicWorlds,
+  getPublicWorldsForMythology,
+} from '../../lib/content/public-catalog';
 
-export const prerender = false;
+export const prerender = true;
 
-const db = Astro.locals.runtime.env.DB;
+export function getStaticPaths() {
+  return getPublicWorlds({ limit: 1000 }).map((world) => ({ params: { slug: world.slug } }));
+}
+
 const { slug } = Astro.params;
-const world = await getWorldBySlug(db, slug ?? '');
+const world = getPublicWorldBySlug(slug ?? '');
 if (!world) return Astro.redirect('/404');
 
-const [mythology, scenes, characters, artworks, styles, siblingWorlds] = await Promise.all([
-  getMythologyById(db, world.mythologyId),
-  getScenesForWorld(db, world.id),
-  getCharactersForWorld(db, world.id),
-  getArtworksForWorld(db, world.id),
-  getStyles(db),
-  getWorldsForMythology(db, world.mythologyId).then((list) => list.filter((item) => item.id !== world.id)),
-]);
+const [mythology, scenes, characters, artworks, styles, siblingWorlds] = [
+  getPublicMythologyById(world.mythologyId),
+  getPublicScenesForWorld(world.id),
+  getPublicCharactersForWorld(world.id),
+  getPublicArtworksForWorld(world.id),
+  getPublicStyles(),
+  getPublicWorldsForMythology(world.mythologyId).filter((item) => item.id !== world.id),
+];
 const pageDescription = `${world.name} · ${world.nameEn}：${world.summary}`;
 const createHref = `/create/?world=${world.slug}`;
 ---

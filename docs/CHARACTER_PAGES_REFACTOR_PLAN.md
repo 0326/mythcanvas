@@ -808,9 +808,9 @@ getCharactersForMythology
 character-styles.ts
 ```
 
-和 D1 `styles`。
+和 legacy D1 `styles` 镜像。
 
-长期应以正式 Style Repository / D1 Styles 为单一来源。
+长期应以正式 Static Style Repository / versioned Style profiles 为单一来源；D1 `styles` 仅作为迁移期兼容镜像。
 
 本次建议：
 

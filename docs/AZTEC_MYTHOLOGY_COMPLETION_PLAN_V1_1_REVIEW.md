@@ -19,6 +19,22 @@ Aztec V1.0 的历史 / 内容方向基本正确，尤其以下原则应保留：
 - 防 Maya、Catrina、generic tribal、fake glyph 污染；
 - P0 内容闭包与 P1 大规模壁纸生产拆开。
 
+## 0.1 架构基线修正
+
+V1.1 同时服从 [`docs/STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md`](./STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md)。Aztec 是第六个 structured content bundle，但不是第六套运行时 D1 内容源：发布后的规范内容由 `src/content/aztec/*`、registry 和 `PublicContentCatalog` 提供，公共页面、搜索、Graph、生成上下文和 sitemap 必须在 D1 不可用时正常工作。
+
+这里的 `D1 dry-run SQL` 是兼容镜像校验，不代表公共页面需要 D1；Local / Production D1 apply 是单独授权的运营动作，不属于 P0 Public Release Gate。方案中的 “static / local D1 / production D1 parity” 统一解释为“静态公共运行时语义闭包 + 可选 D1 镜像兼容性审计”。
+
+统一命令为：
+
+```bash
+npm run content:mirror:d1 -- --mythology=aztec
+npm run content:mirror:d1 -- --mythology=aztec --apply --local  # 可选镜像审计
+npm run content:mirror:d1 -- --mythology=aztec --apply --remote # 单独授权
+```
+
+当前同步脚本自动发现 `catalog.ts`、`stories.ts`，并可选读取 `identities.ts`；`sources.ts` 不是独立自动同步入口，必须由包内 `sourceRef` / `storySource` 物化到可消费的实体数据，或先补通用能力。
+
 但 V1.0 是基于较早仓库状态写的。当前主干已经完成了 Japanese / Maya / Egyptian 的 structured package 接入，Generic Registry、Generic Validator 与 Generic D1 Sync 已经真实存在，因此 V1.0 有部分“未来要做的架构工作”已经过时。
 
 V1.1 应做 **12 个修正**。
@@ -207,8 +223,8 @@ Character / Relation / World / Scene closure
 Canonical Design
 Registry integration
 Generic validation
-Static repository consumption
-D1 dry-run SQL
+PublicContentCatalog / public repository consumption
+D1 mirror dry-run SQL
 Search / sitemap discovery contract
 ```
 
@@ -243,8 +259,8 @@ Egyptian V1.2 已证明更稳妥的顺序是：
 package skeleton
 → registry discovery
 → generic validator
-→ local seed / repository consumption
-→ D1 dry-run SQL
+→ PublicContentCatalog / public repository consumption
+→ D1 mirror dry-run SQL
 → contract tests
 → 再扩大 Story / Character 内容量
 ```
@@ -258,9 +274,9 @@ getStructuredMythologyBundle('myth-aztec') != undefined
 getStructuredCharacters('myth-aztec') 可读取
 getStoriesForMythology('myth-aztec') 可读取
 content:validate 能发现 Aztec
-sync-structured-content --mythology=aztec dry-run 成功
+npm run content:mirror:d1 -- --mythology=aztec 成功（dry-run）
 D1 SQL 可生成但默认不 apply
-static fallback 能浏览至少 1 个 smoke Story + 1 个 Character + 1 个 World
+static catalog 能浏览至少 1 个 smoke Story + 1 个 Character + 1 个 World
 ```
 
 然后才进入 Five Suns / Coatepec / Migration 等批量内容闭包。
@@ -303,8 +319,9 @@ character-xochipilli
 ```text
 legacy stable id drift = 0
 legacy slug drift = 0
-duplicate character after D1 merge = 0
-static / D1 canonical identity mismatch = 0
+duplicate canonical character in static catalog = 0
+static canonical identity mismatch = 0
+optional D1 mirror merge mismatch = 0
 ```
 
 ---
@@ -625,8 +642,8 @@ src/content/aztec/visual-tiers.ts
 ```text
 registry registration
 content validation
-static repository read
-D1 dry-run SQL
+PublicContentCatalog read
+D1 mirror dry-run SQL
 Story route
 Character Detail
 Graph smoke
@@ -641,7 +658,8 @@ sitemap
 - identity audit；
 - taxonomy；
 - Canonical Design fact audit；
-- static / D1 parity tests。
+- static product-consumption tests；
+- （可选）D1 mirror compatibility tests。
 
 ## Phase 3 — Cosmic Closure
 
@@ -702,7 +720,7 @@ sitemap / JSON-LD
 npm test
 npm run content:validate
 npm run check / build（按当前 scripts）
-D1 dry-run
+D1 mirror dry-run
 static provenance audit
 source audit
 identity audit
@@ -716,7 +734,7 @@ Tier S minimum portrait/reference
 published World hero quality
 published Story hero provenance
 local browser smoke
-production sync
+optional production D1 mirror sync（单独授权）
 production provenance audit
 deployed route smoke
 content accuracy review
@@ -752,7 +770,7 @@ Interpretation Endpoint Integrity = 100%
 Alternate Graph Scope Reachability = 100%
 SSR Direct Relation Readability = 100%
 Creator Interpretation Context Preservation = 100%
-Static / Local-D1 Entity Parity = 100%
+Static Public Runtime / Route-Graph-Search-Sitemap Parity = 100%
 D1 Dry-run SQL = pass
 Aztec-only Infrastructure Forks = 0
 Unsupported Relation Type = 0
@@ -789,7 +807,7 @@ sources.ts
 + registered bundle
 + legacy 12 structured authority
 + claim / relation / interpretation contracts
-+ static / D1 dry-run parity
++ static public runtime + D1 mirror dry-run compatibility
 + Graph / Detail product closure
 ```
 

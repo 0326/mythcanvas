@@ -62,6 +62,21 @@ export type SourceRef = {
   note?: string;
 };
 
+/** Canonical metadata for a source registry entry used by structured bundles. */
+export type ContentSource = {
+  sourceId: string;
+  title: string;
+  type: SourceRefType;
+  storyType: MythStorySourceType;
+  tradition: string;
+  period: string;
+  language?: string;
+  edition?: string;
+  author?: string;
+  url?: string;
+  note?: string;
+};
+
 /** Whether MythCanvas presents a statement as directly supported, disputed, or editorial synthesis. */
 export type ContentClaimStatus = 'supported' | 'contested' | 'editorial-synthesis';
 

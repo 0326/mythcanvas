@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getOrCreateUser, readSessionId } from '../../lib/auth/session';
 import { getArtworkById } from '../../lib/content/repositories';
+import { getPublicArtworkById } from '../../lib/content/public-catalog';
 import { checkRateLimit, clientIp } from '../../lib/security/rate-limit';
 
 export const prerender = false;
@@ -43,7 +44,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const db = locals.runtime.env.DB;
   // 只允许已发布且审核通过的作品（防止枚举未发布作品、刷草稿计数）
-  const artwork = await getArtworkById(db, artworkId);
+  const artwork = getPublicArtworkById(artworkId) ?? await getArtworkById(db, artworkId);
 
   if (!artwork) return json({ error: { code: 'NOT_FOUND', message: '未找到该作品。' } }, 404, sessionResult.cookie);
 

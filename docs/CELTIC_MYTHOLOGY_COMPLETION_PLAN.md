@@ -8,6 +8,22 @@
 
 ---
 
+## 0.0 架构基线（2026-09-02）
+
+本方案遵循 [`docs/STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md`](./STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md)。Celtic structured bundle 发布后，`src/content/celtic/*`、registry 和 `PublicContentCatalog` 是规范内容权威源；公共 Mythology / World / Character / Story 页面、搜索、Graph、生成上下文和 sitemap 不得在请求时读取 D1。
+
+D1 仅承载用户与运营动态数据。内容表可以在过渡期作为兼容镜像，但不能再被称为公共页面的主源或“静态 fallback”的必需后端。镜像操作必须显式执行：
+
+```bash
+npm run content:mirror:d1 -- --mythology=celtic                 # dry-run
+npm run content:mirror:d1 -- --mythology=celtic --apply --local # 可选审计
+npm run content:mirror:d1 -- --mythology=celtic --apply --remote # 单独授权
+```
+
+本方案的 P0 parity 指静态目录到公共产品消费链路的语义闭包；D1 mirror SQL compatibility 和 local idempotency 是可选运维审计，不是 P0 公共发布阻断项。
+
+当前同步脚本自动发现 `catalog.ts`、`stories.ts`，并可选读取 `identities.ts`；`sources.ts` 不是独立自动同步入口，必须由包内 `sourceRef` / `storySource` 物化到可消费的实体数据，或先补通用能力。
+
 # 0. Review 结论
 
 凯尔特神话不能照搬希腊、北欧的“统一神谱”方式补全。
@@ -57,7 +73,7 @@ Celtic structured package
 → Four Branches core
 → Fionn bridge
 → Cernunnos / Epona evidence profile
-→ generic validation / local D1 idempotency
+→ generic validation / optional D1 mirror idempotency
 → runtime / search / sitemap parity
 ```
 
@@ -291,7 +307,8 @@ SourceId Metadata Conflict = 0
 Invalid Claim Subject = 0
 Invalid Relation Target = 0
 Orphan Entity Reference = 0
-Static / Local D1 / Production D1 Semantic Drift = 0
+Static Public Runtime Semantic Drift = 0
+D1 Mirror Semantic Drift = 0（仅在执行镜像审计时适用）
 ```
 
 Story / Character / World / Relation 数量不是 KPI。
@@ -1073,14 +1090,14 @@ celticStories
 ## 11.3 Generic Sync
 
 ```bash
-node scripts/sync-structured-content.mjs --mythology celtic
-node scripts/sync-structured-content.mjs --mythology celtic --apply --local
+npm run content:mirror:d1 -- --mythology=celtic
+npm run content:mirror:d1 -- --mythology=celtic --apply --local
 ```
 
 生产写入最后执行：
 
 ```bash
-node scripts/sync-structured-content.mjs --mythology celtic --apply --remote
+npm run content:mirror:d1 -- --mythology=celtic --apply --remote
 ```
 
 Remote 不是默认开发动作。
@@ -1374,13 +1391,13 @@ Rhiannon
 
 **DoD**：Fenian + Continental lanes = 100%；existing 12 Launch Character Source Closure = 100%。
 
-## Phase 6 — Runtime / D1 / Search / Graph Parity
+## Phase 6 — Public Runtime / Search / Graph Parity
 
 - [ ] `npm run content:validate`；
 - [ ] `npm test`；
 - [ ] `npm run check`；
-- [ ] generic sync dry run；
-- [ ] local D1 apply twice，验证 idempotency；
+- [ ] `npm run content:mirror:d1 -- --mythology=celtic` dry run；
+- [ ] （可选）local D1 mirror apply twice，验证 idempotency；
 - [ ] Character Detail SSR smoke；
 - [ ] Graph API smoke；
 - [ ] Mythology page SSR smoke；
@@ -1389,10 +1406,10 @@ Rhiannon
 - [ ] Search aliases；
 - [ ] sitemap；
 - [ ] provenance audit；
-- [ ] production D1 apply；
-- [ ] deployed routes smoke。
+- [ ] deployed routes smoke；
+- [ ] （可选、单独授权）remote D1 mirror apply 与动态数据回归。
 
-**DoD**：Static / Local / Production 同一查询语义一致。
+**DoD**：Static public runtime 的页面 / Graph / Search / Sitemap 语义一致；若执行 D1 镜像审计，再验证镜像 SQL 与 schema 兼容，不把 D1 作为公共运行时依赖。
 
 Production write / browser visual smoke 在没有真实环境授权时不得标记为完成。
 
@@ -1499,8 +1516,9 @@ Production write / browser visual smoke 在没有真实环境授权时不得标�
 - [ ] generic Claim subject validation；
 - [ ] generic source consistency validation；
 - [ ] generic Story source locator validation；
-- [ ] D1 / static parity；
-- [ ] local D1 idempotency；
+- [ ] static public runtime parity；
+- [ ] D1 mirror SQL compatibility；
+- [ ] （可选）local D1 mirror idempotency；
 - [ ] Graph 正确；
 - [ ] duplicate relation = 0；
 - [ ] orphan refs = 0；
@@ -1545,4 +1563,4 @@ Celtic Mythology (product umbrella)
     └── inscription / relief / cult evidence
 ```
 
-**推荐执行顺序：Freeze Scope / Source / Identity → Shared Validation + Celtic Bundle → Irish Mythological → Ulster / Táin → Welsh Four Branches → Fenian + Continental → Runtime / D1 Parity → Visual Production。**
+**推荐执行顺序：Freeze Scope / Source / Identity → Shared Validation + Celtic Bundle → Irish Mythological → Ulster / Táin → Welsh Four Branches → Fenian + Continental → Public Runtime / Optional D1 Mirror Compatibility → Visual Production。**

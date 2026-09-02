@@ -2,15 +2,11 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CharacterCard from '../../components/character/CharacterCard.astro';
 import { Search } from '@lucide/astro';
-import { getCharacters, getMythologies } from '../../lib/content/repositories';
+import { getPublicCharacters, getPublicMythologies } from '../../lib/content/public-catalog';
 
 export const prerender = false;
 
-const db = Astro.locals.runtime.env.DB;
-const [characters, mythologies] = await Promise.all([
-  getCharacters(db),
-  getMythologies(db, { published: 'all' }),
-]);
+const [characters, mythologies] = [getPublicCharacters({ limit: 1000 }), getPublicMythologies()];
 
 const mythologyBySlug = new Map(mythologies.map((item) => [item.slug, item]));
 const mythologyById = new Map(mythologies.map((item) => [item.id, item]));

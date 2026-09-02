@@ -1,17 +1,16 @@
 ---
 import { ChevronLeft, ChevronRight } from '@lucide/astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getMythologies } from '../lib/content/repositories';
+import { getPublicMythologies } from '../lib/content/public-catalog';
 import {
   cloudflareImageUrl,
   focalPointToCss,
   shouldUseCloudflareImageTransformations,
 } from '../lib/media/cloudflare-images';
 
-export const prerender = false;
+export const prerender = true;
 
-const db = Astro.locals.runtime.env.DB;
-const mythologyCards = (await getMythologies(db))
+const mythologyCards = getPublicMythologies()
   .toSorted((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999))
   .slice(0, 10);
 

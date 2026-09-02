@@ -14,18 +14,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ExploreArtworkCard from '../../components/artwork/ExploreArtworkCard.astro';
 import ArtworkPreviewLightbox from '../../components/artwork/ArtworkPreviewLightbox.astro';
 import {
-  getArtworks,
-  getMythologies,
-  getWorlds,
-  getStyles,
-  getCharacters,
-} from '../../lib/content/repositories';
-import type { ArtworkDevice, ArtworkSort } from '../../lib/content/repositories';
+  getPublicArtworks,
+  getPublicMythologies,
+  getPublicWorlds,
+  getPublicStyles,
+  getPublicCharacters,
+} from '../../lib/content/public-catalog';
+import type { ArtworkDevice, ArtworkSort } from '../../lib/content/repositories/types';
 import type { ArtworkType } from '../../lib/content/types';
 
 export const prerender = false;
 
-const db = Astro.locals.runtime.env.DB;
 const params = Astro.url.searchParams;
 
 const contentTypes = [
@@ -63,13 +62,13 @@ const optionLabel = (options: ReadonlyArray<{ id: string; name: string; slug?: s
   options.find((option) => option.id === value || option.slug === value)?.name ?? fallback;
 
 const [mythologies, styles, worlds, characters] = await Promise.all([
-  getMythologies(db),
-  getStyles(db),
-  getWorlds(db),
-  getCharacters(db),
+  getPublicMythologies(),
+  getPublicStyles(),
+  getPublicWorlds({ limit: 1000 }),
+  getPublicCharacters({ limit: 1000 }),
 ]);
 
-const approvedArtworks = await getArtworks(db, {
+const approvedArtworks = getPublicArtworks({
   mythologyId: initialMythology === 'all' ? undefined : initialMythology,
   type: initialType === 'all' ? undefined : initialType as ArtworkType,
   styleId: initialStyle === 'all' ? undefined : initialStyle,

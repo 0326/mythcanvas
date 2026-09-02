@@ -1,12 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MythologyCard from '../../components/mythology/MythologyCard.astro';
-import { getMythologies } from '../../lib/content/repositories';
+import { getPublicMythologies } from '../../lib/content/public-catalog';
 
-export const prerender = false;
+export const prerender = true;
 
-const db = Astro.locals.runtime.env.DB;
-const mythologies = (await getMythologies(db)).toSorted(
+const mythologies = getPublicMythologies().toSorted(
   (a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999),
 );
 const mythologyHeroImage = '/media/content/mythology-civilizations-banner.webp';

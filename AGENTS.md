@@ -82,10 +82,23 @@ Do not default to a blank large prompt box. Build structured creation from Chara
 - Add hydration only for components that require interaction.
 - React is allowed for justified islands; do not convert the site into a React SPA.
 - Runtime target is Cloudflare Workers.
-- Persistence: D1 for relational metadata, R2 for images, KV for config/cache/session data.
+- Published canonical content is source-controlled and build-time/static by default.
+- D1 is for mutable user and operational relational data; R2 is for image/reference bytes; KV is for config, cache, rate limits and sessions.
 - TypeScript is required for domain and service code.
 
 If React is introduced, add `@astrojs/react`, `react`, and `react-dom` deliberately and document which islands use it.
+
+### Static canonical content / dynamic user data
+
+The normative plan is `docs/STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md`.
+
+- Published `Mythology`, `World`, `Scene`, `Character`, `MythStory`, relations, names, concepts, claims, sources, taxonomy, `VisualDNA`, `CanonicalDesign`, `Style`, `OutputSpec` and curated artwork metadata belong in versioned static content.
+- Public entity pages, canonical search, relationship graphs, AI generation context and sitemaps must not require D1 at runtime.
+- Accounts, favorites, generation jobs, submissions, reviews, ownership and community/user artwork metadata remain dynamic in D1.
+- Curated artwork uses static metadata plus R2 assets; user/generated artwork uses D1 metadata plus R2 assets until explicitly promoted.
+- Browser storage may cache versioned content but is never the authoritative database.
+- Existing D1 canonical-content tables are compatibility mirrors during migration, not the source of truth.
+- Any exception that puts public canonical content behind runtime D1 reads requires an ADR and explicit approval, including query budget, failure behavior, SEO impact and rollback.
 
 ---
 
@@ -318,8 +331,9 @@ Before coding:
 2. Inspect existing implementation before inventing a new pattern.
 3. Load the relevant Skill.
 4. Identify whether the task is static content, interactive island, backend, data modeling, or artwork generation.
-5. List the affected routes/components/domain types.
-6. For character art tasks, explicitly identify Character, CharacterVariant, Style, and OutputSpec ownership before changing schemas or prompts.
+5. Classify every affected datum as canonical static content, mutable D1 state, R2 binary asset, or KV/cache state.
+6. List the affected routes/components/domain types.
+7. For character art tasks, explicitly identify Character, CharacterVariant, Style, and OutputSpec ownership before changing schemas or prompts.
 
 While coding:
 
@@ -372,10 +386,12 @@ For a new entity/detail page:
 - Do not use one global `style` field for Theme + Visual DNA + Artwork Style.
 - Do not encode artwork Style into CharacterVariant.
 - Do not encode age/costume/form into Style.
-- Do not store production style logic only in hard-coded prompt maps once D1 style profiles are available.
+- Do not store production style logic in ad hoc prompt maps; published Style profiles belong in validated, versioned static content.
 - Do not crop a PC wallpaper into the mobile deliverable as the primary production path.
 - Do not copy generated mockup text/spacing literally without validating UX.
 - Do not add a giant global state library before there is a real need.
 - Do not put model provider secrets in browser code.
 - Do not make AI generation dependent on user-written expert prompts.
 - Do not use copyrighted modern character designs as seed/reference content.
+- Do not make public canonical content, entity relations, canonical search or sitemaps depend on runtime D1 reads.
+- Do not use IndexedDB, localStorage or another browser cache as the authoritative mythology-content database.

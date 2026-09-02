@@ -125,6 +125,9 @@ export const validateMythStories = ({
       if (!hasText(item.title) || !hasText(item.sourceType)) {
         issues.push({ ...scope, field: `sources.${index}`, message: 'Each source needs a title and source type.' });
       }
+      if (story.publishStatus === 'published' && story.requiredSourceIds?.length && !hasText(item.locator)) {
+        issues.push({ ...scope, field: `sources.${index}.locator`, message: 'Closure-managed published Stories require a source locator.' });
+      }
     });
 
     if (story.requiredSourceIds && story.requiredSourceIds.length === 0) {

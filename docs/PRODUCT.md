@@ -522,7 +522,7 @@ Workers API
  └── AI Generation API
 ```
 
-R2 存原图、缩略图、生成图、分享图与 OG Image；D1 存 mythology、world、character、scene、artwork、style、user、collection、generation。
+已发布的 mythology、world、character、scene、关系、story、style、output spec 与策展 artwork 元数据使用版本化静态内容并在构建期发布。R2 存原图、缩略图、生成图、分享图、参考图与 OG Image；D1 存 user/account、favorite/collection、generation、submission/review、用户/社区 artwork 归属等动态业务数据；KV 存会话、限流、配置和可丢弃缓存。详细边界以 `docs/STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md` 为准。
 
 ---
 

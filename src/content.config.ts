@@ -26,4 +26,39 @@ const egyptian = defineCollection({
   }),
 });
 
-export const collections = { greek, norse, egyptian };
+const japanese = defineCollection({
+  schema: z.object({
+    title: z.string(),
+    internal: z.literal(true),
+  }),
+});
+
+const maya = defineCollection({
+  schema: z.object({
+    title: z.string(),
+    internal: z.literal(true),
+  }),
+});
+
+const celtic = defineCollection({
+  schema: z.object({
+    title: z.string(),
+    internal: z.literal(true),
+  }),
+});
+
+const aztec = defineCollection({
+  schema: z.object({
+    title: z.string(),
+    internal: z.literal(true),
+  }),
+});
+
+const mesopotamian = defineCollection({
+  schema: z.object({
+    title: z.string(),
+    internal: z.literal(true),
+  }),
+});
+
+export const collections = { greek, norse, egyptian, japanese, maya, celtic, aztec, mesopotamian };

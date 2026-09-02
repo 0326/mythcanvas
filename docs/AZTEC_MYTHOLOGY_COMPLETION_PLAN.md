@@ -8,6 +8,22 @@
 
 ---
 
+## 0.0 架构基线（2026-09-02）
+
+本方案必须服从 [`docs/STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md`](./STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md)：已发布的 Mythology / World / Scene / Character / Relation / Story / Source / Claim / Style / OutputSpec 及策展 Artwork 元数据，以 Git 管理的 structured content 和 `PublicContentCatalog` 为权威源。
+
+因此 Aztec 包接入后的公共页面、搜索、关系图、Story / Character SSR、生成上下文和 sitemap 不得依赖运行时 D1。D1 只保留给用户、收藏、生成任务、投稿审核、行为统计等动态数据；现有内容表仅作为过渡兼容镜像，不是公共页面的权威源。
+
+D1 同步只做显式兼容性操作，不能成为公共发布门槛：
+
+```bash
+npm run content:mirror:d1 -- --mythology=aztec                 # 只校验并生成同步 SQL
+npm run content:mirror:d1 -- --mythology=aztec --apply --local
+npm run content:mirror:d1 -- --mythology=aztec --apply --remote # 需单独授权
+```
+
+本方案中的 parity 默认指静态目录与公共产品消费链路一致；Local / Production D1 apply 仅属于可选的镜像审计。
+
 # 0. Review 结论
 
 当前仓库已经有 `myth-aztec / aztec` 入口、Civilization Visual DNA、12 个已发布角色，以及对应的 generation-grade Canonical Design；但还没有 Aztec 独立的结构化内容包、Story spine、World / Scene closure、来源清单、关系图闭包和正式视觉资产。
@@ -191,7 +207,7 @@ Codex / glyph 视觉如果不是经过 source review 的真实符号：
 
 > 只能作为抽象装饰纹样，不得声称其具有可读文本含义。
 
-### 12. P0 必须满足 static fallback / local D1 / production D1 / Graph / CI parity
+### 12. P0 必须满足静态公共运行时 / Graph / Search / Sitemap / CI parity
 
 最终内容必须同时进入：
 
@@ -204,10 +220,10 @@ Codex / glyph 视觉如果不是经过 source review 的真实符号：
 - search；
 - sitemap；
 - validator；
-- deploy sync；
+- static build / deploy；
 - provenance audit。
 
-不能出现“开发环境有静态内容、线上 D1 丢关系”或反向不一致。
+不能出现“静态目录有内容、公共运行时却仍依赖 D1”或静态目录与 Graph / Search / Sitemap 不一致。D1 镜像兼容性另行审计。
 
 ---
 
@@ -1581,7 +1597,7 @@ src/content/aztec/
   stories.ts
   assets.ts
   visual-tiers.ts
-  sources.ts          # 如果通用 registry pattern确认后采用
+  sources.ts          # source registry / sourceRef helpers
 ```
 
 不创建 Aztec-only importer。
@@ -1640,11 +1656,11 @@ Tier 表示 MythCanvas production priority。
 
 ---
 
-# 14. D1 / Static / Runtime Parity
+# 14. 静态公共运行时与可选 D1 镜像兼容性
 
-## 14.1 Static fallback
+## 14.1 Static public catalog
 
-`src/content/aztec/*` 必须在无 D1 的本地 / build 场景可读取。
+`src/content/aztec/*` 必须在无 D1 的本地 / build / Worker 预览场景可读取，并经 `PublicContentCatalog` 被公共产品消费。
 
 至少支持：
 
@@ -1654,7 +1670,7 @@ Tier 表示 MythCanvas production priority。
 - World / Scene；
 - relation SSR fallback。
 
-## 14.2 D1 sync
+## 14.2 Optional D1 mirror sync
 
 使用通用：
 
@@ -1685,25 +1701,23 @@ scripts/sync-aztec-only.mjs
 
 新增 D1 内容使用新的 migration number / generic sync。
 
-## 14.4 Runtime Parity Matrix
+## 14.4 Public Runtime Parity Matrix
 
-P0 逐项验证：
+P0 逐项验证静态公共运行时；D1 apply 不再是发布前置条件：
 
-| Capability | Static | Local D1 | Production D1 |
-|---|---:|---:|---:|
-| Mythology overview | ✅ | ✅ | ✅ |
-| Character detail | ✅ | ✅ | ✅ |
-| Character relations SSR | ✅ | ✅ | ✅ |
-| Graph API | ✅ | ✅ | ✅ |
-| Story list | ✅ | ✅ | ✅ |
-| Story detail | ✅ | ✅ | ✅ |
-| World detail | ✅ | ✅ | ✅ |
-| Scene linkage | ✅ | ✅ | ✅ |
-| Search | ✅ | ✅ | ✅ |
-| Sitemap | ✅ | ✅ | ✅ |
-| Source / claim display | ✅ | ✅ | ✅ |
+| Capability | Static catalog / Worker runtime |
+|---|---:|
+| Mythology overview | ✅ |
+| Character detail | ✅ |
+| Character relations SSR | ✅ |
+| Graph API | ✅ |
+| Story list / detail | ✅ |
+| World / Scene linkage | ✅ |
+| Search | ✅ |
+| Sitemap | ✅ |
+| Source / claim display | ✅ |
 
-任何一列缺失都不算 P0 完成。
+静态公共运行时任一项缺失都不算 P0 完成。若执行 D1 镜像审计，另加 SQL dry-run、schema compatibility 和可选 local idempotency 检查；不得把 remote apply 写进默认发布流程。
 
 ---
 
@@ -1929,7 +1943,7 @@ src/content/aztec/
 - stories skeleton；
 - source refs；
 - registry integration；
-- static fallback。
+- static public catalog consumption。
 
 ## Phase 2 — Cosmic Narrative Closure
 
@@ -1975,14 +1989,12 @@ src/content/aztec/
 - rain / renewal minimal bridge；
 - selected ritual Story / claims。
 
-## Phase 6 — Graph / D1 / Search / Sitemap Parity
+## Phase 6 — Public Runtime / Graph / Search / Sitemap Parity
 
 完成：
 
 ```text
-static
-local D1
-production D1
+static catalog / Worker runtime
 SSR relation
 Graph API
 search
@@ -2090,9 +2102,9 @@ Canonical portrait
 
 - [ ] `src/content/aztec/*` 完成；
 - [ ] registry integration；
-- [ ] static fallback；
-- [ ] local D1；
-- [ ] production D1；
+- [ ] static public catalog；
+- [ ] D1 mirror dry-run SQL compatibility；
+- [ ] （可选）local D1 mirror idempotency；
 - [ ] Character Detail SSR；
 - [ ] Graph API；
 - [ ] Search；
@@ -2144,7 +2156,7 @@ P0 不做：
 12. Character dependency expansion
 13. Canonical Relation Graph
 14. World / Scene closure
-15. static / D1 / Graph / Search / Sitemap parity
+15. static public runtime / Graph / Search / Sitemap parity
 16. Validation / CI / provenance
 17. P0 release
 18. P1 character / realm visual production

@@ -1,16 +1,16 @@
 import type { APIRoute } from 'astro';
 import { buildCharacterGraph } from '../../lib/content/character-graph';
 import {
-  getCharacterBySlug,
-  getCharactersByIds,
-  getDirectCharacterRelations,
-  getRelationsForCharacterIds,
-  getContentConceptsByIds,
-} from '../../lib/content/repositories';
+  getPublicCharacterBySlug,
+  getPublicCharactersByIds,
+  getPublicCharacterRelations,
+  getPublicCharacterRelationsForMythology,
+  getPublicContentConceptsByIds,
+} from '../../lib/content/public-catalog';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ url, locals }) => {
+export const GET: APIRoute = async ({ url }) => {
   const slug = url.searchParams.get('character')?.trim();
   if (!slug) return json({ error: { code: 'MISSING_CHARACTER', message: '缺少角色参数。' } }, 400);
 
@@ -20,22 +20,21 @@ export const GET: APIRoute = async ({ url, locals }) => {
   const nodeLimit = Number.isFinite(requestedLimit) ? Math.min(Math.max(Math.floor(requestedLimit), 2), 80) : 24;
   const scope = normalizeScope(url.searchParams.get('scope'));
   const interpretationId = normalizeScope(url.searchParams.get('interpretation'));
-  const db = locals.runtime.env.DB;
-  const character = await getCharacterBySlug(db, slug);
+  const character = getPublicCharacterBySlug(slug);
   if (!character) return json({ error: { code: 'NOT_FOUND', message: '未找到公开角色。' } }, 404);
 
-  const directRelations = await getDirectCharacterRelations(db, character.id);
+  const directRelations = getPublicCharacterRelations(character.id);
   const directIds = directRelations.flatMap((relation) => [relation.fromCharacterId, relation.toCharacterId].filter((id): id is string => Boolean(id)));
-  const directCharacters = await getCharactersByIds(db, character.mythologyId, [character.id, ...directIds]);
+  const directCharacters = getPublicCharactersByIds([character.id, ...directIds]);
   const firstPass = buildCharacterGraph({ focusId: character.id, mythologyId: character.mythologyId, characters: directCharacters, relations: directRelations, interpretationId, scope, depth: 1, nodeLimit });
   const neighborhoodIds = firstPass.nodes.map((node) => node.kind === 'character' ? node.id : '').filter(Boolean);
   const relations = depth === 2 && !firstPass.requiresScopeSelection
-    ? await getRelationsForCharacterIds(db, character.mythologyId, neighborhoodIds)
+    ? getPublicCharacterRelationsForMythology(character.mythologyId).filter((relation) => [relation.fromCharacterId, relation.toCharacterId].some((id) => id != null && neighborhoodIds.includes(id)))
     : directRelations;
   const relationCharacterIds = relations.flatMap((relation) => [relation.fromCharacterId, relation.toCharacterId].filter((id): id is string => Boolean(id)));
-  const characters = await getCharactersByIds(db, character.mythologyId, [character.id, ...relationCharacterIds]);
+  const characters = getPublicCharactersByIds([character.id, ...relationCharacterIds]);
   const conceptIds = relations.flatMap((relation) => relation.toConceptId ? [relation.toConceptId] : []);
-  const concepts = await getContentConceptsByIds(db, conceptIds);
+  const concepts = getPublicContentConceptsByIds(conceptIds);
 
   return json(buildCharacterGraph({
     focusId: character.id,

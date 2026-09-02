@@ -3,27 +3,31 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import { SITE_TITLE } from '../../consts';
 import {
-  getArtworkBySlug,
-  getArtworksForMythology,
-  getCharacterById,
-  getMythologyById,
-  getWorlds,
-} from '../../lib/content/repositories';
+  getPublicArtworkBySlug,
+  getPublicArtworks,
+  getPublicArtworksForMythology,
+  getPublicCharacterById,
+  getPublicMythologyById,
+  getPublicWorlds,
+} from '../../lib/content/public-catalog';
 
-export const prerender = false;
+export const prerender = true;
 
-const db = Astro.locals.runtime.env.DB;
+export function getStaticPaths() {
+  return getPublicArtworks({ limit: 1000 }).map((artwork) => ({ params: { slug: artwork.slug } }));
+}
+
 const { slug } = Astro.params;
-const artwork = await getArtworkBySlug(db, slug ?? '');
+const artwork = getPublicArtworkBySlug(slug ?? '');
 if (!artwork) return Astro.redirect('/404');
-const [mythology, relatedCharacters, related, worldsById] = await Promise.all([
-  getMythologyById(db, artwork.mythologyId),
+const [mythology, relatedCharacters, related, worldsById] = [
+  getPublicMythologyById(artwork.mythologyId),
   artwork.characterIds
-    ? Promise.all(artwork.characterIds.map((id) => getCharacterById(db, id))).then((list) => list.filter((item) => item != null))
-    : Promise.resolve([]),
-  getArtworksForMythology(db, artwork.mythologyId).then((list) => list.filter((item) => item.id !== artwork.id).slice(0, 4)),
-  getWorlds(db).then((list) => new Map(list.map((item) => [item.id, item]))),
-]);
+    ? artwork.characterIds.map((id) => getPublicCharacterById(id)).filter((item) => item != null)
+    : [],
+  getPublicArtworksForMythology(artwork.mythologyId).filter((item) => item.id !== artwork.id).slice(0, 4),
+  new Map(getPublicWorlds({ limit: 1000 }).map((item) => [item.id, item])),
+];
 const world = artwork.worldId ? worldsById.get(artwork.worldId) : undefined;
 ---
 

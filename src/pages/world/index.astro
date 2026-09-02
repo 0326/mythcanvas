@@ -2,12 +2,11 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import WorldCard from '../../components/world/WorldCard.astro';
 import { Search } from '@lucide/astro';
-import { getMythologies, getWorlds } from '../../lib/content/repositories';
+import { getPublicMythologies, getPublicWorlds } from '../../lib/content/public-catalog';
 
-export const prerender = false;
+export const prerender = true;
 
-const db = Astro.locals.runtime.env.DB;
-const [worlds, mythologies] = await Promise.all([getWorlds(db), getMythologies(db)]);
+const [worlds, mythologies] = [getPublicWorlds({ limit: 1000 }), getPublicMythologies()];
 const mythologyById = new Map(mythologies.map((mythology) => [mythology.id, mythology]));
 const featured = worlds.slice(0, 2);
 const rest = worlds.slice(2);

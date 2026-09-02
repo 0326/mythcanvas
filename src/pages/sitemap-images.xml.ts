@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
 import {
-  getArtworks,
-  getCharacters,
-  getMythologies,
-  getWorlds,
-} from '../lib/content/repositories';
+  getPublicArtworks,
+  getPublicCharacters,
+  getPublicMythologies,
+  getPublicWorlds,
+} from '../lib/content/public-catalog';
 import {
   absoluteUrl,
   buildUrlSetXml,
@@ -19,16 +19,15 @@ export const prerender = false;
 const imageEntry = (pageUrl: string, imageUrl: string) =>
   `<url><loc>${escapeXml(pageUrl)}</loc><image:image><image:loc>${escapeXml(imageUrl)}</image:loc></image:image></url>`;
 
-export const GET: APIRoute = async ({ locals, site, url }) => {
+export const GET: APIRoute = async ({ site, url }) => {
   if (!site) return xmlResponse('<error>Astro.site is required for sitemap generation.</error>', 500);
 
-  const db = locals.runtime.env.DB;
   const part = url.searchParams.get('part') ?? 'entities';
 
   if (part === 'artworks') {
     const page = parseSitemapPage(url.searchParams.get('page'));
     if (!page) return xmlResponse('<error>Invalid sitemap page.</error>', 404);
-    const artworks = await getArtworks(db, {
+    const artworks = getPublicArtworks({
       limit: SITEMAP_SHARD_SIZE,
       offset: (page - 1) * SITEMAP_SHARD_SIZE,
     });
@@ -44,11 +43,11 @@ export const GET: APIRoute = async ({ locals, site, url }) => {
 
   if (part !== 'entities') return xmlResponse('<error>Unknown sitemap part.</error>', 404);
 
-  const [mythologies, worlds, characters] = await Promise.all([
-    getMythologies(db, { limit: SITEMAP_SHARD_SIZE }),
-    getWorlds(db, { limit: SITEMAP_SHARD_SIZE }),
-    getCharacters(db, { limit: SITEMAP_SHARD_SIZE }),
-  ]);
+  const [mythologies, worlds, characters] = [
+    getPublicMythologies({ limit: SITEMAP_SHARD_SIZE }),
+    getPublicWorlds({ limit: SITEMAP_SHARD_SIZE }),
+    getPublicCharacters({ limit: SITEMAP_SHARD_SIZE }),
+  ];
 
   const entries = [
     ...mythologies

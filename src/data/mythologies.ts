@@ -116,7 +116,7 @@ export const mythologies: Mythology[] = [
     name: '凯尔特神话',
     nameEn: 'Celtic Mythology',
     tagline: '森林与彼世',
-    summary: '古老圣林、圣丘、巨石与彼世传说，共同形成自然即神域的凯尔特神话想象。',
+    summary: '爱尔兰、威尔士与大陆／高卢—罗马的神话、文学与证据传统，在来源范围清晰的视觉宇宙中彼此并置。',
     displayOrder: 70,
     visualDna: {
       palette: ['森林绿', '雾白', '橡木棕', '古金'],
@@ -124,7 +124,7 @@ export const mythologies: Mythology[] = [
       materials: ['巨石', '木', '青铜', '黄金'],
       atmosphere: ['古老', '自然', '神秘', '幽静'],
     },
-    heroImage: { ...placeholderHero, alt: '凯尔特神话视觉占位图' },
+    heroImage: { src: '/art/celtic-mist-and-torc.svg', alt: '雾岭、河流、青铜颈环与远方圣丘构成的凯尔特神话入口', width: 1600, height: 900 },
     homeHero: {},
   },
   {
@@ -149,16 +149,16 @@ export const mythologies: Mythology[] = [
     slug: 'aztec',
     name: '阿兹特克神话',
     nameEn: 'Aztec Mythology',
-    tagline: '太阳与羽蛇',
-    summary: '太阳周期、羽蛇神、双神庙与高原湖城，共同构成强烈而庄严的墨西加神圣宇宙。',
+    tagline: '太阳循环 · 湖城与羽蛇',
+    summary: '太阳循环、羽蛇、火山高原与湖城共同展开中央墨西哥的多来源神话网络；Mexica、Nahua 与仪式 Codex 传统在页面中保持来源边界。',
     displayOrder: 90,
     visualDna: {
       palette: ['火山岩黑', '绿松石', '朱红', '太阳金'],
       motifs: ['羽蛇', '双神庙', '太阳', '黑曜石'],
       materials: ['火山岩', '黑曜石', '绿松石', '黄金'],
-      atmosphere: ['强烈', '庄严', '太阳崇拜', '高原'],
+      atmosphere: ['强烈', '庄严', '宇宙循环', '湖城高原', '仪式秩序'],
     },
-    heroImage: { ...placeholderHero, alt: '阿兹特克神话视觉占位图' },
+    heroImage: { src: '/art/aztec-cosmic-cycle.svg', alt: '火山高原、湖城、太阳与羽蛇构成的中央墨西哥神话视觉入口', width: 1600, height: 900 },
     homeHero: {},
   },
   {

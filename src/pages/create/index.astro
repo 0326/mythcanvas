@@ -1,21 +1,20 @@
 ---
 import { Check, ChevronDown, Copy, Sparkles } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCharacters, getWorlds, getStyles } from '../../lib/content/repositories';
+import { getPublicCharacters, getPublicWorlds, getPublicStyles } from '../../lib/content/public-catalog';
 import {
-  listCharacterInterpretationProfiles,
-  listCharacterVariantProfiles,
+  listPublicCharacterInterpretationProfiles,
+  listPublicCharacterVariantProfiles,
   listCreatorOutputSpecs,
 } from '../../lib/generation/creator-config';
 
 export const prerender = false;
 
-const db = Astro.locals.runtime.env.DB;
 const [allCharacters, allWorlds, styles, outputSpecs] = await Promise.all([
-  getCharacters(db),
-  getWorlds(db),
-  getStyles(db),
-  listCreatorOutputSpecs(db),
+  getPublicCharacters({ limit: 1000 }),
+  getPublicWorlds({ limit: 1000 }),
+  getPublicStyles(),
+  listCreatorOutputSpecs(undefined),
 ]);
 
 const featuredCharacterIds = ['character-change', 'character-erlang-shen'];
@@ -27,8 +26,8 @@ const creatorCharacters = [
 ].slice(0, 5);
 const creatorWorlds = allWorlds.slice(0, 5);
 const [variants, interpretations] = await Promise.all([
-  listCharacterVariantProfiles(db, creatorCharacters.map((character) => character.id)),
-  listCharacterInterpretationProfiles(db, creatorCharacters.map((character) => character.id)),
+  listPublicCharacterVariantProfiles(creatorCharacters.map((character) => character.id)),
+  listPublicCharacterInterpretationProfiles(creatorCharacters.map((character) => character.id)),
 ]);
 const variantsByCharacter = new Map(creatorCharacters.map((character) => [
   character.id,

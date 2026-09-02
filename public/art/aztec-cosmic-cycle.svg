@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Aztec cosmic cycle</title>
+  <desc id="desc">An original abstract composition of volcanic stone, turquoise water, a sun disk and a feathered serpent.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#101b2d"/><stop offset=".58" stop-color="#263f52"/><stop offset="1" stop-color="#b7432d"/></linearGradient>
+    <radialGradient id="sun"><stop stop-color="#ffe7a0"/><stop offset=".5" stop-color="#e9a63b"/><stop offset="1" stop-color="#bd4b2d"/></radialGradient>
+    <linearGradient id="lake" x1="0" x2="1"><stop stop-color="#123d48"/><stop offset=".5" stop-color="#1e6970"/><stop offset="1" stop-color="#102b43"/></linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <circle cx="1190" cy="270" r="142" fill="url(#sun)" opacity=".96"/>
+  <g fill="none" stroke="#f4ca72" stroke-width="8" opacity=".45"><circle cx="1190" cy="270" r="184"/><path d="M1190 35v62m0 346v62M955 270h62m346 0h62M1024 104l44 44m244 244 44 44m0-332-44 44m-244 244-44 44"/></g>
+  <path d="M0 620 230 440 390 600 575 370 780 610 960 430 1140 605 1320 405 1600 610v290H0z" fill="#101923"/>
+  <path d="M0 700c250-70 410 68 690-8s445-2 910-75v283H0z" fill="url(#lake)"/>
+  <path d="M305 668 480 486l175 182zM530 668 655 523l130 145z" fill="#403b3b" stroke="#b38b55" stroke-width="6"/>
+  <path d="M825 690c175-92 290-142 470-196-48 61-79 110-109 160-86 14-168 29-251 36z" fill="none" stroke="#6fc4ae" stroke-width="32" stroke-linecap="round"/>
+  <path d="M1120 569c75-76 155-79 230-32-83 20-118 61-147 121" fill="none" stroke="#89d0a7" stroke-width="24" stroke-linecap="round"/>
+  <g fill="#e1b34e" opacity=".75"><circle cx="180" cy="190" r="4"/><circle cx="400" cy="140" r="5"/><circle cx="710" cy="210" r="3"/><circle cx="870" cy="116" r="4"/><circle cx="1450" cy="150" r="4"/></g>
+</svg>

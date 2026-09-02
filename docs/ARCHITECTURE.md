@@ -31,8 +31,25 @@ Current architecture work should continue to **evolve the Astro application, not
 8. **Image is a first-class asset**: artwork metadata and derivatives must be modeled explicitly.
 9. **Text is a first-class content asset for Myth Story**: story body, tradition/source notes and entity relations must be server-renderable and independently indexable.
 10. **Avoid premature abstraction**: build shared UI only after at least two real use sites unless the component is a primitive.
+11. **Static canonical content, dynamic user state**: published mythology knowledge and entity relations are source-controlled and build-time/static by default; D1 is reserved for mutable user and operational data.
 
 Product naming and UX positioning are defined in `docs/CONTENT_POSITIONING.md`.
+The normative migration and storage-boundary plan is defined in `docs/STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md`.
+
+### 2.1 Canonical content runtime boundary
+
+Published `Mythology`, `World`, `Scene`, `Character`, `MythStory`, entity relations, names, concepts, claims, sources, taxonomy, `VisualDNA`, `CanonicalDesign`, `Style`, `OutputSpec` and curated artwork metadata are versioned content assets. Public pages, search, relationship graphs, generation context and sitemaps must be able to use them without D1.
+
+Mutable state is stored by responsibility:
+
+- D1: accounts, favorites, generation jobs, submissions, reviews, ownership and other relational operational data.
+- R2: artwork, generated image, derivative and reference-asset bytes.
+- KV: sessions, rate limits, configuration and disposable cache data.
+- Browser storage: optional versioned cache only; never the authoritative content database.
+
+Curated artwork metadata is published through the static catalog while its image bytes remain in R2. User-generated and community artwork remains dynamic in D1 + R2 until explicitly promoted into the curated catalog.
+
+Any proposal that makes public canonical content depend on runtime D1 reads requires an ADR with a demonstrated real-time editorial or transactional need, a query budget, failure behavior, SEO impact and rollback plan.
 
 ---
 
@@ -55,7 +72,7 @@ src/
 ├── data/              # seed data during MVP
 ├── layouts/           # BaseLayout, EntityLayout, DetailLayout, ArticleLayout
 ├── lib/
-│   ├── content/       # entity lookup, relations, recommendations
+│   ├── content/       # static public catalog, indexes, relations, recommendations
 │   ├── cloudflare/    # D1/R2/KV adapters
 │   ├── image/         # image URL/variant helpers
 │   ├── seo/           # JSON-LD, metadata, canonical, hreflang
@@ -362,11 +379,11 @@ Do not hydrate entire page shells.
 
 ---
 
-## 8. Data evolution
+## 8. Data ownership and evolution
 
-### Stage 1 — editorial content / seed data
+### Stage 1 — canonical editorial content
 
-For early MythStory production, prefer Astro Content Collections or typed Markdown/MDX so writers can iterate without requiring a new admin system.
+Use Astro Content Collections or typed TypeScript/Markdown/MDX packages for published canonical entities and relations. Git review and deployment are the publishing transaction; a runtime database is not required for these facts.
 
 Recommended frontmatter shape mirrors `MythStory` relations:
 
@@ -383,26 +400,30 @@ topicIds:
 tradition: 淮南子及后世嫦娥奔月传说
 ```
 
-### Stage 2 — D1 metadata
+Build a validated `PublicContentCatalog` and derived indexes for entity lookup, relationships, search and sitemaps. Public repositories read this catalog directly and do not accept a D1 binding.
 
-Move dynamic entities and user actions to D1:
+### Stage 2 — D1 dynamic state
 
-- entities and relationships
-- Story index metadata if needed
+Use D1 for data that changes through runtime user or operational actions:
+
 - accounts / account_sessions
 - favorites
-- generation records
-- download counters
+- generation jobs and result ownership
+- submissions and review state
+- community artwork metadata
+- download and analytics events when D1 is the chosen event sink
 
-Story long-form body can remain content-file based until editorial/admin requirements justify migration.
+Existing D1 tables that mirror canonical content may remain temporarily for compatibility, admin tools and migration audits. They are non-authoritative and must not be required by public routes. Moving canonical content into a runtime CMS requires a separate ADR and an exported static snapshot/failure strategy.
 
 ### Stage 3 — R2 assets
 
-R2 stores originals and generated derivatives. Persist image dimensions, aspect ratio, format, alt and attribution with each asset.
+R2 stores originals, references and generated derivatives. Persist image dimensions, aspect ratio, format, hash, alt and attribution with the owning static or dynamic metadata record.
 
 ### Stage 4 — KV/cache
 
 KV is appropriate for configuration, feature flags and precomputed hot lists; it is not the source of truth for relational content.
+
+Browser IndexedDB/localStorage may cache a versioned static search index or user preferences. It must remain disposable and must not become the source of truth for mythology content.
 
 ---
 
@@ -462,6 +483,8 @@ Do not hide mythology facts, Story body or artwork metadata behind client-only r
 ---
 
 ## 11. Recommended migration sequence
+
+The repository-wide static-content/dynamic-data cutover follows `docs/STATIC_CONTENT_DYNAMIC_DATA_REFACTOR_PLAN.md`. Its phases and acceptance criteria are normative. The product/content sequence below remains applicable within that storage boundary.
 
 ### Phase A — information architecture
 

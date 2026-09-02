@@ -76,6 +76,11 @@ export const storyIllustrations: readonly StoryIllustrationAsset[] = [
     image: { src: '/media/content/char-anubis.jpg', alt: '阿努比斯与黑金审判意象', width: 864, height: 1152 },
     provenance: legacyOriginalProvenance,
   },
+  {
+    id: 'story-illustration-aztec-cosmic',
+    image: { src: '/art/aztec-cosmic-cycle.svg', alt: '火山高原、湖城、太阳与羽蛇构成的阿兹特克神话视觉场景', width: 1600, height: 900 },
+    provenance: { sourceType: 'original', creator: 'MythCanvas', licenseName: 'MythCanvas Original — source-aware Aztec P0 asset (2026-09-02)' },
+  },
 ];
 
 const illustrationsById = new Map(storyIllustrations.map((asset) => [asset.id, asset]));

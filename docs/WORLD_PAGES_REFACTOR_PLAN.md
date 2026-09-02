@@ -589,7 +589,7 @@ Breadcrumb：
 
 Structured Data 可以继续使用 `Place`，但代码变量和实体模型必须使用 World。
 
-Sitemap 必须能发现 D1 中动态 World Detail。
+Sitemap 必须从静态 `PublicContentCatalog` 发现全部已发布 World Detail；D1 不得成为公共 World sitemap 的运行时依赖。
 
 ---
 

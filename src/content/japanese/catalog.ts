@@ -19,7 +19,7 @@ const source = (title: string, locator: string, note?: string): SourceRef => ({
   title,
   locator,
   language: 'ja-classical',
-  period: '8 世纪记载的古代文本传统',
+  period: '8 世纪',
   note,
 });
 

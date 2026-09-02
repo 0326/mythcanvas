@@ -3,23 +3,22 @@ import { ArrowLeft, ArrowRight } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import {
-  getArtworks,
-  getMythologies,
-  getWorlds,
-} from '../../lib/content/repositories';
+  getPublicArtworks,
+  getPublicMythologies,
+  getPublicWorlds,
+} from '../../lib/content/public-catalog';
 
 export const prerender = false;
 
-const db = Astro.locals.runtime.env.DB;
 const PAGE_SIZE = 24;
 const requestedPage = Astro.url.searchParams.size === 1 ? Astro.url.searchParams.get('page') : null;
 const parsedPage = requestedPage && /^[1-9]\d*$/.test(requestedPage) ? Number(requestedPage) : 1;
 const currentPage = Number.isSafeInteger(parsedPage) ? parsedPage : 1;
 
 const [artworkPage, mythologiesById, worldsById] = await Promise.all([
-  getArtworks(db, { limit: PAGE_SIZE + 1, offset: (currentPage - 1) * PAGE_SIZE }),
-  getMythologies(db).then((list) => new Map(list.map((item) => [item.id, item]))),
-  getWorlds(db).then((list) => new Map(list.map((item) => [item.id, item]))),
+  getPublicArtworks({ limit: PAGE_SIZE + 1, offset: (currentPage - 1) * PAGE_SIZE }),
+  Promise.resolve(new Map(getPublicMythologies().map((item) => [item.id, item]))),
+  Promise.resolve(new Map(getPublicWorlds().map((item) => [item.id, item]))),
 ]);
 
 if (currentPage > 1 && artworkPage.length === 0) {

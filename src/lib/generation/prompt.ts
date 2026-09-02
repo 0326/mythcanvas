@@ -1,9 +1,11 @@
 import { getCharacterById, getMythologyById, getStyleById, getWorldById } from '../content/repositories';
+import { getPublicCharacterById, getPublicCharacterInterpretations, getPublicCharacterVariants, getPublicMythologyById, getPublicStyleById, getPublicWorldById } from '../content/public-catalog';
 import {
   getCharacterInterpretationProfile,
   getCharacterVariantProfile,
   getOutputSpecProfile,
   getStyleGenerationProfile,
+  toCharacterInterpretationProfile,
 } from './config-repository';
 import type { GenerationRequest, PromptLayers, ResolvedGenerationContext } from './types';
 import { GenerationValidationError } from './validation';
@@ -12,23 +14,44 @@ export async function resolveGenerationContext(
   db: D1Database | undefined,
   request: GenerationRequest,
 ): Promise<ResolvedGenerationContext> {
-  const style = await getStyleById(db, request.styleId);
+  const style = getPublicStyleById(request.styleId) ?? await getStyleById(db, request.styleId);
   if (!style) throw new GenerationValidationError('STYLE_NOT_FOUND', '所选画风不存在。', 404);
 
   const entity = request.entityType === 'character'
-    ? await getCharacterById(db, request.entityId)
-    : await getWorldById(db, request.entityId);
+    ? getPublicCharacterById(request.entityId) ?? await getCharacterById(db, request.entityId)
+    : getPublicWorldById(request.entityId) ?? await getWorldById(db, request.entityId);
 
   if (!entity) throw new GenerationValidationError('ENTITY_NOT_FOUND', '所选角色或神域不存在。', 404);
 
-  const mythology = await getMythologyById(db, entity.mythologyId);
+  const mythology = getPublicMythologyById(entity.mythologyId) ?? await getMythologyById(db, entity.mythologyId);
   if (!mythology) throw new GenerationValidationError('MYTHOLOGY_NOT_FOUND', '对应神话体系不存在。', 404);
 
+  const staticInterpretation = request.entityType === 'character'
+    ? getPublicCharacterInterpretations(entity.id).find((item) => item.id === request.interpretationId)
+    : undefined;
   const interpretation = request.entityType === 'character'
-    ? await getCharacterInterpretationProfile(db, request.interpretationId, entity.id)
+    ? staticInterpretation
+      ? toCharacterInterpretationProfile(staticInterpretation)
+      : await getCharacterInterpretationProfile(db, request.interpretationId, entity.id)
+    : undefined;
+  const staticVariant = request.entityType === 'character'
+    ? getPublicCharacterVariants(entity.id).find((item) => item.id === request.variantId && (!interpretation?.id || !item.interpretationId || item.interpretationId === interpretation.id))
     : undefined;
   const variant = request.entityType === 'character'
-    ? await getCharacterVariantProfile(db, request.variantId, entity.id, interpretation?.id)
+    ? staticVariant
+      ? {
+          id: staticVariant.id,
+          characterId: staticVariant.characterId,
+          slug: staticVariant.slug,
+          interpretationId: staticVariant.interpretationId,
+          name: staticVariant.name,
+          variantType: staticVariant.variantType,
+          description: staticVariant.description,
+          identityOverrides: [...staticVariant.identityOverrides],
+          promptFragment: '',
+          referenceAssetIds: [...staticVariant.referencePack],
+        }
+      : await getCharacterVariantProfile(db, request.variantId, entity.id, interpretation?.id)
     : undefined;
   const styleProfile = await getStyleGenerationProfile(db, style.id);
   const outputSpec = await getOutputSpecProfile(db, request.outputSpecId, request.ratio);

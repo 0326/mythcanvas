@@ -1,5 +1,6 @@
 import { GenerationValidationError } from './validation';
 import { getCharacterInterpretationById, getCharacterInterpretations } from '../content/repositories';
+import { getPublicCharacterInterpretations, getPublicCharacterVariants } from '../content/public-catalog';
 import type { CharacterInterpretation, SourceRef } from '../content/types';
 
 export type CharacterInterpretationProfile = {
@@ -137,6 +138,23 @@ export async function getCharacterVariantProfile(
   interpretationId?: string,
 ): Promise<CharacterVariantProfile | undefined> {
   if (!variantId) return undefined;
+  const staticVariant = getPublicCharacterVariants(characterId).find((variant) =>
+    variant.id === variantId && (!interpretationId || !variant.interpretationId || variant.interpretationId === interpretationId),
+  );
+  if (staticVariant) {
+    return {
+      id: staticVariant.id,
+      characterId: staticVariant.characterId,
+      slug: staticVariant.slug,
+      interpretationId: staticVariant.interpretationId,
+      name: staticVariant.name,
+      variantType: staticVariant.variantType,
+      description: staticVariant.description,
+      identityOverrides: [...staticVariant.identityOverrides],
+      promptFragment: '',
+      referenceAssetIds: [...staticVariant.referencePack],
+    };
+  }
   if (!db) throw new GenerationValidationError('VARIANT_NOT_FOUND', '所选角色形态不存在。', 404);
 
   let row: Record<string, unknown> | null = null;
@@ -174,6 +192,8 @@ export async function getCharacterInterpretationProfile(
   characterId: string,
 ): Promise<CharacterInterpretationProfile | undefined> {
   if (!interpretationId) return undefined;
+  const staticInterpretation = getPublicCharacterInterpretations(characterId).find((item) => item.id === interpretationId);
+  if (staticInterpretation) return toCharacterInterpretationProfile(staticInterpretation);
   if (!db) throw new GenerationValidationError('INTERPRETATION_NOT_FOUND', '所选传统版本不存在。', 404);
 
   try {
@@ -203,7 +223,7 @@ export async function listCharacterInterpretationProfiles(
   }
 }
 
-function toCharacterInterpretationProfile(
+export function toCharacterInterpretationProfile(
   interpretation: CharacterInterpretation,
 ): CharacterInterpretationProfile {
   return {
@@ -228,6 +248,8 @@ export async function getStyleGenerationProfile(
   db: D1Database | undefined,
   styleId: string,
 ): Promise<StyleGenerationProfile> {
+  const fallback = fallbackStyles[styleId];
+  if (fallback) return fallback;
   if (db) {
     try {
       const row = await db.prepare(`
@@ -248,7 +270,7 @@ export async function getStyleGenerationProfile(
     }
   }
 
-  return fallbackStyles[styleId] ?? {
+  return {
     id: styleId,
     promptTemplate: 'Render as polished, original, culturally grounded mythology artwork with a clear focal hierarchy and refined materials.',
     renderRules: ['preserve subject identity', 'clear focal hierarchy'],
@@ -262,6 +284,8 @@ export async function getOutputSpecProfile(
   ratio: string,
 ): Promise<OutputSpecProfile> {
   const inferredId = outputSpecId ?? inferOutputSpecId(ratio);
+  const fallback = fallbackOutputSpecs[inferredId];
+  if (fallback) return fallback;
   if (db) {
     try {
       const row = await db.prepare(`
@@ -290,8 +314,6 @@ export async function getOutputSpecProfile(
     }
   }
 
-  const fallback = fallbackOutputSpecs[inferredId];
-  if (fallback) return fallback;
   return genericOutputSpec(ratio);
 }
 

@@ -37,10 +37,11 @@ const illustrations = loadTsModule('src/data/story-illustrations.ts').storyIllus
 const bundles = packagePaths.map((slug) => {
   const catalog = loadTsModule(`src/content/${slug}/catalog.ts`);
   const stories = loadTsModule(`src/content/${slug}/stories.ts`);
+  const sources = loadTsModule(`src/content/${slug}/sources.ts`, true);
   const identities = loadTsModule(`src/content/${slug}/identities.ts`, true);
   const mythology = mythologies.find((item) => item.slug === slug);
   if (!mythology) fail(`${slug} is missing from src/data/mythologies.ts.`);
-  return { slug, catalog, stories: stories[`${slug}Stories`], mythology, identities };
+  return { slug, catalog, stories: stories[`${slug}Stories`], mythology, identities, sources };
 });
 
 execFileSync('npm', ['run', 'content:validate'], { cwd: ROOT, stdio: 'inherit' });
@@ -93,7 +94,7 @@ function loadTsModule(relativePath, optional = false) {
   return module.exports;
 }
 
-function buildSqlForBundle({ characters, worlds, scenes, relations, taxonomy, stories, mythology, concepts = [], claims = [], names = [], interpretations = [] }) {
+function buildSqlForBundle({ characters, worlds, scenes, relations, taxonomy, stories, mythology, concepts = [], claims = [], names = [], interpretations = [], sources = [] }) {
   const statements = ['PRAGMA foreign_keys = ON;'];
   statements.push(`UPDATE mythologies SET hero_src=${q(mythology.heroImage.src)}, hero_alt=${q(mythology.heroImage.alt)}, hero_width=${mythology.heroImage.width}, hero_height=${mythology.heroImage.height}, updated_at=CURRENT_TIMESTAMP WHERE id=${q(mythology.id)};`);
 
@@ -129,6 +130,7 @@ function buildSqlForBundle({ characters, worlds, scenes, relations, taxonomy, st
       author: item.author ?? current.author,
     });
   };
+  for (const source of sources) collectSource({ ...source, sourceType: source.storyType });
   for (const story of stories) for (const item of story.sources) collectSource(item);
   for (const character of characters) for (const item of character.sourceRefs ?? []) collectSource(item);
   for (const concept of concepts) for (const item of concept.sourceRefs ?? []) collectSource(item);
@@ -149,6 +151,7 @@ function buildSqlForBundle({ characters, worlds, scenes, relations, taxonomy, st
 
 function buildSql(bundle) {
   const slug = bundle.slug;
+  const registeredSources = bundle.sources?.[`${slug}Sources`];
   return buildSqlForBundle({
     characters: bundle.catalog[`${slug}Characters`],
     worlds: bundle.catalog[`${slug}Worlds`],
@@ -160,6 +163,14 @@ function buildSql(bundle) {
     claims: bundle.identities?.[`${slug}Claims`] ?? [],
     names: bundle.identities?.[`${slug}Names`] ?? [],
     interpretations: bundle.identities?.[`${slug}Interpretations`] ?? [],
+    // Source packages use either a keyed registry object (for helper lookup)
+    // or a materialized array (for the runtime bundle). Accept both shapes so
+    // every discovered civilization uses the same mirror path.
+    sources: Array.isArray(registeredSources)
+      ? registeredSources
+      : Array.isArray(bundle.sources)
+        ? bundle.sources
+        : Object.values(registeredSources ?? bundle.sources ?? {}),
     mythology: bundle.mythology,
   });
 }

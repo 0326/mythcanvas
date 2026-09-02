@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Celtic mist and torc</title>
+  <desc id="desc">An original MythCanvas landscape of misty hills, a river and a bronze torc.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#182d3d"/><stop offset="0.58" stop-color="#6b8990"/><stop offset="1" stop-color="#d8d7c4"/></linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#243f3b"/><stop offset="1" stop-color="#0e2327"/></linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#c0d8d2" stop-opacity=".75"/><stop offset="1" stop-color="#6e9da0" stop-opacity=".22"/></linearGradient>
+    <radialGradient id="halo"><stop stop-color="#ead9a5" stop-opacity=".72"/><stop offset="1" stop-color="#ead9a5" stop-opacity="0"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <circle cx="1210" cy="230" r="230" fill="url(#halo)" filter="url(#soft)"/>
+  <path d="M0 535C185 390 295 430 445 498c141 64 250 16 382-79 149-108 274-89 412-8 151 88 239 74 361 7v482H0Z" fill="url(#hill)"/>
+  <path d="M0 625c180-95 319-96 472-17 169 87 274 71 410-30 130-97 261-120 410-28 120 75 208 74 308 18v332H0Z" fill="#0a1d22" opacity=".9"/>
+  <path d="M760 900c83-138 187-204 291-235 119-35 222-78 308-168-13 128-80 202-170 256-84 50-134 92-187 147Z" fill="url(#water)" opacity=".85"/>
+  <g fill="none" stroke="#c9a95b" stroke-width="18" opacity=".95">
+    <path d="M1110 430c0-111 92-201 205-201s205 90 205 201-92 201-205 201-205-90-205-201Z"/>
+    <path d="M1126 394c35 29 63 46 98 42M1494 394c-35 29-63 46-98 42"/>
+  </g>
+  <g fill="#d9d5be" opacity=".18" filter="url(#soft)">
+    <path d="M-20 525c210-105 389-70 566 18s311 90 492-16 352-111 583-3v96c-204-70-356-49-529 44-178 96-322 94-512 8-197-89-366-91-600 9Z"/>
+  </g>
+  <g fill="#b9c7b7" opacity=".65">
+    <circle cx="310" cy="508" r="3"/><circle cx="341" cy="492" r="4"/><circle cx="381" cy="512" r="2"/><circle cx="960" cy="454" r="3"/><circle cx="1000" cy="438" r="2"/>
+  </g>
+</svg>

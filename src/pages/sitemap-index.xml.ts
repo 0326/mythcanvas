@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { countPublishedArtworks } from '../lib/content/repositories';
+import { countPublicArtworks } from '../lib/content/public-catalog';
 import {
   buildSitemapIndexXml,
   sitemapShardCount,
@@ -15,10 +15,10 @@ function shardUrl(path: string, part: string, page: number | undefined, site: UR
   return url.toString();
 }
 
-export const GET: APIRoute = async ({ locals, site }) => {
+export const GET: APIRoute = async ({ site }) => {
   if (!site) return xmlResponse('<error>Astro.site is required for sitemap generation.</error>', 500);
 
-  const artworkCount = await countPublishedArtworks(locals.runtime.env.DB);
+  const artworkCount = countPublicArtworks();
   const artworkShardCount = sitemapShardCount(artworkCount);
   const locations = [
     shardUrl('/sitemap-pages.xml', 'entities', undefined, site),

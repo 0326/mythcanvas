@@ -1,8 +1,46 @@
 import type { CharacterInterpretationProfile, CharacterVariantProfile, OutputSpecProfile } from './config-repository';
 import { getOutputSpecProfile, listCharacterInterpretationProfiles } from './config-repository';
+import { getPublicCharacterInterpretations, getPublicCharacterVariants } from '../content/public-catalog';
 
 export { listCharacterInterpretationProfiles };
 export type { CharacterInterpretationProfile };
+
+/** Published Creator identity options come from the static content catalog. */
+export function listPublicCharacterVariantProfiles(characterIds: string[]): CharacterVariantProfile[] {
+  const wanted = new Set(characterIds);
+  return getPublicCharacterVariants('').filter((variant) => wanted.has(variant.characterId)).map((variant) => ({
+    id: variant.id,
+    characterId: variant.characterId,
+    slug: variant.slug,
+    interpretationId: variant.interpretationId,
+    name: variant.name,
+    variantType: variant.variantType,
+    description: variant.description,
+    identityOverrides: [...variant.identityOverrides],
+    promptFragment: '',
+    referenceAssetIds: [...variant.referencePack],
+  }));
+}
+
+export function listPublicCharacterInterpretationProfiles(characterIds: string[]): CharacterInterpretationProfile[] {
+  const wanted = new Set(characterIds);
+  return getPublicCharacterInterpretations('').filter((interpretation) => wanted.has(interpretation.characterId)).map((interpretation) => ({
+    id: interpretation.id,
+    characterId: interpretation.characterId,
+    slug: interpretation.slug,
+    name: interpretation.name,
+    role: interpretation.role,
+    summary: interpretation.summary,
+    traditionTags: [...interpretation.traditionTags],
+    sourcePeriods: [...interpretation.sourcePeriods],
+    sourceRefs: [...interpretation.sourceRefs],
+    identityAnchors: [...interpretation.identityAnchors],
+    symbols: [...interpretation.symbols],
+    canonicalDesignOverrides: interpretation.canonicalDesignOverrides,
+    promptFragment: interpretation.promptFragment,
+    confidence: interpretation.confidence,
+  }));
+}
 
 export async function listCharacterVariantProfiles(
   db: D1Database | undefined,

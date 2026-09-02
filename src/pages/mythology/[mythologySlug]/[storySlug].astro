@@ -2,23 +2,30 @@
 import { ArrowLeft, Landmark, UserRound } from '@lucide/astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import {
-  getCharactersForMythology,
-  getMythologyBySlug,
-  getWorldsForMythology,
-} from '../../../lib/content/repositories';
-import { getStoryForMythology } from '../../../lib/content/stories';
+  getPublicCharactersForMythology,
+  getPublicMythologyById,
+  getPublicMythologyBySlug,
+  getPublicWorldsForMythology,
+} from '../../../lib/content/public-catalog';
+import { getPublicStoryPaths, getStoryForMythology } from '../../../lib/content/stories';
 
-export const prerender = false;
+export const prerender = true;
 
-const db = Astro.locals.runtime.env.DB;
-const mythology = await getMythologyBySlug(db, Astro.params.mythologySlug ?? '');
+export function getStaticPaths() {
+  return getPublicStoryPaths().flatMap(({ mythologyId, slug }) => {
+    const mythology = getPublicMythologyById(mythologyId);
+    return mythology ? [{ params: { mythologySlug: mythology.slug, storySlug: slug } }] : [];
+  });
+}
+
+const mythology = getPublicMythologyBySlug(Astro.params.mythologySlug ?? '');
 const story = mythology ? getStoryForMythology(mythology.id, Astro.params.storySlug ?? '') : undefined;
 if (!mythology || !story) return Astro.redirect('/404');
 
-const [characters, worlds] = await Promise.all([
-  getCharactersForMythology(db, mythology.id),
-  getWorldsForMythology(db, mythology.id),
-]);
+const [characters, worlds] = [
+  getPublicCharactersForMythology(mythology.id),
+  getPublicWorldsForMythology(mythology.id),
+];
 const charactersById = new Map(characters.map((item) => [item.id, item]));
 const worldsById = new Map(worlds.map((item) => [item.id, item]));
 const relatedCharacters = story.characterIds.map((id) => charactersById.get(id)).filter(Boolean);

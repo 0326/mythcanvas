@@ -2,18 +2,17 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import { searchAll, type SearchResult } from '../../lib/content/search';
-import { getArtworkBySlug, getCharacters, getMythologies, getWorlds } from '../../lib/content/repositories';
+import { getPublicArtworkBySlug, getPublicCharacters, getPublicMythologies, getPublicWorlds } from '../../lib/content/public-catalog';
 
 export const prerender = false;
 
-const db = Astro.locals.runtime.env.DB;
 const query = (Astro.url.searchParams.get('q') ?? '').trim();
-const results = query ? await searchAll(db, query) : [];
-const entityNames = await loadEntityNames(db);
-const artworkResults = await Promise.all(
+const results = query ? await searchAll(undefined, query) : [];
+const entityNames = loadEntityNames();
+const artworkResults = (
   results
     .filter((result) => result.type === 'artwork')
-    .map((result) => getArtworkBySlug(db, result.slug)),
+    .map((result) => getPublicArtworkBySlug(result.slug))
 );
 const artworks = artworkResults.filter((item) => item != null);
 
@@ -30,12 +29,12 @@ function resultTypeLabel(type: string): string {
   return { mythology: '神话体系', world: '神域', character: '神灵', artwork: '作品' }[type] ?? type;
 }
 
-async function loadEntityNames(db: D1Database | undefined) {
-  const [mythologies, worlds, characters] = await Promise.all([
-    getMythologies(db),
-    getWorlds(db),
-    getCharacters(db),
-  ]);
+function loadEntityNames() {
+  const [mythologies, worlds, characters] = [
+    getPublicMythologies(),
+    getPublicWorlds({ limit: 1000 }),
+    getPublicCharacters({ limit: 1000 }),
+  ];
   return {
     mythology: new Map(mythologies.map((item) => [item.id, item])),
     world: new Map(worlds.map((item) => [item.id, item])),

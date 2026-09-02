@@ -390,7 +390,8 @@ mythcanvas-character-generation
 ### P0 — 本 PR
 
 - Character / Style / Generation 三个 Skill
-- CharacterVariant / OutputSpec / ReferenceAsset D1 Schema
+- Published CharacterVariant / OutputSpec static content Schema
+- ReferenceAsset D1 ownership/provenance Schema + R2 bytes
 - Style production profile Schema
 - Generation provenance 字段
 - GPT Image 2 Prompt Composer 规范

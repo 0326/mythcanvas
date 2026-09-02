@@ -9,8 +9,8 @@ import CharacterArtworkGrid, {
 import RelatedCharacters from '../../components/character/RelatedCharacters.astro';
 import CharacterInterpretationSelector from '../../components/character/CharacterInterpretationSelector.astro';
 import CharacterVariantSelector from '../../components/character/CharacterVariantSelector.astro';
-import { incrementCharacterView } from '../../lib/content/repositories';
-import { getCharacterDetailViewModel } from '../../lib/content/character-detail';
+import { getStaticCharacterDetailViewModel } from '../../lib/content/character-detail';
+import { getPublicCharacters } from '../../lib/content/public-catalog';
 import {
   getCharacterStyle,
   normalizeCharacterStyleId,
@@ -18,15 +18,16 @@ import {
 } from '../../lib/content/character-styles';
 import type { Artwork, ImageAsset, World } from '../../lib/content/types';
 
-export const prerender = false;
+export const prerender = true;
 
-const db = Astro.locals.runtime.env.DB;
+export function getStaticPaths() {
+  return getPublicCharacters({ limit: 1000 }).map((character) => ({ params: { slug: character.slug } }));
+}
+
 const { slug } = Astro.params;
-const viewModel = await getCharacterDetailViewModel(db, slug ?? '');
+const viewModel = getStaticCharacterDetailViewModel(slug ?? '');
 if (!viewModel) return Astro.redirect('/404');
 const { character, mythology, artworks: relatedArtworks, worlds, names, interpretations, variants, stories, directRelations, relationCharacters } = viewModel;
-
-await incrementCharacterView(db, character.id);
 
 const mythologyById = mythology ? new Map([[mythology.id, mythology]]) : new Map();
 
@@ -165,7 +166,7 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
       </div>
     </section>
 
-    {(interpretations.length > 0 || variants.length > 0 || worlds.length > 0 || stories.length > 0) && (
+    {(names.length > 0 || interpretations.length > 0 || variants.length > 0 || worlds.length > 0 || stories.length > 0) && (
       <section class="character-context-section" id="interpretations" aria-labelledby="character-context-title">
         <div class="container-wide">
           <div class="context-heading">
@@ -173,6 +174,22 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
             <h2 id="character-context-title">身份、形态与叙事入口</h2>
             <p>将角色身份、来源解释、持久形态与其所在世界分开呈现，方便继续探索而不混淆层级。</p>
           </div>
+          {names.length > 0 && (
+            <div class="context-block character-names-block" id="names">
+              <h3>名称与语言 / 时期</h3>
+              <div class="character-names-list">
+                {names.map((name) => (
+                  <div class="character-name-row">
+                    <div>
+                      <strong>{name.name}</strong>
+                      {name.nameEn && <span>{name.nameEn}</span>}
+                    </div>
+                    <small>{name.nameKind} · {name.sourceRefs.map((source) => `${source.period ?? '时期未标注'} · ${source.locator ?? source.section ?? '来源范围'}`).join('；')}</small>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {interpretations.length > 0 && (
             <div class="context-block">
               <h3>传统解释</h3>
@@ -343,6 +360,22 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
       const variant = page?.dataset.selectedVariant ?? '';
       applyState(variant, style, device);
     }));
+
+    // Detail routes are pre-rendered, so query-string state is applied by the
+    // small client enhancement after the static HTML arrives.
+    const params = new URLSearchParams(window.location.search);
+    const requestedStyle = params.get('style') ?? page.dataset.selectedStyle ?? 'all';
+    const requestedVariant = params.get('variant') ?? page.dataset.selectedVariant ?? '';
+    const requestedInterpretation = params.get('interpretation');
+    if (requestedInterpretation) page.dataset.selectedInterpretation = requestedInterpretation;
+    const requestedDevice = params.get('device') === 'mobile' ? 'mobile' : page.dataset.selectedDevice ?? 'pc';
+    const validStyle = requestedStyle === 'all' || styleLinks.some((link) => link.getAttribute('data-style-filter') === requestedStyle)
+      ? requestedStyle
+      : 'all';
+    const validVariant = !requestedVariant || variantLinks.some((link) => link.getAttribute('data-variant-filter') === requestedVariant)
+      ? requestedVariant
+      : '';
+    applyState(validVariant, validStyle, requestedDevice);
   }
 </script>
 
@@ -353,13 +386,18 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
   .context-heading h2 { margin: .45rem 0 .6rem; font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.8rem); }
   .context-heading p { margin: 0; color: var(--text-secondary); line-height: 1.75; }
   .context-block + .context-block { margin-top: 2.5rem; }
+  .character-names-list { border-top: 1px solid var(--border); }
+  .character-name-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .8rem 0; border-bottom: 1px solid var(--border); }
+  .character-name-row strong, .character-name-row span { margin-right: .65rem; }
+  .character-name-row span, .character-name-row small { color: var(--text-secondary); }
+  .character-name-row small { font-size: .7rem; text-align: right; }
   .context-block h3, .context-link-group h3 { margin: 0 0 1rem; font-size: .8rem; letter-spacing: .08em; color: var(--text-secondary); }
   .context-links-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; margin-top: 2.5rem; }
   .context-link-group { display: grid; align-content: start; gap: .55rem; }
   .context-link-group a { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--border); color: var(--text-primary); text-decoration: none; }
   .context-link-group a:hover, .context-link-group a:focus-visible { color: var(--accent-strong); }
   .context-link-group small { color: var(--text-muted); font-size: .68rem; }
-  @media (max-width: 700px) { .context-links-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 700px) { .context-links-grid { grid-template-columns: 1fr; } .character-name-row { align-items: flex-start; flex-direction: column; } .character-name-row small { text-align: left; } }
 
   .wallpapers-section {
     min-height: 100svh;

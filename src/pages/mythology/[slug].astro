@@ -4,26 +4,30 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import MythologyStoryReader from '../../components/mythology/MythologyStoryReader.astro';
 import MythologyGenealogy from '../../components/mythology/MythologyGenealogy.astro';
 import {
-  getCharactersForMythology,
-  getMythologyBySlug,
-  getWorldsForMythology,
-  getCharacterRelationsForMythology,
-} from '../../lib/content/repositories';
+  getPublicCharactersForMythology,
+  getPublicMythologies,
+  getPublicMythologyBySlug,
+  getPublicWorldsForMythology,
+  getPublicCharacterRelationsForMythology,
+} from '../../lib/content/public-catalog';
 import { getStoriesForMythology, groupStoriesByVolume, shouldUseMythStoryDetailRoutes } from '../../lib/content/stories';
 import { getStoryIllustrationById } from '../../data/story-illustrations';
 
-export const prerender = false;
+export const prerender = true;
 
-const db = Astro.locals.runtime.env.DB;
+export function getStaticPaths() {
+  return getPublicMythologies().map((mythology) => ({ params: { slug: mythology.slug } }));
+}
+
 const { slug } = Astro.params;
-const mythology = await getMythologyBySlug(db, slug ?? '');
+const mythology = getPublicMythologyBySlug(slug ?? '');
 if (!mythology) return Astro.redirect('/404');
 
-const [relatedWorlds, relatedCharacters, relations] = await Promise.all([
-  getWorldsForMythology(db, mythology.id),
-  getCharactersForMythology(db, mythology.id),
-  getCharacterRelationsForMythology(db, mythology.id),
-]);
+const [relatedWorlds, relatedCharacters, relations] = [
+  getPublicWorldsForMythology(mythology.id),
+  getPublicCharactersForMythology(mythology.id),
+  getPublicCharacterRelationsForMythology(mythology.id),
+];
 const stories = getStoriesForMythology(mythology.id);
 const volumes = groupStoriesByVolume(stories);
 const storyDetailRoutes = shouldUseMythStoryDetailRoutes(stories.length);
