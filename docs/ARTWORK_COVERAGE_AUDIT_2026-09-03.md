@@ -7,9 +7,9 @@
 ## 总览
 
 - 静态角色总数：287
-- 已有角色图片：218
-- 没有角色图片：69
-- 静态已发布 Artwork：505
+- 已有角色图片：236
+- 没有角色图片：51
+- 静态已发布 Artwork：541
 - 有 Artwork 关联但未进入静态角色目录：3
 - 对应角色 ID：`character-brahma`、`character-erlang-shen`、`character-ishtar`
 
@@ -23,7 +23,7 @@
 | 日本神话 | 38 | 38 | 0 | 74 | 75 | 已覆盖 |
 | 凯尔特神话 | 43 | 43 | 0 | 86 | 86 | 已覆盖 |
 | 玛雅神话 | 19 | 19 | 0 | 38 | 38 | 已覆盖 |
-| 阿兹特克神话 | 18 | 0 | 18 | 0 | 0 | 需要补图 |
+| 阿兹特克神话 | 18 | 18 | 0 | 36 | 36 | 已覆盖 |
 | 美索不达米亚神话 | 44 | 37 | 7 | 93 | 93 | 需要补图 |
 
 ## 无图片角色明细
@@ -102,26 +102,9 @@
 
 无。
 
-### 阿兹特克神话（18 个）
+### 阿兹特克神话（0 个）
 
-- 查尔奇乌特利奎（`chalchiuhtlicue`）
-- 霍奇皮利（`xochipilli`）
-- 科亚特利库埃（`coatlicue`）
-- 科约尔沙乌基（`coyolxauhqui`）
-- 魁札尔科亚特尔（`quetzalcoatl`）
-- 米克特卡西瓦特尔（`mictecacihuatl`）
-- 米克特兰特库特利（`mictlantecuhtli`）
-- 纳纳瓦钦（`nanahuatzin`）
-- 森宗·维茨纳瓦（`centzon-huitznahua`）
-- 索洛特尔（`xolotl`）
-- 特库西斯特卡特尔（`tecuciztecatl`）
-- 特拉尔特库特利（`tlaltecuhtli`）
-- 特拉洛克（`tlaloc`）
-- 特斯卡特利波卡（`tezcatlipoca`）
-- 托纳提乌（`tonatiuh`）
-- 维齐洛波奇特利（`huitzilopochtli`）
-- 西佩·托特克（`xipe-totec`）
-- 休休特库特利（`xiuhtecuhtli`）
+无。
 
 ### 美索不达米亚神话（7 个）
 

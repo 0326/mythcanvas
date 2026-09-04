@@ -12137,5 +12137,869 @@ export const publishedArtworks: readonly Artwork[] = [
       "creator": "MythCanvas"
     },
     "reviewStatus": "approved"
+  },
+  {
+    "id": "art-centzon-huitznahua-canonical-m-01",
+    "slug": "centzon-huitznahua-canonical-m-01",
+    "title": "森宗·维茨纳瓦 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-centzon-huitznahua"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/centzon-huitznahua/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "森宗·维茨纳瓦，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-centzon-huitznahua-canonical-pc-01",
+    "slug": "centzon-huitznahua-canonical-pc-01",
+    "title": "森宗·维茨纳瓦 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-centzon-huitznahua"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/centzon-huitznahua/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "森宗·维茨纳瓦，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-chalchiuhtlicue-canonical-m-01",
+    "slug": "chalchiuhtlicue-canonical-m-01",
+    "title": "查尔奇乌特利奎 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-chalchiuhtlicue"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/chalchiuhtlicue/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "查尔奇乌特利奎，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-chalchiuhtlicue-canonical-pc-01",
+    "slug": "chalchiuhtlicue-canonical-pc-01",
+    "title": "查尔奇乌特利奎 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-chalchiuhtlicue"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/chalchiuhtlicue/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "查尔奇乌特利奎，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-coatlicue-canonical-m-01",
+    "slug": "coatlicue-canonical-m-01",
+    "title": "科亚特利库埃 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-coatlicue"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/coatlicue/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "科亚特利库埃，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-coatlicue-canonical-pc-01",
+    "slug": "coatlicue-canonical-pc-01",
+    "title": "科亚特利库埃 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-coatlicue"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/coatlicue/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "科亚特利库埃，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-coyolxauhqui-canonical-m-01",
+    "slug": "coyolxauhqui-canonical-m-01",
+    "title": "科约尔沙乌基 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-coyolxauhqui"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/coyolxauhqui/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "科约尔沙乌基，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-coyolxauhqui-canonical-pc-01",
+    "slug": "coyolxauhqui-canonical-pc-01",
+    "title": "科约尔沙乌基 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-coyolxauhqui"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/coyolxauhqui/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "科约尔沙乌基，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-huitzilopochtli-canonical-m-01",
+    "slug": "huitzilopochtli-canonical-m-01",
+    "title": "维齐洛波奇特利 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-huitzilopochtli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/huitzilopochtli/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "维齐洛波奇特利，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-huitzilopochtli-canonical-pc-01",
+    "slug": "huitzilopochtli-canonical-pc-01",
+    "title": "维齐洛波奇特利 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-huitzilopochtli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/huitzilopochtli/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "维齐洛波奇特利，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-mictecacihuatl-canonical-m-01",
+    "slug": "mictecacihuatl-canonical-m-01",
+    "title": "米克特卡西瓦特尔 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-mictecacihuatl"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/mictecacihuatl/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "米克特卡西瓦特尔，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-mictecacihuatl-canonical-pc-01",
+    "slug": "mictecacihuatl-canonical-pc-01",
+    "title": "米克特卡西瓦特尔 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-mictecacihuatl"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/mictecacihuatl/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "米克特卡西瓦特尔，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-mictlantecuhtli-canonical-m-01",
+    "slug": "mictlantecuhtli-canonical-m-01",
+    "title": "米克特兰特库特利 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-mictlantecuhtli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/mictlantecuhtli/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "米克特兰特库特利，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-mictlantecuhtli-canonical-pc-01",
+    "slug": "mictlantecuhtli-canonical-pc-01",
+    "title": "米克特兰特库特利 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-mictlantecuhtli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/mictlantecuhtli/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "米克特兰特库特利，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-nanahuatzin-canonical-m-01",
+    "slug": "nanahuatzin-canonical-m-01",
+    "title": "纳纳瓦钦 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-nanahuatzin"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/nanahuatzin/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "纳纳瓦钦，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-nanahuatzin-canonical-pc-01",
+    "slug": "nanahuatzin-canonical-pc-01",
+    "title": "纳纳瓦钦 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-nanahuatzin"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/nanahuatzin/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "纳纳瓦钦，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-quetzalcoatl-canonical-m-01",
+    "slug": "quetzalcoatl-canonical-m-01",
+    "title": "魁札尔科亚特尔 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-quetzalcoatl"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/quetzalcoatl/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "魁札尔科亚特尔，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-quetzalcoatl-canonical-pc-01",
+    "slug": "quetzalcoatl-canonical-pc-01",
+    "title": "魁札尔科亚特尔 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-quetzalcoatl"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/quetzalcoatl/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "魁札尔科亚特尔，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tecuciztecatl-canonical-m-01",
+    "slug": "tecuciztecatl-canonical-m-01",
+    "title": "特库西斯特卡特尔 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tecuciztecatl"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tecuciztecatl/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "特库西斯特卡特尔，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tecuciztecatl-canonical-pc-01",
+    "slug": "tecuciztecatl-canonical-pc-01",
+    "title": "特库西斯特卡特尔 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tecuciztecatl"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tecuciztecatl/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "特库西斯特卡特尔，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tezcatlipoca-canonical-m-01",
+    "slug": "tezcatlipoca-canonical-m-01",
+    "title": "特斯卡特利波卡 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tezcatlipoca"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tezcatlipoca/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "特斯卡特利波卡，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tezcatlipoca-canonical-pc-01",
+    "slug": "tezcatlipoca-canonical-pc-01",
+    "title": "特斯卡特利波卡 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tezcatlipoca"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tezcatlipoca/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "特斯卡特利波卡，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tlaloc-canonical-m-01",
+    "slug": "tlaloc-canonical-m-01",
+    "title": "特拉洛克 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tlaloc"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tlaloc/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "特拉洛克，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tlaloc-canonical-pc-01",
+    "slug": "tlaloc-canonical-pc-01",
+    "title": "特拉洛克 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tlaloc"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tlaloc/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "特拉洛克，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tlaltecuhtli-canonical-m-01",
+    "slug": "tlaltecuhtli-canonical-m-01",
+    "title": "特拉尔特库特利 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tlaltecuhtli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tlaltecuhtli/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "特拉尔特库特利，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tlaltecuhtli-canonical-pc-01",
+    "slug": "tlaltecuhtli-canonical-pc-01",
+    "title": "特拉尔特库特利 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tlaltecuhtli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tlaltecuhtli/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "特拉尔特库特利，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tonatiuh-canonical-m-01",
+    "slug": "tonatiuh-canonical-m-01",
+    "title": "托纳提乌 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tonatiuh"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tonatiuh/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "托纳提乌，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-tonatiuh-canonical-pc-01",
+    "slug": "tonatiuh-canonical-pc-01",
+    "title": "托纳提乌 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-tonatiuh"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/tonatiuh/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "托纳提乌，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-xipe-totec-canonical-m-01",
+    "slug": "xipe-totec-canonical-m-01",
+    "title": "西佩·托特克 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-xipe-totec"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/xipe-totec/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "西佩·托特克，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-xipe-totec-canonical-pc-01",
+    "slug": "xipe-totec-canonical-pc-01",
+    "title": "西佩·托特克 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-xipe-totec"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/xipe-totec/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "西佩·托特克，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-xiuhtecuhtli-canonical-m-01",
+    "slug": "xiuhtecuhtli-canonical-m-01",
+    "title": "休休特库特利 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-xiuhtecuhtli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/xiuhtecuhtli/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "休休特库特利，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-xiuhtecuhtli-canonical-pc-01",
+    "slug": "xiuhtecuhtli-canonical-pc-01",
+    "title": "休休特库特利 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-xiuhtecuhtli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/xiuhtecuhtli/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "休休特库特利，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-xochipilli-canonical-m-01",
+    "slug": "xochipilli-canonical-m-01",
+    "title": "霍奇皮利 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-xochipilli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/xochipilli/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "霍奇皮利，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-xochipilli-canonical-pc-01",
+    "slug": "xochipilli-canonical-pc-01",
+    "title": "霍奇皮利 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-xochipilli"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/xochipilli/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "霍奇皮利，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-xolotl-canonical-m-01",
+    "slug": "xolotl-canonical-m-01",
+    "title": "索洛特尔 · 经典神话 · 手机壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-xolotl"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/xolotl/canonical/mobile-wallpaper/canonical_m_01.png",
+      "alt": "索洛特尔，经典神话风格手机壁纸",
+      "width": 941,
+      "height": 1672
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "art-xolotl-canonical-pc-01",
+    "slug": "xolotl-canonical-pc-01",
+    "title": "索洛特尔 · 经典神话 · PC 壁纸",
+    "type": "character",
+    "mythologyId": "myth-aztec",
+    "characterIds": [
+      "character-xolotl"
+    ],
+    "styleId": "canonical",
+    "moodIds": [],
+    "image": {
+      "src": "/media/characters/xolotl/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "alt": "索洛特尔，经典神话风格PC 壁纸",
+      "width": 1672,
+      "height": 941
+    },
+    "license": {
+      "sourceType": "ai",
+      "license": "MythCanvas AI-generated original",
+      "creator": "MythCanvas"
+    },
+    "reviewStatus": "approved"
   }
 ];

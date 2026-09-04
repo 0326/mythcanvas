@@ -65,7 +65,7 @@ async function main() {
   console.log(`\nPreflight D1 validation (${options.local ? 'local' : 'remote'})...`);
 
   const characterMap = options.staticContent
-    ? loadStaticJapaneseCharacters(characterSlugs)
+    ? loadStaticCharacters(characterSlugs)
     : loadCharacters(characterSlugs, modeFlag);
   const styleMap = options.staticContent
     ? loadStaticCanonicalStyle(candidates)
@@ -207,28 +207,46 @@ function loadCharacters(slugs, modeFlag) {
   }]));
 }
 
-function loadStaticJapaneseCharacters(slugs) {
-  const catalogFile = path.resolve('src/content/japanese/catalog.ts');
-  const source = fs.readFileSync(catalogFile, 'utf8');
-  const start = source.indexOf('const characterSeeds');
-  const end = source.indexOf('];', start);
-  if (start < 0 || end < 0) throw new Error(`Japanese character catalog is not parseable: ${catalogFile}`);
+function loadStaticCharacters(slugs) {
+  const catalogSources = [
+    {
+      file: path.resolve('src/content/japanese/catalog.ts'),
+      mythologyId: 'myth-japanese',
+      parse(source, file) {
+        const start = source.indexOf('const characterSeeds');
+        const end = source.indexOf('];', start);
+        if (start < 0 || end < 0) throw new Error(`Japanese character catalog is not parseable: ${file}`);
+        return source.slice(start, end).matchAll(/^\s*\['([^']+)',\s*'([^']+)'/gm);
+      },
+    },
+    {
+      file: path.resolve('src/content/aztec/catalog.ts'),
+      mythologyId: 'myth-aztec',
+      parse(source, file) {
+        if (!source.includes('export const aztecCharacters')) throw new Error(`Aztec character catalog is not parseable: ${file}`);
+        return source.matchAll(/character\(\{\s*slug:\s*'([^']+)',\s*name:\s*'([^']+)'/g);
+      },
+    },
+  ];
 
-  const namesBySlug = new Map();
-  const seedSource = source.slice(start, end);
-  for (const match of seedSource.matchAll(/^\s*\['([^']+)',\s*'([^']+)'/gm)) {
-    namesBySlug.set(match[1], match[2]);
+  const charactersBySlug = new Map();
+  for (const catalog of catalogSources) {
+    const source = fs.readFileSync(catalog.file, 'utf8');
+    for (const match of catalog.parse(source, catalog.file)) {
+      charactersBySlug.set(match[1], { name: match[2], mythologyId: catalog.mythologyId });
+    }
   }
 
   const result = new Map();
   for (const slug of slugs) {
-    const name = namesBySlug.get(slug);
-    if (!name) throw new Error(`Character slug not found in versioned Japanese catalog: ${slug}`);
+    const character = charactersBySlug.get(slug);
+    if (!character) throw new Error(`Character slug not found in versioned static catalog: ${slug}`);
     result.set(slug, {
       id: `character-${slug}`,
       slug,
-      name,
-      mythologyId: 'myth-japanese',
+      name: character.name,
+      mythologyId: character.mythologyId,
+      lookupBySlug: true,
     });
   }
   return result;
@@ -239,7 +257,12 @@ function loadStaticCanonicalStyle(candidates) {
   if (styleIds.size !== 1 || !styleIds.has('canonical')) {
     throw new Error('--static-content only supports the canonical style.');
   }
-  return new Map([['canonical', { id: 'canonical', slug: 'canonical', name: '经典神话' }]]);
+  return new Map([['canonical', { id: 'canonical', slug: 'canonical', name: '经典神话', lookupBySlug: true }]]);
+}
+
+function referenceIdSql(entity, table) {
+  if (entity.lookupBySlug) return `(SELECT id FROM ${table} WHERE slug=${sqlQuote(entity.slug)} LIMIT 1)`;
+  return sqlQuote(entity.id);
 }
 
 function loadStyles(styleIds, modeFlag) {
@@ -302,6 +325,8 @@ function buildImportSql(candidates, characterMap, styleMap) {
     const artworkId = `art-${item.characterSlug}-${item.styleId}-${item.device}-${seq}`;
     const artworkSlug = `${item.characterSlug}-${item.styleId}-${item.device}-${seq}`;
     const deviceLabel = item.device === 'm' ? '手机壁纸' : 'PC 壁纸';
+    const characterIdSql = referenceIdSql(character, 'characters');
+    const styleIdSql = referenceIdSql(style, 'styles');
     const title = `${character.name} · ${style.name} · ${deviceLabel}`;
     const alt = `${character.name}，${style.name}风格${deviceLabel}`;
     const promptMeta = JSON.stringify({
@@ -330,7 +355,7 @@ INSERT INTO artworks (
   prompt_meta_json, ai_model, review_status, publish_status, updated_at
 ) VALUES (
   ${sqlQuote(artworkId)}, ${sqlQuote(artworkSlug)}, ${sqlQuote(title)}, 'character',
-  ${sqlQuote(character.mythologyId)}, NULL, ${sqlQuote(style.id)}, '[]',
+  ${sqlQuote(character.mythologyId)}, NULL, ${styleIdSql}, '[]',
   ${sqlQuote(item.publicUrl)}, ${sqlQuote(item.mimeType)}, ${item.width}, ${item.height},
   ${sqlQuote(alt)}, 'ai', 'MythCanvas AI-generated original', 'MythCanvas',
   ${sqlQuote(promptMeta)}, ${sqlQuote(GENERATION_MODEL)}, 'approved', 'published', CURRENT_TIMESTAMP
@@ -355,7 +380,7 @@ ON CONFLICT(id) DO UPDATE SET
   updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO artwork_characters (artwork_id, character_id)
-VALUES (${sqlQuote(artworkId)}, ${sqlQuote(character.id)})
+VALUES (${sqlQuote(artworkId)}, ${characterIdSql})
 ON CONFLICT(artwork_id, character_id) DO NOTHING;
 `);
 
@@ -377,12 +402,12 @@ SET portrait_src=${sqlQuote(item.publicUrl)},
     portrait_width=${item.width},
     portrait_height=${item.height},
     updated_at=CURRENT_TIMESTAMP
-WHERE id=${sqlQuote(character.id)};
+WHERE id=${characterIdSql};
 
 UPDATE reference_assets
 SET status='archived', updated_at=CURRENT_TIMESTAMP
 WHERE owner_type='character'
-  AND owner_id=${sqlQuote(character.id)}
+  AND owner_id=${characterIdSql}
   AND asset_type='portrait-three-quarter'
   AND id != ${sqlQuote(refId)};
 
@@ -390,7 +415,7 @@ INSERT INTO reference_assets (
   id, owner_type, owner_id, asset_type, asset_key, asset_mime,
   width, height, alt_text, source_type, license, generation_meta_json, status, updated_at
 ) VALUES (
-  ${sqlQuote(refId)}, 'character', ${sqlQuote(character.id)}, 'portrait-three-quarter',
+  ${sqlQuote(refId)}, 'character', ${characterIdSql}, 'portrait-three-quarter',
   ${sqlQuote(item.r2Key)}, ${sqlQuote(item.mimeType)}, ${item.width}, ${item.height},
   ${sqlQuote(alt)}, 'ai', 'MythCanvas AI-generated canonical reference',
   ${sqlQuote(generationMeta)}, 'active', CURRENT_TIMESTAMP

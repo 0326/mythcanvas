@@ -92,7 +92,6 @@ try {
     '```',
     '',
     '注意：没有图片的角色仍保留符号兜底是当前设计行为；不要把神话体系 Hero 或通用占位图伪装成角色肖像。',
-    '',
   );
 
   fs.writeFileSync(outputPath, `${lines.join('\n')}\n`, 'utf8');
