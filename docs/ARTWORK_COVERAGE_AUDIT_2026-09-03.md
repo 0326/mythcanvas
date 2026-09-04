@@ -1,15 +1,15 @@
 # MythCanvas 角色图片覆盖审计
 
-> 生成日期：2026-09-03
+> 生成日期：2026-09-05
 >
 > 数据口径：构建期 `PublicContentCatalog`，不读取远程 D1。角色标记“已有图片”表示最终公开目录中的 `Character.portrait` 存在；该 portrait 可以来自种子内容，也可以由已发布 canonical Artwork 自动派生。
 
 ## 总览
 
 - 静态角色总数：287
-- 已有角色图片：133
-- 没有角色图片：154
-- 静态已发布 Artwork：335
+- 已有角色图片：218
+- 没有角色图片：69
+- 静态已发布 Artwork：505
 - 有 Artwork 关联但未进入静态角色目录：3
 - 对应角色 ID：`character-brahma`、`character-erlang-shen`、`character-ishtar`
 
@@ -20,11 +20,11 @@
 | 北欧神话 | 32 | 28 | 4 | 44 | 45 | 需要补图 |
 | 埃及神话 | 25 | 25 | 0 | 62 | 63 | 已覆盖 |
 | 印度神话 | 0 | 0 | 0 | 4 | 4 | 角色未进入静态目录 |
-| 日本神话 | 38 | 1 | 37 | 0 | 1 | 需要补图 |
-| 凯尔特神话 | 43 | 31 | 12 | 62 | 62 | 需要补图 |
+| 日本神话 | 38 | 38 | 0 | 74 | 75 | 已覆盖 |
+| 凯尔特神话 | 43 | 43 | 0 | 86 | 86 | 已覆盖 |
 | 玛雅神话 | 19 | 19 | 0 | 38 | 38 | 已覆盖 |
 | 阿兹特克神话 | 18 | 0 | 18 | 0 | 0 | 需要补图 |
-| 美索不达米亚神话 | 44 | 1 | 43 | 21 | 21 | 需要补图 |
+| 美索不达米亚神话 | 44 | 37 | 7 | 93 | 93 | 需要补图 |
 
 ## 无图片角色明细
 
@@ -90,60 +90,13 @@
 
 该体系当前没有角色进入静态 `PublicContentCatalog`，需要先完成角色内容注册，再进入图片生产。
 
-### 日本神话（37 个）
+### 日本神话（0 个）
 
-- 八岐大蛇（`yamata-no-orochi`）
-- 布刀玉命（`futodama`）
-- 大国主神（`okuninushi`）
-- 大物主神（`omononushi`）
-- 邇邇艺命（`ninigi`）
-- 丰玉姬（`toyotama-hime`）
-- 高御产巢日神（`takami-musubi`）
-- 海神（`watatsumi`）
-- 火远理命（`hoori`）
-- 火照命（`hoderi`）
-- 火之迦具土神（`kagutsuchi`）
-- 建御雷神（`takemikazuchi`）
-- 建御名方神（`takeminakata`）
-- 经津主神（`futsunushi`）
-- 木花咲耶姬（`konohanasakuya-hime`）
-- 少彦名神（`sukunahikona`）
-- 神产巢日神（`kami-musubi`）
-- 石长比卖（`iwanagahime`）
-- 事代主神（`kotoshironushi`）
-- 手名椎（`te-na-zuchi`）
-- 思兼神（`omoikane`）
-- 天儿屋命（`ame-no-koyane`）
-- 天菩比神（`ame-no-hohi`）
-- 天忍穗耳命（`ame-no-oshihomimi`）
-- 天若日子（`ame-no-wakahiko`）
-- 天手力男神（`ame-no-tajikarao`）
-- 天宇受卖命（`ame-no-uzume`）
-- 天照大御神（`amaterasu`）
-- 天之御中主神（`ameno-minakanushi`）
-- 须势理毗卖（`suseribime`）
-- 须佐之男命（`susanoo`）
-- 伊邪那美（`izanami`）
-- 伊邪那岐（`izanagi`）
-- 猿田彦神（`sarutahiko`）
-- 月读命（`tsukuyomi`）
-- 栉名田比卖（`kushinadahime`）
-- 足名椎（`ashina-zuchi`）
+无。
 
-### 凯尔特神话（12 个）
+### 凯尔特神话（0 个）
 
-- 基安（`cian`）
-- 凯尔·伊博尔梅斯（`caer-ibormeith`）
-- 孔科巴尔·麦克·内萨（`conchobar-mac-nessa`）
-- 卢厄·劳·盖弗斯（`lleu-law-gyffes`）
-- 洛伊格（`loeg`）
-- 马查（`macha`）
-- 马纳南·麦克利尔（`manannan`）
-- 马纳韦丹（`manawydan`）
-- 马思·马松维（`math`）
-- 米亚赫（`miach`）
-- 努阿达（`nuada`）
-- 普利德里（`pryderi`）
+无。
 
 ### 玛雅神话（0 个）
 
@@ -170,51 +123,15 @@
 - 西佩·托特克（`xipe-totec`）
 - 休休特库特利（`xiuhtecuhtli`）
 
-### 美索不达米亚神话（43 个）
+### 美索不达米亚神话（7 个）
 
-- 阿达帕（`adapa`）
-- 阿努纳奇（`anunnaki`）
-- 阿普苏（`apsu-enuma-elish`）
-- 阿萨格（`asag`）
-- 阿舒尔（`ashur`）
-- 阿特拉哈西斯（`atrahasis`）
-- 阿雅（`aya`）
-- 埃列什基伽尔（`ereshkigal`）
-- 埃塔纳（`etana`）
-- 安 / 阿努（`an-anu`）
-- 安祖（`anzu`）
-- 杜穆兹 / 塔木兹（`dumuzi-tammuz`）
-- 恩基 / 埃阿（`enki-ea`）
-- 恩利尔（`enlil`）
-- 恩奇都（`enkidu`）
-- 盖什提南娜（`geshtinanna`）
-- 洪巴巴（`humbaba`）
-- 金古（`kingu`）
-- 马尔杜克（`marduk`）
-- 穆什胡什（`mushussu`）
-- 纳布（`nabu`）
 - 纳姆塔尔（`namtar`）
-- 娜木姆（`nammu`）
-- 南纳 / 辛（`nanna-sin`）
-- 涅伽尔（`nergal`）
-- 宁胡尔萨格（`ninhursaga`）
-- 宁利尔（`ninlil`）
 - 宁舒布尔（`ninshubur`）
 - 宁松（`ninsun`）
-- 宁乌尔塔（`ninurta`）
-- 努斯库（`nusku`）
 - 齐乌苏德拉（`ziusudra`）
-- 萨尔帕尼图姆（`sarpanitum`）
 - 沙拉（`shala`）
-- 提阿马特（`tiamat`）
-- 天之公牛（`bull-of-heaven`）
-- 乌尔珊纳比（`urshanabi`）
 - 乌特纳比什提姆（`utnapishtim`）
-- 乌图 / 沙玛什（`utu-shamash`）
 - 西杜里（`siduri`）
-- 伊吉吉（`igigi`）
-- 伊南娜 / 伊什塔尔（`inanna-ishtar`）
-- 伊什库尔 / 阿达德（`ishkur-adad`）
 
 ## 建议补图顺序
 

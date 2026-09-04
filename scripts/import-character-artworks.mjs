@@ -64,8 +64,12 @@ async function main() {
   const modeFlag = options.local ? '--local' : '--remote';
   console.log(`\nPreflight D1 validation (${options.local ? 'local' : 'remote'})...`);
 
-  const characterMap = loadCharacters(characterSlugs, modeFlag);
-  const styleMap = loadStyles([...new Set(candidates.map((item) => item.styleId))], modeFlag);
+  const characterMap = options.staticContent
+    ? loadStaticJapaneseCharacters(characterSlugs)
+    : loadCharacters(characterSlugs, modeFlag);
+  const styleMap = options.staticContent
+    ? loadStaticCanonicalStyle(candidates)
+    : loadStyles([...new Set(candidates.map((item) => item.styleId))], modeFlag);
 
   for (const slug of characterSlugs) {
     if (!characterMap.has(slug)) throw new Error(`Character slug not found in D1: ${slug}`);
@@ -91,17 +95,19 @@ async function main() {
 }
 
 function parseArgs(argv) {
-  const result = { characterSlugs: [], all: false, dryRun: false, local: false, help: false };
+  const result = { characterSlugs: [], all: false, dryRun: false, local: false, staticContent: false, help: false };
   for (const arg of argv) {
     if (arg === '--all') result.all = true;
     else if (arg === '--dry-run') result.dryRun = true;
     else if (arg === '--local') result.local = true;
     else if (arg === '--remote') result.local = false;
+    else if (arg === '--static-content') result.staticContent = true;
     else if (arg === '--help' || arg === '-h') result.help = true;
     else if (arg.startsWith('-')) throw new Error(`Unknown option: ${arg}`);
     else result.characterSlugs.push(arg.toLowerCase());
   }
   if (result.all && result.characterSlugs.length) throw new Error('Use either explicit character slugs or --all, not both.');
+  if (result.staticContent && result.local) throw new Error('--static-content is only allowed with the remote import mode.');
   return result;
 }
 
@@ -199,6 +205,41 @@ function loadCharacters(slugs, modeFlag) {
     name: String(row.name),
     mythologyId: String(row.mythology_id),
   }]));
+}
+
+function loadStaticJapaneseCharacters(slugs) {
+  const catalogFile = path.resolve('src/content/japanese/catalog.ts');
+  const source = fs.readFileSync(catalogFile, 'utf8');
+  const start = source.indexOf('const characterSeeds');
+  const end = source.indexOf('];', start);
+  if (start < 0 || end < 0) throw new Error(`Japanese character catalog is not parseable: ${catalogFile}`);
+
+  const namesBySlug = new Map();
+  const seedSource = source.slice(start, end);
+  for (const match of seedSource.matchAll(/^\s*\['([^']+)',\s*'([^']+)'/gm)) {
+    namesBySlug.set(match[1], match[2]);
+  }
+
+  const result = new Map();
+  for (const slug of slugs) {
+    const name = namesBySlug.get(slug);
+    if (!name) throw new Error(`Character slug not found in versioned Japanese catalog: ${slug}`);
+    result.set(slug, {
+      id: `character-${slug}`,
+      slug,
+      name,
+      mythologyId: 'myth-japanese',
+    });
+  }
+  return result;
+}
+
+function loadStaticCanonicalStyle(candidates) {
+  const styleIds = new Set(candidates.map((item) => item.styleId));
+  if (styleIds.size !== 1 || !styleIds.has('canonical')) {
+    throw new Error('--static-content only supports the canonical style.');
+  }
+  return new Map([['canonical', { id: 'canonical', slug: 'canonical', name: '经典神话' }]]);
 }
 
 function loadStyles(styleIds, modeFlag) {
