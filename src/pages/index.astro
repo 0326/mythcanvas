@@ -190,17 +190,15 @@ const cardImageStyle = (focalPoint?: { x: number; y: number }) => {
     heroArt.style.setProperty(property, src ? `url("${src}")` : 'none');
   };
 
-  const updateCardImagesForTheme = () => {
+  const visibleCardImages = new Set<HTMLImageElement>();
+  const setCardImageForTheme = (image: HTMLImageElement) => {
     const source = document.documentElement.dataset.theme === 'dark' ? 'darkSrc' : 'lightSrc';
-    cardImages.forEach((image) => {
-      if (!(image instanceof HTMLImageElement)) return;
-      const src = image.dataset[source] ?? '';
-      if (src && image.getAttribute('src') !== src) image.src = src;
-    });
+    const src = image.dataset[source] ?? '';
+    if (src && image.getAttribute('src') !== src) image.src = src;
   };
 
-  updateCardImagesForTheme();
-  new MutationObserver(updateCardImagesForTheme).observe(document.documentElement, {
+  const updateVisibleCardImagesForTheme = () => visibleCardImages.forEach(setCardImageForTheme);
+  new MutationObserver(updateVisibleCardImagesForTheme).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['data-theme'],
   });
@@ -264,6 +262,22 @@ const cardImageStyle = (focalPoint?: { x: number; y: number }) => {
   });
 
   if (viewport instanceof HTMLElement && previous instanceof HTMLButtonElement && next instanceof HTMLButtonElement) {
+    const cardImageObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const image = entry.target;
+        if (!(image instanceof HTMLImageElement)) return;
+        if (entry.isIntersecting) {
+          visibleCardImages.add(image);
+          setCardImageForTheme(image);
+        } else {
+          visibleCardImages.delete(image);
+        }
+      });
+    }, { root: viewport, rootMargin: '0px 144px' });
+    cardImages.forEach((image) => {
+      if (image instanceof HTMLImageElement) cardImageObserver.observe(image);
+    });
+
     const updateButtons = () => {
       const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
       previous.disabled = viewport.scrollLeft <= 2;
@@ -282,6 +296,14 @@ const cardImageStyle = (focalPoint?: { x: number; y: number }) => {
     viewport.addEventListener('scroll', updateButtons, { passive: true });
     window.addEventListener('resize', updateButtons);
     updateButtons();
+  } else {
+    // Preserve imagery if the carousel controls are unavailable.
+    cardImages.forEach((image) => {
+      if (image instanceof HTMLImageElement) {
+        visibleCardImages.add(image);
+        setCardImageForTheme(image);
+      }
+    });
   }
 </script>
 
