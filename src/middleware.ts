@@ -1,8 +1,16 @@
 import { defineMiddleware } from 'astro:middleware';
+import { DEFAULT_LOCALE } from './lib/i18n/config';
+import { parseLocalizedPath } from './lib/i18n/url';
 
 /**
- * MythCanvas 安全响应头（M12）。
- * 注入 CSP 与安全 header。
+ * MythCanvas request middleware.
+ *
+ * Responsibilities:
+ * - resolve locale from the external URL;
+ * - keep the default zh-Hans routes unchanged;
+ * - internally rewrite enabled locale-prefixed public pages to the single Astro route tree;
+ * - preserve the original pathname in locals for canonical/SEO generation;
+ * - inject security response headers.
  */
 
 const CSP = [
@@ -19,10 +27,31 @@ const CSP = [
   "form-action 'self'",
 ].join('; ');
 
-export const onRequest = defineMiddleware(async (_context, next) => {
-  const response = await next();
-  const headers = new Headers(response.headers);
+const LOCALIZABLE_ROUTE_ROOTS = new Set([
+  'explore',
+  'character',
+  'world',
+  'mythology',
+  'wallpaper',
+  'create',
+  'search',
+  'login',
+  'register',
+  'password',
+  'privacy',
+  'terms',
+  'copyright',
+  'my',
+]);
 
+function isLocalizablePagePath(pathname: string) {
+  if (pathname === '/') return true;
+  const firstSegment = pathname.split('/').filter(Boolean)[0];
+  return firstSegment ? LOCALIZABLE_ROUTE_ROOTS.has(firstSegment) : false;
+}
+
+function withSecurityHeaders(response: Response) {
+  const headers = new Headers(response.headers);
   headers.set('X-Content-Type-Options', 'nosniff');
   headers.set('X-Frame-Options', 'DENY');
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -35,4 +64,40 @@ export const onRequest = defineMiddleware(async (_context, next) => {
     statusText: response.statusText,
     headers,
   });
+}
+
+export const onRequest = defineMiddleware(async (context, next) => {
+  const parsed = parseLocalizedPath(context.url.pathname);
+
+  context.locals.locale = parsed.locale;
+  context.locals.externalPathname = parsed.externalPathname;
+  context.locals.basePathname = parsed.basePathname;
+
+  const method = context.request.method.toUpperCase();
+  const canRewrite = method === 'GET' || method === 'HEAD';
+
+  // The default locale never gets its own public prefix. Redirect accidental
+  // /zh-hans/... requests to the long-lived legacy/default URL.
+  if (parsed.usesDefaultLocaleAlias && canRewrite) {
+    const target = new URL(context.url);
+    target.pathname = parsed.basePathname;
+    return withSecurityHeaders(Response.redirect(target, 308));
+  }
+
+  let response: Response;
+
+  if (
+    parsed.hasLocalePrefix
+    && parsed.locale !== DEFAULT_LOCALE
+    && canRewrite
+    && isLocalizablePagePath(parsed.basePathname)
+  ) {
+    const rewritten = new URL(context.url);
+    rewritten.pathname = parsed.basePathname;
+    response = await next(rewritten);
+  } else {
+    response = await next();
+  }
+
+  return withSecurityHeaders(response);
 });
