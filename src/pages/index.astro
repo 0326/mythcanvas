@@ -36,12 +36,11 @@ const heroArtStyle = [
   `--hero-dark-image:${defaultHeroDark ? `url("${defaultHeroDark}")` : 'none'}`,
 ].join(';');
 
-const cardImageStyle = (
+const cardImageSources = (
   lightSrc?: string,
   darkSrc?: string,
   focalPoint?: { x: number; y: number },
 ) => {
-  const focalCss = focalPointToCss(focalPoint);
   const transformOptions = {
     width: 480,
     height: 360,
@@ -53,12 +52,12 @@ const cardImageStyle = (
   const lightThumbnail = cloudflareImageUrl(lightSrc, transformOptions, useImageTransformations);
   const darkThumbnail = cloudflareImageUrl(darkSrc, transformOptions, useImageTransformations);
 
-  return [
-    `--card-light-image:${lightThumbnail ? `url("${lightThumbnail}")` : 'none'}`,
-    `--card-dark-image:${darkThumbnail ? `url("${darkThumbnail}")` : 'none'}`,
-    `--card-focal-x:${focalCss.x}`,
-    `--card-focal-y:${focalCss.y}`,
-  ].join(';');
+  return { light: lightThumbnail, dark: darkThumbnail };
+};
+
+const cardImageStyle = (focalPoint?: { x: number; y: number }) => {
+  const focalCss = focalPointToCss(focalPoint);
+  return `--card-focal-x:${focalCss.x};--card-focal-y:${focalCss.y}`;
 };
 ---
 
@@ -122,6 +121,7 @@ const cardImageStyle = (
                 const lightHeroSrc = homeHeroUrl(lightSrc);
                 const darkHeroSrc = homeHeroUrl(darkSrc);
                 const focalCss = focalPointToCss(item.homeHero?.focalPoint);
+                const thumbnailSources = cardImageSources(lightSrc, darkSrc, item.homeHero?.focalPoint);
                 const hasImage = Boolean(lightSrc || darkSrc);
                 return (
                   <button
@@ -137,9 +137,19 @@ const cardImageStyle = (
                     data-focal-x={focalCss.x}
                     data-focal-y={focalCss.y}
                     aria-pressed={index === 0 ? 'true' : 'false'}
-                    style={cardImageStyle(lightSrc, darkSrc, item.homeHero?.focalPoint)}
+                    style={cardImageStyle(item.homeHero?.focalPoint)}
                   >
                     <span class="mythology-card-visual" aria-hidden="true">
+                      <img
+                        data-card-image
+                        data-light-src={thumbnailSources.light ?? ''}
+                        data-dark-src={thumbnailSources.dark ?? ''}
+                        alt=""
+                        width="480"
+                        height="360"
+                        loading="lazy"
+                        decoding="async"
+                      />
                       <span class="mythology-card-number">{String(index + 1).padStart(2, '0')}</span>
                     </span>
                     <span class="mythology-card-shade" aria-hidden="true"></span>
@@ -169,6 +179,7 @@ const cardImageStyle = (
   const ctaText = document.querySelector('[data-active-cta-text]');
   const heroArt = document.querySelector('[data-hero-art]');
   const cards = Array.from(document.querySelectorAll('[data-mythology-card]'));
+  const cardImages = Array.from(document.querySelectorAll('[data-card-image]'));
   const viewport = document.querySelector('[data-mythology-viewport]');
   const previous = document.querySelector('[data-mythology-prev]');
   const next = document.querySelector('[data-mythology-next]');
@@ -178,6 +189,21 @@ const cardImageStyle = (
     if (!(heroArt instanceof HTMLElement)) return;
     heroArt.style.setProperty(property, src ? `url("${src}")` : 'none');
   };
+
+  const updateCardImagesForTheme = () => {
+    const source = document.documentElement.dataset.theme === 'dark' ? 'darkSrc' : 'lightSrc';
+    cardImages.forEach((image) => {
+      if (!(image instanceof HTMLImageElement)) return;
+      const src = image.dataset[source] ?? '';
+      if (src && image.getAttribute('src') !== src) image.src = src;
+    });
+  };
+
+  updateCardImagesForTheme();
+  new MutationObserver(updateCardImagesForTheme).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  });
 
   const renderCtaText = (text: string) => {
     if (!(ctaText instanceof HTMLElement)) return;
@@ -549,14 +575,26 @@ const cardImageStyle = (
   .mythology-card-visual {
     display: grid;
     place-items: center;
-    background-image: var(--card-light-image), radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--accent-soft) 42%, transparent), transparent 42%), linear-gradient(145deg, color-mix(in srgb, var(--bg-secondary) 88%, white 6%), color-mix(in srgb, var(--bg-primary) 86%, var(--bg-secondary)));
-    background-position: var(--card-focal-x, 50%) var(--card-focal-y, 50%), center, center;
-    background-size: cover;
+    background: radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--accent-soft) 42%, transparent), transparent 42%), linear-gradient(145deg, color-mix(in srgb, var(--bg-secondary) 88%, white 6%), color-mix(in srgb, var(--bg-primary) 86%, var(--bg-secondary)));
     transition: transform 7s ease;
   }
 
   :global([data-theme='dark']) .mythology-card-visual {
-    background-image: var(--card-dark-image), radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--accent-soft) 22%, transparent), transparent 42%), linear-gradient(145deg, color-mix(in srgb, var(--bg-secondary) 92%, black 8%), var(--bg-primary));
+    background: radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--accent-soft) 22%, transparent), transparent 42%), linear-gradient(145deg, color-mix(in srgb, var(--bg-secondary) 92%, black 8%), var(--bg-primary));
+  }
+
+  .mythology-card-visual img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--card-focal-x, 50%) var(--card-focal-y, 50%);
+  }
+
+  .mythology-card-number {
+    position: relative;
+    z-index: 1;
   }
 
   .mythology-card:hover .mythology-card-visual,
