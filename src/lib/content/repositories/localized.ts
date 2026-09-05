@@ -14,7 +14,7 @@ function localizedMythology(row: Row): Mythology {
     name: row.localized_name,
     tagline: row.localized_tagline,
     summary: row.localized_summary,
-    hero_alt: row.localized_hero_alt ?? row.hero_alt,
+    hero_alt: row.localized_hero_alt ?? '',
   });
 }
 
@@ -23,7 +23,7 @@ function localizedWorld(row: Row): World {
     ...row,
     name: row.localized_name,
     summary: row.localized_summary,
-    hero_alt: row.localized_hero_alt ?? row.hero_alt,
+    hero_alt: row.localized_hero_alt ?? '',
   });
 }
 
@@ -34,7 +34,7 @@ function localizedCharacter(row: Row): Character {
       name: row.localized_name,
       role: row.localized_role,
       summary: row.localized_summary,
-      portrait_alt: row.localized_portrait_alt ?? row.portrait_alt,
+      portrait_alt: row.localized_portrait_alt ?? '',
     },
     parseStringArray(row.world_ids_json),
   );
