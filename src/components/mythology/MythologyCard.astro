@@ -1,6 +1,8 @@
 ---
 import { ArrowUpRight } from '@lucide/astro';
 import type { Mythology } from '../../lib/content/types';
+import { DEFAULT_LOCALE } from '../../lib/i18n/config';
+import { localizedPath } from '../../lib/i18n/url';
 import {
   cloudflareImageUrl,
   focalPointToCss,
@@ -14,6 +16,8 @@ interface Props {
 }
 
 const { mythology, index, featured = false } = Astro.props;
+const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const isEnglish = locale === 'en';
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
 const focalPoint = mythology.homeHero?.focalPoint;
 const focalCss = focalPointToCss(focalPoint);
@@ -34,10 +38,11 @@ const lightImage = cloudflareImageUrl(lightSrc, transformOptions, useImageTransf
 const darkImage = cloudflareImageUrl(darkSrc, transformOptions, useImageTransformations) ?? darkSrc;
 const hasDarkImage = darkImage !== lightImage;
 const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
+const mythologyHref = localizedPath(locale, `/mythology/${mythology.slug}/`);
 ---
 
 <article class:list={{ 'myth-card': true, 'myth-card--featured': featured }}>
-  <a href={`/mythology/${mythology.slug}/`} aria-label={`进入${mythology.name}`}>
+  <a href={mythologyHref} aria-label={isEnglish ? `Explore ${mythology.name}` : `进入${mythology.name}`}>
     <div class="myth-card-media" style={imageStyle}>
       <img
         class:list={{
@@ -46,7 +51,7 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
           'myth-card-image--has-dark': hasDarkImage,
         }}
         src={lightImage}
-        alt={`${mythology.name}神话世界封面`}
+        alt={isEnglish ? (mythology.heroImage.alt || `${mythology.name} mythology cover`) : `${mythology.name}神话世界封面`}
         width={imageWidth}
         height={imageHeight}
         loading={featured && index === 0 ? 'eager' : 'lazy'}
@@ -70,18 +75,20 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
 
     <div class="myth-card-copy">
       <div class="myth-card-kicker">
-        <span>{mythology.nameEn}</span>
+        <span>{isEnglish ? 'Mythology' : mythology.nameEn}</span>
         <span class="myth-card-line" aria-hidden="true"></span>
         <span>{mythology.tagline}</span>
       </div>
       <h2>{mythology.name}</h2>
       <p>{mythology.summary}</p>
       <div class="myth-card-footer">
-        <div class="myth-card-dna" aria-label={`${mythology.name}视觉 DNA`}>
-          {mythology.visualDna.motifs.slice(0, 3).map((motif) => <span>{motif}</span>)}
-        </div>
+        {!isEnglish && (
+          <div class="myth-card-dna" aria-label={`${mythology.name}视觉 DNA`}>
+            {mythology.visualDna.motifs.slice(0, 3).map((motif) => <span>{motif}</span>)}
+          </div>
+        )}
         <span class="myth-card-action" aria-hidden="true">
-          进入神域
+          {isEnglish ? 'Explore mythology' : '进入神域'}
           <ArrowUpRight size={17} strokeWidth={1.8} />
         </span>
       </div>

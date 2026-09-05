@@ -1,0 +1,154 @@
+---
+import { ArrowRight, Landmark } from '@lucide/astro';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import {
+  getLocalizedCharacterBySlug,
+  getLocalizedCharacters,
+  getLocalizedMythologyById,
+  getLocalizedWorlds,
+} from '../../../../lib/content/repositories';
+import { localizedPath } from '../../../../lib/i18n/url';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const { slug } = Astro.params;
+const character = await getLocalizedCharacterBySlug(db, slug ?? '', 'en');
+if (!character) return Astro.redirect(localizedPath('en', '/character/'));
+
+const [mythology, allWorlds, allCharacters] = await Promise.all([
+  getLocalizedMythologyById(db, character.mythologyId, 'en'),
+  getLocalizedWorlds(db, 'en', { limit: 1000 }),
+  getLocalizedCharacters(db, 'en', { limit: 1000 }),
+]);
+const worldIds = new Set(character.worldIds);
+const worlds = allWorlds.filter((item) => worldIds.has(item.id));
+const relatedCharacters = allCharacters
+  .filter((item) => item.id !== character.id && item.mythologyId === character.mythologyId)
+  .slice(0, 8);
+const heroImage = character.portrait ?? mythology?.heroImage;
+const pageImage = heroImage?.src ?? '/media/content/mythology-civilizations-banner.webp';
+---
+
+<BaseLayout
+  title={character.name}
+  description={`${character.name} — ${character.role}. ${character.summary}`}
+  image={pageImage}
+  fullBleed
+  localizedIndexable
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: character.name,
+        description: character.summary,
+        image: heroImage ? new URL(heroImage.src, Astro.site).toString() : undefined,
+        inLanguage: 'en',
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: new URL(localizedPath('en', '/'), Astro.site).toString() },
+          { '@type': 'ListItem', position: 2, name: 'Characters', item: new URL(localizedPath('en', '/character/'), Astro.site).toString() },
+          { '@type': 'ListItem', position: 3, name: character.name },
+        ],
+      },
+    ])} />
+  </Fragment>
+
+  <section class:list={{ 'character-hero': true, 'character-hero--portrait': Boolean(character.portrait) }}>
+    {heroImage && <img class="hero-image" src={heroImage.src} alt={`Portrait of ${character.name}`} width={heroImage.width} height={heroImage.height} fetchpriority="high" />}
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <nav class="container-wide breadcrumb" aria-label="Breadcrumb">
+      <a href={localizedPath('en', '/')}>Home</a><span>/</span>
+      <a href={localizedPath('en', '/character/')}>Characters</a><span>/</span>
+      <span aria-current="page">{character.name}</span>
+    </nav>
+    <div class="container-wide hero-content">
+      <span class="eyebrow">{mythology?.name ?? 'Mythological Character'}</span>
+      <h1>{character.name}</h1>
+      <p class="role">{character.role}</p>
+      <p class="summary">{character.summary}</p>
+      {mythology && <a class="btn btn-secondary hero-link" href={localizedPath('en', `/mythology/${mythology.slug}/`)}>Explore {mythology.name} <ArrowRight size={17} /></a>}
+    </div>
+  </section>
+
+  <section class="profile-section">
+    <div class="container-wide profile-grid">
+      <article class="profile-copy surface">
+        <span class="eyebrow">Mythic Identity</span>
+        <h2>About {character.name}</h2>
+        <p>{character.summary}</p>
+        <dl>
+          <div><dt>Tradition</dt><dd>{mythology?.name ?? 'Mythology'}</dd></div>
+          <div><dt>Role</dt><dd>{character.role}</dd></div>
+          <div><dt>English profile status</dt><dd>Reviewed and published</dd></div>
+        </dl>
+      </article>
+
+      <aside class="context-panel surface">
+        <div class="context-title"><Landmark size={19} strokeWidth={1.8} /><span>Mythic Context</span></div>
+        {worlds.length > 0 && (
+          <div class="context-group">
+            <h3>Realms</h3>
+            {worlds.map((world) => <a href={localizedPath('en', `/world/${world.slug}/`)}><span><strong>{world.name}</strong><small>{world.summary}</small></span><ArrowRight size={16} /></a>)}
+          </div>
+        )}
+        {relatedCharacters.length > 0 && (
+          <div class="context-group">
+            <h3>More from this mythology</h3>
+            {relatedCharacters.map((item) => <a href={localizedPath('en', `/character/${item.slug}/`)}><span><strong>{item.name}</strong><small>{item.role}</small></span><ArrowRight size={16} /></a>)}
+          </div>
+        )}
+      </aside>
+    </div>
+  </section>
+
+  <section class="editorial-note">
+    <div class="container-wide">
+      <div class="surface-muted note-inner">
+        <span class="eyebrow">Translation Boundary</span>
+        <h2>Source notes and alternate interpretations are not mixed across languages</h2>
+        <p>The English page currently presents the reviewed public identity only. Chinese-only interpretation notes, story prose, and canonical design annotations stay off the English URL until their full editorial context is translated.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .character-hero { position: relative; min-height: max(650px, 78vh); display: grid; grid-template-rows: auto 1fr; overflow: hidden; color: white; background: #111a25; }
+  .hero-image, .hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero-image { object-fit: cover; object-position: center 20%; }
+  .character-hero--portrait .hero-image { width: min(58vw, 760px); left: auto; object-fit: cover; object-position: center top; }
+  .hero-overlay { background: linear-gradient(90deg, rgba(5,10,17,.94) 0%, rgba(5,10,17,.72) 40%, rgba(5,10,17,.18) 74%, rgba(5,10,17,.35)), linear-gradient(180deg, rgba(5,10,17,.22), transparent 45%, rgba(5,10,17,.72)); }
+  .breadcrumb, .hero-content { position: relative; z-index: 1; }
+  .breadcrumb { display: flex; align-items: center; gap: .55rem; padding-top: calc(var(--header-height) + 2rem); color: rgba(255,255,255,.7); font-size: .76rem; }
+  .breadcrumb a { color: inherit; }
+  .hero-content { align-self: center; max-width: 720px; padding-block: 3rem 5rem; }
+  .hero-content h1 { margin: .45rem 0 .4rem; color: white; font-size: clamp(4rem, 8vw, 7.5rem); line-height: .94; letter-spacing: -.05em; }
+  .role { margin: 0; color: rgba(255,255,255,.82); font-size: clamp(1.05rem, 2vw, 1.35rem); }
+  .summary { max-width: 680px; margin: 1.4rem 0 0; color: rgba(255,255,255,.76); font-size: 1.03rem; line-height: 1.8; }
+  .hero-link { margin-top: 1.6rem; }
+  .profile-section { padding-block: clamp(4rem, 8vw, 7rem) 2rem; }
+  .profile-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr); gap: 1.2rem; }
+  .profile-copy, .context-panel { padding: clamp(1.6rem, 4vw, 3rem); border-radius: var(--radius-xl); }
+  .profile-copy h2 { margin: .4rem 0 1rem; font-size: clamp(2.2rem, 4vw, 4rem); }
+  .profile-copy > p { color: var(--text-secondary); font-size: 1.04rem; line-height: 1.85; }
+  dl { display: grid; gap: .7rem; margin: 2rem 0 0; }
+  dl div { display: grid; grid-template-columns: minmax(120px, .35fr) 1fr; gap: 1rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+  dt { color: var(--text-muted); font-size: .78rem; } dd { margin: 0; }
+  .context-title { display: flex; align-items: center; gap: .55rem; margin-bottom: 1rem; font-weight: 700; }
+  .context-group + .context-group { margin-top: 1.8rem; }
+  .context-group h3 { margin: 0 0 .5rem; font-size: .8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
+  .context-group a { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .75rem; border-top: 1px solid var(--border); color: inherit; }
+  .context-group a span { display: grid; gap: .16rem; }
+  .context-group a small { color: var(--text-muted); line-height: 1.4; }
+  .editorial-note { padding-block: 0 clamp(4rem, 8vw, 7rem); }
+  .note-inner { padding: clamp(1.8rem, 4vw, 3rem); border-radius: var(--radius-xl); }
+  .note-inner h2 { max-width: 800px; margin: .35rem 0 .8rem; }
+  .note-inner p { max-width: 850px; margin: 0; color: var(--text-secondary); line-height: 1.75; }
+  @media (max-width: 850px) { .profile-grid { grid-template-columns: 1fr; } .character-hero--portrait .hero-image { width: 100%; opacity: .55; } .hero-overlay { background: linear-gradient(180deg, rgba(5,10,17,.42), rgba(5,10,17,.72) 55%, rgba(5,10,17,.92)); } }
+</style>

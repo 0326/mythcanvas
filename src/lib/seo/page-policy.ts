@@ -8,7 +8,15 @@ export type PageSeoPolicy = {
   robots: RobotsDirective;
 };
 
-const PRIVATE_NOINDEX_ROUTES = ['/admin', '/my'] as const;
+export type PageSeoOptions = {
+  /**
+   * Localized pages are noindex by default. A page may opt in only after its
+   * data loader has proven that the requested locale has published content.
+   */
+  allowLocalizedIndex?: boolean;
+};
+
+const PRIVATE_NOINDEX_ROUTES = ['/admin', '/my', '/_localized'] as const;
 const UTILITY_NOINDEX_ROUTES = ['/login', '/register', '/password', '/search'] as const;
 const FILTERABLE_ROUTES = ['/character', '/explore', '/wallpaper'] as const;
 
@@ -25,7 +33,7 @@ function paginationPage(url: URL, pathname: string): number | undefined {
   return Number.isSafeInteger(page) ? page : undefined;
 }
 
-export function getPageSeoPolicy(url: URL, site: URL): PageSeoPolicy {
+export function getPageSeoPolicy(url: URL, site: URL, options: PageSeoOptions = {}): PageSeoPolicy {
   const parsed = parseLocalizedPath(url.pathname);
   const pathname = normalizedPathname(parsed.basePathname);
   const canonicalURL = new URL(url.pathname, site);
@@ -38,10 +46,8 @@ export function getPageSeoPolicy(url: URL, site: URL): PageSeoPolicy {
     return { canonicalURL, robots: 'noindex,follow' };
   }
 
-  // P0 rollout gate: localized URL infrastructure ships before localized entity
-  // content. Do not index mixed-language pages until the content translation
-  // repository can prove a published translation for the requested locale.
-  if (parsed.locale !== DEFAULT_LOCALE) {
+  const canIndexLocalized = parsed.locale === 'en' && options.allowLocalizedIndex === true;
+  if (parsed.locale !== DEFAULT_LOCALE && !canIndexLocalized) {
     return { canonicalURL, robots: 'noindex,follow' };
   }
 

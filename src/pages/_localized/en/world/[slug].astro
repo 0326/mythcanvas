@@ -1,0 +1,143 @@
+---
+import { ArrowRight, UserRound } from '@lucide/astro';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import {
+  getLocalizedCharacters,
+  getLocalizedMythologyById,
+  getLocalizedWorldBySlug,
+  getLocalizedWorlds,
+} from '../../../../lib/content/repositories';
+import { localizedPath } from '../../../../lib/i18n/url';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const { slug } = Astro.params;
+const world = await getLocalizedWorldBySlug(db, slug ?? '', 'en');
+if (!world) return Astro.redirect(localizedPath('en', '/world/'));
+
+const [mythology, allCharacters, allWorlds] = await Promise.all([
+  getLocalizedMythologyById(db, world.mythologyId, 'en'),
+  getLocalizedCharacters(db, 'en', { limit: 1000 }),
+  getLocalizedWorlds(db, 'en', { limit: 1000 }),
+]);
+const characters = allCharacters.filter((item) => item.worldIds.includes(world.id));
+const relatedWorlds = allWorlds.filter((item) => item.id !== world.id && item.mythologyId === world.mythologyId);
+---
+
+<BaseLayout
+  title={`${world.name} · Mythological Realm`}
+  description={world.summary}
+  image={world.heroImage.src}
+  fullBleed
+  immersiveHeader
+  localizedIndexable
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Place',
+        name: world.name,
+        description: world.summary,
+        image: new URL(world.heroImage.src, Astro.site).toString(),
+        inLanguage: 'en',
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: new URL(localizedPath('en', '/'), Astro.site).toString() },
+          { '@type': 'ListItem', position: 2, name: 'Realms', item: new URL(localizedPath('en', '/world/'), Astro.site).toString() },
+          { '@type': 'ListItem', position: 3, name: world.name },
+        ],
+      },
+    ])} />
+  </Fragment>
+
+  <section class="realm-hero">
+    <img src={world.heroImage.src} alt={world.heroImage.alt} width={world.heroImage.width} height={world.heroImage.height} fetchpriority="high" />
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <nav class="container-wide breadcrumb" aria-label="Breadcrumb">
+      <a href={localizedPath('en', '/')}>Home</a><span>/</span>
+      <a href={localizedPath('en', '/world/')}>Realms</a><span>/</span>
+      <span aria-current="page">{world.name}</span>
+    </nav>
+    <div class="container-wide hero-copy">
+      <span class="eyebrow">{mythology?.name ?? 'Mythological Realm'} · World</span>
+      <h1>{world.name}</h1>
+      <p>{world.summary}</p>
+      {mythology && <a class="btn btn-secondary hero-link" href={localizedPath('en', `/mythology/${mythology.slug}/`)}>Explore {mythology.name} <ArrowRight size={17} /></a>}
+    </div>
+  </section>
+
+  <section class="realm-content">
+    <div class="container-wide content-grid">
+      <article class="realm-profile surface">
+        <span class="eyebrow">Realm Profile</span>
+        <h2>A place within {mythology?.name ?? 'mythology'}</h2>
+        <p>{world.summary}</p>
+        <div class="translation-boundary">
+          <strong>English edition boundary</strong>
+          <p>Spatial anchors and canonical design notes remain hidden until their reader-facing text is fully localized. The underlying visual generation semantics stay unchanged.</p>
+        </div>
+      </article>
+
+      <aside class="inhabitants surface">
+        <div class="panel-title"><UserRound size={19} strokeWidth={1.8} /><span>Translated characters in this realm</span><small>{characters.length}</small></div>
+        {characters.length > 0 ? characters.map((character) => (
+          <a href={localizedPath('en', `/character/${character.slug}/`)}>
+            <span><strong>{character.name}</strong><small>{character.role}</small></span>
+            <ArrowRight size={16} />
+          </a>
+        )) : <p class="empty-copy">No reviewed English character profile is linked to this realm yet.</p>}
+      </aside>
+    </div>
+
+    {relatedWorlds.length > 0 && (
+      <div class="container-wide related-section">
+        <span class="eyebrow">Related Realms</span>
+        <div class="related-grid">
+          {relatedWorlds.map((item) => (
+            <a class="surface" href={localizedPath('en', `/world/${item.slug}/`)}>
+              <span><strong>{item.name}</strong><small>{item.summary}</small></span>
+              <ArrowRight size={17} />
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .realm-hero { position: relative; min-height: max(680px, 82vh); display: grid; grid-template-rows: auto 1fr; overflow: hidden; color: white; background: #111a25; }
+  .realm-hero > img, .hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .realm-hero > img { object-fit: cover; }
+  .hero-overlay { background: linear-gradient(180deg, rgba(5,9,15,.24), transparent 35%, rgba(5,9,15,.82)), linear-gradient(90deg, rgba(5,9,15,.64), transparent 68%); }
+  .breadcrumb, .hero-copy { position: relative; z-index: 1; }
+  .breadcrumb { display: flex; align-items: center; gap: .55rem; padding-top: calc(var(--header-height) + 2rem); color: rgba(255,255,255,.7); font-size: .76rem; }
+  .breadcrumb a { color: inherit; }
+  .hero-copy { align-self: end; max-width: 900px; padding-bottom: clamp(4rem, 8vw, 7rem); }
+  .hero-copy h1 { margin: .45rem 0 1rem; color: white; font-size: clamp(4rem, 8vw, 8rem); line-height: .94; letter-spacing: -.05em; }
+  .hero-copy > p { max-width: 760px; margin: 0; color: rgba(255,255,255,.82); font-size: clamp(1.05rem, 1.5vw, 1.25rem); line-height: 1.8; }
+  .hero-link { margin-top: 1.5rem; }
+  .realm-content { padding-block: clamp(4rem, 8vw, 7rem); }
+  .content-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr); gap: 1.2rem; }
+  .realm-profile, .inhabitants { padding: clamp(1.6rem, 4vw, 3rem); border-radius: var(--radius-xl); }
+  .realm-profile h2 { margin: .4rem 0 1rem; font-size: clamp(2.2rem, 4vw, 4rem); }
+  .realm-profile > p { color: var(--text-secondary); font-size: 1.04rem; line-height: 1.85; }
+  .translation-boundary { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .translation-boundary > p { margin-bottom: 0; color: var(--text-muted); line-height: 1.65; }
+  .panel-title { display: flex; align-items: center; gap: .55rem; margin-bottom: .8rem; font-weight: 700; }
+  .panel-title small { margin-left: auto; color: var(--text-muted); }
+  .inhabitants > a { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .78rem; border-top: 1px solid var(--border); color: inherit; }
+  .inhabitants a span { display: grid; gap: .15rem; }
+  .inhabitants a small, .empty-copy { color: var(--text-muted); line-height: 1.45; }
+  .related-section { margin-top: 2rem; }
+  .related-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: .8rem; }
+  .related-grid > a { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.3rem; border-radius: var(--radius-lg); color: inherit; }
+  .related-grid a span { display: grid; gap: .2rem; }
+  .related-grid small { color: var(--text-muted); line-height: 1.45; }
+  @media (max-width: 850px) { .content-grid, .related-grid { grid-template-columns: 1fr; } .hero-copy h1 { font-size: clamp(3.5rem, 17vw, 6rem); } }
+</style>

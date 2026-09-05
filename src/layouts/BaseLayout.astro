@@ -12,6 +12,7 @@ interface Props {
   fullBleed?: boolean;
   immersiveHeader?: boolean;
   hideFooter?: boolean;
+  localizedIndexable?: boolean;
 }
 
 const {
@@ -21,6 +22,7 @@ const {
   fullBleed = false,
   immersiveHeader = false,
   hideFooter = false,
+  localizedIndexable = false,
 } = Astro.props;
 
 const pageTitle = title ? `${title} · ${SITE_TITLE}` : SITE_TITLE;
@@ -31,7 +33,7 @@ const localeConfig = getLocaleConfig(locale);
 <!doctype html>
 <html lang={localeConfig.htmlLang} dir={localeConfig.direction}>
   <head>
-    <BaseHead title={pageTitle} description={description} image={image} />
+    <BaseHead title={pageTitle} description={description} image={image} localizedIndexable={localizedIndexable} />
     <script type="application/ld+json" is:inline set:html={JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'WebSite',

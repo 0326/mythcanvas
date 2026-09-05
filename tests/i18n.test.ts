@@ -41,14 +41,46 @@ describe('i18n URL contract', () => {
 });
 
 describe('locale-aware SEO policy', () => {
-  it('keeps the canonical URL on the external localized path', () => {
+  it('keeps localized pages noindex unless the page explicitly proves publishable content', () => {
     const policy = getPageSeoPolicy(new URL('https://mythcanvas.space/en/character/athena/'), site);
     expect(policy.canonicalURL.toString()).toBe('https://mythcanvas.space/en/character/athena/');
     expect(policy.robots).toBe('noindex,follow');
   });
 
+  it('allows reviewed English core pages to opt in to indexing', () => {
+    const policy = getPageSeoPolicy(
+      new URL('https://mythcanvas.space/en/character/athena/'),
+      site,
+      { allowLocalizedIndex: true },
+    );
+    expect(policy.robots).toBe('index,follow');
+  });
+
+  it('does not let non-English locales use the English publication opt-in', () => {
+    const policy = getPageSeoPolicy(
+      new URL('https://mythcanvas.space/ja/character/athena/'),
+      site,
+      { allowLocalizedIndex: true },
+    );
+    expect(policy.robots).toBe('noindex,follow');
+  });
+
+  it('keeps English filtered character listings noindex even after core opt-in', () => {
+    const policy = getPageSeoPolicy(
+      new URL('https://mythcanvas.space/en/character/?mythology=greek'),
+      site,
+      { allowLocalizedIndex: true },
+    );
+    expect(policy.robots).toBe('noindex,follow');
+  });
+
   it('applies private-route policy after stripping the locale prefix', () => {
     const policy = getPageSeoPolicy(new URL('https://mythcanvas.space/en/my/'), site);
+    expect(policy.robots).toBe('noindex,nofollow');
+  });
+
+  it('never indexes the internal SSR route surface', () => {
+    const policy = getPageSeoPolicy(new URL('https://mythcanvas.space/_localized/en/character/athena/'), site, { allowLocalizedIndex: true });
     expect(policy.robots).toBe('noindex,nofollow');
   });
 

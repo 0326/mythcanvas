@@ -1,0 +1,276 @@
+---
+import { ArrowRight } from '@lucide/astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import MythologyCard from '../../../components/mythology/MythologyCard.astro';
+import CharacterCard from '../../../components/character/CharacterCard.astro';
+import WorldCard from '../../../components/world/WorldCard.astro';
+import {
+  getLocalizedCharacters,
+  getLocalizedMythologies,
+  getLocalizedWorlds,
+} from '../../../lib/content/repositories';
+import { localizedPath } from '../../../lib/i18n/url';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const [mythologies, characters, worlds] = await Promise.all([
+  getLocalizedMythologies(db, 'en', { limit: 100 }),
+  getLocalizedCharacters(db, 'en', { limit: 1000 }),
+  getLocalizedWorlds(db, 'en', { limit: 100 }),
+]);
+const mythologyById = new Map(mythologies.map((item) => [item.id, item]));
+const featuredMythologies = mythologies.slice(0, 4);
+const featuredCharacters = characters.slice(0, 10);
+const featuredWorlds = worlds.slice(0, 5);
+const indexable = mythologies.length === 10 && characters.length > 0;
+---
+
+<BaseLayout
+  title="MythCanvas — Reimagine Mythology with AI"
+  description="Explore gods, heroes, sacred realms, and world mythologies through reviewed English content and original MythCanvas visual interpretations."
+  fullBleed
+  immersiveHeader
+  localizedIndexable={indexable}
+>
+  <section class="home-hero">
+    <div class="hero-art" aria-hidden="true"></div>
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="container-wide hero-inner">
+      <div class="hero-copy">
+        <span class="eyebrow">MythCanvas · World Mythologies</span>
+        <h1>Reimagine the world through myth</h1>
+        <p>Explore reviewed English profiles of gods, heroes, and sacred realms across ten mythological traditions, paired with original visual interpretations built for MythCanvas.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href={localizedPath('en', '/mythology/')}>Explore mythologies <ArrowRight size={17} /></a>
+          <a class="btn btn-secondary" href={localizedPath('en', '/character/')}>Meet the characters</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section mythology-section">
+    <div class="container-wide">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Ten Traditions</span>
+          <h2>Begin with a mythology</h2>
+        </div>
+        <a href={localizedPath('en', '/mythology/')}>View all mythologies <ArrowRight size={16} /></a>
+      </div>
+      <div class="mythology-grid">
+        {featuredMythologies.map((mythology, index) => (
+          <MythologyCard mythology={mythology} index={index} featured={index === 0} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section characters-section">
+    <div class="container-wide">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Gods · Heroes · Legendary Figures</span>
+          <h2>Meet the figures behind the stories</h2>
+        </div>
+        <a href={localizedPath('en', '/character/')}>View all translated characters <ArrowRight size={16} /></a>
+      </div>
+      <div class="character-grid">
+        {featuredCharacters.map((character) => (
+          <CharacterCard character={character} mythology={mythologyById.get(character.mythologyId)} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {featuredWorlds.length > 0 && (
+    <section class="home-section worlds-section">
+      <div class="container-wide">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Mythic Atlas</span>
+            <h2>Enter sacred realms</h2>
+          </div>
+          <a href={localizedPath('en', '/world/')}>Open the realm atlas <ArrowRight size={16} /></a>
+        </div>
+        <div class="world-grid">
+          {featuredWorlds.map((world) => (
+            <WorldCard world={world} mythologyName={mythologyById.get(world.mythologyId)?.name} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="home-section boundary-section">
+    <div class="container-wide">
+      <div class="boundary-card surface-muted">
+        <span class="eyebrow">English Edition</span>
+        <h2>Published only when the full reader-facing context is ready</h2>
+        <p>MythCanvas keeps English pages separate from untranslated Chinese prose. Long-form stories, source notes, and advanced interpretation panels will appear only after their complete editorial context is localized.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .home-hero {
+    position: relative;
+    min-height: max(700px, 92svh);
+    display: grid;
+    isolation: isolate;
+    overflow: hidden;
+    background: #101923;
+  }
+
+  .hero-art,
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .hero-art {
+    z-index: -3;
+    background: url('/media/content/mythology-civilizations-banner.webp') center / cover no-repeat;
+    transform: scale(1.025);
+  }
+
+  .hero-overlay {
+    z-index: -2;
+    background:
+      linear-gradient(90deg, rgba(6, 12, 20, .88) 0%, rgba(6, 12, 20, .62) 42%, rgba(6, 12, 20, .16) 76%),
+      linear-gradient(180deg, rgba(6, 12, 20, .22), transparent 40%, rgba(6, 12, 20, .72));
+  }
+
+  .hero-inner {
+    display: flex;
+    min-height: inherit;
+    align-items: center;
+    padding-block: 8rem 5rem;
+  }
+
+  .hero-copy {
+    max-width: 830px;
+    color: white;
+  }
+
+  .hero-copy h1 {
+    max-width: 820px;
+    margin: .55rem 0 1.3rem;
+    color: white;
+    font-size: clamp(4rem, 8vw, 8rem);
+    line-height: .92;
+    letter-spacing: -.055em;
+    text-wrap: balance;
+  }
+
+  .hero-copy p {
+    max-width: 720px;
+    margin: 0;
+    color: rgba(255,255,255,.8);
+    font-size: clamp(1.05rem, 1.45vw, 1.25rem);
+    line-height: 1.8;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .8rem;
+    margin-top: 1.8rem;
+  }
+
+  .home-section {
+    padding-block: clamp(4rem, 8vw, 7rem);
+  }
+
+  .home-section + .home-section {
+    border-top: 1px solid var(--border);
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .section-heading h2 {
+    margin: .35rem 0 0;
+    font-size: clamp(2.5rem, 5vw, 4.8rem);
+    line-height: 1;
+    letter-spacing: -.04em;
+  }
+
+  .section-heading > a {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--accent-strong);
+    font-size: .84rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .mythology-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .character-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .world-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.2rem;
+  }
+
+  .boundary-section {
+    padding-top: 2rem;
+  }
+
+  .boundary-card {
+    padding: clamp(2rem, 5vw, 4rem);
+    border-radius: var(--radius-xl);
+  }
+
+  .boundary-card h2 {
+    max-width: 820px;
+    margin: .35rem 0 .8rem;
+    font-size: clamp(2rem, 4vw, 3.6rem);
+  }
+
+  .boundary-card p {
+    max-width: 860px;
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 1199px) {
+    .character-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .world-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 900px) {
+    .mythology-grid { grid-template-columns: 1fr; }
+    .character-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .section-heading { align-items: flex-start; flex-direction: column; }
+  }
+
+  @media (max-width: 680px) {
+    .hero-copy h1 { font-size: clamp(3.4rem, 16vw, 5.8rem); }
+    .character-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+    .world-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 420px) {
+    .character-grid { grid-template-columns: 1fr; }
+  }
+</style>

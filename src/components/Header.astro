@@ -11,16 +11,24 @@ interface Props {
 
 const { immersive = false } = Astro.props;
 const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const isEnglish = locale === 'en';
 const messages = getUiMessages(locale);
 const pathname = Astro.locals.basePathname ?? Astro.url.pathname;
-const navItems = [
-  { label: messages.nav.home, href: '/' },
-  { label: messages.nav.explore, href: '/explore/' },
-  { label: messages.nav.characters, href: '/character/' },
-  { label: messages.nav.worlds, href: '/world/' },
-  { label: messages.nav.mythology, href: '/mythology/' },
-  { label: messages.nav.create, href: '/create/' },
-];
+const navItems = isEnglish
+  ? [
+      { label: messages.nav.home, href: '/' },
+      { label: messages.nav.mythology, href: '/mythology/' },
+      { label: messages.nav.characters, href: '/character/' },
+      { label: messages.nav.worlds, href: '/world/' },
+    ]
+  : [
+      { label: messages.nav.home, href: '/' },
+      { label: messages.nav.explore, href: '/explore/' },
+      { label: messages.nav.characters, href: '/character/' },
+      { label: messages.nav.worlds, href: '/world/' },
+      { label: messages.nav.mythology, href: '/mythology/' },
+      { label: messages.nav.create, href: '/create/' },
+    ];
 
 const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
 const loginHref = localizedPath(locale, '/login/');
@@ -42,17 +50,19 @@ const brandAria = locale === DEFAULT_LOCALE ? `${messages.brand.name} MythCanvas
     </nav>
 
     <div class="header-actions">
-      <a class="header-icon" href={localizedPath(locale, '/search/')} aria-label={messages.action.search}><Search size={18} strokeWidth={1.8} aria-hidden="true" /></a>
+      {!isEnglish && <a class="header-icon" href={localizedPath(locale, '/search/')} aria-label={messages.action.search}><Search size={18} strokeWidth={1.8} aria-hidden="true" /></a>}
       <span class="theme-control"><ThemeToggle /></span>
-      <a
-        class="avatar"
-        href={loginHref}
-        data-account-entry
-        data-my-href={myHref}
-        data-signed-in-prefix={messages.account.signedInPrefix}
-        data-my-universe-label={messages.account.myUniverse}
-        aria-label={messages.account.entry}
-      ><UserRound size={17} strokeWidth={1.8} aria-hidden="true" /></a>
+      {!isEnglish && (
+        <a
+          class="avatar"
+          href={loginHref}
+          data-account-entry
+          data-my-href={myHref}
+          data-signed-in-prefix={messages.account.signedInPrefix}
+          data-my-universe-label={messages.account.myUniverse}
+          aria-label={messages.account.entry}
+        ><UserRound size={17} strokeWidth={1.8} aria-hidden="true" /></a>
+      )}
     </div>
   </div>
 </header>
