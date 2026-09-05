@@ -1,16 +1,32 @@
 ---
 import '../styles/global.css';
 import { SITE_TITLE } from '../consts';
+import { DEFAULT_LOCALE, getLocaleConfig } from '../lib/i18n/config';
+import { localizedPath } from '../lib/i18n/url';
 import { getPageSeoPolicy } from '../lib/seo/page-policy';
 
 interface Props {
   title: string;
   description: string;
   image?: string;
+  localizedIndexable?: boolean;
 }
 
-const { title, description, image = '/media/content/mythology-civilizations-banner.webp' } = Astro.props;
-const { canonicalURL, robots } = getPageSeoPolicy(Astro.url, Astro.site);
+const {
+  title,
+  description,
+  image = '/media/content/mythology-civilizations-banner.webp',
+  localizedIndexable = false,
+} = Astro.props;
+const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const localeConfig = getLocaleConfig(locale);
+const externalURL = new URL(Astro.url);
+externalURL.pathname = Astro.locals.externalPathname ?? Astro.originPathname ?? Astro.url.pathname;
+const { canonicalURL, robots } = getPageSeoPolicy(externalURL, Astro.site, {
+  allowLocalizedIndex: localizedIndexable,
+});
+const defaultLocaleURL = new URL(localizedPath(DEFAULT_LOCALE, Astro.locals.basePathname ?? Astro.url.pathname), Astro.site);
+const englishURL = new URL(localizedPath('en', Astro.locals.basePathname ?? Astro.url.pathname), Astro.site);
 ---
 
 <meta charset="utf-8" />
@@ -50,6 +66,9 @@ const { canonicalURL, robots } = getPageSeoPolicy(Astro.url, Astro.site);
 </script>
 
 <link rel="canonical" href={canonicalURL} />
+{locale === 'en' && localizedIndexable && <link rel="alternate" hreflang="zh-Hans" href={defaultLocaleURL} />}
+{locale === 'en' && localizedIndexable && <link rel="alternate" hreflang="en" href={englishURL} />}
+{locale === 'en' && localizedIndexable && <link rel="alternate" hreflang="x-default" href={defaultLocaleURL} />}
 <meta name="robots" content={robots} />
 <meta name="googlebot" content={robots} />
 
@@ -65,6 +84,7 @@ const { canonicalURL, robots } = getPageSeoPolicy(Astro.url, Astro.site);
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image, Astro.site)} />
 <meta property="og:site_name" content={SITE_TITLE} />
+<meta property="og:locale" content={localeConfig.ogLocale} />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />

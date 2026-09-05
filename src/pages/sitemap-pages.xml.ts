@@ -6,6 +6,7 @@ import {
   getPublicWorlds,
 } from '../lib/content/public-catalog';
 import { getPublicStoryPaths } from '../lib/content/stories';
+import { localizedPath } from '../lib/i18n/url';
 import {
   absoluteUrl,
   buildUrlSetXml,
@@ -58,6 +59,10 @@ export const GET: APIRoute = async ({ site, url }) => {
       const mythology = mythologies.find((item) => item.id === story.mythologyId);
       return mythology ? [`/mythology/${mythology.slug}/${story.slug}/`] : [];
     }),
+    localizedPath('en', '/'),
+    localizedPath('en', '/mythology/'),
+    localizedPath('en', '/world/'),
+    localizedPath('en', '/character/'),
   ];
 
   return xmlResponse(buildUrlSetXml(paths.map((path) => urlEntry(absoluteUrl(path, site)))));

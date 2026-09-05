@@ -1,6 +1,8 @@
 ---
 import { ArrowRight, Landmark } from '@lucide/astro';
 import type { World } from '../../lib/content/types';
+import { DEFAULT_LOCALE } from '../../lib/i18n/config';
+import { localizedPath } from '../../lib/i18n/url';
 import {
   cloudflareImageSrcSet,
   cloudflareImageUrl,
@@ -14,7 +16,9 @@ interface Props {
 }
 
 const { world, mythologyName, className = '' } = Astro.props;
-const keywords = world.canonicalDesign.anchors.slice(0, 3);
+const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const isEnglish = locale === 'en';
+const keywords = isEnglish ? [] : world.canonicalDesign.anchors.slice(0, 3);
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
 const imageOptions = { quality: 80, format: 'auto' as const };
 const imageSrc = cloudflareImageUrl(
@@ -28,10 +32,11 @@ const imageSrcSet = cloudflareImageSrcSet(
   imageOptions,
   useImageTransformations,
 );
+const worldHref = localizedPath(locale, `/world/${world.slug}/`);
 ---
 
 <article class:list={['world-card', 'surface', className]}>
-  <a href={`/world/${world.slug}/`} class="world-link">
+  <a href={worldHref} class="world-link">
     <div class="world-image-wrap">
       <img
         src={imageSrc}
@@ -48,11 +53,13 @@ const imageSrcSet = cloudflareImageSrcSet(
     <div class="world-copy">
       <span class="small-caps">{mythologyName ? `${mythologyName} · ` : ''}World</span>
       <h3>{world.name}</h3>
-      <p class="en">{world.nameEn}</p>
-      <ul class="keywords" aria-label={`${world.name} 神域关键词`}>
-        {keywords.map((keyword) => <li>{keyword}</li>)}
-      </ul>
-      <span class="world-action">进入神域 <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" /></span>
+      {!isEnglish && <p class="en">{world.nameEn}</p>}
+      {keywords.length > 0 && (
+        <ul class="keywords" aria-label={`${world.name} 神域关键词`}>
+          {keywords.map((keyword) => <li>{keyword}</li>)}
+        </ul>
+      )}
+      <span class="world-action">{isEnglish ? 'Explore realm' : '进入神域'} <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" /></span>
     </div>
   </a>
 </article>

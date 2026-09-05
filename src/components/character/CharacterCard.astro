@@ -1,6 +1,8 @@
 ---
 import { Flame } from '@lucide/astro';
 import type { Character, Mythology } from '../../lib/content/types';
+import { DEFAULT_LOCALE } from '../../lib/i18n/config';
+import { localizedPath } from '../../lib/i18n/url';
 import {
   cloudflareImageUrl,
   shouldUseCloudflareImageTransformations,
@@ -12,7 +14,9 @@ interface Props {
 }
 
 const { character, mythology } = Astro.props;
-const fallbackSymbols = character.symbols.slice(0, 3);
+const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const isEnglish = locale === 'en';
+const fallbackSymbols = isEnglish ? [] : character.symbols.slice(0, 3);
 const clickCount = Math.max(0, Math.floor(character.clickCount ?? 0));
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
 const portraitImage = character.portrait
@@ -30,15 +34,19 @@ const portraitImage = character.portrait
       useImageTransformations,
     )
   : undefined;
+const characterHref = localizedPath(locale, `/character/${character.slug}/`);
+const enterLabel = isEnglish ? `Explore ${character.name}` : `${character.name} · 进入角色`;
+const portraitAlt = isEnglish ? `Portrait of ${character.name}` : `${character.name} 角色肖像`;
+const heatLabel = isEnglish ? `Popularity: ${clickCount} clicks` : `热度 ${clickCount} 次点击`;
 ---
 
 <article class="character-card surface" data-character-card data-character-id={character.id}>
-  <a href={`/character/${character.slug}/`} aria-label={`${character.name} · 进入角色`}>
+  <a href={characterHref} aria-label={enterLabel}>
     <div class="portrait">
       {character.portrait ? (
         <img
           src={portraitImage ?? character.portrait.src}
-          alt={`${character.name} 角色肖像`}
+          alt={portraitAlt}
           width="480"
           height="853"
           loading="lazy"
@@ -56,7 +64,7 @@ const portraitImage = character.portrait
       )}
       <span class="portrait-shade" aria-hidden="true"></span>
       {mythology && <span class="badge badge-mythology">{mythology.name}</span>}
-      <span class="badge badge-heat" aria-label={`热度 ${clickCount} 次点击`}>
+      <span class="badge badge-heat" aria-label={heatLabel}>
         <Flame size={14} strokeWidth={1.8} aria-hidden="true" />
         <span>{clickCount}</span>
       </span>

@@ -1,42 +1,68 @@
 ---
 import { Search, UserRound } from '@lucide/astro';
 import ThemeToggle from './ui/ThemeToggle.astro';
+import { DEFAULT_LOCALE } from '../lib/i18n/config';
+import { localizedPath } from '../lib/i18n/url';
+import { getUiMessages } from '../lib/i18n/ui';
 
 interface Props {
   immersive?: boolean;
 }
 
 const { immersive = false } = Astro.props;
-const pathname = Astro.url.pathname;
-const navItems = [
-  { label: '首页', href: '/' },
-  { label: '探索', href: '/explore/' },
-  { label: '神灵', href: '/character/' },
-  { label: '神域', href: '/world/' },
-  { label: '神话', href: '/mythology/' },
-  { label: 'AI 创作', href: '/create/' },
-];
+const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const isEnglish = locale === 'en';
+const messages = getUiMessages(locale);
+const pathname = Astro.locals.basePathname ?? Astro.url.pathname;
+const navItems = isEnglish
+  ? [
+      { label: messages.nav.home, href: '/' },
+      { label: messages.nav.mythology, href: '/mythology/' },
+      { label: messages.nav.characters, href: '/character/' },
+      { label: messages.nav.worlds, href: '/world/' },
+    ]
+  : [
+      { label: messages.nav.home, href: '/' },
+      { label: messages.nav.explore, href: '/explore/' },
+      { label: messages.nav.characters, href: '/character/' },
+      { label: messages.nav.worlds, href: '/world/' },
+      { label: messages.nav.mythology, href: '/mythology/' },
+      { label: messages.nav.create, href: '/create/' },
+    ];
 
 const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
+const loginHref = localizedPath(locale, '/login/');
+const myHref = localizedPath(locale, '/my/');
+const brandAria = locale === DEFAULT_LOCALE ? `${messages.brand.name} MythCanvas` : messages.brand.name;
 ---
 
 <header class:list={{ 'site-header': true, 'site-header--immersive': immersive }}>
   <div class="container-wide header-row">
-    <a class="brand" href="/" aria-label="绘神宇宙 MythCanvas 首页">
+    <a class="brand" href={localizedPath(locale, '/')} aria-label={brandAria}>
       <span class="brand-mark" aria-hidden="true"><img src="/favicon.svg" width="30" height="30" alt="" /></span>
-      <span class="brand-copy"><strong class="brand-serif">绘神宇宙</strong></span>
+      <span class="brand-copy"><strong class="brand-serif">{messages.brand.name}</strong></span>
     </a>
 
-    <nav class="main-nav" aria-label="主导航">
+    <nav class="main-nav" aria-label={messages.nav.home}>
       {navItems.map((item) => (
-        <a href={item.href} class:list={{ active: isActive(item.href) }} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+        <a href={localizedPath(locale, item.href)} class:list={{ active: isActive(item.href) }} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
       ))}
     </nav>
 
     <div class="header-actions">
-      <a class="header-icon" href="/search/" aria-label="搜索"><Search size={18} strokeWidth={1.8} aria-hidden="true" /></a>
+      {!isEnglish && <a class="header-icon" href={localizedPath(locale, '/search/')} aria-label={messages.action.search}><Search size={18} strokeWidth={1.8} aria-hidden="true" /></a>}
       <span class="theme-control"><ThemeToggle /></span>
-      <a class="avatar" href="/login/" data-account-entry aria-label="登录或查看我的宇宙"><UserRound size={17} strokeWidth={1.8} aria-hidden="true" /></a>
+      {!isEnglish && (
+        <a
+          class="avatar"
+          href={loginHref}
+          data-account-entry
+          data-my-href={myHref}
+          data-signed-in-prefix={messages.account.signedInPrefix}
+          data-my-universe-label={messages.account.myUniverse}
+          aria-label={messages.account.entry}
+        ><UserRound size={17} strokeWidth={1.8} aria-hidden="true" /></a>
+      )}
     </div>
   </div>
 </header>
@@ -49,9 +75,12 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
         const user = data && data.user;
         if (!user || user.isGuest) return;
         document.querySelectorAll('[data-account-entry]').forEach((entry) => {
-          entry.setAttribute('href', '/my/');
-          entry.setAttribute('aria-label', `已登录：${user.nickname}，查看我的宇宙`);
-          entry.setAttribute('title', user.email || user.nickname || '我的宇宙');
+          const myHref = entry.getAttribute('data-my-href') || '/my/';
+          const signedInPrefix = entry.getAttribute('data-signed-in-prefix') || 'Signed in';
+          const myUniverseLabel = entry.getAttribute('data-my-universe-label') || 'My Universe';
+          entry.setAttribute('href', myHref);
+          entry.setAttribute('aria-label', `${signedInPrefix}: ${user.nickname}, ${myUniverseLabel}`);
+          entry.setAttribute('title', user.email || user.nickname || myUniverseLabel);
         });
       })
       .catch(() => {});

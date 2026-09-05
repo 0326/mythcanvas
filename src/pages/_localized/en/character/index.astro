@@ -1,0 +1,138 @@
+---
+import { Search } from '@lucide/astro';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import CharacterCard from '../../../../components/character/CharacterCard.astro';
+import { getLocalizedCharacters, getLocalizedMythologies } from '../../../../lib/content/repositories';
+import { localizedPath } from '../../../../lib/i18n/url';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const [characters, mythologies] = await Promise.all([
+  getLocalizedCharacters(db, 'en', { limit: 1000 }),
+  getLocalizedMythologies(db, 'en', { limit: 100 }),
+]);
+const mythologyById = new Map(mythologies.map((item) => [item.id, item]));
+const mythologyBySlug = new Map(mythologies.map((item) => [item.slug, item]));
+
+const requestedMythology = Astro.url.searchParams.get('mythology') ?? '';
+const requestedQuery = (Astro.url.searchParams.get('q') ?? '').trim();
+const requestedType = Astro.url.searchParams.get('type') ?? '';
+const selectedMythology = mythologyBySlug.has(requestedMythology) ? requestedMythology : '';
+const availableTypes = ['deity', 'hero', 'mortal', 'monster', 'creature', 'collective'] as const;
+const selectedType = availableTypes.includes(requestedType as typeof availableTypes[number]) ? requestedType : '';
+const typeLabels: Record<typeof availableTypes[number], string> = {
+  deity: 'Deities', hero: 'Heroes', mortal: 'Mortals', monster: 'Monsters', creature: 'Creatures', collective: 'Groups',
+};
+const query = requestedQuery.toLowerCase();
+const visibleCharacters = characters.filter((character) => {
+  const mythology = mythologyById.get(character.mythologyId);
+  if (selectedMythology && mythology?.slug !== selectedMythology) return false;
+  if (selectedType && character.characterType !== selectedType) return false;
+  if (query && !`${character.name} ${character.nameEn} ${character.role} ${character.summary}`.toLowerCase().includes(query)) return false;
+  return true;
+});
+
+const filterHref = (mythologySlug = selectedMythology, type = selectedType) => {
+  const url = new URL(localizedPath('en', '/character/'), Astro.site);
+  if (mythologySlug) url.searchParams.set('mythology', mythologySlug);
+  if (requestedQuery) url.searchParams.set('q', requestedQuery);
+  if (type) url.searchParams.set('type', type);
+  return `${url.pathname}${url.search}`;
+};
+const indexable = characters.length > 0 && mythologies.length > 0;
+---
+
+<BaseLayout
+  title="Mythological Characters"
+  description="Explore gods, goddesses, heroes, monsters, and legendary figures from world mythology through source-aware identities and original MythCanvas visual interpretations."
+  localizedIndexable={indexable}
+>
+  <section class="collection-hero">
+    <div class="container-wide">
+      <span class="eyebrow">Characters · Mythic Identities</span>
+      <h1>Meet the figures behind the myths</h1>
+      <p>Explore a reviewed English collection of deities, heroes, monsters, and legendary figures across the world’s mythological traditions.</p>
+    </div>
+  </section>
+
+  <section class="filter-section collection-filter-section" aria-label="Character filters">
+    <div class="container-wide filter-toolbar collection-filter-toolbar">
+      <div class="filter-group">
+        <span class="filter-label">Mythology</span>
+        <div class="filter-options">
+          <a class:list={{ 'filter-option': true, 'is-active': selectedMythology === '' }} href={filterHref('', selectedType)}>All</a>
+          {mythologies.map((mythology) => (
+            <a class:list={{ 'filter-option': true, 'is-active': mythology.slug === selectedMythology }} href={filterHref(mythology.slug, selectedType)}>{mythology.name}</a>
+          ))}
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-label">Type</span>
+        <div class="filter-options">
+          <a class:list={{ 'filter-option': true, 'is-active': selectedType === '' }} href={filterHref(selectedMythology, '')}>All</a>
+          {availableTypes.map((type) => (
+            <a class:list={{ 'filter-option': true, 'is-active': selectedType === type }} href={filterHref(selectedMythology, type)}>{typeLabels[type]}</a>
+          ))}
+        </div>
+      </div>
+
+      <form class="search-box collection-filter-search" action={localizedPath('en', '/character/')} method="get">
+        {selectedMythology && <input type="hidden" name="mythology" value={selectedMythology} />}
+        {selectedType && <input type="hidden" name="type" value={selectedType} />}
+        <Search class="search-icon" aria-hidden="true" />
+        <input type="search" name="q" placeholder="Search by name or role" value={requestedQuery} aria-label="Search mythological characters" />
+      </form>
+    </div>
+  </section>
+
+  <section class="section-compact gallery-section" aria-labelledby="gallery-heading">
+    <div class="container-wide">
+      <div class="gallery-heading-row">
+        <h2 id="gallery-heading">{visibleCharacters.length} published characters</h2>
+        {(selectedMythology || selectedType || requestedQuery) && <a href={localizedPath('en', '/character/')} class="reset-link">Clear filters</a>}
+      </div>
+      {visibleCharacters.length > 0 ? (
+        <div class="character-grid">
+          {visibleCharacters.map((character) => (
+            <CharacterCard character={character} mythology={mythologyById.get(character.mythologyId)} />
+          ))}
+        </div>
+      ) : (
+        <div class="gallery-empty surface">
+          <h2>No matching characters</h2>
+          <p>Try another mythology, type, or search term. Only reviewed English translations are listed.</p>
+          <a class="btn btn-secondary" href={localizedPath('en', '/character/')}>Show all characters</a>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .collection-hero { padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2rem, 4vw, 3.5rem); border-bottom: 1px solid var(--border); background: radial-gradient(circle at 82% 20%, var(--hero-ambient), transparent 28%); }
+  .collection-hero h1 { max-width: 900px; margin: .35rem 0 0; font-size: clamp(3.2rem, 6.5vw, 6rem); line-height: 1; letter-spacing: -.045em; text-wrap: balance; }
+  .collection-hero p { max-width: 720px; margin: var(--space-5) 0 0; color: var(--text-secondary); font-size: 1.02rem; line-height: 1.8; }
+  .filter-toolbar { display: flex; align-items: center; gap: 1rem 1.4rem; flex-wrap: wrap; }
+  .filter-group { display: flex; min-width: 0; align-items: center; gap: .7rem; }
+  .filter-label { color: var(--text-muted); font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
+  .filter-options { display: flex; min-width: 0; gap: .35rem; overflow-x: auto; scrollbar-width: none; }
+  .filter-options::-webkit-scrollbar { display: none; }
+  .filter-option { display: inline-flex; min-height: 34px; align-items: center; padding-inline: .78rem; border: 1px solid transparent; border-radius: 6px; color: var(--text-secondary); font-size: .76rem; white-space: nowrap; }
+  .filter-option:hover, .filter-option.is-active { color: var(--text-primary); border-color: var(--border-strong); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .search-box { position: relative; display: flex; min-width: 240px; align-items: center; margin-left: auto; }
+  .search-icon { position: absolute; left: .7rem; width: 16px; color: var(--text-muted); pointer-events: none; }
+  .search-box input[type='search'] { width: 100%; padding: .58rem .8rem .58rem 2.2rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); }
+  .gallery-section { padding-block: clamp(2.5rem, 5vw, 5rem); }
+  .gallery-heading-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; }
+  .gallery-heading-row h2 { margin: 0; font-size: 1rem; color: var(--text-secondary); font-weight: 600; }
+  .reset-link { color: var(--accent-strong); font-size: .82rem; }
+  .character-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-5); }
+  .gallery-empty { padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; }
+  .gallery-empty p { color: var(--text-secondary); }
+  @media (max-width: 1499px) { .character-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (max-width: 1199px) { .character-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 820px) { .filter-toolbar { align-items: stretch; flex-direction: column; } .filter-group, .search-box { width: 100%; margin-left: 0; } .character-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); } }
+  @media (max-width: 420px) { .character-grid { grid-template-columns: 1fr; } }
+</style>

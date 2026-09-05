@@ -3,6 +3,7 @@ export * from './shared';
 export * from './mythology';
 export * from './world';
 export * from './character';
+export * from './localized';
 export * from './character-variant';
 export * from './character-interpretation';
 export * from './character-relation';

@@ -10,6 +10,11 @@ const remoteBindings = process.env.MYTHCANVAS_REMOTE_DATA !== "false";
 export default defineConfig({
 	site,
 	output: "server",
+	i18n: {
+		locales: ["zh-Hans", "en", "ja", "es", "zh-Hant", "fr", "de"],
+		defaultLocale: "zh-Hans",
+		routing: "manual",
+	},
 	adapter: cloudflare({
 		platformProxy: {
 			enabled: true,
