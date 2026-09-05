@@ -54,6 +54,7 @@ function isLocalizablePagePath(pathname: string) {
 }
 
 function englishInternalPath(pathname: string) {
+  if (pathname === '/') return '/_localized/en/';
   return ENGLISH_CORE_ROUTE.test(pathname) ? `/_localized/en${pathname}` : undefined;
 }
 
