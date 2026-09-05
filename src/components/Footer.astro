@@ -1,5 +1,11 @@
 ---
+import { DEFAULT_LOCALE } from '../lib/i18n/config';
+import { localizedPath } from '../lib/i18n/url';
+import { getUiMessages } from '../lib/i18n/ui';
+
 const year = new Date().getFullYear();
+const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const messages = getUiMessages(locale);
 ---
 
 <footer class="site-footer">
@@ -7,28 +13,28 @@ const year = new Date().getFullYear();
     <div class="footer-brand">
       <div class="footer-brand-line">
         <span class="footer-mark" aria-hidden="true">✦</span>
-        <strong class="brand-serif">绘神宇宙 MythCanvas</strong>
+        <strong class="brand-serif">{messages.brand.name} MythCanvas</strong>
       </div>
-      <p>用 AI 重现神话世界。探索诸神、神域与传说中的视觉想象。</p>
-      <nav class="footer-legal" aria-label="法律与政策">
-        <a href="/privacy/">隐私政策</a>
-        <a href="/terms/">服务条款</a>
-        <a href="/copyright/">版权政策</a>
+      <p>{messages.footer.description}</p>
+      <nav class="footer-legal" aria-label={messages.footer.legalAria}>
+        <a href={localizedPath(locale, '/privacy/')}>{messages.footer.privacy}</a>
+        <a href={localizedPath(locale, '/terms/')}>{messages.footer.terms}</a>
+        <a href={localizedPath(locale, '/copyright/')}>{messages.footer.copyright}</a>
       </nav>
     </div>
 
-    <nav class="footer-nav" aria-label="页脚导航">
-      <a href="/explore/">探索</a>
-      <a href="/mythology/">神话</a>
-      <a href="/world/">神域</a>
-      <a href="/character/">神灵</a>
-      <a href="/create/">AI 创作</a>
-      <a href="/my/">我的宇宙</a>
+    <nav class="footer-nav" aria-label={messages.footer.navAria}>
+      <a href={localizedPath(locale, '/explore/')}>{messages.nav.explore}</a>
+      <a href={localizedPath(locale, '/mythology/')}>{messages.nav.mythology}</a>
+      <a href={localizedPath(locale, '/world/')}>{messages.nav.worlds}</a>
+      <a href={localizedPath(locale, '/character/')}>{messages.nav.characters}</a>
+      <a href={localizedPath(locale, '/create/')}>{messages.nav.create}</a>
+      <a href={localizedPath(locale, '/my/')}>{messages.nav.my}</a>
     </nav>
 
     <div class="footer-meta">
       <span>© {year} MythCanvas</span>
-      <span>神话原型 · 原创视觉 · AI 重绘</span>
+      <span>{messages.footer.meta}</span>
     </div>
   </div>
 </footer>
