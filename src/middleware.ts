@@ -46,7 +46,6 @@ const LOCALIZABLE_ROUTE_ROOTS = new Set([
 ]);
 
 const ENGLISH_CORE_ROUTE = /^\/(?:character|world|mythology)(?:\/[^/]+)?\/?$/;
-const INTERNAL_LOCALIZED_PREFIX = '/_localized/';
 
 function isLocalizablePagePath(pathname: string) {
   if (pathname === '/') return true;
@@ -75,12 +74,6 @@ function withSecurityHeaders(response: Response) {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  // Internal localized route files are implementation details and must never be
-  // exposed as a second public URL surface.
-  if (context.url.pathname.startsWith(INTERNAL_LOCALIZED_PREFIX)) {
-    return withSecurityHeaders(new Response('Not Found', { status: 404 }));
-  }
-
   const parsed = parseLocalizedPath(context.url.pathname);
 
   context.locals.locale = parsed.locale;
