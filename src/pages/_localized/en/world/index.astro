@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import WorldCard from '../../../../components/world/WorldCard.astro';
+import { getLocalizedMythologies, getLocalizedWorlds } from '../../../../lib/content/repositories';
+import { localizedPath } from '../../../../lib/i18n/url';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.DB;
+const [worlds, mythologies] = await Promise.all([
+  getLocalizedWorlds(db, 'en', { limit: 100 }),
+  getLocalizedMythologies(db, 'en', { limit: 100 }),
+]);
+const mythologyById = new Map(mythologies.map((item) => [item.id, item]));
+const requestedMythology = Astro.url.searchParams.get('mythology') ?? '';
+const selectedMythology = mythologies.some((item) => item.slug === requestedMythology) ? requestedMythology : '';
+const visibleWorlds = selectedMythology
+  ? worlds.filter((world) => mythologyById.get(world.mythologyId)?.slug === selectedMythology)
+  : worlds;
+const indexable = worlds.length > 0 && mythologies.length > 0;
+const filterHref = (slug: string) => slug
+  ? `${localizedPath('en', '/world/')}?mythology=${encodeURIComponent(slug)}`
+  : localizedPath('en', '/world/');
+---
+
+<BaseLayout
+  title="Mythological Realms"
+  description="Explore the sacred realms and mythic worlds of MythCanvas, from the Celestial Palace and Mount Olympus to Asgard, Takamagahara, and the Duat."
+  localizedIndexable={indexable}
+>
+  <section class="atlas-hero">
+    <div class="container-wide">
+      <span class="eyebrow">Worlds · Mythic Atlas</span>
+      <h1>Enter the worlds of myth</h1>
+      <p>Each realm has its own spatial language, divine inhabitants, symbols, materials, and atmosphere. English pages only include reviewed translations.</p>
+    </div>
+  </section>
+
+  <section class="filter-section collection-filter-section" aria-label="Realm filters">
+    <div class="container-wide filter-toolbar">
+      <span class="filter-label">Mythology</span>
+      <div class="filter-options">
+        <a class:list={{ 'filter-option': true, 'is-active': selectedMythology === '' }} href={filterHref('')}>All</a>
+        {mythologies.map((mythology) => (
+          <a class:list={{ 'filter-option': true, 'is-active': selectedMythology === mythology.slug }} href={filterHref(mythology.slug)}>{mythology.name}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="world-content">
+    <div class="container-wide">
+      {visibleWorlds.length > 0 ? (
+        <div class="world-grid">
+          {visibleWorlds.map((world) => (
+            <WorldCard world={world} mythologyName={mythologyById.get(world.mythologyId)?.name} />
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state surface">
+          <h2>No published English realms yet</h2>
+          <p>This mythology does not have a reviewed English realm page yet. Try another tradition or return to the full realm atlas.</p>
+          <a class="btn btn-secondary" href={localizedPath('en', '/world/')}>View all realms</a>
+        </div>
+      )}
+
+      <div class="atlas-cta surface">
+        <div>
+          <span class="eyebrow">AI Recreate</span>
+          <h2>Build your own visual interpretation</h2>
+          <p>Start from a MythCanvas realm and combine a new style, atmosphere, and device format while preserving its stable identity.</p>
+        </div>
+        <a class="btn btn-primary" href={localizedPath('en', '/create/')}>Create with AI</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .atlas-hero { padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2rem, 4vw, 3.5rem); border-bottom: 1px solid var(--border); background: radial-gradient(circle at 82% 20%, var(--hero-ambient), transparent 28%); }
+  .atlas-hero h1 { max-width: 850px; margin: .35rem 0 0; font-size: clamp(3.2rem, 6.5vw, 6rem); line-height: 1; letter-spacing: -.045em; text-wrap: balance; }
+  .atlas-hero p { max-width: 720px; margin: var(--space-5) 0 0; color: var(--text-secondary); font-size: 1.02rem; line-height: 1.8; }
+  .filter-toolbar { display: flex; align-items: center; gap: .8rem; overflow-x: auto; scrollbar-width: none; }
+  .filter-toolbar::-webkit-scrollbar, .filter-options::-webkit-scrollbar { display: none; }
+  .filter-label { color: var(--text-muted); font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
+  .filter-options { display: flex; gap: .35rem; overflow-x: auto; scrollbar-width: none; }
+  .filter-option { display: inline-flex; min-height: 34px; align-items: center; padding-inline: .8rem; border: 1px solid transparent; border-radius: 6px; color: var(--text-secondary); font-size: .76rem; white-space: nowrap; }
+  .filter-option:hover, .filter-option.is-active { color: var(--text-primary); border-color: var(--border-strong); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .world-content { padding-block: clamp(2.5rem, 5vw, 5rem); }
+  .world-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2vw, 1.5rem); }
+  .empty-state { padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; }
+  .empty-state p { color: var(--text-secondary); }
+  .atlas-cta { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-top: clamp(3rem, 6vw, 5rem); padding: clamp(2rem, 5vw, 4rem); border-radius: var(--radius-xl); }
+  .atlas-cta h2 { margin: .3rem 0 .6rem; }
+  .atlas-cta p { max-width: 620px; margin: 0; color: var(--text-secondary); line-height: 1.7; }
+  @media (max-width: 1000px) { .world-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 680px) { .world-grid { grid-template-columns: 1fr; } .atlas-cta { align-items: flex-start; flex-direction: column; } }
+</style>
