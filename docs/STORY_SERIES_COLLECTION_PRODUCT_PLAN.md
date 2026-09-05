@@ -1,7 +1,7 @@
 # MythCanvas 故事系列与收藏卡产品方案
 
-> 文档状态：Product Proposal / Implementation Ready
-> 版本：V1.0
+> 文档状态：Product Strategy + Implementation Blueprint
+> 版本：V1.1
 > 日期：2026-09-05
 > 适用范围：神话内容建设、故事系列策展、AI 视觉生产、数字典藏包、实体收藏卡
 > 上位文档：`docs/PRODUCT.md`、`docs/CONTENT_POSITIONING.md`、`docs/CHARACTER_ART_SYSTEM.md`
@@ -34,7 +34,7 @@ MythCanvas 后续内容与商业化不应从“先生成一批漂亮图片，再
 
 1. **先有完整故事体系，再有收藏卡。** 收藏卡是内容资产的衍生物，不反过来绑架神话内容建设。
 2. **系列内核与画风正交。** 同一个故事系列可以有 Cinematic、Anime、Sacred、Ink 等不同视觉版本，但人物关系、故事节点、神域、神器和叙事结构保持一致。
-3. **每套卡必须讲完一个相对完整的故事系列。** 不能只是若干“热门角色 + 好看图片”的散卡拼盘。
+3. **每套卡必须讲完一个明确的叙事范围 / 故事弧。** 不能只是若干“热门角色 + 好看图片”的散卡拼盘，也不能把有限卡组冒充整个 Series 的完整覆盖。
 4. **收藏价值首先来自体系、内容和美术质量。** V1 不依赖盲抽、稀有度、交易市场、NFT、数字绑定等复杂机制。
 5. **网站内容是收藏卡的源头和长期资产库。** 故事系列先在网站成立，数字典藏与实体卡再从成熟系列中自然产出。
 6. **尊重神话来源和版本差异。** 不为了做“宇宙时间线”把不同年代、宗教传统、文学演绎硬拼成唯一 Canon。
@@ -42,6 +42,14 @@ MythCanvas 后续内容与商业化不应从“先生成一批漂亮图片，再
 MythCanvas 的目标不是成为“AI 图片卡牌厂商”，而是逐步建立：
 
 > **可阅读、可观看、可收藏、可反复视觉化的神话故事系列 IP。**
+
+本方案的实施边界进一步明确为：
+
+1. `Story Series` 是版本化静态内容中的一等对象，不因拥有 URL、SEO 或收藏功能而进入 D1；D1 只保存用户行为、运营状态和兼容镜像。
+2. `TaxonomyTerm(kind = story-cycle)` 是分类或来源范围，不自动等于可发布的 Story Series；是否成为 Series 由 `StorySeriesManifest` 的内容、来源和审核门槛决定。
+3. 一套 Collection 只承诺讲完一个明确声明的“叙事范围 / 故事弧”，不声称覆盖整个 Series 的全部故事。
+4. 先上线一个可阅读的试点 Series，再用真实的阅读、收藏、下载和购买意向决定是否投入 18–24 张实体套卡。
+5. 所有状态、关系、来源和卡片约束必须能在构建期自动校验；人工审核负责来源解释、文化边界和最终美术质量。
 
 ---
 
@@ -162,10 +170,9 @@ Mythology
 └── Story Series × N
     ├── MythStory × N
     ├── Character × N
-    ├── World / Realm × N
+    ├── World（用户界面称“神域”）× N
     ├── Scene × N
-    ├── Artifact × N
-    ├── Creature / Beast × N
+    ├── Artifact / Creature（V1 可为结构化概念）× N
     └── Collection × N
         └── Style Edition × N
 ```
@@ -210,7 +217,7 @@ Story Series 回答：
 - 高天原神代系列；
 - 杜阿特冥界旅程系列。
 
-Story Series 不要求绝对时间线，也不要求每篇 Story 只能属于一个 Series。
+Story Series 不要求绝对时间线，也不要求每篇 Story 只能属于一个 Series。技术上，Series Manifest 持有 Story 引用，并在构建期生成 Story → Series 反向索引；不在 `MythStory` 中加入单一 `seriesId`。
 
 ### Collection：商品 / 视觉策展结果
 
@@ -258,11 +265,16 @@ MythStory / Entity relations
 
 来验证系列化内容生产。
 
-避免一开始增加 `StorySeries` 数据表，却只重复存 `volumeTitle / summary / order`。
+这里需要明确两个边界：
 
-## 4.2 什么时候升级为第一类 StorySeries 实体
+- `TaxonomyTerm(kind = story-cycle)` 是分类、来源范围或浏览入口，不自动拥有 Series 的叙事主轴、依赖闭包和商品化资格；
+- `StorySeriesManifest` 是经过策展和审核的静态内容对象，负责关系、叙事顺序、来源策略、视觉锚点和发布状态。
 
-满足以下任意 2～3 项后，再考虑将 Story Series 提升为 D1 第一类对象：
+避免一开始增加 `StorySeries` 数据表，却只重复存 `volumeTitle / summary / order`。V1 直接使用版本化的静态 Manifest；必要时再把它同步为 D1 兼容镜像。
+
+## 4.2 什么时候升级为第一类 StorySeries 内容对象
+
+当系列需要以下任意 2～3 项能力时，将其从临时分类提升为版本化静态内容中的第一类对象：
 
 - 系列拥有独立稳定 URL；
 - 一个系列关联 5+ MythStory；
@@ -272,6 +284,8 @@ MythStory / Entity relations
 - 用户可以收藏 / 关注整个系列；
 - 系列需要独立发布状态和版本控制；
 - 后台需要针对系列进行运营和统计。
+
+这不是“迁移到 D1”的触发条件。公共 Series 页面、搜索、关系图、生成上下文和 sitemap 仍必须在没有 D1 时正常工作；D1 仅可作为后台运营或过渡期镜像。
 
 建议目标模型：
 
@@ -284,19 +298,21 @@ StorySeries {
   nameEn
   summary
   narrativeThesis
+  heroArtworkId?
   storyIds[]
   characterIds[]
   worldIds[]
   sceneIds[]
-  artifactIds[]
-  creatureIds[]
-  sourcePolicy
+  conceptIds[]
+  sourceRefs[]
+  traditionLanes
   seriesBible
-  publishStatus
+  version
+  status
 }
 ```
 
-但这属于实施阶段的数据演进，而不是当前产品方案的前置阻塞项。
+拥有稳定 URL 的 Series 默认进入静态内容目录，并不需要等待 5 篇 Story 或多个 Edition 才发布；是否展示 Collection 由 Collection 自身状态决定。
 
 ---
 
@@ -377,7 +393,7 @@ CROSS_SERIES
 
 不要按“角色热度”决定是否加入一个系列，而要按故事必要性。
 
-## 5.5 Realm / Scene Map
+## 5.5 World / Scene Map
 
 定义：
 
@@ -401,6 +417,8 @@ CROSS_SERIES
 
 P0 如果 `Artifact / Creature` 尚未成为第一类实体，可以先作为 Series Manifest 中的结构化对象维护，不要求立即扩数据库。
 
+V1 的 Artifact 不应被伪装成当前领域模型中已经存在的独立实体。若它尚未拥有独立来源、稳定身份锚点、多个故事引用或独立页面，就使用 `ContentConcept` 或 Manifest 内部对象；只有满足这些条件后，才单独扩展实体和关系类型。Creature 若需要视觉化，可继续使用现有 `Artwork.type = 'creature'`，不要因此把 Artwork 与叙事实体混为一谈。
+
 ## 5.7 Source & Canon Policy
 
 这是系列质量的底线。
@@ -415,6 +433,26 @@ P0 如果 `Artifact / Creature` 尚未成为第一类实体，可以先作为 Se
 - 哪些是 `supported`；
 - 哪些是 `contested`；
 - 哪些是 `editorial-synthesis`。
+
+实施时不要只维护一组自由文本 `sourcePolicy`。Series 必须引用现有的 `SourceRef` / `ContentClaim` 体系，并为每条关键叙事主张保留来源定位、传统范围和审核状态。建议增加：
+
+```ts
+sourceRefs: readonly SourceRef[];
+traditionLanes: readonly {
+  id: string;
+  label: string;
+  period?: string;
+  sourceRefs: readonly SourceRef[];
+  status: 'supported' | 'contested' | 'editorial-synthesis';
+}[];
+review: {
+  reviewer: string;
+  reviewedAt: string;
+  notes?: readonly string[];
+};
+```
+
+Series 的 `review` 是编辑责任记录，不代表来源本身已经形成学术共识。不同传统发生冲突时，应在页面和卡背中保持范围说明，而不是用一个全局 Canon 字段覆盖差异。
 
 禁止：
 
@@ -455,6 +493,13 @@ Series Bible 只定义跨画风稳定的 **内容视觉锚点**，不指定具�
 
 这是“故事 → 视觉资产”的关键桥梁。
 
+母场景必须区分：
+
+- `source-backed`：可以在故事或来源中定位；
+- `editorial-synthesis`：为了阅读或视觉连贯而做的编辑性组合。
+
+后者可以用于 Artwork，但不得在卡背中写成原典明确记载的单一事件。
+
 ---
 
 # 6. 系列内核与画风必须正交
@@ -468,7 +513,7 @@ Civilization Visual DNA
         ↓
 Series Core Visual Anchors
         ↓
-Character / Realm Canonical Design
+Character / World Canonical Design
         ↓
 Style Edition Art Direction
 ```
@@ -538,7 +583,7 @@ Style Edition Art Direction
 Mythology Hero
 → 卷目 / 主题阅读
 → MythStory
-→ Character / Realm 上下文
+→ Character / World 上下文
 → 来源与版本说明
 ```
 
@@ -546,7 +591,7 @@ Mythology Hero
 
 ## 7.2 增加“故事系列”策展入口
 
-当某 Mythology 有至少 2 个成熟 Story Series 后，可在 Mythology 页面增加轻量的系列入口：
+当某 Mythology 至少有 1 个 `published` Series 时，即可在 Mythology 页面增加轻量的系列入口；只有 2 个以上时才展开为系列列表：
 
 ```text
 故事系列
@@ -555,11 +600,11 @@ Mythology Hero
 └── Series C
 ```
 
-但系列入口服务的是 **阅读和世界探索**，不是先卖卡。
+但系列入口服务的是 **阅读和世界探索**，不是先卖卡。`draft` 和 `content-ready` Series 不进入公共页面。
 
 ## 7.3 Series Page
 
-当系列达到独立页面门槛后，建议路由：
+当系列状态为 `published` 且拥有稳定的 Series Manifest 后，使用稳定路由：
 
 ```text
 /mythology/{mythologySlug}/series/{seriesSlug}/
@@ -585,6 +630,25 @@ Series Hero
 
 注意：Series Page 是策展入口，不替代完整 MythStory 阅读。
 
+Collection 成熟后使用独立路由，不在 Series Page 中直接承担购买流程：
+
+```text
+/mythology/{mythologySlug}/series/{seriesSlug}/collection/{collectionSlug}/
+```
+
+页面最小闭环为：
+
+```text
+Series Page
+→ Collection Preview
+→ Collection Page
+→ Card 翻看 / 故事跳转
+→ 下载、收藏、分享
+→ 实体收藏意向 / 预售入口
+```
+
+V1 的实体销售可以先接候补名单或预售表单，不应在没有成本、售价、库存和履约方案前直接承诺完整电商能力。
+
 ## 7.4 Story Detail
 
 继续沿用现有 Story 独立 URL 门槛和 SSR 原则。
@@ -607,13 +671,21 @@ Story 应增加可选系列上下文：
 
 Collection 是：
 
-> **对一个成熟 Story Series 在某一种 Style Edition 下进行的有限视觉策展。**
+> **对一个成熟 Story Series 的明确叙事范围，在某一种 Style Edition 下进行的有限视觉策展。**
 
 唯一性建议由以下三者决定：
 
 ```text
 Collection = Series + Style + Edition
 ```
+
+实际唯一性还必须包含版本快照：
+
+```text
+Collection = Series Version + Style Version + Edition
+```
+
+一旦进入公开展示或印刷，Collection Manifest 应冻结；Series 或 Style 的后续修改只能产生新版本，不能静默改变已发布卡面。
 
 例如：
 
@@ -649,7 +721,7 @@ Digital Package
 Physical Print Layout
 ```
 
-数字和实体使用同一：
+数字和实体使用同一核心内容：
 
 - cardId；
 - 标题；
@@ -659,13 +731,15 @@ Physical Print Layout
 - 卡背文案；
 - 来源 / 版权元数据。
 
-实体化只增加：
+数字和实体不必共享全部表现字段。实体化在同一核心 Manifest 上增加：
 
 - bleed；
 - safe area；
 - CMYK / print profile；
 - foil / UV mask；
 - packaging metadata。
+
+数字版可以增加更长的故事说明、高清原图、交互翻卡和多语言内容；实体版必须增加裁切、色彩、法律文案和包装信息。两者通过同一 `cardId` 和 `artworkId` 保持可追溯关系。
 
 ---
 
@@ -676,7 +750,7 @@ Physical Print Layout
 不要机械规定所有系列必须：
 
 ```text
-8 Character + 4 Realm + 4 Scene + 4 Artifact + 4 Beast
+8 Character + 4 World + 4 Scene + 4 Concept / Artifact + 4 Creature
 ```
 
 不同神话系列结构不同。
@@ -704,7 +778,7 @@ Physical Print Layout
 
 ## 9.3 每套卡必须覆盖的叙事角色
 
-无论具体卡种如何，至少回答：
+无论具体卡种如何，一套 Collection 的已声明叙事范围至少回答：
 
 1. **世界从哪里开始？**
 2. **主要人物是谁？**
@@ -792,7 +866,7 @@ MC-GR-OLYM-07
 MC-NO-RAGN-18
 ```
 
-用户看到编号即可知道它属于哪个系列以及是否集齐。
+用户看到编号即可知道它属于哪个系列以及是否集齐；如果该套只覆盖 Series 的一个故事弧，应在 Collection 页面明确显示覆盖范围，不把“集齐卡”暗示为“读完整个系列”。
 
 ---
 
@@ -839,7 +913,7 @@ Series Bible 解决“讲什么”；Collection Art Bible 解决“这一套怎�
 
 ```text
 Character：稳定主角构图语言
-Realm：史诗尺度 / 环境优先
+World：史诗尺度 / 环境优先
 Artifact：仪式感静物
 Conflict：双主体 / 群像 / 对峙
 Key Moment：叙事性镜头
@@ -906,7 +980,7 @@ Print Master
 
 ```text
 MythCanvas purpose
-→ Character / Realm Canonical identity
+→ Character / World Canonical identity
 → Civilization Visual DNA
 → Series Core anchors
 → Collection Art Direction
@@ -918,6 +992,32 @@ MythCanvas purpose
 
 Style 不能覆盖 Canonical identity；Series 也不能把不属于角色的属性硬塞给角色。
 
+每张卡必须保存可审计的 Prompt Spec，而不是只保存最终拼接文本：
+
+```ts
+promptMeta: {
+  seriesId: string;
+  seriesVersion: string;
+  collectionId: string;
+  styleId: string;
+  styleVersion: string;
+  cardId: string;
+  storyId?: string;
+  keyMomentId?: string;
+  characterIds?: readonly string[];
+  worldId?: string;
+  referenceAssetIds?: readonly string[];
+  layers: readonly {
+    name: 'purpose' | 'identity' | 'visual-dna' | 'series' | 'style' | 'scene' | 'output' | 'guardrail';
+    text: string;
+  }[];
+  model?: string;
+  generatedAt: string;
+}
+```
+
+其中 Character / Variant、Visual DNA、Style 和 OutputSpec 必须继续分开；Collection 不得把年龄、服装或形态写回 CharacterVariant，也不得把网站 Light / Dark Theme 写入 Artwork 或 Style。
+
 ## 12.2 一张卡一张图
 
 必须：
@@ -927,6 +1027,8 @@ Style 不能覆盖 Canonical identity；Series 也不能把不属于角色的属
 - 不生成卡框和卡面文字；
 - 保存原始大图；
 - 印刷排版使用非破坏式裁切。
+
+Artwork 通过 `artworkId` 进入 Collection；卡面排版文件、数字派生图和 Print Master 是下游产物，不覆盖原始 Artwork。所有候选、审核、退回和最终版本都应保留来源与版本关系，便于重绘、回滚和审计。
 
 ---
 
@@ -1005,14 +1107,14 @@ Collection 必须经过两级 QA。
 - [ ] 核心 Story 已发布；
 - [ ] 核心 Story 有来源和版本说明；
 - [ ] 关键 Character 已建立；
-- [ ] 关键 Realm / Scene 已建立；
+- [ ] 关键 World / Scene 已建立；
 - [ ] 核心 Story 的 dependency closure 已闭合；
 - [ ] 不存在明显为了收藏卡临时捏造的神话事实。
 
 ## 14.2 视觉资产成熟度
 
 - [ ] 核心 Character 具备 CanonicalDesign；
-- [ ] 核心 Realm 具备 CanonicalDesign；
+- [ ] 核心 World 具备 CanonicalDesign；
 - [ ] Series Visual Anchors 已定义；
 - [ ] 至少 6 个 Key Moments / Mother Scenes；
 - [ ] 不同内容对象具备足够视觉差异。
@@ -1031,91 +1133,82 @@ Collection 必须经过两级 QA。
 
 ---
 
-# 15. 第一阶段网站建设策略
+# 15. 第一阶段落地路线
 
-## Phase 0：建立系列规范
+路线按“先建立可读产品，再验证收藏需求，最后投入实体生产”推进。第一轮只选择 **1 个试点 Series**，不要求每个 Mythology 同时建设 1–3 个系列。
 
-目标：先让“什么叫成熟系列”可执行。
+## Phase 0：建立内容契约与护栏
 
 交付：
 
-1. Story Series 定义；
-2. Series Bible Schema；
-3. Story / Character / Realm / Scene dependency 规则；
-4. Series Ready Gate；
-5. Collection Manifest Schema；
-6. Collection Art Bible Schema。
+1. Story Series / Story Cycle 命名和边界；
+2. 静态 `StorySeriesManifest`、`CollectionManifest`、`CollectionArtBible` Schema；
+3. Story / Character / World / Scene / Concept dependency 规则；
+4. Series 与 Collection 状态机；
+5. 构建期校验和反向索引生成；
+6. Series Ready Gate、来源审核记录和 Artwork provenance 规则；
+7. 事件埋点字典、指标口径和试点决策阈值。
 
-## Phase 1：补全现有 Mythology 的故事系列内核
+验收：关闭 D1 或移除 D1 binding 后，Series、Story、关系、来源和 Collection 预览仍能由静态内容正常渲染。
 
-每个神话体系不追求一次性补齐所有系列，优先选 1～3 个：
+## Phase 1：完成 1 个试点 Series
 
-- 来源相对清晰；
-- 故事边界清晰；
-- 视觉辨识度强；
-- 已有 Character / Realm 资产覆盖高；
-- 容易形成完整 Narrative Spine；
-- 有潜力转换为收藏产品。
+选择标准：来源范围清晰、叙事弧可解释、已有 Character / World / Scene 资产覆盖足够、视觉差异明显，并能在不捏造神话事实的前提下形成有限 Collection scope。
 
-第一轮目标不是“十大神话各一套卡”，而是：
+交付：
 
-> **先让几个系列真正达到 Series Ready。**
+- 完整 Series Bible；
+- 3–6 篇已发布或明确排期的核心 / 支撑 Story；
+- 至少 6 个 Key Moments，其中明确标记来源支持或编辑合成；
+- 核心 Character / World / Scene 的 CanonicalDesign；
+- 通过 `content-ready` Gate。
+
+这里的数量是试点起点，不是所有 Series 的硬性最低标准；来源和叙事闭合优先于凑篇数。
 
 ## Phase 2：上线 Series 阅读体验
 
 交付：
 
-- Story Series 策展入口；
-- Series Page；
+- Mythology 中的 Series 入口；
+- SSR Series Page；
 - Series Story Journey；
-- Story 中的 Series 上下文；
-- SEO / GEO；
-- Related Series。
+- Story 中的 Series 上下文、上一篇 / 下一篇和进度；
+- SEO、JSON-LD、sitemap 和相关系列链接；
+- `series_view`、`story_start`、`story_complete` 等事件。
 
-## Phase 3：建立第一套数字 Collection
+验收：用户无需登录或启用 JavaScript 即可理解系列主轴并进入核心 Story；公共请求不读取 D1。
 
-仅选择一个已经通过 Series Ready Gate 的系列。
+## Phase 3：数字 Collection 预览与需求验证
+
+仅选择通过 `content-ready` 且完成用户行为观察的一个 Series。
+
+先制作 6–8 张 Digital Preview，验证故事覆盖、视觉统一性、下载 / 收藏 / 分享意愿，再决定是否扩展到 18–24 张完整套卡。
 
 交付：
 
-- Collection Manifest；
-- Style Edition；
-- 18～24 张最终 Artwork；
+- Collection Manifest 和 Collection Art Bible；
+- Collection Page 与 Card 翻看 / 故事跳转；
 - Digital Card Master；
-- 数字典藏展示页；
-- 下载 / 分享样张。
+- 下载、收藏、分享和候补名单入口；
+- `collection_preview_open`、`card_download`、`collection_share`、`physical_waitlist` 等事件。
 
-## Phase 4：实体打样
+## Phase 4：实体打样与小规模商业验证
 
-只做：
+只有 Digital Preview 的需求信号和完整 Collection Gate 均通过后，才投入 18–24 张实体套卡。
 
-- 一种尺寸；
-- 一种基础卡纸；
-- 一种覆膜；
-- 一种局部特殊工艺；
-- 一种包装；
-- 固定整套销售。
+V1 只做一种尺寸、一种基础卡纸、一种覆膜、一种局部工艺、一种包装和固定整套销售。实体销售前必须确定售价、单位成本、最小起订量、履约方式、退换规则和毛利底线；没有这些数据时只做候补名单或小批量预售。
 
-先验证：
-
-- 实体颜色还原；
-- 细节；
-- 触感；
-- 卡框与 Artwork 协调；
-- 包装高级感；
-- 用户是否真正愿意收藏。
+验收：颜色、细节、裁切、卡框、触感、包装和实际收藏意愿均完成记录。
 
 ## Phase 5：扩系列 / 扩画风
 
-优先顺序：
-
 ```text
-同系列第二 Style Edition
+已验证 Series 的第二 Style Edition
 vs
-新系列第一 Edition
+新 Series 的第一 Edition
 ```
 
-根据市场反馈决定，不预先承诺每个系列必须同时做 5 种画风。
+根据阅读深度、Collection 互动、预售 / 候补名单和用户反馈决定，不预先承诺每个 Series 必须同时拥有多种画风。
 
 ---
 
@@ -1193,9 +1286,12 @@ Collection 是视觉 / 商品层
 
 ## 18.1 Series Manifest
 
-示意：
+V1 使用静态、版本化的 Manifest。字段需要能够被构建期校验，并与现有 `MythStory`、`ContentClaim`、`SourceRef`、Character / World / Scene 类型对齐。
 
 ```ts
+type StorySeriesStatus = 'draft' | 'content-ready' | 'published' | 'collection-ready' | 'archived';
+type StorySeriesStoryRole = 'core' | 'supporting' | 'optional' | 'cross-series';
+
 type StorySeriesManifest = {
   id: string;
   slug: string;
@@ -1204,18 +1300,20 @@ type StorySeriesManifest = {
   nameEn?: string;
   summary: string;
   narrativeThesis: string;
+  version: string;
   scope: readonly string[];
   exclusions: readonly string[];
 
   storyRefs: readonly {
     storyId: string;
-    role: 'core' | 'supporting' | 'optional' | 'cross-series';
-    order?: number;
+    role: StorySeriesStoryRole;
+    order: number;
   }[];
 
   characterIds: readonly string[];
   worldIds: readonly string[];
   sceneIds: readonly string[];
+  conceptIds: readonly string[];
 
   keyMoments: readonly {
     id: string;
@@ -1224,34 +1322,63 @@ type StorySeriesManifest = {
     storyId?: string;
     characterIds?: readonly string[];
     worldId?: string;
+    sceneId?: string;
+    status: 'source-backed' | 'editorial-synthesis';
   }[];
 
-  sourcePolicy: readonly string[];
+  sourceRefs: readonly SourceRef[];
+  traditionLanes: readonly {
+    id: string;
+    label: string;
+    period?: string;
+    sourceRefs: readonly SourceRef[];
+    status: 'supported' | 'contested' | 'editorial-synthesis';
+  }[];
   visualAnchors: readonly string[];
   visualAvoid: readonly string[];
 
-  status: 'draft' | 'content-ready' | 'collection-ready';
+  review?: {
+    reviewer: string;
+    reviewedAt: string;
+    notes?: readonly string[];
+  };
+  status: StorySeriesStatus;
 };
 ```
 
+构建期必须验证：Manifest 的 `mythologyId`、Story、Character、World、Scene、Concept 均存在且属于正确体系；Story 引用不重复；`core` Story 已发布且依赖闭包完整；Key Moment 引用合法；所有来源有定位；`published` Series 有稳定 slug、摘要、Hero 和审核记录。Series → Story 的反向索引由构建脚本生成，不手工维护两份关系。
+
 ## 18.2 Collection Manifest
 
-示意：
+Collection 是 Series 的版本快照，不是新的神话事实来源。`scope` 必须明确本套卡覆盖哪些 Story / 故事弧。
 
 ```ts
+type CardNarrativeRole =
+  | 'opening' | 'world' | 'character' | 'relation' | 'artifact'
+  | 'omen' | 'conflict' | 'key-moment' | 'climax'
+  | 'aftermath' | 'epilogue' | 'cover';
+
 type CollectionManifest = {
   id: string;
   seriesId: string;
+  seriesVersion: string;
   styleId: string;
+  styleVersion: string;
   edition: string;
   name: string;
   targetCardCount: number;
+  scope: {
+    storyIds: readonly string[];
+    keyMomentIds?: readonly string[];
+    summary: string;
+  };
+  status: 'draft' | 'preview' | 'published' | 'retired';
 
   cards: readonly {
     id: string;
     order: number;
     title: string;
-    narrativeRoles: readonly string[];
+    narrativeRoles: readonly CardNarrativeRole[];
     storyId?: string;
     characterIds?: readonly string[];
     worldId?: string;
@@ -1259,11 +1386,48 @@ type CollectionManifest = {
     keyMomentId?: string;
     artworkId?: string;
     backSummary: string;
+    sourceRefs: readonly SourceRef[];
   }[];
 };
 ```
 
-这里不建议把 `rarity` 放进 V1 核心模型。
+Collection 校验必须保证：Series 和 Style 版本存在；覆盖范围属于 Series；卡号和顺序唯一；卡片至少关联 Story、Key Moment、Character、World、Scene 或 Concept 之一；`backSummary`、来源和 Artwork 在发布前完整；`targetCardCount` 与卡片数量一致。这里不把 `rarity` 放进 V1 核心模型。
+
+## 18.3 Collection Art Bible
+
+Art Bible 是 Style Edition 的版本化生产规范，不写入 Character、World、MythStory 或应用 Theme。至少包含：
+
+```ts
+type CollectionArtBible = {
+  id: string;
+  collectionId: string;
+  styleId: string;
+  styleVersion: string;
+  rendering: {
+    medium: string;
+    realism: string;
+    texture: string;
+    detailLevel: string;
+  };
+  palette: {
+    primary: string[];
+    accent: string[];
+    avoid: string[];
+    temperatureByRole?: Record<string, string>;
+  };
+  lighting: string[];
+  compositionByRole: Record<CardNarrativeRole, string>;
+  printTreatment: {
+    paper: string;
+    finish: string;
+    specialProcess?: string;
+  };
+  version: string;
+  status: 'draft' | 'approved' | 'retired';
+};
+```
+
+Art Bible 通过 `styleId + styleVersion` 引用既有 Style 体系；它只能规定本套 Collection 的渲染和排版生产规则，不能改变 Series 的故事事实或 Character 的身份锚点。
 
 ---
 
@@ -1284,7 +1448,7 @@ Dependency Gap Analysis
 ↓
 补 Story
 ↓
-补 Character / Realm / Scene
+补 Character / World / Scene
 ↓
 Series Bible Review
 ↓
@@ -1346,20 +1510,22 @@ AI 适合：
 ### Entity Completeness
 
 - Core Character CanonicalDesign 覆盖率；
-- Core Realm CanonicalDesign 覆盖率；
+- Core World CanonicalDesign 覆盖率；
 - 关键 Scene 覆盖率。
 
 ## 20.2 网站产品指标
 
-Series Page 上线后观察：
+Series Page 上线后至少观察 2 个完整周，并按新访客 / 回访用户、移动 / 桌面和来源渠道分组：
 
-- Series Page CTR；
-- Series → Story CTR；
+- `Series → Story` 进入率；
+- `Story` 开始率与完成率；
 - 单次 Series 阅读 Story 数；
-- Story → Character / Realm CTR；
-- Series 收藏 / 收藏意向；
+- 下一篇 / 相关 Character / World 点击率；
+- Series 收藏率；
 - Artwork 下载率；
 - AI Create Entry CTR。
+
+每个指标必须记录事件名、分母、观察周期和目标阈值。没有预先定义阈值时，指标只能用于观察，不能据此决定是否进入 Collection 生产。
 
 ## 20.3 Collection 质量指标
 
@@ -1375,15 +1541,28 @@ Series Page 上线后观察：
 
 ## 20.4 商业验证指标
 
-实体试点优先看：
+实体试点优先看“真实行为”而不是泛化的喜欢程度：
 
-1. “想收藏”用户比例；
-2. 数字样张 → 购买意向；
-3. 首批转化率；
-4. 实体收到后的满意度；
-5. 晒卡 / 分享率；
-6. 对同系列第二画风的兴趣；
-7. 对下一 Story Series 的期待。
+1. 数字样张下载 / 收藏 / 分享率；
+2. 物理套卡候补名单转化率；
+3. 明示售价后的预售转化率；
+4. 单套成本、售价、履约成本和毛利；
+5. 实体收到后的满意度与退换率；
+6. 晒卡 / 分享率；
+7. 对同系列第二画风和下一 Series 的实际兴趣。
+
+推荐将“是否进入下一阶段”写成门槛，而不是只列指标：
+
+```text
+Digital Preview → Full Collection
+需要：核心内容覆盖通过 + Contact Sheet 通过 + 行为需求达到预设阈值
+
+Full Collection → Physical Sample
+需要：完整 Artwork 通过 + 版权 / 来源齐全 + 成本模型可接受
+
+Physical Sample → Small-batch Sale
+需要：打样 QA 通过 + 明示售价后的有效预售 / 候补信号 + 履约方案成立
+```
 
 V1 不以二级市场价格和稀有卡炒作为成功指标。
 
@@ -1397,7 +1576,7 @@ V1 不以二级市场价格和稀有卡炒作为成功指标。
 
 ## R2：AI Art 缺乏收藏价值
 
-解决：收藏价值来自 **完整系列 + 高质量 Art Direction + 人工策展 + 实体工艺**，而不是“AI 生成”标签本身。
+解决：收藏价值来自 **明确叙事范围 + 高质量 Art Direction + 人工策展 + 实体工艺**，而不是“AI 生成”标签本身。
 
 ## R3：多画风导致品牌失焦
 
@@ -1421,6 +1600,14 @@ V1 不以二级市场价格和稀有卡炒作为成功指标。
 
 所有 Series 必须标明 tradition / period / source notes；编辑策展必须显式区分于古代来源。
 
+## R8：Series 内容重新依赖 D1
+
+解决：Series Manifest、关系索引、来源和策展 Artwork 元数据进入版本化静态目录；D1 只承载账户、收藏、生成、投稿、审核和运营数据。任何公共页面重新读取 D1 都必须提交架构例外说明。
+
+## R9：尚未验证需求就投入实体生产
+
+解决：先用 Series 阅读数据和 6–8 张 Digital Preview 验证收藏、下载、分享及明示售价后的候补 / 预售意向；未达到预设门槛时只补内容或继续做数字展示，不进入 18–24 张实体生产。
+
 ---
 
 # 22. 产品路线图
@@ -1434,14 +1621,14 @@ V1 不以二级市场价格和稀有卡炒作为成功指标。
 - [ ] Series Ready Gate；
 - [ ] 内容校验规则。
 
-## P0：补全首批故事系列
+## P0：完成一个试点故事系列
 
-- [ ] 从现有 Mythology 中选择首批候选 Series；
+- [ ] 从现有 Mythology 中选择 1 个候选 Series；
 - [ ] 完成来源研究；
 - [ ] 补齐核心 MythStory；
-- [ ] 补齐 Character / Realm / Scene；
+- [ ] 补齐 Character / World / Scene；
 - [ ] 完成 Series Bible；
-- [ ] 至少 1 个 Series 达到 `collection-ready`。
+- [ ] 达到 `content-ready`，并通过公共静态渲染验收。
 
 ## P1：网站 Series 产品化
 
@@ -1452,17 +1639,21 @@ V1 不以二级市场价格和稀有卡炒作为成功指标。
 - [ ] SEO / JSON-LD / Sitemap；
 - [ ] Series 数据指标。
 
-## P1：第一套 Digital Collection
+## P1：Digital Collection 预览与需求验证
 
 - [ ] Collection Manifest；
 - [ ] Collection Art Bible；
-- [ ] 18～24 张 Artwork；
+- [ ] 6–8 张 Digital Preview Artwork；
 - [ ] Contact Sheet QA；
 - [ ] Digital Card Layout；
-- [ ] Collection 展示页。
+- [ ] Collection 展示页；
+- [ ] 下载 / 收藏 / 分享 / 候补名单事件；
+- [ ] 明示售价后的需求验证。
 
 ## P2：第一套实体收藏卡
 
+- [ ] 通过 `collection-ready` Gate；
+- [ ] 扩展为 18–24 张完整 Collection；
 - [ ] 供应商打样；
 - [ ] Print Master；
 - [ ] 包装设计；
@@ -1496,13 +1687,13 @@ AI 生成图片
 
 ```text
 可靠的神话内容
-→ 完整的故事系列
+→ 明确叙事范围的故事系列
 → 稳定的人物与世界资产
 → 高水平视觉策展
 → 数字典藏
 → 精美实体收藏卡
 ```
 
-只要上游 Story Series 足够完整，同一个系列就可以持续演化出不同画风、壁纸、长图、动态视觉和实体收藏产品，而不需要每次重新发明世界观。
+只要上游 Story Series 的边界、核心故事和依赖闭包足够清晰，同一个系列就可以持续演化出不同画风、壁纸、长图、动态视觉和实体收藏产品，而不需要每次重新发明世界观。
 
 这应成为 MythCanvas 下一阶段内容建设与收藏产品化的统一主线。

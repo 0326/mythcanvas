@@ -108,6 +108,60 @@ export type TaxonomyTerm = {
   displayOrder: number;
 };
 
+export type StorySeriesStatus = 'draft' | 'content-ready' | 'published' | 'collection-ready' | 'archived';
+
+export type StorySeriesStoryRole = 'core' | 'supporting' | 'optional' | 'cross-series';
+
+/** A curated, versioned narrative spine that groups Stories without changing their facts. */
+export type StorySeriesManifest = {
+  id: string;
+  slug: string;
+  mythologyId: string;
+  name: string;
+  nameEn?: string;
+  summary: string;
+  narrativeThesis: string;
+  version: string;
+  scope: readonly string[];
+  exclusions: readonly string[];
+  heroArtworkId?: string;
+  storyRefs: readonly {
+    storyId: string;
+    role: StorySeriesStoryRole;
+    order: number;
+  }[];
+  characterIds: readonly string[];
+  worldIds: readonly string[];
+  sceneIds: readonly string[];
+  conceptIds: readonly string[];
+  keyMoments: readonly {
+    id: string;
+    title: string;
+    summary: string;
+    storyId?: string;
+    characterIds?: readonly string[];
+    worldId?: string;
+    sceneId?: string;
+    status: 'source-backed' | 'editorial-synthesis';
+  }[];
+  sourceRefs: readonly SourceRef[];
+  traditionLanes: readonly {
+    id: string;
+    label: string;
+    period?: string;
+    sourceRefs: readonly SourceRef[];
+    status: ContentClaimStatus;
+  }[];
+  visualAnchors: readonly string[];
+  visualAvoid: readonly string[];
+  review?: {
+    reviewer: string;
+    reviewedAt: string;
+    notes?: readonly string[];
+  };
+  status: StorySeriesStatus;
+};
+
 export type CharacterInterpretationConfidence = 'high' | 'medium' | 'contested';
 
 export type CharacterNameKind = 'primary' | 'alias' | 'title' | 'literary-identity';

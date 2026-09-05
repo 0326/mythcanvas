@@ -9,6 +9,7 @@ import type {
   MythStory,
   Scene,
   TaxonomyTerm,
+  StorySeriesManifest,
   World,
 } from '../lib/content/types';
 import { greekCharacters, greekRelations, greekScenes, greekTaxonomy, greekWorlds } from './greek/catalog';
@@ -17,6 +18,7 @@ import { greekAssetProvenance } from './greek/assets';
 import { greekVisualTiers } from './greek/visual-tiers';
 import { norseCharacters, norseRelations, norseScenes, norseTaxonomy, norseWorlds } from './norse/catalog';
 import { norseStories } from './norse/stories';
+import { norseStorySeries } from './norse/series';
 import { norseAssetProvenance } from './norse/assets';
 import { norseVisualTiers } from './norse/visual-tiers';
 import { mayaCharacters, mayaConcepts, mayaRelations, mayaScenes, mayaTaxonomy, mayaWorlds } from './maya/catalog';
@@ -64,6 +66,7 @@ export type StructuredMythologyBundle = {
   worlds: readonly World[];
   scenes: readonly Scene[];
   stories: readonly MythStory[];
+  series?: readonly StorySeriesManifest[];
   assetProvenance?: readonly unknown[];
   visualTiers?: Record<string, readonly string[]>;
   /** Optional registry metadata; refs remain materialized on entities for portability. */
@@ -92,6 +95,7 @@ const bundles: readonly StructuredMythologyBundle[] = [
     worlds: norseWorlds,
     scenes: norseScenes,
     stories: norseStories,
+    series: norseStorySeries,
     assetProvenance: norseAssetProvenance,
     visualTiers: norseVisualTiers,
   },

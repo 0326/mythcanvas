@@ -69,19 +69,26 @@ const sourceTypeLabels = {
         <span class="eyebrow">Illustrated Mythology</span>
         <h2 id="story-reader-title">从故事进入 {mythology.name}</h2>
         <p class="literary-copy">
-          神话不是一组人物卡片，也不是一条被整理得过分整齐的年表。这里以传说、典籍与后世流变为线索，用图像辅助叙事，再从故事自然进入相关神灵与神域。
+          {storyDetailRoutes
+            ? '故事已按卷目拆分为独立阅读页面。先选择一篇进入，再沿着上一篇、下一篇和相关神灵、神域继续探索。'
+            : '神话不是一组人物卡片，也不是一条被整理得过分整齐的年表。这里以传说、典籍与后世流变为线索，用图像辅助叙事，再从故事自然进入相关神灵与神域。'}
         </p>
       </header>
 
       {volumes.map((volume, volumeIndex) => (
-        <section class="story-volume" id={`volume-${volume.id}`} aria-labelledby={`volume-title-${volume.id}`}>
+        <section class:list={['story-volume', { 'story-volume--index': storyDetailRoutes, 'story-volume--reader': !storyDetailRoutes }]} id={`volume-${volume.id}`} aria-labelledby={`volume-title-${volume.id}`}>
           <header class="volume-heading">
             <span class="volume-number">卷{volumeNumerals[volumeIndex] ?? volumeIndex + 1}</span>
             <h2 id={`volume-title-${volume.id}`}>{volume.title}</h2>
             <div class="volume-rule" aria-hidden="true"></div>
           </header>
 
-          <div class="volume-stories">
+          <details class="volume-disclosure" open={!storyDetailRoutes || volumeIndex === 0}>
+            <summary class="volume-toggle">
+              <span>本卷故事 · {volume.stories.length} 篇</span>
+              <span aria-hidden="true"></span>
+            </summary>
+            <div class:list={['volume-stories', { 'volume-stories--index': storyDetailRoutes }]}>
             {volume.stories.map((story, storyIndex) => {
               const relatedCharacters = story.characterIds
                 .map((id) => charactersById.get(id))
@@ -89,9 +96,10 @@ const sourceTypeLabels = {
               const relatedWorlds = story.worldIds
                 .map((id) => worldsById.get(id))
                 .filter((item): item is World => Boolean(item));
+              const storyIllustration = story.heroAssetId ? getStoryIllustrationById(story.heroAssetId) : undefined;
 
               return (
-                <article class="story-entry" id={`story-${story.slug}`}>
+                <article class:list={['story-entry', { 'story-entry--index': storyDetailRoutes }]} id={`story-${story.slug}`}>
                   <header class="story-header">
                     <div class="story-order" aria-hidden="true">{String(storyIndex + 1).padStart(2, '0')}</div>
                     <div>
@@ -110,6 +118,29 @@ const sourceTypeLabels = {
                     </div>
                   </header>
 
+                  {storyDetailRoutes ? (
+                    <div class="story-preview">
+                      {storyIllustration && (
+                        <figure class="story-preview-figure">
+                          <img
+                            src={storyIllustration.image.src}
+                            alt={storyIllustration.image.alt}
+                            width={storyIllustration.image.width}
+                            height={storyIllustration.image.height}
+                            loading="lazy"
+                          />
+                        </figure>
+                      )}
+                      <div class="story-preview-footer">
+                        <span>独立故事页 · 约 {story.readingMinutes ?? 4} 分钟</span>
+                        <a class="story-read-link" href={storyHref(story.slug)}>
+                          <span>阅读全文</span>
+                          <ArrowRight size={17} strokeWidth={1.8} aria-hidden="true" />
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
                   <div class="story-body">
                     {story.blocks.map((block) => {
                       if (block.type === 'paragraph') {
@@ -191,10 +222,13 @@ const sourceTypeLabels = {
                       {story.sourceNotes.map((note) => <p>{note}</p>)}
                     </div>
                   </details>
+                    </>
+                  )}
                 </article>
               );
             })}
-          </div>
+            </div>
+          </details>
         </section>
       ))}
     </div>
@@ -364,13 +398,75 @@ const sourceTypeLabels = {
     background: linear-gradient(90deg, var(--border-strong), transparent);
   }
 
+  .volume-disclosure > summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    width: fit-content;
+    margin-bottom: 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: .78rem;
+    list-style: none;
+  }
+
+  .volume-disclosure > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .volume-disclosure > summary::after {
+    content: '展开';
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+
+  .volume-disclosure[open] > summary::after {
+    content: '收起';
+  }
+
+  .story-volume--reader .volume-toggle {
+    display: none;
+  }
+
+  .story-volume--reader .volume-stories {
+    margin-top: 0;
+  }
+
+  .story-volume--index + .story-volume--index {
+    margin-top: 4.5rem;
+  }
+
   .volume-stories {
     display: grid;
     gap: 9rem;
   }
 
+  .volume-stories--index {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1.5rem;
+  }
+
   .story-entry {
     scroll-margin-top: calc(var(--header-height) + 2rem);
+  }
+
+  .story-entry--index {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--surface) 72%, transparent);
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+  }
+
+  .story-entry--index:hover {
+    border-color: var(--border-strong);
+    background: var(--surface);
+    transform: translateY(-2px);
   }
 
   .story-header {
@@ -417,6 +513,27 @@ const sourceTypeLabels = {
     line-height: 1.08;
   }
 
+  .story-entry--index .story-header {
+    grid-template-columns: 2.1rem minmax(0, 1fr);
+    gap: .85rem;
+    margin-bottom: 1.35rem;
+  }
+
+  .story-entry--index .story-header h3 {
+    font-size: clamp(1.55rem, 2.3vw, 2.25rem);
+    line-height: 1.18;
+  }
+
+  .story-entry--index .story-title-en {
+    margin-bottom: .9rem;
+  }
+
+  .story-entry--index .story-summary {
+    margin-bottom: 0;
+    font-size: .96rem;
+    line-height: 1.8;
+  }
+
   .story-title-en {
     margin-bottom: 1.55rem;
     color: var(--text-muted);
@@ -450,6 +567,52 @@ const sourceTypeLabels = {
     display: inline-flex;
     align-items: center;
     gap: .4rem;
+  }
+
+  .story-preview {
+    display: grid;
+    gap: 1rem;
+    margin-top: auto;
+  }
+
+  .story-preview-figure {
+    overflow: hidden;
+    margin: 0;
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+  }
+
+  .story-preview-figure img {
+    width: 100%;
+    aspect-ratio: 16 / 8.5;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .story-entry--index:hover .story-preview-figure img {
+    transform: scale(1.025);
+  }
+
+  .story-preview-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--text-muted);
+    font-size: .76rem;
+  }
+
+  .story-read-link {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: .35rem;
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+
+  .story-read-link:hover {
+    color: var(--text-primary);
   }
 
   .story-body {
@@ -807,12 +970,25 @@ const sourceTypeLabels = {
       white-space: normal;
     }
 
-    .volume-rule {
-      display: none;
+      .volume-rule {
+        display: none;
+      }
+
+    .volume-disclosure > summary {
+      margin-bottom: 1rem;
     }
 
     .volume-stories {
       gap: 5.5rem;
+    }
+
+    .volume-stories--index {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .story-entry--index {
+      padding: 1.15rem;
     }
 
     .story-header {

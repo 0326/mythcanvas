@@ -3,7 +3,7 @@ import { artworks as seedArtworks, characterVariants as seedCharacterVariants, c
 import { mythologies as seedMythologies } from '../../data/mythologies';
 import { publishedArtworks } from '../../data/published-artworks';
 import { mythStories } from './stories';
-import type { Artwork, Character, CharacterInterpretation, CharacterName, CharacterRelation, CharacterVariant, ContentClaim, ContentConcept, ContentSource, Mythology, MythStory, Scene, Style, TaxonomyTerm, World } from './types';
+import type { Artwork, Character, CharacterInterpretation, CharacterName, CharacterRelation, CharacterVariant, ContentClaim, ContentConcept, ContentSource, Mythology, MythStory, Scene, Style, StorySeriesManifest, TaxonomyTerm, World } from './types';
 import type { ArtworkListQuery, EntityListQuery } from './repositories/types';
 
 export type PublicArtwork = Artwork & {
@@ -24,6 +24,7 @@ export type PublicContentCatalog = {
   sources: readonly ContentSource[];
   taxonomy: readonly TaxonomyTerm[];
   stories: readonly MythStory[];
+  series: readonly StorySeriesManifest[];
   styles: readonly Style[];
   characterVariants: readonly CharacterVariant[];
   curatedArtworks: readonly Artwork[];
@@ -80,6 +81,7 @@ const publicContentCatalog: PublicContentCatalog = {
   sources: structuredBundles.flatMap((bundle) => bundle.sources ?? []),
   taxonomy: structuredBundles.flatMap((bundle) => bundle.taxonomy ?? []),
   stories: mythStories,
+  series: structuredBundles.flatMap((bundle) => bundle.series ?? []),
   styles: seedStyles,
   characterVariants: seedCharacterVariants,
   curatedArtworks: mergeById(seedArtworks, publishedArtworks),
@@ -210,6 +212,16 @@ export function getPublicContentConceptsByIds(ids: readonly string[]): ContentCo
 
 export function getPublicStoriesForMythology(mythologyId: string): MythStory[] {
   return storiesByMythology.get(mythologyId) ?? [];
+}
+
+export function getPublicStorySeriesForMythology(mythologyId: string): StorySeriesManifest[] {
+  return publicContentCatalog.series
+    .filter((series) => series.mythologyId === mythologyId && series.status === 'published')
+    .toSorted((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+}
+
+export function getPublicStorySeriesBySlug(mythologyId: string, slug: string): StorySeriesManifest | undefined {
+  return publicContentCatalog.series.find((series) => series.mythologyId === mythologyId && series.slug === slug && series.status === 'published');
 }
 
 export function getPublicStyles(): Style[] {

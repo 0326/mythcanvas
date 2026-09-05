@@ -1,5 +1,5 @@
 ---
-import { ArrowLeft, Landmark, UserRound } from '@lucide/astro';
+import { ArrowLeft, ArrowRight, BookOpenText, Landmark, UserRound } from '@lucide/astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import {
   getPublicCharactersForMythology,
@@ -7,7 +7,8 @@ import {
   getPublicMythologyBySlug,
   getPublicWorldsForMythology,
 } from '../../../lib/content/public-catalog';
-import { getPublicStoryPaths, getStoryForMythology } from '../../../lib/content/stories';
+import { getPublicStoryPaths, getStoriesForMythology, getStoryForMythology } from '../../../lib/content/stories';
+import { getStoryIllustrationById } from '../../../data/story-illustrations';
 
 export const prerender = true;
 
@@ -22,6 +23,12 @@ const mythology = getPublicMythologyBySlug(Astro.params.mythologySlug ?? '');
 const story = mythology ? getStoryForMythology(mythology.id, Astro.params.storySlug ?? '') : undefined;
 if (!mythology || !story) return Astro.redirect('/404');
 
+const stories = getStoriesForMythology(mythology.id);
+const storyIndex = stories.findIndex((item) => item.id === story.id);
+const previousStory = storyIndex > 0 ? stories[storyIndex - 1] : undefined;
+const nextStory = storyIndex >= 0 ? stories[storyIndex + 1] : undefined;
+const storyHeroIllustration = story.heroAssetId ? getStoryIllustrationById(story.heroAssetId) : undefined;
+const storyHeroImage = storyHeroIllustration?.image ?? mythology.heroImage;
 const [characters, worlds] = [
   getPublicCharactersForMythology(mythology.id),
   getPublicWorldsForMythology(mythology.id),
@@ -35,7 +42,7 @@ const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Bool
 <BaseLayout
   title={`${story.title} · ${mythology.name}`}
   description={story.summary}
-  image={mythology.heroImage.src}
+  image={storyHeroImage.src}
 >
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={JSON.stringify({
@@ -47,13 +54,14 @@ const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Bool
       inLanguage: 'zh-CN',
       datePublished: story.publishedAt,
       dateModified: story.updatedAt,
+      image: new URL(storyHeroImage.src, Astro.site).toString(),
       isPartOf: { '@type': 'CollectionPage', name: mythology.name, url: new URL(`/mythology/${mythology.slug}/`, Astro.site).toString() },
     })} />
   </Fragment>
 
   <main class="story-page">
     <header class="story-hero">
-      <img src={mythology.heroImage.src} alt={mythology.heroImage.alt} width={mythology.heroImage.width} height={mythology.heroImage.height} fetchpriority="high" />
+      <img src={storyHeroImage.src} alt={storyHeroImage.alt} width={storyHeroImage.width} height={storyHeroImage.height} fetchpriority="high" />
       <div class="story-hero-overlay" aria-hidden="true"></div>
       <div class="container-wide story-hero-content">
         <a class="story-back" href={`/mythology/${mythology.slug}/`}><ArrowLeft size={17} strokeWidth={1.8} aria-hidden="true" />返回 {mythology.name}</a>
@@ -62,6 +70,11 @@ const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Bool
         {story.titleEn && <p class="story-en">{story.titleEn}</p>}
         {story.subtitle && <p class="story-subtitle literary-copy">{story.subtitle}</p>}
         <p class="story-summary literary-copy">{story.summary}</p>
+        <div class="story-progress" aria-label={`第 ${storyIndex + 1} 篇，共 ${stories.length} 篇`}>
+          <BookOpenText size={16} strokeWidth={1.8} aria-hidden="true" />
+          <span>故事 {String(storyIndex + 1).padStart(2, '0')} / {String(stories.length).padStart(2, '0')}</span>
+          <span>约 {story.readingMinutes ?? 4} 分钟</span>
+        </div>
       </div>
     </header>
 
@@ -70,7 +83,20 @@ const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Bool
         if (block.type === 'paragraph') return <p class="literary-copy">{block.text}</p>;
         if (block.type === 'heading') return block.level === 2 ? <h2 id={block.id}>{block.text}</h2> : <h3 id={block.id}>{block.text}</h3>;
         if (block.type === 'quote') return <blockquote><p>{block.text}</p>{block.source && <cite>{block.source}</cite>}</blockquote>;
-        return null;
+        const illustration = getStoryIllustrationById(block.assetId);
+        if (!illustration) return null;
+        return (
+          <figure class={`story-figure story-figure--${block.layout ?? 'wide'}`}>
+            <img
+              src={illustration.image.src}
+              alt={illustration.image.alt}
+              width={illustration.image.width}
+              height={illustration.image.height}
+              loading="lazy"
+            />
+            {block.caption && <figcaption>{block.caption}</figcaption>}
+          </figure>
+        );
       })}
 
       <section class="story-links" aria-label={`${story.title}相关实体`}>
@@ -86,6 +112,21 @@ const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Bool
         <ul>{story.sources.map((source) => <li><strong>{source.title}</strong>{source.locator && <span> · {source.locator}</span>}{source.note && <p>{source.note}</p>}</li>)}</ul>
         {story.sourceNotes.map((note) => <p>{note}</p>)}
       </details>
+
+      <nav class="story-sequence" aria-label="故事阅读顺序">
+        {previousStory ? (
+          <a href={`/mythology/${mythology.slug}/${previousStory.slug}/`}>
+            <ArrowLeft size={17} strokeWidth={1.8} aria-hidden="true" />
+            <span><small>上一篇</small><strong>{previousStory.title}</strong></span>
+          </a>
+        ) : <span class="story-sequence-empty" aria-hidden="true"></span>}
+        {nextStory ? (
+          <a href={`/mythology/${mythology.slug}/${nextStory.slug}/`}>
+            <span><small>下一篇</small><strong>{nextStory.title}</strong></span>
+            <ArrowRight size={17} strokeWidth={1.8} aria-hidden="true" />
+          </a>
+        ) : <span class="story-sequence-empty" aria-hidden="true"></span>}
+      </nav>
     </article>
   </main>
 </BaseLayout>
@@ -100,16 +141,37 @@ const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Bool
   h1 { margin: .55rem 0 0; font-size: clamp(3rem, 7vw, 6rem); line-height: .95; }
   .story-en, .story-subtitle { color: var(--accent-strong); margin: .65rem 0 0; }
   .story-summary { max-width: 44rem; color: var(--text-secondary); font-size: 1.05rem; line-height: 1.9; }
-  .story-article { padding-block: clamp(4rem, 8vw, 7rem); }
+  .story-progress { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem 1rem; margin-top: 1.5rem; color: var(--text-muted); font-size: .78rem; }
+  .story-progress span + span { padding-left: 1rem; border-left: 1px solid color-mix(in srgb, var(--text-muted) 45%, transparent); }
+  .story-article { width: min(760px, calc(100% - 40px)); margin-inline: auto; padding-block: clamp(4rem, 8vw, 7rem); }
   .story-article > p { color: var(--text-primary); font-size: clamp(1.08rem, 1.4vw, 1.3rem); line-height: 2; }
   .story-article > p + p { margin-top: 1.6rem; }
   blockquote { margin: 3rem 0; padding: 1.25rem 1.5rem; border-left: 2px solid var(--accent-strong); background: var(--surface-muted); color: var(--text-secondary); }
   blockquote p { margin: 0; } blockquote cite { display: block; margin-top: .7rem; font-size: .82rem; }
+  .story-figure { margin: 3rem 0; }
+  .story-figure img { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); object-fit: cover; }
+  .story-figure--wide img { aspect-ratio: 16 / 8.5; }
+  .story-figure--portrait { width: min(30rem, 72%); margin-inline: auto; }
+  .story-figure--portrait img { aspect-ratio: 3 / 4; }
+  .story-figure--inset { width: min(42rem, 88%); margin-inline: auto; }
+  .story-figure figcaption { margin-top: .8rem; color: var(--text-muted); font-family: var(--font-literary); font-size: .82rem; line-height: 1.7; }
   .story-links, .story-sources { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
   .story-links h2 { margin: 0 0 1rem; }
   .story-link-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
   .story-link-grid a { display: flex; align-items: center; gap: .7rem; padding: .9rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); }
   .story-link-grid small, .story-link-grid strong { display: block; } .story-link-grid small { color: var(--text-muted); font-size: .68rem; }
   .story-sources summary { cursor: pointer; color: var(--text-primary); font-weight: 700; } .story-sources li, .story-sources p { color: var(--text-secondary); line-height: 1.7; }
-  @media (max-width: 700px) { .story-link-grid { grid-template-columns: 1fr; } }
+  .story-sequence { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .story-sequence a { display: flex; min-width: 0; align-items: center; gap: .75rem; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); transition: border-color var(--transition-fast), transform var(--transition-fast); }
+  .story-sequence a:last-child { justify-content: flex-end; text-align: right; }
+  .story-sequence a:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+  .story-sequence a span { display: grid; min-width: 0; gap: .25rem; }
+  .story-sequence small { color: var(--text-muted); font-size: .68rem; }
+  .story-sequence strong { overflow: hidden; font-family: var(--font-display); font-size: .95rem; text-overflow: ellipsis; white-space: nowrap; }
+  @media (max-width: 700px) {
+    .story-link-grid { grid-template-columns: 1fr; }
+    .story-sequence { grid-template-columns: 1fr; }
+    .story-sequence-empty { display: none; }
+    .story-figure--portrait, .story-figure--inset { width: 100%; }
+  }
 </style>

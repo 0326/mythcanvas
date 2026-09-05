@@ -1,0 +1,194 @@
+---
+import { ArrowLeft, ArrowRight, BookOpenText, Landmark, UserRound } from '@lucide/astro';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import {
+  getPublicCharactersByIds,
+  getPublicStorySeriesForMythology,
+  getPublicStorySeriesBySlug,
+  getPublicWorldById,
+} from '../../../../lib/content/public-catalog';
+import { getStoryForMythology } from '../../../../lib/content/stories';
+import { getPublicMythologies } from '../../../../lib/content/public-catalog';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return getPublicMythologies().flatMap((mythology) =>
+    getPublicStorySeriesForMythology(mythology.id).map((series) => ({
+      params: { mythologySlug: mythology.slug, seriesSlug: series.slug },
+    })),
+  );
+}
+
+const { mythologySlug, seriesSlug } = Astro.params;
+const mythology = getPublicMythologies().find((item) => item.slug === mythologySlug);
+const series = mythology ? getPublicStorySeriesBySlug(mythology.id, seriesSlug ?? '') : undefined;
+if (!mythology || !series) return Astro.redirect('/404');
+
+const stories = series.storyRefs
+  .toSorted((a, b) => a.order - b.order)
+  .map((storyRef) => ({ ref: storyRef, story: getStoryForMythology(mythology.id, storyRef.storyId.replace(/^story-/, '')) }))
+  .filter((item): item is { ref: (typeof series.storyRefs)[number]; story: NonNullable<ReturnType<typeof getStoryForMythology>> } => Boolean(item.story));
+const characters = getPublicCharactersByIds(series.characterIds);
+const worlds = series.worldIds.map((id) => getPublicWorldById(id)).filter(Boolean);
+const readingMinutes = stories.reduce((total, item) => total + (item.story.readingMinutes ?? 0), 0);
+const heroImage = mythology.heroImage;
+---
+
+<BaseLayout
+  title={`${series.name}系列 · ${mythology.name}`}
+  description={series.summary}
+  image={heroImage.src}
+  fullBleed
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: series.name,
+      alternateName: series.nameEn,
+      description: series.summary,
+      image: new URL(heroImage.src, Astro.site).toString(),
+      isPartOf: { '@type': 'CollectionPage', name: mythology.name, url: new URL(`/mythology/${mythology.slug}/`, Astro.site).toString() },
+      hasPart: stories.map(({ story }) => ({ '@type': 'CreativeWork', name: story.title, url: new URL(`/mythology/${mythology.slug}/${story.slug}/`, Astro.site).toString() })),
+    })} />
+  </Fragment>
+
+  <section class="series-hero" aria-labelledby="series-title">
+    <img class="series-hero-image" src={heroImage.src} alt={heroImage.alt} width={heroImage.width} height={heroImage.height} fetchpriority="high" />
+    <div class="series-hero-overlay" aria-hidden="true"></div>
+    <nav class="container-wide series-breadcrumb" aria-label="面包屑">
+      <a href={`/mythology/${mythology.slug}/`}>返回 {mythology.name}</a>
+      <span>/</span>
+      <span aria-current="page">{series.name}</span>
+    </nav>
+    <div class="container-wide series-hero-content">
+      <span class="hero-kicker">STORY SERIES · {series.version}</span>
+      <h1 id="series-title">{series.name}</h1>
+      {series.nameEn && <p class="series-title-en">{series.nameEn}</p>}
+      <p class="series-summary">{series.summary}</p>
+      <div class="series-meta" aria-label="系列概览">
+        <span><BookOpenText size={16} strokeWidth={1.8} aria-hidden="true" />{stories.length} 篇故事</span>
+        <span>{series.keyMoments.length} 个关键时刻</span>
+        <span>约 {readingMinutes} 分钟</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="series-body">
+    <div class="container-readable series-thesis">
+      <span class="eyebrow">Narrative Spine</span>
+      <h2>这条故事路径关注什么？</h2>
+      <p>{series.narrativeThesis}</p>
+      <p class="series-scope"><strong>范围：</strong>{series.scope.join(' · ')}</p>
+    </div>
+
+    <div class="container-wide series-journey-section">
+      <header class="section-heading">
+        <div>
+          <span class="eyebrow">Story Journey</span>
+          <h2>按这个顺序进入诸神黄昏</h2>
+        </div>
+        <p>系列只提供一条可理解的阅读路径；每一篇仍保留自己的来源、版本和相关实体。</p>
+      </header>
+      <div class="series-journey">
+        {stories.map(({ ref, story }, index) => (
+          <a class="series-story-card" href={`/mythology/${mythology.slug}/${story.slug}/`}>
+            <span class="series-story-number">{String(index + 1).padStart(2, '0')}</span>
+            <span class="series-story-copy">
+              <small>{ref.role === 'core' ? '核心故事' : '延伸故事'} · {story.volumeTitle}</small>
+              <strong>{story.title}</strong>
+              {story.titleEn && <em>{story.titleEn}</em>}
+              <span>{story.summary}</span>
+            </span>
+            <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" />
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="container-wide series-detail-grid">
+      <section aria-labelledby="moments-title">
+        <span class="eyebrow">Key Moments</span>
+        <h2 id="moments-title">关键时刻</h2>
+        <div class="moment-list">
+          {series.keyMoments.map((moment, index) => (
+            <article class="moment-item">
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <div><h3>{moment.title}</h3><p>{moment.summary}</p></div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <aside class="series-context" aria-label="系列关联实体">
+        <div>
+          <div class="context-heading"><UserRound size={18} strokeWidth={1.8} aria-hidden="true" /><h2>核心神灵</h2></div>
+          {characters.slice(0, 8).map((character) => <a href={`/character/${character.slug}/`}>{character.name}<ArrowRight size={15} aria-hidden="true" /></a>)}
+        </div>
+        <div>
+          <div class="context-heading"><Landmark size={18} strokeWidth={1.8} aria-hidden="true" /><h2>核心神域</h2></div>
+          {worlds.map((world) => world && <a href={`/world/${world.slug}/`}>{world.name}<ArrowRight size={15} aria-hidden="true" /></a>)}
+        </div>
+      </aside>
+    </div>
+
+    <div class="container-wide series-back-link"><a href={`/mythology/${mythology.slug}/`}><ArrowLeft size={16} aria-hidden="true" />返回 {mythology.name} 故事总览</a></div>
+  </section>
+</BaseLayout>
+
+<style>
+  .series-hero { position: relative; min-height: max(640px, 72vh); display: grid; grid-template-rows: auto 1fr; overflow: hidden; color: #fff; background: #17202b; }
+  .series-hero-image, .series-hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .series-hero-image { object-fit: cover; object-position: center; transform: scale(1.015); }
+  .series-hero-overlay { background: linear-gradient(180deg, rgba(7, 13, 20, .42), rgba(7, 13, 20, .14) 42%, rgba(7, 13, 20, .84) 100%), linear-gradient(90deg, rgba(7, 13, 20, .62), rgba(7, 13, 20, .08) 72%); }
+  .series-breadcrumb, .series-hero-content { position: relative; z-index: 1; }
+  .series-breadcrumb { display: flex; gap: .6rem; align-items: center; padding-top: calc(var(--header-height) + 2rem); color: rgba(255,255,255,.75); font-size: .78rem; }
+  .series-breadcrumb a:hover { color: #fff; }
+  .series-hero-content { align-self: end; max-width: 900px; padding-bottom: clamp(4rem, 9vw, 8rem); }
+  .series-hero h1 { margin: .9rem 0 .25rem; font-family: var(--font-display); font-size: clamp(3.8rem, 10vw, 8rem); font-weight: 400; line-height: .96; }
+  .series-title-en { margin: 0; color: rgba(255,255,255,.75); font-size: 1rem; letter-spacing: .08em; }
+  .series-summary { max-width: 44rem; margin: 1.3rem 0 0; color: rgba(255,255,255,.88); font-size: clamp(1rem, 1.7vw, 1.25rem); line-height: 1.8; }
+  .series-meta { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; margin-top: 1.5rem; color: rgba(255,255,255,.72); font-size: .78rem; }
+  .series-meta span { display: inline-flex; gap: .45rem; align-items: center; }
+  .series-body { padding-block: clamp(4rem, 8vw, 8rem); background: var(--background); }
+  .series-thesis { text-align: center; }
+  .series-thesis h2 { margin: .7rem 0 1.25rem; font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 500; }
+  .series-thesis > p:not(.series-scope) { max-width: 48rem; margin: 0 auto; color: var(--text-primary); font-family: var(--font-display); font-size: clamp(1.2rem, 2vw, 1.65rem); line-height: 1.8; }
+  .series-scope { margin-top: 1.5rem !important; color: var(--text-muted); font-size: .82rem; }
+  .series-journey-section { margin-top: clamp(4rem, 8vw, 7rem); }
+  .section-heading { display: flex; justify-content: space-between; gap: 2rem; align-items: end; margin-bottom: 2rem; }
+  .section-heading h2, .series-detail-grid h2 { margin: .6rem 0 0; font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 500; }
+  .section-heading p { max-width: 32rem; margin: 0; color: var(--text-muted); line-height: 1.7; }
+  .series-journey { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .series-story-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 1.25rem; align-items: start; min-height: 180px; padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); transition: border-color var(--transition-fast), transform var(--transition-fast); }
+  .series-story-card:hover { border-color: var(--border-strong); transform: translateY(-3px); }
+  .series-story-number { color: var(--accent); font-size: .85rem; letter-spacing: .08em; }
+  .series-story-copy { display: grid; gap: .45rem; }
+  .series-story-copy small { color: var(--accent); font-size: .7rem; }
+  .series-story-copy strong { font-family: var(--font-display); font-size: 1.45rem; font-weight: 500; }
+  .series-story-copy em { color: var(--text-muted); font-family: var(--font-display); font-size: .85rem; font-style: normal; letter-spacing: .04em; }
+  .series-story-copy > span { margin-top: .35rem; color: var(--text-muted); font-size: .88rem; line-height: 1.7; }
+  .series-story-card > svg { margin-top: .2rem; color: var(--accent); }
+  .series-detail-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: clamp(3rem, 8vw, 8rem); margin-top: clamp(5rem, 10vw, 9rem); }
+  .moment-list { margin-top: 2rem; border-top: 1px solid var(--border); }
+  .moment-item { display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; padding: 1.2rem 0; border-bottom: 1px solid var(--border); }
+  .moment-item > span { color: var(--accent); font-size: .78rem; }
+  .moment-item h3 { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 500; }
+  .moment-item p { margin: .4rem 0 0; color: var(--text-muted); line-height: 1.7; }
+  .series-context { display: grid; gap: 2rem; align-content: start; padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-muted); }
+  .context-heading { display: flex; gap: .6rem; align-items: center; padding-bottom: .8rem; border-bottom: 1px solid var(--border); }
+  .context-heading h2 { margin: 0; font-size: 1.1rem; }
+  .series-context a { display: flex; justify-content: space-between; gap: 1rem; padding: .72rem 0; border-bottom: 1px solid var(--border); color: var(--text-primary); font-size: .88rem; }
+  .series-context a:hover { color: var(--accent); }
+  .series-context a svg { color: var(--accent); }
+  .series-back-link { margin-top: clamp(4rem, 8vw, 7rem); padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .series-back-link a { display: inline-flex; gap: .5rem; align-items: center; color: var(--text-muted); font-size: .85rem; }
+  .series-back-link a:hover { color: var(--text-primary); }
+  @media (max-width: 820px) {
+    .series-hero { min-height: 680px; }
+    .series-hero h1 { font-size: clamp(3.5rem, 17vw, 5.5rem); }
+    .section-heading, .series-detail-grid { grid-template-columns: 1fr; display: grid; }
+    .series-journey { grid-template-columns: 1fr; }
+  }
+</style>
