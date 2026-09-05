@@ -5,6 +5,7 @@ import { getUiMessages } from '../lib/i18n/ui';
 
 const year = new Date().getFullYear();
 const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const isEnglish = locale === 'en';
 const messages = getUiMessages(locale);
 const footerBrandName = locale === DEFAULT_LOCALE ? `${messages.brand.name} MythCanvas` : messages.brand.name;
 ---
@@ -17,20 +18,33 @@ const footerBrandName = locale === DEFAULT_LOCALE ? `${messages.brand.name} Myth
         <strong class="brand-serif">{footerBrandName}</strong>
       </div>
       <p>{messages.footer.description}</p>
-      <nav class="footer-legal" aria-label={messages.footer.legalAria}>
-        <a href={localizedPath(locale, '/privacy/')}>{messages.footer.privacy}</a>
-        <a href={localizedPath(locale, '/terms/')}>{messages.footer.terms}</a>
-        <a href={localizedPath(locale, '/copyright/')}>{messages.footer.copyright}</a>
-      </nav>
+      {!isEnglish && (
+        <nav class="footer-legal" aria-label={messages.footer.legalAria}>
+          <a href={localizedPath(locale, '/privacy/')}>{messages.footer.privacy}</a>
+          <a href={localizedPath(locale, '/terms/')}>{messages.footer.terms}</a>
+          <a href={localizedPath(locale, '/copyright/')}>{messages.footer.copyright}</a>
+        </nav>
+      )}
     </div>
 
     <nav class="footer-nav" aria-label={messages.footer.navAria}>
-      <a href={localizedPath(locale, '/explore/')}>{messages.nav.explore}</a>
-      <a href={localizedPath(locale, '/mythology/')}>{messages.nav.mythology}</a>
-      <a href={localizedPath(locale, '/world/')}>{messages.nav.worlds}</a>
-      <a href={localizedPath(locale, '/character/')}>{messages.nav.characters}</a>
-      <a href={localizedPath(locale, '/create/')}>{messages.nav.create}</a>
-      <a href={localizedPath(locale, '/my/')}>{messages.nav.my}</a>
+      {isEnglish ? (
+        <>
+          <a href={localizedPath(locale, '/mythology/')}>{messages.nav.mythology}</a>
+          <a href={localizedPath(locale, '/character/')}>{messages.nav.characters}</a>
+          <a href={localizedPath(locale, '/world/')}>{messages.nav.worlds}</a>
+          <a href={localizedPath(DEFAULT_LOCALE, '/')}>Chinese edition</a>
+        </>
+      ) : (
+        <>
+          <a href={localizedPath(locale, '/explore/')}>{messages.nav.explore}</a>
+          <a href={localizedPath(locale, '/mythology/')}>{messages.nav.mythology}</a>
+          <a href={localizedPath(locale, '/world/')}>{messages.nav.worlds}</a>
+          <a href={localizedPath(locale, '/character/')}>{messages.nav.characters}</a>
+          <a href={localizedPath(locale, '/create/')}>{messages.nav.create}</a>
+          <a href={localizedPath(locale, '/my/')}>{messages.nav.my}</a>
+        </>
+      )}
     </nav>
 
     <div class="footer-meta">
