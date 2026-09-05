@@ -18,5 +18,9 @@ declare namespace Cloudflare {
 type Runtime = import("@astrojs/cloudflare").Runtime<Env>;
 
 declare namespace App {
-  interface Locals extends Runtime {}
+  interface Locals extends Runtime {
+    locale: import('./lib/i18n/config').Locale;
+    externalPathname: string;
+    basePathname: string;
+  }
 }
