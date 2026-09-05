@@ -7,6 +7,12 @@ const placeholderHero = {
   height: 900,
 };
 
+const homepageHero = (slug: string) => ({
+  lightSrc: `/media/mythologies/${slug}/home/light.webp`,
+  darkSrc: `/media/mythologies/${slug}/home/dark.webp`,
+  focalPoint: { x: 0.5, y: 0.42 },
+});
+
 export const mythologies: Mythology[] = [
   {
     id: 'myth-chinese',
@@ -23,7 +29,7 @@ export const mythologies: Mythology[] = [
       atmosphere: ['空灵', '神圣', '辽阔', '东方'],
     },
     heroImage: { src: '/media/content/chinese-celestial.svg', alt: '云海之上的中国神话天宫', width: 1600, height: 900 },
-    homeHero: {},
+    homeHero: homepageHero('chinese'),
   },
   {
     id: 'myth-greek',
@@ -40,7 +46,7 @@ export const mythologies: Mythology[] = [
       atmosphere: ['庄严', '明亮', '英雄感'],
     },
     heroImage: { src: '/media/content/greek-olympus-v2.webp', alt: '晨光下的奥林匹斯白色大理石议庭、山巅与云海', width: 1672, height: 941 },
-    homeHero: {},
+    homeHero: homepageHero('greek'),
   },
   {
     id: 'myth-norse',
@@ -57,7 +63,7 @@ export const mythologies: Mythology[] = [
       atmosphere: ['苍茫', '寒冷', '史诗'],
     },
     heroImage: { src: '/art/norse-asgard.jpg', alt: '世界树与阿斯加德的北欧神域', width: 1280, height: 720 },
-    homeHero: {},
+    homeHero: homepageHero('norse'),
   },
   {
     id: 'myth-egyptian',
@@ -74,7 +80,7 @@ export const mythologies: Mythology[] = [
       atmosphere: ['永恒', '庄严', '神秘'],
     },
     heroImage: { src: '/media/content/egyptian-duat.jpg', alt: '太阳神舟穿越古埃及神域', width: 1280, height: 720 },
-    homeHero: {},
+    homeHero: homepageHero('egyptian'),
   },
   {
     id: 'myth-indian',
@@ -91,7 +97,7 @@ export const mythologies: Mythology[] = [
       atmosphere: ['神圣', '繁盛', '宇宙感'],
     },
     heroImage: { ...placeholderHero, alt: '印度神话视觉占位图' },
-    homeHero: {},
+    homeHero: homepageHero('indian'),
   },
   {
     id: 'myth-japanese',
@@ -108,7 +114,7 @@ export const mythologies: Mythology[] = [
       atmosphere: ['初生', '神圣', '幽玄', '临界', '自然光'],
     },
     heroImage: { src: '/media/content/japanese-takamagahara.jpg', alt: '高天原的鸟居与神社', width: 1280, height: 720 },
-    homeHero: {},
+    homeHero: homepageHero('japanese'),
   },
   {
     id: 'myth-celtic',
@@ -125,7 +131,7 @@ export const mythologies: Mythology[] = [
       atmosphere: ['古老', '自然', '神秘', '幽静'],
     },
     heroImage: { src: '/art/celtic-mist-and-torc.svg', alt: '雾岭、河流、青铜颈环与远方圣丘构成的凯尔特神话入口', width: 1600, height: 900 },
-    homeHero: {},
+    homeHero: homepageHero('celtic'),
   },
   {
     id: 'myth-maya',
@@ -142,7 +148,7 @@ export const mythologies: Mythology[] = [
       atmosphere: ['宇宙感', '热带', '古老', '神秘'],
     },
     heroImage: { src: '/art/maya-cosmic-maize.svg', alt: '玉米、星辰与阶梯神庙构成的玛雅神话视觉入口', width: 1600, height: 900 },
-    homeHero: {},
+    homeHero: homepageHero('maya'),
   },
   {
     id: 'myth-aztec',
@@ -159,7 +165,7 @@ export const mythologies: Mythology[] = [
       atmosphere: ['强烈', '庄严', '宇宙循环', '湖城高原', '仪式秩序'],
     },
     heroImage: { src: '/art/aztec-cosmic-cycle.svg', alt: '火山高原、湖城、太阳与羽蛇构成的中央墨西哥神话视觉入口', width: 1600, height: 900 },
-    homeHero: {},
+    homeHero: homepageHero('aztec'),
   },
   {
     id: 'myth-mesopotamian',
@@ -176,6 +182,6 @@ export const mythologies: Mythology[] = [
       atmosphere: ['古老', '城市文明', '星辰', '庄严'],
     },
     heroImage: { ...placeholderHero, alt: '美索不达米亚神话视觉占位图' },
-    homeHero: {},
+    homeHero: homepageHero('mesopotamian'),
   },
 ];

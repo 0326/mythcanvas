@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { readArtworkAsset } from '../../lib/cloudflare/assets';
+import { readArtworkAsset, readArtworkAssetMetadata } from '../../lib/cloudflare/assets';
 
 export const prerender = false;
 
@@ -7,19 +7,27 @@ export const GET: APIRoute = async ({ params, locals, request }) => {
   const key = params.key;
   if (!key) return new Response('Missing asset key', { status: 400 });
 
+  if (request.method === 'HEAD') {
+    const object = await readArtworkAssetMetadata(locals.runtime.env.ARTWORKS, key);
+    if (!object) return new Response('Artwork not found', { status: 404 });
+    return new Response(null, { status: 200, headers: assetHeaders(object, key) });
+  }
+
   const object = await readArtworkAsset(locals.runtime.env.ARTWORKS, key);
   if (!object) return new Response('Artwork not found', { status: 404 });
 
+  return new Response(object.body, { status: 200, headers: assetHeaders(object, key) });
+};
+
+function assetHeaders(object: R2Object, key: string): Headers {
   const headers = new Headers();
   headers.set('etag', object.httpEtag ?? '');
   // 优先使用上传时记录的 contentType，缺失时按扩展名推断，避免返回 octet-stream
   headers.set('content-type', object.httpMetadata?.contentType || contentTypeFromKey(key));
   headers.set('cache-control', 'public, max-age=31536000, immutable');
   headers.set('x-content-type-options', 'nosniff');
-
-  if (request.method === 'HEAD') return new Response(null, { status: 200, headers });
-  return new Response(object.body, { status: 200, headers });
-};
+  return headers;
+}
 
 /** 根据对象 key 扩展名推断 MIME，作为 httpMetadata 缺失时的兜底 */
 function contentTypeFromKey(key: string): string {

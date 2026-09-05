@@ -55,6 +55,11 @@ export async function readArtworkAsset(bucket: R2Bucket | undefined, key: string
   return bucket.get(key);
 }
 
+export async function readArtworkAssetMetadata(bucket: R2Bucket | undefined, key: string): Promise<R2Object | null> {
+  if (!bucket) return null;
+  return bucket.head(key);
+}
+
 function extensionForMime(mimeType: string): string {
   const normalized = mimeType.toLowerCase();
   if (normalized.includes('svg')) return 'svg';

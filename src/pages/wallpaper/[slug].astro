@@ -10,6 +10,11 @@ import {
   getPublicMythologyById,
   getPublicWorlds,
 } from '../../lib/content/public-catalog';
+import {
+  cloudflareImageSrcSet,
+  cloudflareImageUrl,
+  shouldUseCloudflareImageTransformations,
+} from '../../lib/media/cloudflare-images';
 
 export const prerender = true;
 
@@ -29,6 +34,28 @@ const [mythology, relatedCharacters, related, worldsById] = [
   new Map(getPublicWorlds({ limit: 1000 }).map((item) => [item.id, item])),
 ];
 const world = artwork.worldId ? worldsById.get(artwork.worldId) : undefined;
+const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
+const artworkDisplayImage = cloudflareImageUrl(
+  artwork.image.src,
+  { width: 1600, fit: 'scale-down', quality: 84, format: 'auto' },
+  useImageTransformations,
+) ?? artwork.image.src;
+const artworkDisplaySrcSet = cloudflareImageSrcSet(
+  artwork.image.src,
+  [640, 960, 1280, 1600],
+  { fit: 'scale-down', quality: 84, format: 'auto' },
+  useImageTransformations,
+);
+const phonePreviewImage = cloudflareImageUrl(
+  artwork.image.src,
+  { width: 540, height: 1170, fit: 'cover', quality: 76, format: 'auto' },
+  useImageTransformations,
+) ?? artwork.image.src;
+const desktopPreviewImage = cloudflareImageUrl(
+  artwork.image.src,
+  { width: 960, height: 540, fit: 'cover', quality: 76, format: 'auto' },
+  useImageTransformations,
+) ?? artwork.image.src;
 ---
 
 <BaseLayout
@@ -63,7 +90,9 @@ const world = artwork.worldId ? worldsById.get(artwork.worldId) : undefined;
     <div class="container-wide detail-grid">
       <div class="artwork-stage surface">
         <img
-          src={artwork.image.src}
+          src={artworkDisplayImage}
+          srcset={artworkDisplaySrcSet}
+          sizes="(max-width: 980px) 100vw, 65vw"
           alt={artwork.image.alt}
           width={artwork.image.width}
           height={artwork.image.height}
@@ -127,14 +156,14 @@ const world = artwork.worldId ? worldsById.get(artwork.worldId) : undefined;
       <div class="preview-device" data-preview-device="phone">
         <div class="phone-preview surface">
           <div class="phone-screen">
-            <img src={artwork.image.src} alt="" width={artwork.image.width} height={artwork.image.height} loading="lazy" />
+            <img src={phonePreviewImage} alt="" width="540" height="1170" loading="lazy" />
             <div class="phone-time"><strong>09:41</strong><span>八月二十三日 · 周日</span></div>
             <div class="phone-home" aria-hidden="true"></div>
           </div>
         </div>
         <div class="desktop-preview surface" hidden>
           <div class="desktop-bar"><div class="desktop-dots"><span></span><span></span><span></span></div></div>
-          <img src={artwork.image.src} alt="" loading="lazy" />
+          <img src={desktopPreviewImage} alt="" width="960" height="540" loading="lazy" />
         </div>
       </div>
     </div>

@@ -54,6 +54,15 @@ describe('static public content catalog', () => {
     }
   });
 
+  it('publishes complete Light/Dark homepage hero metadata from the static catalog', () => {
+    expect(publicCatalog.mythologies).toHaveLength(10);
+    for (const mythology of publicCatalog.mythologies) {
+      expect(mythology.homeHero?.lightSrc, mythology.slug).toBe(`/media/mythologies/${mythology.slug}/home/light.webp`);
+      expect(mythology.homeHero?.darkSrc, mythology.slug).toBe(`/media/mythologies/${mythology.slug}/home/dark.webp`);
+      expect(mythology.homeHero?.focalPoint, mythology.slug).toEqual({ x: 0.5, y: 0.42 });
+    }
+  });
+
   it('keeps the published artwork snapshot and derives missing character portraits', () => {
     expect(publicCatalog.curatedArtworks.filter((item) => item.reviewStatus === 'approved').length).toBeGreaterThanOrEqual(180);
     expect(publicCatalog.curatedArtworks.some((item) => item.slug === 'ymir-canonical-m-01')).toBe(true);

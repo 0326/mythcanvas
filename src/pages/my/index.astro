@@ -4,7 +4,7 @@ import ArtworkCard from '../../components/artwork/ArtworkCard.astro';
 import { getOrCreateUser, SESSION_COOKIE, sessionCookieOptions } from '../../lib/auth/session';
 import { listGenerationsByUser } from '../../lib/cloudflare/generation-repository';
 import { listFavorites } from '../../lib/social/favorites';
-import { getArtworkById, getCharacterById, getWorldById } from '../../lib/content/repositories';
+import { getPublicArtworkById } from '../../lib/content/public-catalog';
 
 export const prerender = false;
 
@@ -15,20 +15,13 @@ if (sessionResult.cookie && sessionResult.sessionId) {
   Astro.cookies.set(SESSION_COOKIE, sessionResult.sessionId, sessionCookieOptions(Astro.url.protocol === 'https:'));
 }
 const generations = await listGenerationsByUser(Astro.locals.runtime.env.DB, user.id);
-const favorites = await listFavorites(Astro.locals.runtime.env.DB, user.id);
+const artworkFavorites = await listFavorites(Astro.locals.runtime.env.DB, user.id, 'artwork');
 
-// 预解析收藏对象（artwork/character/world）
-const favoriteEntities = await Promise.all(
-  favorites.map(async (fav) => {
-    if (fav.targetType === 'artwork') return { fav, entity: await getArtworkById(Astro.locals.runtime.env.DB, fav.targetId) };
-    if (fav.targetType === 'character') return { fav, entity: await getCharacterById(Astro.locals.runtime.env.DB, fav.targetId) };
-    if (fav.targetType === 'world') return { fav, entity: await getWorldById(Astro.locals.runtime.env.DB, fav.targetId) };
-    return { fav, entity: undefined };
-  }),
-);
-const favoriteArtworks = favoriteEntities
-  .filter((item) => item.fav.targetType === 'artwork' && item.entity)
-  .map((item) => item.entity);
+// D1 owns the mutable favorite relation; published artwork metadata is resolved
+// from the static catalog so this page performs one bounded D1 read, not N+1.
+const favoriteArtworks = artworkFavorites
+  .map((favorite) => getPublicArtworkById(favorite.targetId))
+  .filter((artwork) => artwork !== undefined);
 ---
 
 <BaseLayout title="我的宇宙" description="管理你收藏的神话神灵、神域与视觉作品，以及你的绘神历史。">

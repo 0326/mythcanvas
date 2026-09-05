@@ -38,8 +38,14 @@ const homeHeroUrl = (
   useImageTransformations,
 ) ?? src;
 
-const defaultHeroLight = homeHeroUrl(defaultMythology?.homeHero?.lightSrc, defaultMythology?.homeHero?.focalPoint);
-const defaultHeroDark = homeHeroUrl(defaultMythology?.homeHero?.darkSrc, defaultMythology?.homeHero?.focalPoint);
+const defaultHeroLightSource = defaultMythology?.homeHero?.lightSrc ?? defaultMythology?.heroImage.src;
+const defaultHeroDarkSource = defaultMythology?.homeHero?.darkSrc ?? defaultHeroLightSource;
+const defaultHeroLight = homeHeroUrl(defaultHeroLightSource, defaultMythology?.homeHero?.focalPoint);
+const defaultHeroDark = homeHeroUrl(defaultHeroDarkSource, defaultMythology?.homeHero?.focalPoint);
+const heroArtStyle = [
+  `--hero-light-image:${defaultHeroLight ? `url("${defaultHeroLight}")` : 'none'}`,
+  `--hero-dark-image:${defaultHeroDark ? `url("${defaultHeroDark}")` : 'none'}`,
+].join(';');
 
 const cardImageStyle = (
   lightSrc?: string,
@@ -81,28 +87,7 @@ const cardImageStyle = (
     style={homeShellStyle}
   >
     <div class="hero-backdrop" aria-hidden="true"></div>
-    <div class="hero-art" aria-hidden="true">
-      <img
-        data-hero-light
-        class="hero-art-light"
-        src={defaultHeroLight}
-        alt=""
-        width="2560"
-        height="1440"
-        fetchpriority="high"
-        hidden={!defaultHeroLight}
-      />
-      <img
-        data-hero-dark
-        class="hero-art-dark"
-        src={defaultHeroDark}
-        alt=""
-        width="2560"
-        height="1440"
-        loading="lazy"
-        hidden={!defaultHeroDark}
-      />
-    </div>
+    <div class="hero-art" data-hero-art aria-hidden="true" style={heroArtStyle}></div>
     <div class="hero-overlay" aria-hidden="true"></div>
 
     <div class="hero-stage container-wide">
@@ -141,8 +126,10 @@ const cardImageStyle = (
           <div class="mythology-viewport" data-mythology-viewport>
             <div class="mythology-track">
               {mythologyCards.map((item, index) => {
-                const lightSrc = item.homeHero?.lightSrc;
-                const darkSrc = item.homeHero?.darkSrc;
+                // A newly published mythology must never leave the homepage blank:
+                // use its canonical hero until dedicated Light/Dark art is ready.
+                const lightSrc = item.homeHero?.lightSrc ?? item.heroImage.src;
+                const darkSrc = item.homeHero?.darkSrc ?? lightSrc;
                 const lightHeroSrc = homeHeroUrl(lightSrc, item.homeHero?.focalPoint);
                 const darkHeroSrc = homeHeroUrl(darkSrc, item.homeHero?.focalPoint);
                 const focalCss = focalPointToCss(item.homeHero?.focalPoint);
@@ -191,23 +178,16 @@ const cardImageStyle = (
   const description = document.querySelector('[data-active-description]');
   const cta = document.querySelector('[data-active-cta]');
   const ctaText = document.querySelector('[data-active-cta-text]');
-  const heroLight = document.querySelector('[data-hero-light]');
-  const heroDark = document.querySelector('[data-hero-dark]');
+  const heroArt = document.querySelector('[data-hero-art]');
   const cards = Array.from(document.querySelectorAll('[data-mythology-card]'));
   const viewport = document.querySelector('[data-mythology-viewport]');
   const previous = document.querySelector('[data-mythology-prev]');
   const next = document.querySelector('[data-mythology-next]');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  const setHeroSource = (image: Element | null, src: string) => {
-    if (!(image instanceof HTMLImageElement)) return;
-    if (!src) {
-      image.hidden = true;
-      image.removeAttribute('src');
-      return;
-    }
-    if (image.getAttribute('src') !== src) image.src = src;
-    image.hidden = false;
+  const setHeroSource = (property: '--hero-light-image' | '--hero-dark-image', src: string) => {
+    if (!(heroArt instanceof HTMLElement)) return;
+    heroArt.style.setProperty(property, src ? `url("${src}")` : 'none');
   };
 
   const renderCtaText = (text: string) => {
@@ -246,8 +226,8 @@ const cardImageStyle = (
       renderCtaText(label);
     }
 
-    setHeroSource(heroLight, card.dataset.lightSrc ?? '');
-    setHeroSource(heroDark, card.dataset.darkSrc ?? '');
+    setHeroSource('--hero-light-image', card.dataset.lightSrc ?? '');
+    setHeroSource('--hero-dark-image', card.dataset.darkSrc ?? '');
 
     window.setTimeout(() => shell.classList.remove('is-switching'), reducedMotion.matches ? 0 : 360);
   };
@@ -324,30 +304,21 @@ const cardImageStyle = (
     z-index: -3;
     overflow: hidden;
     opacity: 1;
-    transition: opacity .5s ease;
+    background-image: var(--hero-light-image);
+    background-position: var(--hero-focal-x, 50%) var(--hero-focal-y, 50%);
+    background-size: cover;
+    transition: opacity .5s ease, transform 14s ease;
   }
+
+  :global([data-theme='dark']) .hero-art { background-image: var(--hero-dark-image); }
 
   .home-shell.is-switching .hero-art {
     opacity: .25;
   }
 
-  .hero-art img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: var(--hero-focal-x, 50%) var(--hero-focal-y, 50%);
-    transition: opacity var(--transition-base), transform 14s ease;
-  }
-
-  .home-shell:hover .hero-art img:not([hidden]) {
+  .home-shell:hover .hero-art {
     transform: scale(1.018);
   }
-
-  .hero-art-dark { opacity: 0; }
-  :global([data-theme='dark']) .hero-art-light { opacity: 0; }
-  :global([data-theme='dark']) .hero-art-dark { opacity: 1; }
 
   .hero-overlay {
     z-index: -2;
