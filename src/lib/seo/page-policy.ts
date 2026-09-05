@@ -1,3 +1,6 @@
+import { DEFAULT_LOCALE } from '../i18n/config';
+import { parseLocalizedPath } from '../i18n/url';
+
 export type RobotsDirective = 'index,follow' | 'noindex,follow' | 'noindex,nofollow';
 
 export type PageSeoPolicy = {
@@ -23,7 +26,8 @@ function paginationPage(url: URL, pathname: string): number | undefined {
 }
 
 export function getPageSeoPolicy(url: URL, site: URL): PageSeoPolicy {
-  const pathname = normalizedPathname(url.pathname);
+  const parsed = parseLocalizedPath(url.pathname);
+  const pathname = normalizedPathname(parsed.basePathname);
   const canonicalURL = new URL(url.pathname, site);
 
   if (PRIVATE_NOINDEX_ROUTES.some((route) => matchesRoute(pathname, route))) {
@@ -31,6 +35,13 @@ export function getPageSeoPolicy(url: URL, site: URL): PageSeoPolicy {
   }
 
   if (UTILITY_NOINDEX_ROUTES.some((route) => matchesRoute(pathname, route))) {
+    return { canonicalURL, robots: 'noindex,follow' };
+  }
+
+  // P0 rollout gate: localized URL infrastructure ships before localized entity
+  // content. Do not index mixed-language pages until the content translation
+  // repository can prove a published translation for the requested locale.
+  if (parsed.locale !== DEFAULT_LOCALE) {
     return { canonicalURL, robots: 'noindex,follow' };
   }
 
