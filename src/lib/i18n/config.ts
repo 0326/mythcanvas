@@ -72,6 +72,13 @@ export type LocaleConfig = (typeof localeRegistry)[Locale];
 export const ALL_LOCALES = Object.keys(localeRegistry) as Locale[];
 export const ENABLED_LOCALES = ALL_LOCALES.filter((locale) => localeRegistry[locale].enabled);
 
+/**
+ * Locale routes that have a complete reader-facing implementation today.
+ * Other locales can keep their registry entry while their content is being
+ * prepared, but must not appear as links that lead to mixed-language pages.
+ */
+export const PUBLIC_LOCALES = ['zh-Hans', 'en'] as const satisfies readonly Locale[];
+
 export function isLocale(value: string): value is Locale {
   return Object.prototype.hasOwnProperty.call(localeRegistry, value);
 }

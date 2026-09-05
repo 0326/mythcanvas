@@ -1,6 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import { DEFAULT_LOCALE } from './lib/i18n/config';
-import { parseLocalizedPath } from './lib/i18n/url';
+import { isEnglishCorePath, localizedPath, parseLocalizedPath } from './lib/i18n/url';
 
 /**
  * MythCanvas request middleware.
@@ -8,8 +8,8 @@ import { parseLocalizedPath } from './lib/i18n/url';
  * Responsibilities:
  * - resolve locale from the external URL;
  * - keep the default zh-Hans routes unchanged;
- * - internally rewrite locale-prefixed public pages;
- * - route production English core content to dedicated internal SSR pages;
+ * - internally rewrite future locale-prefixed public pages onto the default route tree;
+ * - keep the published English core content on its real /en route tree;
  * - preserve the original pathname in locals for canonical/SEO generation;
  * - inject security response headers.
  */
@@ -45,17 +45,10 @@ const LOCALIZABLE_ROUTE_ROOTS = new Set([
   'my',
 ]);
 
-const ENGLISH_CORE_ROUTE = /^\/(?:character|world|mythology)(?:\/[^/]+)?\/?$/;
-
 function isLocalizablePagePath(pathname: string) {
   if (pathname === '/') return true;
   const firstSegment = pathname.split('/').filter(Boolean)[0];
   return firstSegment ? LOCALIZABLE_ROUTE_ROOTS.has(firstSegment) : false;
-}
-
-function englishInternalPath(pathname: string) {
-  if (pathname === '/') return '/_localized/en/';
-  return ENGLISH_CORE_ROUTE.test(pathname) ? `/_localized/en${pathname}` : undefined;
 }
 
 function withSecurityHeaders(response: Response) {
@@ -96,15 +89,26 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   if (
     parsed.hasLocalePrefix
-    && parsed.locale !== DEFAULT_LOCALE
     && canRewrite
     && isLocalizablePagePath(parsed.basePathname)
   ) {
-    const rewritten = new URL(context.url);
-    rewritten.pathname = parsed.locale === 'en'
-      ? englishInternalPath(parsed.basePathname) ?? parsed.basePathname
-      : parsed.basePathname;
-    response = await next(rewritten);
+    if (parsed.locale === 'en' && !isEnglishCorePath(parsed.basePathname)) {
+      const fallback = new URL(context.url);
+      fallback.pathname = localizedPath('en', '/');
+      fallback.search = '';
+      fallback.hash = '';
+      return withSecurityHeaders(Response.redirect(fallback, 302));
+    }
+
+    // English pages are real routes under /en. Other locale prefixes still
+    // reuse the default route tree until their content is published.
+    if (parsed.locale === 'en') {
+      response = await next();
+    } else {
+      const rewritten = new URL(context.url);
+      rewritten.pathname = parsed.basePathname;
+      response = await next(rewritten);
+    }
   } else {
     response = await next();
   }

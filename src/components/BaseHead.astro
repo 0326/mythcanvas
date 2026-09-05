@@ -9,6 +9,7 @@ interface Props {
   title: string;
   description: string;
   image?: string;
+  siteName?: string;
   localizedIndexable?: boolean;
 }
 
@@ -16,6 +17,7 @@ const {
   title,
   description,
   image = '/media/content/mythology-civilizations-banner.webp',
+  siteName = SITE_TITLE,
   localizedIndexable = false,
 } = Astro.props;
 const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
@@ -83,7 +85,7 @@ const englishURL = new URL(localizedPath('en', Astro.locals.basePathname ?? Astr
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image, Astro.site)} />
-<meta property="og:site_name" content={SITE_TITLE} />
+<meta property="og:site_name" content={siteName} />
 <meta property="og:locale" content={localeConfig.ogLocale} />
 
 <meta name="twitter:card" content="summary_large_image" />

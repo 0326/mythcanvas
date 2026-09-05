@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { DEFAULT_LOCALE, getLocaleConfig } from '../lib/i18n/config';
+import { getUiMessages } from '../lib/i18n/ui';
 
 interface Props {
   title?: string;
@@ -25,21 +26,24 @@ const {
   localizedIndexable = false,
 } = Astro.props;
 
-const pageTitle = title ? `${title} · ${SITE_TITLE}` : SITE_TITLE;
 const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
 const localeConfig = getLocaleConfig(locale);
+const messages = getUiMessages(locale);
+const localizedSiteTitle = locale === 'en' ? messages.brand.name : SITE_TITLE;
+const localizedSiteDescription = locale === 'en' ? messages.brand.tagline : SITE_DESCRIPTION;
+const pageTitle = title ? `${title} · ${localizedSiteTitle}` : localizedSiteTitle;
 ---
 
 <!doctype html>
 <html lang={localeConfig.htmlLang} dir={localeConfig.direction}>
   <head>
-    <BaseHead title={pageTitle} description={description} image={image} localizedIndexable={localizedIndexable} />
+    <BaseHead title={pageTitle} description={description} image={image} siteName={localizedSiteTitle} localizedIndexable={localizedIndexable} />
     <script type="application/ld+json" is:inline set:html={JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: SITE_TITLE,
+      name: localizedSiteTitle,
       url: Astro.site?.toString(),
-      description: SITE_DESCRIPTION,
+      description: localizedSiteDescription,
       inLanguage: localeConfig.htmlLang,
     })} />
     <slot name="head" />

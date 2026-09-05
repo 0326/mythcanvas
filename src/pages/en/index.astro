@@ -1,15 +1,15 @@
 ---
 import { ArrowRight } from '@lucide/astro';
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import MythologyCard from '../../../components/mythology/MythologyCard.astro';
-import CharacterCard from '../../../components/character/CharacterCard.astro';
-import WorldCard from '../../../components/world/WorldCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MythologyCard from '../../components/mythology/MythologyCard.astro';
+import CharacterCard from '../../components/character/CharacterCard.astro';
+import WorldCard from '../../components/world/WorldCard.astro';
 import {
   getLocalizedCharacters,
   getLocalizedMythologies,
   getLocalizedWorlds,
-} from '../../../lib/content/repositories';
-import { localizedPath } from '../../../lib/i18n/url';
+} from '../../lib/content/repositories';
+import { localizedPath } from '../../lib/i18n/url';
 
 export const prerender = false;
 

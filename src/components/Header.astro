@@ -1,8 +1,8 @@
 ---
-import { Search, UserRound } from '@lucide/astro';
+import { Check, Languages, Search, UserRound } from '@lucide/astro';
 import ThemeToggle from './ui/ThemeToggle.astro';
-import { DEFAULT_LOCALE } from '../lib/i18n/config';
-import { localizedPath } from '../lib/i18n/url';
+import { DEFAULT_LOCALE, getLocaleConfig, PUBLIC_LOCALES } from '../lib/i18n/config';
+import { localizedPath, switchLocale } from '../lib/i18n/url';
 import { getUiMessages } from '../lib/i18n/ui';
 
 interface Props {
@@ -34,6 +34,13 @@ const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.st
 const loginHref = localizedPath(locale, '/login/');
 const myHref = localizedPath(locale, '/my/');
 const brandAria = locale === DEFAULT_LOCALE ? `${messages.brand.name} MythCanvas` : messages.brand.name;
+const languageOptions = PUBLIC_LOCALES.map((targetLocale) => ({
+  locale: targetLocale,
+  label: getLocaleConfig(targetLocale).label,
+  href: switchLocale(Astro.url, targetLocale),
+  isCurrent: targetLocale === locale,
+}));
+const shortLocaleLabel = locale === 'en' ? 'EN' : '中';
 ---
 
 <header class:list={{ 'site-header': true, 'site-header--immersive': immersive }}>
@@ -51,6 +58,26 @@ const brandAria = locale === DEFAULT_LOCALE ? `${messages.brand.name} MythCanvas
 
     <div class="header-actions">
       {!isEnglish && <a class="header-icon" href={localizedPath(locale, '/search/')} aria-label={messages.action.search}><Search size={18} strokeWidth={1.8} aria-hidden="true" /></a>}
+      <details class="language-menu">
+        <summary class="language-trigger" aria-label={messages.action.language} title={messages.action.language}>
+          <Languages size={18} strokeWidth={1.8} aria-hidden="true" />
+          <span>{shortLocaleLabel}</span>
+        </summary>
+        <div class="language-popover">
+          <span class="language-menu-label">{messages.action.language}</span>
+          <div class="language-options">
+            {languageOptions.map((option) => option.isCurrent ? (
+              <span class="language-option is-current" aria-current="page">
+                <span>{option.label}</span><Check class="language-check" size={14} strokeWidth={2} aria-hidden="true" />
+              </span>
+            ) : (
+              <a class="language-option" href={option.href} data-locale={option.locale}>
+                <span>{option.label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </details>
       <span class="theme-control"><ThemeToggle /></span>
       {!isEnglish && (
         <a
@@ -100,10 +127,23 @@ const brandAria = locale === DEFAULT_LOCALE ? `${messages.brand.name} MythCanvas
   .main-nav a:hover, .main-nav a:focus-visible, .main-nav a.active { color: var(--text-primary); }
   .main-nav a:hover::after, .main-nav a:focus-visible::after, .main-nav a.active::after { transform: scaleX(1); }
   .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); }
-  .header-icon, .avatar { display: grid; width: 30px; height: 30px; place-items: center; color: var(--text-secondary); transition: color var(--transition-fast), transform var(--transition-fast); }
-  .header-icon:hover, .avatar:hover { color: var(--accent-strong); transform: translateY(-1px); }
+  .header-icon, .avatar, .language-trigger { display: grid; width: 30px; height: 30px; place-items: center; color: var(--text-secondary); transition: color var(--transition-fast), transform var(--transition-fast); }
+  .header-icon:hover, .avatar:hover, .language-trigger:hover { color: var(--accent-strong); transform: translateY(-1px); }
   .avatar { border: 1px solid var(--border-strong); border-radius: 50%; color: var(--text-primary); background: var(--surface); }
   .theme-control { display: contents; }
+
+  .language-menu { position: relative; }
+  .language-trigger { display: inline-flex; width: auto; min-width: 42px; gap: .28rem; padding: 0 .45rem; border: 0; border-radius: 999px; color: var(--text-secondary); background: transparent; cursor: pointer; font: inherit; font-size: .66rem; font-weight: 700; letter-spacing: .04em; list-style: none; }
+  .language-trigger::-webkit-details-marker { display: none; }
+  .language-trigger::marker { content: ''; }
+  .language-menu[open] .language-trigger { color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .language-popover { position: absolute; top: calc(100% + .65rem); right: 0; width: 164px; padding: .7rem; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface-elevated, var(--surface)); box-shadow: var(--shadow-lg); }
+  .language-menu-label { display: block; padding: .25rem .5rem .5rem; color: var(--text-muted); font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .language-options { display: grid; gap: .18rem; }
+  .language-option { display: flex; align-items: center; justify-content: space-between; min-height: 34px; padding: .45rem .5rem; border-radius: 6px; color: var(--text-secondary); font-size: .78rem; }
+  .language-option:hover, .language-option:focus-visible, .language-option.is-current { color: var(--text-primary); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .language-option.is-current { font-weight: 700; }
+  .language-check { color: var(--accent-strong); }
 
   .site-header--immersive {
     position: absolute;
@@ -119,7 +159,8 @@ const brandAria = locale === DEFAULT_LOCALE ? `${messages.brand.name} MythCanvas
   .site-header--immersive .main-nav a { padding-block: 1.1rem; text-shadow: 0 1px 14px color-mix(in srgb, var(--bg-primary) 55%, transparent); }
   .site-header--immersive .main-nav a::after { display: none; }
   .site-header--immersive .header-icon,
-  .site-header--immersive .avatar { color: var(--text-primary); filter: drop-shadow(0 1px 8px color-mix(in srgb, var(--bg-primary) 42%, transparent)); }
+  .site-header--immersive .avatar,
+  .site-header--immersive .language-trigger { color: var(--text-primary); filter: drop-shadow(0 1px 8px color-mix(in srgb, var(--bg-primary) 42%, transparent)); }
   .site-header--immersive .avatar { border-color: color-mix(in srgb, var(--text-primary) 26%, transparent); background: color-mix(in srgb, var(--surface) 58%, transparent); backdrop-filter: blur(10px); }
   .site-header--immersive .theme-control { display: flex; align-items: center; }
   .site-header--immersive .theme-toggle { color: var(--text-primary); filter: drop-shadow(0 1px 8px color-mix(in srgb, var(--bg-primary) 42%, transparent)); }

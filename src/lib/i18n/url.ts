@@ -69,6 +69,19 @@ export function localizedPath(locale: Locale, pathname: string) {
   return `${prefix}${basePathname}`;
 }
 
+const ENGLISH_CORE_ROUTE = /^\/(?:character|world|mythology)(?:\/[^/]+)?\/?$/;
+
+export function isEnglishCorePath(pathname: string) {
+  const basePathname = stripLocalePrefix(ensureLeadingSlash(pathname));
+  return basePathname === '/' || ENGLISH_CORE_ROUTE.test(basePathname);
+}
+
 export function switchLocale(url: URL, targetLocale: Locale) {
-  return `${localizedPath(targetLocale, url.pathname)}${url.search}${url.hash}`;
+  const basePathname = stripLocalePrefix(url.pathname);
+  const fallsBackToEnglishHome = targetLocale === 'en' && !isEnglishCorePath(basePathname);
+  const targetPathname = fallsBackToEnglishHome
+    ? '/'
+    : basePathname;
+  const suffix = fallsBackToEnglishHome ? '' : `${url.search}${url.hash}`;
+  return `${localizedPath(targetLocale, targetPathname)}${suffix}`;
 }

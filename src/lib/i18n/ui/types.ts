@@ -14,6 +14,7 @@ export type UiMessages = {
   };
   action: {
     search: string;
+    language: string;
   };
   account: {
     entry: string;

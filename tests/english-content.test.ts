@@ -55,13 +55,13 @@ describe('English content publication contract', () => {
 
   it('keeps dedicated English SSR pages free of Han-script reader copy', () => {
     const pages = [
-      'src/pages/_localized/en/index.astro',
-      'src/pages/_localized/en/mythology/index.astro',
-      'src/pages/_localized/en/mythology/[slug].astro',
-      'src/pages/_localized/en/character/index.astro',
-      'src/pages/_localized/en/character/[slug].astro',
-      'src/pages/_localized/en/world/index.astro',
-      'src/pages/_localized/en/world/[slug].astro',
+      'src/pages/en/index.astro',
+      'src/pages/en/mythology/index.astro',
+      'src/pages/en/mythology/[slug].astro',
+      'src/pages/en/character/index.astro',
+      'src/pages/en/character/[slug].astro',
+      'src/pages/en/world/index.astro',
+      'src/pages/en/world/[slug].astro',
     ];
     for (const page of pages) {
       expect(read(page), page).not.toMatch(/\p{Script=Han}/u);

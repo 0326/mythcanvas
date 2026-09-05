@@ -16,6 +16,7 @@ const messages = {
   },
   action: {
     search: 'Buscar',
+    language: 'Cambiar idioma',
   },
   account: {
     entry: 'Iniciar sesión o ver Mi Universo',

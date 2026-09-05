@@ -1,13 +1,13 @@
 ---
 import { ArrowRight, Landmark } from '@lucide/astro';
-import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 import {
   getLocalizedCharacterBySlug,
   getLocalizedCharacters,
   getLocalizedMythologyById,
   getLocalizedWorlds,
-} from '../../../../lib/content/repositories';
-import { localizedPath } from '../../../../lib/i18n/url';
+} from '../../../lib/content/repositories';
+import { localizedPath } from '../../../lib/i18n/url';
 
 export const prerender = false;
 

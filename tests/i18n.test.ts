@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_LOCALE } from '../src/lib/i18n/config';
-import { localizedPath, parseLocalizedPath, switchLocale } from '../src/lib/i18n/url';
+import { isEnglishCorePath, localizedPath, parseLocalizedPath, switchLocale } from '../src/lib/i18n/url';
 import { getPageSeoPolicy } from '../src/lib/seo/page-policy';
 
 const site = new URL('https://mythcanvas.space');
@@ -37,6 +37,13 @@ describe('i18n URL contract', () => {
   it('preserves query and hash while switching locale', () => {
     const url = new URL('https://mythcanvas.space/character/?mythology=greek#athena');
     expect(switchLocale(url, 'en')).toBe('/en/character/?mythology=greek#athena');
+  });
+
+  it('recognizes only routes with a published English page', () => {
+    expect(isEnglishCorePath('/')).toBe(true);
+    expect(isEnglishCorePath('/character/athena/')).toBe(true);
+    expect(isEnglishCorePath('/explore/')).toBe(false);
+    expect(switchLocale(new URL('https://mythcanvas.space/explore/?filter=latest#gallery'), 'en')).toBe('/en/');
   });
 });
 

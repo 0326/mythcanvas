@@ -16,6 +16,7 @@ const messages = {
   },
   action: {
     search: '検索',
+    language: '言語を変更',
   },
   account: {
     entry: 'ログインまたはマイ宇宙を表示',

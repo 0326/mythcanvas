@@ -16,6 +16,7 @@ const messages = {
   },
   action: {
     search: '搜索',
+    language: '切换语言',
   },
   account: {
     entry: '登录或查看我的宇宙',
