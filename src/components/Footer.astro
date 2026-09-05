@@ -6,6 +6,7 @@ import { getUiMessages } from '../lib/i18n/ui';
 const year = new Date().getFullYear();
 const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
 const messages = getUiMessages(locale);
+const footerBrandName = locale === DEFAULT_LOCALE ? `${messages.brand.name} MythCanvas` : messages.brand.name;
 ---
 
 <footer class="site-footer">
@@ -13,7 +14,7 @@ const messages = getUiMessages(locale);
     <div class="footer-brand">
       <div class="footer-brand-line">
         <span class="footer-mark" aria-hidden="true">✦</span>
-        <strong class="brand-serif">{messages.brand.name}</strong>
+        <strong class="brand-serif">{footerBrandName}</strong>
       </div>
       <p>{messages.footer.description}</p>
       <nav class="footer-legal" aria-label={messages.footer.legalAria}>
