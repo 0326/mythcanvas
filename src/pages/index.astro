@@ -22,26 +22,15 @@ const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.ur
 const defaultFocalCss = focalPointToCss(defaultMythology?.homeHero?.focalPoint);
 const homeShellStyle = `--hero-focal-x:${defaultFocalCss.x};--hero-focal-y:${defaultFocalCss.y}`;
 
-const homeHeroUrl = (
-  src?: string,
-  focalPoint?: { x: number; y: number },
-) => cloudflareImageUrl(
-  src,
-  {
-    width: 1920,
-    height: 1080,
-    fit: 'cover',
-    quality: 84,
-    format: 'auto',
-    focalPoint,
-  },
-  useImageTransformations,
-) ?? src;
+// Homepage Light/Dark images are already R2 WebP derivatives. Keeping the LCP
+// path direct avoids making first paint depend on a cold image-transformation
+// request; smaller card thumbnails still use responsive transformations below.
+const homeHeroUrl = (src?: string) => src;
 
 const defaultHeroLightSource = defaultMythology?.homeHero?.lightSrc ?? defaultMythology?.heroImage.src;
 const defaultHeroDarkSource = defaultMythology?.homeHero?.darkSrc ?? defaultHeroLightSource;
-const defaultHeroLight = homeHeroUrl(defaultHeroLightSource, defaultMythology?.homeHero?.focalPoint);
-const defaultHeroDark = homeHeroUrl(defaultHeroDarkSource, defaultMythology?.homeHero?.focalPoint);
+const defaultHeroLight = homeHeroUrl(defaultHeroLightSource);
+const defaultHeroDark = homeHeroUrl(defaultHeroDarkSource);
 const heroArtStyle = [
   `--hero-light-image:${defaultHeroLight ? `url("${defaultHeroLight}")` : 'none'}`,
   `--hero-dark-image:${defaultHeroDark ? `url("${defaultHeroDark}")` : 'none'}`,
@@ -130,8 +119,8 @@ const cardImageStyle = (
                 // use its canonical hero until dedicated Light/Dark art is ready.
                 const lightSrc = item.homeHero?.lightSrc ?? item.heroImage.src;
                 const darkSrc = item.homeHero?.darkSrc ?? lightSrc;
-                const lightHeroSrc = homeHeroUrl(lightSrc, item.homeHero?.focalPoint);
-                const darkHeroSrc = homeHeroUrl(darkSrc, item.homeHero?.focalPoint);
+                const lightHeroSrc = homeHeroUrl(lightSrc);
+                const darkHeroSrc = homeHeroUrl(darkSrc);
                 const focalCss = focalPointToCss(item.homeHero?.focalPoint);
                 const hasImage = Boolean(lightSrc || darkSrc);
                 return (
