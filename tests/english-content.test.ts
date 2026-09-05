@@ -55,6 +55,7 @@ describe('English content publication contract', () => {
 
   it('keeps dedicated English SSR pages free of Han-script reader copy', () => {
     const pages = [
+      'src/pages/_localized/en/index.astro',
       'src/pages/_localized/en/mythology/index.astro',
       'src/pages/_localized/en/mythology/[slug].astro',
       'src/pages/_localized/en/character/index.astro',
@@ -73,5 +74,14 @@ describe('English content publication contract', () => {
     expect(source).toContain('JOIN mythology_translations');
     expect(source).toContain('JOIN world_translations');
     expect(source).toContain('JOIN character_translations');
+  });
+
+  it('keeps the English global navigation inside the localized core surface', () => {
+    const header = read('src/components/Header.astro');
+    const footer = read('src/components/Footer.astro');
+    expect(header).toContain("const isEnglish = locale === 'en'");
+    expect(header).toContain('{!isEnglish && <a class="header-icon"');
+    expect(footer).toContain('Chinese edition');
+    expect(footer).toContain('{isEnglish ? (');
   });
 });
