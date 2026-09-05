@@ -1,6 +1,8 @@
 ---
 import { Flame } from '@lucide/astro';
 import type { Character, Mythology } from '../../lib/content/types';
+import { DEFAULT_LOCALE } from '../../lib/i18n/config';
+import { localizedPath } from '../../lib/i18n/url';
 import {
   cloudflareImageUrl,
   shouldUseCloudflareImageTransformations,
@@ -12,7 +14,9 @@ interface Props {
 }
 
 const { character, mythology } = Astro.props;
-const fallbackSymbols = character.symbols.slice(0, 3);
+const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const isEnglish = locale === 'en';
+const fallbackSymbols = isEnglish ? [] : character.symbols.slice(0, 3);
 const clickCount = Math.max(0, Math.floor(character.clickCount ?? 0));
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
 const portraitImage = character.portrait
@@ -30,15 +34,19 @@ const portraitImage = character.portrait
       useImageTransformations,
     )
   : undefined;
+const characterHref = localizedPath(locale, `/character/${character.slug}/`);
+const enterLabel = isEnglish ? `Explore ${character.name}` : `${character.name} · 进入角色`;
+const portraitAlt = character.portrait?.alt || (isEnglish ? `Portrait of ${character.name}` : `${character.name} 角色肖像`);
+const heatLabel = isEnglish ? `Popularity: ${clickCount} clicks` : `热度 ${clickCount} 次点击`;
 ---
 
 <article class="character-card surface" data-character-card data-character-id={character.id}>
-  <a href={`/character/${character.slug}/`} aria-label={`${character.name} · 进入角色`}>
+  <a href={characterHref} aria-label={enterLabel}>
     <div class="portrait">
       {character.portrait ? (
         <img
           src={portraitImage ?? character.portrait.src}
-          alt={`${character.name} 角色肖像`}
+          alt={portraitAlt}
           width="480"
           height="853"
           loading="lazy"
@@ -56,7 +64,7 @@ const portraitImage = character.portrait
       )}
       <span class="portrait-shade" aria-hidden="true"></span>
       {mythology && <span class="badge badge-mythology">{mythology.name}</span>}
-      <span class="badge badge-heat" aria-label={`热度 ${clickCount} 次点击`}>
+      <span class="badge badge-heat" aria-label={heatLabel}>
         <Flame size={14} strokeWidth={1.8} aria-hidden="true" />
         <span>{clickCount}</span>
       </span>
@@ -184,75 +192,60 @@ const portraitImage = character.portrait
     line-height: 1.5;
   }
 
-  .portrait-fallback > .moon-ring {
-    pointer-events: none;
-  }
-
   .badge {
     position: absolute;
-    top: 0.75rem;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.3rem 0.7rem;
+    z-index: 2;
+    top: var(--space-3);
+    border: 1px solid color-mix(in srgb, var(--border-strong) 58%, transparent);
     border-radius: var(--radius-pill);
-    background: rgba(0, 0, 0, 0.5);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    color: var(--moon-white);
-    font-size: 0.72rem;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: 0.02em;
-    white-space: nowrap;
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--surface) 74%, transparent);
+    backdrop-filter: blur(10px);
+    font-size: 0.62rem;
+    font-weight: 700;
   }
 
   .badge-mythology {
-    left: 0.75rem;
+    left: var(--space-3);
+    padding: 0.28rem 0.55rem;
   }
 
   .badge-heat {
-    right: 0.75rem;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .character-card:hover .portrait img,
-  .character-card:focus-within .portrait img {
-    transform: scale(1.035);
+    right: var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    gap: .22rem;
+    padding: 0.24rem 0.45rem;
   }
 
   .copy {
     position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-    left: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    color: var(--moon-white);
-    text-shadow: 0 1px 12px color-mix(in srgb, var(--bg-primary) 78%, transparent);
+    z-index: 2;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    gap: .25rem;
+    padding: var(--space-4);
+    color: white;
   }
 
-  h3 {
+  .copy h3 {
     margin: 0;
-    color: var(--moon-white);
-    font-size: clamp(1.3rem, 1.5vw, 1.8rem);
-    line-height: 1.2;
+    color: white;
+    font-size: 1.2rem;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, .5);
   }
 
   .role {
-    margin-top: 0.15rem;
-    color: color-mix(in srgb, var(--moon-white) 78%, transparent);
-    font-size: 0.78rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: rgba(255, 255, 255, .78);
+    font-size: .72rem;
+    line-height: 1.45;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, .45);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .portrait img {
-      transition: none;
-    }
+  .character-card:hover img,
+  .character-card:focus-within img {
+    transform: scale(1.035);
   }
 </style>
