@@ -44,7 +44,7 @@
     "dev:local": "MYTHCANVAS_REMOTE_DATA=false astro dev",
     "dev:remote": "MYTHCANVAS_REMOTE_DATA=true astro dev",
     "preview": "astro build && wrangler dev",
-    "preview:local": "astro build && MYTHCANVAS_REMOTE_DATA=false astro dev --local",
+    "preview:local": "astro build && MYTHCANVAS_REMOTE_DATA=false wrangler dev --local",
     "preview:remote": "astro build && MYTHCANVAS_REMOTE_DATA=true wrangler dev",
     "migration:check": "wrangler d1 migrations apply mythcanvas-db --local",
     "artwork:import": "node scripts/import-character-artworks.mjs",
