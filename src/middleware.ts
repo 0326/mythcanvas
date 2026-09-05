@@ -8,7 +8,8 @@ import { parseLocalizedPath } from './lib/i18n/url';
  * Responsibilities:
  * - resolve locale from the external URL;
  * - keep the default zh-Hans routes unchanged;
- * - internally rewrite enabled locale-prefixed public pages to the single Astro route tree;
+ * - internally rewrite locale-prefixed public pages;
+ * - route production English core content to dedicated internal SSR pages;
  * - preserve the original pathname in locals for canonical/SEO generation;
  * - inject security response headers.
  */
@@ -44,10 +45,17 @@ const LOCALIZABLE_ROUTE_ROOTS = new Set([
   'my',
 ]);
 
+const ENGLISH_CORE_ROUTE = /^\/(?:character|world|mythology)(?:\/[^/]+)?\/?$/;
+const INTERNAL_LOCALIZED_PREFIX = '/_localized/';
+
 function isLocalizablePagePath(pathname: string) {
   if (pathname === '/') return true;
   const firstSegment = pathname.split('/').filter(Boolean)[0];
   return firstSegment ? LOCALIZABLE_ROUTE_ROOTS.has(firstSegment) : false;
+}
+
+function englishInternalPath(pathname: string) {
+  return ENGLISH_CORE_ROUTE.test(pathname) ? `/_localized/en${pathname}` : undefined;
 }
 
 function withSecurityHeaders(response: Response) {
@@ -67,6 +75,12 @@ function withSecurityHeaders(response: Response) {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // Internal localized route files are implementation details and must never be
+  // exposed as a second public URL surface.
+  if (context.url.pathname.startsWith(INTERNAL_LOCALIZED_PREFIX)) {
+    return withSecurityHeaders(new Response('Not Found', { status: 404 }));
+  }
+
   const parsed = parseLocalizedPath(context.url.pathname);
 
   context.locals.locale = parsed.locale;
@@ -93,7 +107,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     && isLocalizablePagePath(parsed.basePathname)
   ) {
     const rewritten = new URL(context.url);
-    rewritten.pathname = parsed.basePathname;
+    rewritten.pathname = parsed.locale === 'en'
+      ? englishInternalPath(parsed.basePathname) ?? parsed.basePathname
+      : parsed.basePathname;
     response = await next(rewritten);
   } else {
     response = await next();
