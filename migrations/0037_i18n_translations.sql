@@ -4,8 +4,6 @@
 -- name/name_en/summary columns. Repositories can migrate incrementally and the
 -- existing production read path remains valid during rollout.
 
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE IF NOT EXISTS mythology_translations (
   mythology_id TEXT NOT NULL,
   locale TEXT NOT NULL,
