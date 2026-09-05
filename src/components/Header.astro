@@ -25,11 +25,12 @@ const navItems = [
 const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
 const loginHref = localizedPath(locale, '/login/');
 const myHref = localizedPath(locale, '/my/');
+const brandAria = locale === DEFAULT_LOCALE ? `${messages.brand.name} MythCanvas` : messages.brand.name;
 ---
 
 <header class:list={{ 'site-header': true, 'site-header--immersive': immersive }}>
   <div class="container-wide header-row">
-    <a class="brand" href={localizedPath(locale, '/')} aria-label={`${messages.brand.name} MythCanvas`}>
+    <a class="brand" href={localizedPath(locale, '/')} aria-label={brandAria}>
       <span class="brand-mark" aria-hidden="true"><img src="/favicon.svg" width="30" height="30" alt="" /></span>
       <span class="brand-copy"><strong class="brand-serif">{messages.brand.name}</strong></span>
     </a>
@@ -87,6 +88,7 @@ const myHref = localizedPath(locale, '/my/');
   .main-nav a { position: relative; padding-block: 1.35rem; color: var(--text-secondary); font-size: .78rem; font-weight: 650; transition: color var(--transition-fast); }
   .main-nav a::after { content: ''; position: absolute; right: 12%; bottom: .7rem; left: 12%; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform var(--transition-fast); }
   .main-nav a:hover, .main-nav a:focus-visible, .main-nav a.active { color: var(--text-primary); }
+  .main-nav a:hover::after, .main-nav a:focus-visible::after, .main-nav a.active { color: var(--text-primary); }
   .main-nav a:hover::after, .main-nav a:focus-visible::after, .main-nav a.active::after { transform: scaleX(1); }
   .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); }
   .header-icon, .avatar { display: grid; width: 30px; height: 30px; place-items: center; color: var(--text-secondary); transition: color var(--transition-fast), transform var(--transition-fast); }
