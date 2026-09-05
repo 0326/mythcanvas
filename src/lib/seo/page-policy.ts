@@ -16,7 +16,7 @@ export type PageSeoOptions = {
   allowLocalizedIndex?: boolean;
 };
 
-const PRIVATE_NOINDEX_ROUTES = ['/admin', '/my'] as const;
+const PRIVATE_NOINDEX_ROUTES = ['/admin', '/my', '/_localized'] as const;
 const UTILITY_NOINDEX_ROUTES = ['/login', '/register', '/password', '/search'] as const;
 const FILTERABLE_ROUTES = ['/character', '/explore', '/wallpaper'] as const;
 
@@ -46,9 +46,8 @@ export function getPageSeoPolicy(url: URL, site: URL, options: PageSeoOptions = 
     return { canonicalURL, robots: 'noindex,follow' };
   }
 
-  // Localized infrastructure remains closed by default. English core content
-  // opts in page-by-page only after strict published-translation reads succeed.
-  if (parsed.locale !== DEFAULT_LOCALE && !options.allowLocalizedIndex) {
+  const canIndexLocalized = parsed.locale === 'en' && options.allowLocalizedIndex === true;
+  if (parsed.locale !== DEFAULT_LOCALE && !canIndexLocalized) {
     return { canonicalURL, robots: 'noindex,follow' };
   }
 
