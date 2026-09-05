@@ -129,15 +129,27 @@ const worldHref = localizedPath(locale, `/world/${world.slug}/`);
     padding: var(--space-5);
   }
 
-  .small-caps { color: var(--accent-strong); }
-  h3 { margin: var(--space-2) 0 0; font-size: 1.45rem; }
-  .en { margin: 0.15rem 0 var(--space-3); color: var(--text-muted); font-family: Georgia, serif; font-size: 0.82rem; }
+  .small-caps {
+    color: var(--accent-strong);
+  }
+
+  h3 {
+    margin: var(--space-2) 0 0;
+    font-size: 1.45rem;
+  }
+
+  .en {
+    margin: 0.15rem 0 var(--space-3);
+    color: var(--text-muted);
+    font-family: Georgia, serif;
+    font-size: 0.82rem;
+  }
 
   .keywords {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    margin: var(--space-3) 0 var(--space-4);
+    margin: 0 0 var(--space-4);
     padding: 0;
     list-style: none;
   }
@@ -154,7 +166,6 @@ const worldHref = localizedPath(locale, `/world/${world.slug}/`);
     display: inline-flex;
     align-items: center;
     gap: .35rem;
-    margin-top: var(--space-4);
     color: var(--text-secondary);
     font-size: 0.84rem;
     font-weight: 700;
