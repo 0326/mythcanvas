@@ -2,10 +2,14 @@ import type { APIRoute } from 'astro';
 import {
   getArtworks,
   getCharacters,
+  getLocalizedCharacters,
+  getLocalizedMythologies,
+  getLocalizedWorlds,
   getMythologies,
   getWorlds,
 } from '../lib/content/repositories';
 import { getPublicStoryPaths } from '../lib/content/stories';
+import { localizedPath } from '../lib/i18n/url';
 import {
   absoluteUrl,
   buildUrlSetXml,
@@ -39,10 +43,13 @@ export const GET: APIRoute = async ({ locals, site, url }) => {
 
   if (part !== 'entities') return xmlResponse('<error>Unknown sitemap part.</error>', 404);
 
-  const [mythologies, worlds, characters] = await Promise.all([
+  const [mythologies, worlds, characters, englishMythologies, englishWorlds, englishCharacters] = await Promise.all([
     getMythologies(db, { limit: SITEMAP_SHARD_SIZE }),
     getWorlds(db, { limit: SITEMAP_SHARD_SIZE }),
     getCharacters(db, { limit: SITEMAP_SHARD_SIZE }),
+    getLocalizedMythologies(db, 'en', { limit: SITEMAP_SHARD_SIZE }),
+    getLocalizedWorlds(db, 'en', { limit: SITEMAP_SHARD_SIZE }),
+    getLocalizedCharacters(db, 'en', { limit: SITEMAP_SHARD_SIZE }),
   ]);
 
   const paths = [
@@ -59,6 +66,13 @@ export const GET: APIRoute = async ({ locals, site, url }) => {
       const mythology = mythologies.find((item) => item.id === story.mythologyId);
       return mythology ? [`/mythology/${mythology.slug}/${story.slug}/`] : [];
     }),
+    localizedPath('en', '/'),
+    localizedPath('en', '/mythology/'),
+    localizedPath('en', '/world/'),
+    localizedPath('en', '/character/'),
+    ...englishMythologies.map((item) => localizedPath('en', `/mythology/${item.slug}/`)),
+    ...englishWorlds.map((item) => localizedPath('en', `/world/${item.slug}/`)),
+    ...englishCharacters.map((item) => localizedPath('en', `/character/${item.slug}/`)),
   ];
 
   return xmlResponse(buildUrlSetXml(paths.map((path) => urlEntry(absoluteUrl(path, site)))));
