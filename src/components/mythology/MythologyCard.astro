@@ -1,6 +1,8 @@
 ---
 import { ArrowUpRight } from '@lucide/astro';
 import type { Mythology } from '../../lib/content/types';
+import { DEFAULT_LOCALE } from '../../lib/i18n/config';
+import { localizedPath } from '../../lib/i18n/url';
 import {
   cloudflareImageUrl,
   focalPointToCss,
@@ -14,6 +16,8 @@ interface Props {
 }
 
 const { mythology, index, featured = false } = Astro.props;
+const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
+const isEnglish = locale === 'en';
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
 const focalPoint = mythology.homeHero?.focalPoint;
 const focalCss = focalPointToCss(focalPoint);
@@ -34,10 +38,11 @@ const lightImage = cloudflareImageUrl(lightSrc, transformOptions, useImageTransf
 const darkImage = cloudflareImageUrl(darkSrc, transformOptions, useImageTransformations) ?? darkSrc;
 const hasDarkImage = darkImage !== lightImage;
 const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
+const mythologyHref = localizedPath(locale, `/mythology/${mythology.slug}/`);
 ---
 
 <article class:list={{ 'myth-card': true, 'myth-card--featured': featured }}>
-  <a href={`/mythology/${mythology.slug}/`} aria-label={`进入${mythology.name}`}>
+  <a href={mythologyHref} aria-label={isEnglish ? `Explore ${mythology.name}` : `进入${mythology.name}`}>
     <div class="myth-card-media" style={imageStyle}>
       <img
         class:list={{
@@ -46,7 +51,7 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
           'myth-card-image--has-dark': hasDarkImage,
         }}
         src={lightImage}
-        alt={`${mythology.name}神话世界封面`}
+        alt={mythology.heroImage.alt || (isEnglish ? `${mythology.name} mythology cover` : `${mythology.name}神话世界封面`)}
         width={imageWidth}
         height={imageHeight}
         loading={featured && index === 0 ? 'eager' : 'lazy'}
@@ -70,18 +75,20 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
 
     <div class="myth-card-copy">
       <div class="myth-card-kicker">
-        <span>{mythology.nameEn}</span>
+        <span>{isEnglish ? 'Mythology' : mythology.nameEn}</span>
         <span class="myth-card-line" aria-hidden="true"></span>
         <span>{mythology.tagline}</span>
       </div>
       <h2>{mythology.name}</h2>
       <p>{mythology.summary}</p>
       <div class="myth-card-footer">
-        <div class="myth-card-dna" aria-label={`${mythology.name}视觉 DNA`}>
-          {mythology.visualDna.motifs.slice(0, 3).map((motif) => <span>{motif}</span>)}
-        </div>
+        {!isEnglish && (
+          <div class="myth-card-dna" aria-label={`${mythology.name}视觉 DNA`}>
+            {mythology.visualDna.motifs.slice(0, 3).map((motif) => <span>{motif}</span>)}
+          </div>
+        )}
         <span class="myth-card-action" aria-hidden="true">
-          进入神域
+          {isEnglish ? 'Explore mythology' : '进入神域'}
           <ArrowUpRight size={17} strokeWidth={1.8} />
         </span>
       </div>
@@ -114,9 +121,7 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
     color: white;
   }
 
-  .myth-card > a:hover {
-    color: white;
-  }
+  .myth-card > a:hover { color: white; }
 
   .myth-card-media,
   .myth-card-shade,
@@ -139,23 +144,14 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
     transition: transform 1.15s cubic-bezier(.2, .7, .2, 1), opacity var(--transition-base), filter var(--transition-base);
   }
 
-  .myth-card-image--dark {
-    opacity: 0;
-  }
-
-  :global([data-theme='dark']) .myth-card-image--light.myth-card-image--has-dark {
-    opacity: 0;
-  }
-
-  :global([data-theme='dark']) .myth-card-image--dark {
-    opacity: 1;
-  }
+  .myth-card-image--dark { opacity: 0; }
+  :global([data-theme='dark']) .myth-card-image--light.myth-card-image--has-dark { opacity: 0; }
+  :global([data-theme='dark']) .myth-card-image--dark { opacity: 1; }
 
   .myth-card-shade {
     background:
       linear-gradient(to top, rgba(5, 8, 13, .9) 0%, rgba(5, 8, 13, .56) 30%, rgba(5, 8, 13, .08) 68%, rgba(5, 8, 13, .02) 100%),
       linear-gradient(to right, rgba(5, 8, 13, .36), transparent 58%);
-    transition: background var(--transition-base);
   }
 
   .myth-card-index {
@@ -166,7 +162,6 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
     font-family: var(--font-serif);
     font-size: clamp(.78rem, 1vw, .92rem);
     letter-spacing: .18em;
-    text-shadow: 0 2px 14px rgba(0, 0, 0, .35);
   }
 
   .myth-card-copy {
@@ -180,10 +175,7 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
     text-shadow: 0 2px 18px rgba(0, 0, 0, .4);
   }
 
-  .myth-card--featured .myth-card-copy {
-    width: 100%;
-    padding: clamp(1.75rem, 4vw, 3.5rem);
-  }
+  .myth-card--featured .myth-card-copy { padding: clamp(1.75rem, 4vw, 3.5rem); }
 
   .myth-card-kicker {
     display: flex;
@@ -198,18 +190,8 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
   }
 
   .myth-card-kicker span:first-child,
-  .myth-card-kicker span:last-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .myth-card-line {
-    width: 28px;
-    height: 1px;
-    flex: 0 0 auto;
-    background: color-mix(in srgb, white 54%, var(--accent));
-  }
+  .myth-card-kicker span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .myth-card-line { width: 28px; height: 1px; flex: 0 0 auto; background: color-mix(in srgb, white 54%, var(--accent)); }
 
   h2 {
     margin: 0;
@@ -218,135 +200,26 @@ const imageStyle = `--myth-focal-x:${focalCss.x};--myth-focal-y:${focalCss.y}`;
     font-size: clamp(2rem, 3.2vw, 3.45rem);
     font-weight: 620;
     line-height: 1.02;
-    letter-spacing: -.02em;
   }
 
-  .myth-card--featured h2 {
-    font-size: clamp(2.7rem, 5.3vw, 5.4rem);
-  }
-
-  p {
-    max-width: 46rem;
+  .myth-card-copy > p {
+    max-width: 48rem;
     margin: 0;
     color: rgba(255, 255, 255, .78);
-    font-family: var(--font-literary, var(--font-serif));
-    font-size: clamp(.88rem, 1.05vw, 1rem);
     line-height: 1.75;
-    text-wrap: balance;
   }
 
-  .myth-card:not(.myth-card--featured) p {
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
+  .myth-card-footer { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
+  .myth-card-dna { display: flex; flex-wrap: wrap; gap: .45rem; }
+  .myth-card-dna span { padding: .28rem .56rem; border: 1px solid rgba(255,255,255,.24); border-radius: var(--radius-pill); font-size: .68rem; }
+  .myth-card-action { display: inline-flex; align-items: center; gap: .4rem; margin-left: auto; font-size: .82rem; font-weight: 700; }
 
-  .myth-card-footer {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: .3rem;
-  }
+  .myth-card:hover .myth-card-image,
+  .myth-card:focus-within .myth-card-image { transform: scale(1.03); }
 
-  .myth-card-dna {
-    display: flex;
-    min-width: 0;
-    flex-wrap: wrap;
-    gap: .35rem .85rem;
-    color: rgba(255, 255, 255, .58);
-    font-size: .72rem;
-    letter-spacing: .04em;
-  }
-
-  .myth-card-dna span + span::before {
-    content: '·';
-    margin-right: .85rem;
-    color: color-mix(in srgb, white 52%, var(--accent));
-  }
-
-  .myth-card-action {
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: .35rem;
-    color: rgba(255, 255, 255, .88);
-    font-size: .78rem;
-    font-weight: 650;
-    letter-spacing: .08em;
-    transition: transform var(--transition-fast), color var(--transition-fast);
-  }
-
-  .myth-card:hover .myth-card-image {
-    transform: scale(1.035);
-  }
-
-  .myth-card:hover .myth-card-action {
-    color: white;
-    transform: translate(2px, -2px);
-  }
-
-  .myth-card:focus-within {
-    border-color: var(--focus);
-  }
-
-  @media (max-width: 900px) {
-    .myth-card,
-    .myth-card--featured {
-      grid-column: 1 / -1;
-      min-height: clamp(390px, 68vw, 540px);
-    }
-
-    .myth-card--featured h2 {
-      font-size: clamp(2.5rem, 8vw, 4rem);
-    }
-  }
-
-  @media (max-width: 560px) {
-    .myth-card,
-    .myth-card--featured {
-      min-height: 410px;
-      border-radius: var(--radius-md);
-    }
-
-    .myth-card-copy,
-    .myth-card--featured .myth-card-copy {
-      padding: 1.35rem;
-    }
-
-    .myth-card-kicker {
-      gap: .55rem;
-      font-size: .62rem;
-    }
-
-    .myth-card-line {
-      width: 18px;
-    }
-
-    h2,
-    .myth-card--featured h2 {
-      font-size: clamp(2.15rem, 11vw, 3.2rem);
-    }
-
-    p {
-      font-size: .84rem;
-      line-height: 1.65;
-    }
-
-    .myth-card-dna {
-      display: none;
-    }
-
-    .myth-card-footer {
-      justify-content: flex-end;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .myth-card-image,
-    .myth-card-action {
-      transition: none;
-    }
+  @media (max-width: 680px) {
+    .myth-card, .myth-card--featured { min-height: 430px; }
+    .myth-card-footer { align-items: flex-start; flex-direction: column; }
+    .myth-card-action { margin-left: 0; }
   }
 </style>
