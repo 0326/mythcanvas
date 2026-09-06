@@ -19,7 +19,7 @@ export const SUPPORTED_RELATION_TYPES = new Set([
   'syncretized-with', 'associated-with', 'created', 'transformed-into',
   'narrative', 'punishes', 'orders-creation', 'defeats', 'exchanges-with',
   'opposes', 'captures', 'aids', 'rides', 'companion', 'encounters',
-  'resists', 'departs-from',
+  'resists', 'departs-from', 'pursues',
 ]);
 
 const semantics: Record<string, RelationSemantic> = {
@@ -39,6 +39,7 @@ const semantics: Record<string, RelationSemantic> = {
   created: { type: 'created', category: 'narrative', directional: true, neutralLabel: '创造', fromPerspectiveLabel: '被创造者', toPerspectiveLabel: '创造者' },
   'transformed-into': { type: 'transformed-into', category: 'narrative', directional: true, neutralLabel: '化作', fromPerspectiveLabel: '化作对象', toPerspectiveLabel: '原形' },
   narrative: { type: 'narrative', category: 'narrative', directional: true, neutralLabel: '叙事关联', fromPerspectiveLabel: '叙事关联', toPerspectiveLabel: '叙事关联' },
+  pursues: { type: 'pursues', category: 'narrative', directional: true, neutralLabel: '追逐', fromPerspectiveLabel: '被追逐者', toPerspectiveLabel: '追逐者' },
 };
 
 export function getRelationSemantic(type: string): RelationSemantic {

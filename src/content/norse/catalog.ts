@@ -1,4 +1,5 @@
 import type { Character, CharacterRelation, Scene, SourceRef, TaxonomyTerm, World } from '../../lib/content/types';
+import { sourceRef, type NorseSourceKey } from './sources';
 
 const mythologyId = 'myth-norse';
 const date = '2026-09-01';
@@ -14,13 +15,67 @@ const asgardMobile = {
   width: 720,
   height: 1280,
 };
+const asgardDesktopV1 = {
+  src: '/art/norse-asgard-v1.png',
+  alt: '极光下坐落在峭壁与峡湾之间的阿斯加德，世界树与远处彩虹桥构成北欧神域景象',
+  width: 1672,
+  height: 941,
+};
+const asgardMobileV1 = {
+  src: '/art/norse-asgard-mobile-v1.png',
+  alt: '竖幅极光下的阿斯加德：世界树、峭壁神域与远处彩虹桥由下至上展开',
+  width: 941,
+  height: 1672,
+};
+const jotunheimDesktopV1 = {
+  src: '/art/norse-jotunheim-v1.png',
+  alt: '风暴云与雾气笼罩的约顿海姆玄武岩峡谷，粗粝山道通向巨石拱门和边境小屋',
+  width: 1672,
+  height: 941,
+};
+const jotunheimMobileV1 = {
+  src: '/art/norse-jotunheim-mobile-v1.png',
+  alt: '竖幅约顿海姆峡谷：风暴天空、石桥、深谷与荒野道路形成巨人边境的纵深',
+  width: 941,
+  height: 1672,
+};
+const midgardDesktopV1 = {
+  src: '/art/norse-midgard-v1.png',
+  alt: '暴风云下米德加尔特的环形海岸聚落，远海隐约可见环世巨蛇般的波浪弧线',
+  width: 1672,
+  height: 941,
+};
+const midgardMobileV1 = {
+  src: '/art/norse-midgard-mobile-v1.png',
+  alt: '竖幅米德加尔特海岸：山坡上的环形人类聚落、暴风海面与远处蛇形波浪',
+  width: 941,
+  height: 1672,
+};
+const helDesktopV1 = {
+  src: '/art/norse-hel-v1.png',
+  alt: '冷雾中的赫尔世界洞厅：静默立石、暗河与低矮石桥通向远处的天光裂口',
+  width: 1672,
+  height: 941,
+};
+const helMobileV1 = {
+  src: '/art/norse-hel-mobile-v1.png',
+  alt: '竖幅赫尔世界：石阶穿过冷雾、立石与暗河，通向洞穴深处的微光',
+  width: 941,
+  height: 1672,
+};
 
-const source = (title: string, locator: string, note?: string): SourceRef => ({
-  type: 'primary-text', title, locator, language: 'non', period: '中世纪记录', note,
-});
-
-const edda = (locator: string, note?: string) => source('《散文埃达》·《欺骗古鲁菲》', locator, note);
-const poetic = (title: string, locator: string, note?: string) => source(`《诗体埃达》·${title}`, locator, note);
+const edda = (locator: string, note?: string): SourceRef => sourceRef('proseEddaGylfaginning', locator, note);
+const poeticSourceKeys = {
+  'Baldrs draumar': 'baldrsDraumar',
+  'Fáfnismál': 'fafnismal',
+  'Hymiskviða': 'hymiskvida',
+  'Lokasenna': 'lokasenna',
+  'Sigrdrífumál': 'sigrdrifumal',
+  'Skírnismál': 'skirnismal',
+  'Vafþrúðnismál': 'vafthrudnismal',
+  'Völuspá': 'voluspa',
+} as const satisfies Record<string, NorseSourceKey>;
+const poetic = (title: keyof typeof poeticSourceKeys, locator: string, note?: string): SourceRef => sourceRef(poeticSourceKeys[title], locator, note);
 
 type CharacterSeed = readonly [
   string,
@@ -31,9 +86,11 @@ type CharacterSeed = readonly [
   string,
   readonly string[],
   readonly string[],
+  NorseSourceKey?,
+  string?,
 ];
 
-const character = ([slug, name, nameEn, role, symbols, characterType, worlds, tags]: CharacterSeed): Character => ({
+const character = ([slug, name, nameEn, role, symbols, characterType, worlds, tags, sourceKey, sourceLocator]: CharacterSeed): Character => ({
   id: `character-${slug}`,
   mythologyId,
   worldIds: worlds,
@@ -46,7 +103,7 @@ const character = ([slug, name, nameEn, role, symbols, characterType, worlds, ta
   characterType,
   traditionTags: tags,
   sourcePeriods: ['《诗体埃达》与《散文埃达》的中世纪记录传统'],
-  sourceRefs: [edda('Gylfaginning 1–54')],
+  sourceRefs: [sourceKey ? sourceRef(sourceKey, sourceLocator ?? 'editorial locator pending') : edda('Gylfaginning 1–54')],
   canonicality: 'primary',
   canonicalDesign: {
     anchors: [...symbols.slice(0, 3), `${name}的${role}身份`],
@@ -97,15 +154,71 @@ const seeds: readonly CharacterSeed[] = [
   ['sigurd', '西格尔德', 'Sigurd', '沃尔松格英雄传统中的屠龙者', ['格拉墨', '龙血', '宝藏'], 'hero', ['world-midgard'], ['volsung', 'hero']],
   ['brynhildr', '布伦希尔德', 'Brynhildr', '沃尔松格英雄传统中的女武神与英雄', ['火焰圈', '盾牌', '誓言'], 'hero', ['world-midgard'], ['volsung', 'hero']],
   ['fafnir', '法夫纳', 'Fafnir', '被贪欲转化的龙', ['龙鳞', '金环', '洞穴'], 'monster', ['world-midgard'], ['volsung', 'monster']],
+  ['urd', '乌尔德', 'Urðr', '与命运之井相关的诺恩', ['命运之井', '刻痕', '时间'], 'mythic-being', ['world-asgard'], ['creation', 'wisdom'], 'voluspa', 'st. 20'],
+  ['verdandi', '薇尔丹蒂', 'Verðandi', '与生成和命运相关的诺恩', ['命运之井', '纺线', '时间'], 'mythic-being', ['world-asgard'], ['creation', 'wisdom'], 'voluspa', 'st. 20'],
+  ['skuld', '斯库尔德', 'Skuld', '与命运之井相关的诺恩', ['命运之井', '书写板', '时间'], 'mythic-being', ['world-asgard'], ['creation', 'wisdom'], 'voluspa', 'st. 20'],
+  ['sol', '索尔', 'Sól', '在天空中运行的太阳人格', ['太阳车', '光轮', '天空道路'], 'deity', ['world-midgard'], ['creation', 'ragnarok'], 'voluspa', 'st. 5, 40–41'],
+  ['mani', '马尼', 'Máni', '在天空中运行的月亮人格', ['月车', '月相', '天空道路'], 'deity', ['world-midgard'], ['creation', 'ragnarok'], 'voluspa', 'st. 5, 40–41'],
+  ['skoll', '斯库尔', 'Sköll', '追逐太阳的狼', ['狼影', '太阳车', '铁森林'], 'creature', ['world-midgard'], ['creation', 'ragnarok'], 'proseEddaGylfaginning', 'ch. 12'],
+  ['hati', '哈提', 'Hati', '追逐月亮的狼', ['狼影', '月车', '铁森林'], 'creature', ['world-midgard'], ['creation', 'ragnarok'], 'proseEddaGylfaginning', 'ch. 12'],
+  ['gullveig', '古尔薇格', 'Gullveig', '被刺穿和焚烧后仍复起的神秘人物', ['长矛', '火焰', '金色'], 'mythic-being', ['world-asgard'], ['vanir', 'gods-and-treasures'], 'voluspa', 'sts. 21–24'],
+  ['kvasir', '克瓦希尔', 'Kvasir', '与神族和约和诗歌蜜酒相关的智者', ['蜜酒', '诗歌', '调和之杯'], 'mythic-being', ['world-asgard'], ['aesir', 'vanir', 'wisdom'], 'proseEddaSkaldskaparmal', 'ch. 1'],
+  ['thjazi', '夏基', 'Þjazi', '与伊登和青春苹果故事相关的巨人', ['鹰形', '山岩', '苹果'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'gods-and-treasures'], 'haustlong', 'sts. 1–13'],
+  ['skirnir', '斯基尔尼尔', 'Skírnir', '代表弗雷前往约顿海姆求婚的使者', ['金角', '火焰边界', '弗雷之剑'], 'mythic-being', ['world-vanaheim', 'world-jotunheim'], ['vanir', 'gods-and-treasures'], 'skirnismal', 'sts. 1–42'],
+  ['vafthrudnir', '瓦夫苏鲁德尼尔', 'Vafþrúðnir', '与奥丁进行宇宙知识竞赛的巨人', ['问答', '智慧厅堂', '末日知识'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'wisdom'], 'vafthrudnismal', 'sts. 1–55'],
+  ['hrungnir', '赫朗格尼尔', 'Hrungnir', '与索尔决斗的巨人', ['磨刀石心脏', '石盾', '决斗'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'haustlong', 'sts. 14–20'],
+  ['hymir', '海米尔', 'Hymir', '与索尔的大锅和垂钓故事相关的巨人', ['巨锅', '鲸钩', '寒海'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'hymiskvida', 'sts. 1–39'],
+  ['skrymir', '斯克里米尔', 'Skrýmir', '在索尔赴乌特加德途中相遇的巨人', ['行囊', '森林', '幻象前奏'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'proseEddaGylfaginning', 'ch. 45'],
+  ['utgarda-loki', '乌特加达-洛基', 'Útgarða-Loki', '以幻象试炼索尔一行的巨人统治者', ['巨人大厅', '幻象', '挑战'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'proseEddaGylfaginning', 'chs. 46–47'],
+  ['geirrod', '盖尔罗德', 'Geirröðr', '索尔远征故事中的巨人对手', ['铁柱', '火焰', '巨人厅堂'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'thorsdrapa', 'selected stanzas'],
+  ['gjalp', '加尔普', 'Gjálp', '盖尔罗德故事中与索尔冲突的巨人女子', ['急流', '山谷', '巨人亲族'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'thorsdrapa', 'selected stanzas'],
+  ['greip', '格雷普', 'Greip', '盖尔罗德故事中与索尔冲突的巨人女子', ['巨力', '山石', '巨人亲族'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'thorsdrapa', 'selected stanzas'],
+  ['angrboda', '安格尔伯达', 'Angrboða', '洛基子女谱系中被称为女巨人的人物', ['铁森林', '巨狼', '蛇'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'loki-family'], 'proseEddaGylfaginning', 'ch. 34'],
+  ['garmr', '加姆', 'Garmr', '与诸神黄昏和海尔入口相关的犬形存在', ['犬形守卫', '赫尔入口', '末日'], 'creature', ['world-hel'], ['chthonic', 'ragnarok'], 'proseEddaGylfaginning', 'ch. 51'],
+  ['volsung', '沃尔松格', 'Völsung', '沃尔松格英雄家系的祖先人物', ['剑树', '长屋', '家系'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'volsungaSaga', 'chs. 2–3'],
+  ['sigmund', '西格蒙德', 'Sigmund', '沃尔松格家系中的英雄与西格尔德之父', ['树中神剑', '断剑', '家系'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'volsungaSaga', 'chs. 3–12'],
+  ['signy', '西格妮', 'Signý', '西格蒙德之妹、与西格盖尔冲突相关的英雄人物', ['长屋', '复仇', '家系'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'volsungaSaga', 'chs. 3–8'],
+  ['siggeir', '西格盖尔', 'Siggeir', '西格妮婚姻与沃尔松格家系冲突中的国王', ['王座', '背叛', '长屋'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'volsungaSaga', 'chs. 3–8'],
+  ['sinfjotli', '辛菲奥特利', 'Sinfjötli', '西格蒙德的同伴与沃尔松格复仇故事人物', ['森林', '狼皮', '复仇'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'volsungaSaga', 'chs. 7–10'],
+  ['hjordis', '希奥尔迪斯', 'Hjördis', '西格蒙德之死与西格尔德出生故事中的人物', ['断剑', '遗腹子', '王室'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'volsungaSaga', 'chs. 11–12'],
+  ['andvari', '安德瓦里', 'Andvari', '与被诅咒黄金相关的侏儒人物', ['金环', '河流', '诅咒'], 'mythic-being', ['world-midgard'], ['volsung', 'wisdom'], 'reginsmal', 'sts. 1–26'],
+  ['ottr', '奥特', 'Ótr', '被杀后引出赎金与诅咒黄金的角色', ['水獭形态', '黄金', '赎金'], 'mythic-being', ['world-midgard'], ['volsung', 'hero'], 'reginsmal', 'sts. 1–26'],
+  ['hreidmar', '赫雷德马尔', 'Hreiðmarr', '法夫纳与雷金之父、赎金冲突中的人物', ['赎金', '黄金', '家族'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'reginsmal', 'sts. 1–26'],
+  ['regin', '雷金', 'Regin', '锻剑并引导西格尔德进入屠龙故事的工匠', ['铁砧', '格拉墨', '教导'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'reginsmal', 'sts. 1–40'],
+  ['gudrun', '古德伦', 'Guðrún', '西格尔德之死和阿特利循环中的核心英雄人物', ['哀歌', '婚姻', '复仇'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'gudrunarkvida1', 'sts. 1–27'],
+  ['gunnar', '贡纳尔', 'Gunnar', '古德伦兄长、阿特利故事中的英雄人物', ['竖琴', '蛇坑', '宝藏'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'atlakvida', 'sts. 1–46'],
+  ['hogni', '霍格尼', 'Högni', '贡纳尔之弟、阿特利故事中的英雄人物', ['心脏', '誓言', '宝藏'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'atlakvida', 'sts. 1–46'],
+  ['atli', '阿特利', 'Atli', '古德伦、贡纳尔和霍格尼故事中的国王', ['宴席', '黄金', '宫殿'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'atlakvida', 'sts. 1–46'],
+  ['svanhildr', '斯万希尔德', 'Svanhildr', '古德伦后代复仇循环中的人物', ['马蹄', '复仇', '王室'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'hamdismal', 'sts. 1–30'],
+  ['hamdir', '哈姆迪尔', 'Hamðir', '为斯万希尔德复仇的兄弟之一', ['剑', '石刑', '复仇'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'hamdismal', 'sts. 1–30'],
+  ['sorli', '索尔利', 'Sörli', '为斯万希尔德复仇的兄弟之一', ['剑', '石刑', '复仇'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'hamdismal', 'sts. 1–30'],
+  ['helgi-hjorvardsson', '赫尔吉·希奥尔瓦尔松', 'Helgi Hjörvarðsson', '与斯瓦瓦相关的英雄诗歌主角', ['剑', '女武神', '战场'], 'hero', ['world-midgard'], ['helgi-cycle', 'hero'], 'helgakvidaHjorvardssonar', 'sts. 1–51'],
+  ['svava', '斯瓦瓦', 'Sváfa', '赫尔吉·希奥尔瓦尔松故事中的女武神人物', ['女武神', '剑名', '誓言'], 'mythic-being', ['world-midgard'], ['helgi-cycle', 'hero'], 'helgakvidaHjorvardssonar', 'sts. 1–51'],
+  ['helgi-hundingsbani', '赫尔吉·洪丁斯巴尼', 'Helgi Hundingsbani', '与西格伦相关的英雄诗歌主角', ['战船', '长矛', '葬丘'], 'hero', ['world-midgard'], ['helgi-cycle', 'hero'], 'helgakvidaHundingsbana1', 'sts. 1–57'],
+  ['sigrun', '西格伦', 'Sigrún', '赫尔吉·洪丁斯巴尼故事中的女武神人物', ['女武神', '战场', '哀悼'], 'mythic-being', ['world-midgard'], ['helgi-cycle', 'hero'], 'helgakvidaHundingsbana2', 'sts. 1–51'],
+  ['volundr', '沃伦德', 'Völundr', '被囚后逃离的铁匠英雄', ['铁砧', '翅膀', '戒指'], 'hero', ['world-midgard'], ['independent-eddic', 'hero'], 'volundarkvida', 'sts. 1–41'],
+  ['nidudr', '尼杜德', 'Niðuðr', '囚禁沃伦德的国王', ['王座', '戒指', '铁匠铺'], 'hero', ['world-midgard'], ['independent-eddic', 'hero'], 'volundarkvida', 'sts. 1–41'],
+  ['bodvildr', '伯德维尔德', 'Böðvildr', '沃伦德故事中与戒指和逃离情节相关的人物', ['戒指', '铁匠铺', '王室'], 'hero', ['world-midgard'], ['independent-eddic', 'hero'], 'volundarkvida', 'sts. 20–41'],
+  ['svipdagr', '斯维普达格', 'Svipdagr', '寻访孟格洛德的英雄人物', ['旅杖', '门槛', '寻访'], 'hero', ['world-midgard'], ['independent-eddic', 'hero'], 'svipdagsmal', 'Grógaldr and Fjölsvinnsmál'],
+  ['groa', '格罗阿', 'Gróa', '斯维普达格故事中给予咒歌保护的母亲', ['咒歌', '坟丘', '母亲'], 'mythic-being', ['world-midgard'], ['independent-eddic', 'wisdom'], 'svipdagsmal', 'Grógaldr'],
+  ['mengloth', '孟格洛德', 'Menglöð', '斯维普达格寻访故事中的人物', ['高座', '门槛', '疗愈'], 'mythic-being', ['world-midgard'], ['independent-eddic', 'wisdom'], 'svipdagsmal', 'Fjölsvinnsmál'],
+  ['rigr', '里格', 'Rígr', '与社会等级叙事相关的神秘行旅者', ['旅杖', '家屋', '社会秩序'], 'mythic-being', ['world-midgard'], ['independent-eddic'], 'rigsthula', 'selected stanzas'],
+  ['alviss', '阿尔维斯', 'Alvíss', '与索尔进行知识竞赛的侏儒', ['问答', '石化黎明', '婚约'], 'mythic-being', ['world-asgard'], ['thor-cycle', 'wisdom'], 'alvissmal', 'sts. 1–35'],
+  ['huginn', '胡金', 'Huginn', '奥丁的渡鸦之一', ['渡鸦', '思维', '远行'], 'creature', ['world-asgard'], ['odin-cycle', 'wisdom'], 'grimnismal', 'st. 20'],
+  ['muninn', '穆宁', 'Muninn', '奥丁的渡鸦之一', ['渡鸦', '记忆', '远行'], 'creature', ['world-asgard'], ['odin-cycle', 'wisdom'], 'grimnismal', 'st. 20'],
+  ['nidhoggr', '尼德霍格', 'Níðhöggr', '啃噬世界树根部的蛇形存在', ['树根', '蛇形', '亡者'], 'creature', ['world-hel'], ['creation', 'ragnarok'], 'grimnismal', 'sts. 32–35'],
+  ['thjalfi', '夏尔菲', 'Þjálfi', '跟随索尔旅行的人类少年', ['奔跑', '旅程', '索尔随从'], 'hero', ['world-midgard', 'world-asgard'], ['thor-cycle', 'hero'], 'proseEddaGylfaginning', 'ch. 44'],
+  ['roskva', '罗丝克瓦', 'Röskva', '与夏尔菲一同进入索尔旅程的人类少女', ['旅程', '雷神随从', '人间'], 'hero', ['world-midgard', 'world-asgard'], ['thor-cycle', 'hero'], 'proseEddaGylfaginning', 'ch. 44'],
+  ['vali', '瓦利', 'Váli', '与巴德尔复仇相关的神祇', ['弓箭', '复仇', '快速成长'], 'deity', ['world-asgard'], ['aesir', 'baldr-cycle'], 'voluspa', 'sts. 32–33'],
 ];
 
 export const norseCharacters: readonly Character[] = seeds.map(character);
 
 export const norseWorlds: readonly World[] = [
-  { id: 'world-asgard', mythologyId, slug: 'asgard', name: '阿斯加德', nameEn: 'Asgard', summary: '阿萨神族的神域，彩虹桥、宫殿与世界树共同构成其空间意象。', canonicalDesign: { anchors: ['世界树', '彩虹桥', '北境宫殿'], signatureMaterials: ['巨石', '铁', '木材'], atmosphere: ['极光', '寒冷夜空', '守望感'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
-  { id: 'world-midgard', mythologyId, slug: 'midgard', name: '米德加尔特', nameEn: 'Miðgarðr', summary: '人类居住的中庭，被海洋与尘世巨蛇环绕，是神与巨人行动的交界。', canonicalDesign: { anchors: ['海岸聚落', '木制长屋', '环世海洋'], signatureMaterials: ['木材', '湿岩', '铁'], atmosphere: ['海风', '长夜', '人间火光'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
-  { id: 'world-jotunheim', mythologyId, slug: 'jotunheim', name: '约顿海姆', nameEn: 'Jötunheimr', summary: '约顿诸族活动的边境空间，不应被简化为单一的冰雪巨人之地。', canonicalDesign: { anchors: ['峡谷', '原始山地', '边境道路'], signatureMaterials: ['风化岩', '骨木', '粗纺织物'], atmosphere: ['旷野', '风暴', '不确定边界'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
-  { id: 'world-hel', mythologyId, slug: 'hel', name: '赫尔', nameEn: 'Hel', summary: '由海拉统治的亡者空间；人物 Hel 与空间 Hel 在产品中始终分开建模。', canonicalDesign: { anchors: ['亡者之门', '半明半暗边界', '静默道路'], signatureMaterials: ['黑石', '灰土', '旧木'], atmosphere: ['冷雾', '无风静默', '边界感'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
+  { id: 'world-asgard', mythologyId, slug: 'asgard', name: '阿斯加德', nameEn: 'Asgard', summary: '阿萨神族的神域，彩虹桥、宫殿与世界树共同构成其空间意象。', canonicalDesign: { anchors: ['世界树', '彩虹桥', '北境宫殿'], signatureMaterials: ['巨石', '铁', '木材'], atmosphere: ['极光', '寒冷夜空', '守望感'] }, heroImage: asgardDesktopV1, heroImageMobile: asgardMobileV1 },
+  { id: 'world-midgard', mythologyId, slug: 'midgard', name: '米德加尔特', nameEn: 'Miðgarðr', summary: '人类居住的中庭，被海洋与尘世巨蛇环绕，是神与巨人行动的交界。', canonicalDesign: { anchors: ['海岸聚落', '木制长屋', '环世海洋'], signatureMaterials: ['木材', '湿岩', '铁'], atmosphere: ['海风', '长夜', '人间火光'] }, heroImage: midgardDesktopV1, heroImageMobile: midgardMobileV1 },
+  { id: 'world-jotunheim', mythologyId, slug: 'jotunheim', name: '约顿海姆', nameEn: 'Jötunheimr', summary: '约顿诸族活动的边境空间，不应被简化为单一的冰雪巨人之地。', canonicalDesign: { anchors: ['峡谷', '原始山地', '边境道路'], signatureMaterials: ['风化岩', '骨木', '粗纺织物'], atmosphere: ['旷野', '风暴', '不确定边界'] }, heroImage: jotunheimDesktopV1, heroImageMobile: jotunheimMobileV1 },
+  { id: 'world-hel', mythologyId, slug: 'hel', name: '赫尔', nameEn: 'Hel', summary: '由海拉统治的亡者空间；人物 Hel 与空间 Hel 在产品中始终分开建模。', canonicalDesign: { anchors: ['亡者之门', '半明半暗边界', '静默道路'], signatureMaterials: ['黑石', '灰土', '旧木'], atmosphere: ['冷雾', '无风静默', '边界感'] }, heroImage: helDesktopV1, heroImageMobile: helMobileV1 },
   { id: 'world-muspell', mythologyId, slug: 'muspell', name: '穆斯贝尔海姆', nameEn: 'Múspellsheimr', summary: '火焰与毁灭力量所在的边界空间，服务于创世与诸神黄昏叙事。', canonicalDesign: { anchors: ['火焰边界', '熔岩裂隙', '火焰之剑'], signatureMaterials: ['熔岩', '黑铁', '炽热玻璃'], atmosphere: ['热浪', '红黑烟尘', '末日光'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
   { id: 'world-niflheim', mythologyId, slug: 'niflheim', name: '尼福尔海姆', nameEn: 'Niflheimr', summary: '雾与寒冷的原初空间，与创世水汽和世界边界相关。', canonicalDesign: { anchors: ['雾气', '冰河', '寒冷深谷'], signatureMaterials: ['冰', '雾', '蓝灰岩'], atmosphere: ['低能见度', '冷寂', '原初寒气'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
   { id: 'world-vanaheim', mythologyId, slug: 'vanaheim', name: '华纳海姆', nameEn: 'Vanaheimr', summary: '华纳神族相关的丰饶与海风空间，保留来源有限时的原创设计边界。', canonicalDesign: { anchors: ['河口草地', '丰饶庭院', '海风祭台'], signatureMaterials: ['木材', '琥珀', '湿润土壤'], atmosphere: ['丰饶', '海风', '低矮日光'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
@@ -206,6 +319,29 @@ export const norseRelations: readonly CharacterRelation[] = [
   relation('norse-enemy-sigurd-fafnir', 'character-sigurd', 'character-fafnir', 'enemy', poetic('Fáfnismál', '1–44'), 'Volsung heroic tradition'),
   relation('norse-consort-sigurd-brynhildr', 'character-sigurd', 'character-brynhildr', 'consort', poetic('Sigrdrífumál', '1–37'), 'Volsung heroic tradition'),
   relation('norse-interpretation-tyr-fenrir', 'character-tyr', 'character-fenrir', 'narrative', edda('Gylfaginning 34'), 'Prose Edda binding tradition', false),
+  relation('norse-narrative-urd-verdandi', 'character-urd', 'character-verdandi', 'companion', poetic('Völuspá', '20'), 'Völuspá fate-well tradition'),
+  relation('norse-narrative-verdandi-skuld', 'character-verdandi', 'character-skuld', 'companion', poetic('Völuspá', '20'), 'Völuspá fate-well tradition'),
+  relation('norse-pursues-skoll-sol', 'character-skoll', 'character-sol', 'pursues', edda('Gylfaginning 12'), 'Prose Edda celestial-pursuit tradition'),
+  relation('norse-pursues-hati-mani', 'character-hati', 'character-mani', 'pursues', edda('Gylfaginning 12'), 'Prose Edda celestial-pursuit tradition'),
+  relation('norse-narrative-gullveig-odin', 'character-gullveig', 'character-odin', 'narrative', poetic('Völuspá', '21–24'), 'Völuspá Æsir–Vanir conflict tradition', false),
+  relation('norse-enemy-thjazi-idunn', 'character-thjazi', 'character-idunn', 'enemy', sourceRef('haustlong', 'sts. 1–13'), 'Haustlöng Iðunn tradition'),
+  relation('norse-serves-skirnir-freyr', 'character-skirnir', 'character-freyr', 'serves', poetic('Skírnismál', '1–42'), 'Skírnismál courtship tradition'),
+  relation('norse-enemy-odin-vafthrudnir', 'character-odin', 'character-vafthrudnir', 'rival', poetic('Vafþrúðnismál', '1–55'), 'Vafþrúðnismál knowledge-contest tradition'),
+  relation('norse-enemy-thor-hrungnir', 'character-thor', 'character-hrungnir', 'enemy', sourceRef('haustlong', 'sts. 14–20'), 'Haustlöng Hrungnir tradition'),
+  relation('norse-encounters-thor-hymir', 'character-thor', 'character-hymir', 'encounters', poetic('Hymiskviða', '1–39'), 'Hymiskviða cauldron-and-fishing tradition'),
+  relation('norse-encounters-thor-skrymir', 'character-thor', 'character-skrymir', 'encounters', edda('Gylfaginning 45'), 'Prose Edda Utgarðr journey tradition'),
+  relation('norse-encounters-thor-utgarda-loki', 'character-thor', 'character-utgarda-loki', 'encounters', edda('Gylfaginning 46–47'), 'Prose Edda Utgarðr trial tradition'),
+  relation('norse-enemy-thor-geirrod', 'character-thor', 'character-geirrod', 'enemy', sourceRef('thorsdrapa', 'selected stanzas'), 'Þórsdrápa Geirröðr tradition'),
+  relation('norse-narrative-gjalp-geirrod', 'character-gjalp', 'character-geirrod', 'narrative', sourceRef('thorsdrapa', 'selected stanzas'), 'Þórsdrápa Geirröðr tradition', false),
+  relation('norse-narrative-greip-geirrod', 'character-greip', 'character-geirrod', 'narrative', sourceRef('thorsdrapa', 'selected stanzas'), 'Þórsdrápa Geirröðr tradition', false),
+  relation('norse-consort-loki-angrboda', 'character-loki', 'character-angrboda', 'consort', edda('Gylfaginning 34'), 'Prose Edda Loki-family tradition'),
+  relation('norse-encounters-thor-alviss', 'character-thor', 'character-alviss', 'encounters', sourceRef('alvissmal', 'sts. 1–35'), 'Alvíssmál knowledge-contest tradition'),
+  relation('norse-companion-odin-huginn', 'character-odin', 'character-huginn', 'companion', sourceRef('grimnismal', 'st. 20'), 'Grímnismál raven tradition'),
+  relation('norse-companion-odin-muninn', 'character-odin', 'character-muninn', 'companion', sourceRef('grimnismal', 'st. 20'), 'Grímnismál raven tradition'),
+  relation('norse-companion-thjalfi-roskva', 'character-thjalfi', 'character-roskva', 'companion', edda('Gylfaginning 44'), 'Prose Edda Thor-journey tradition'),
+  relation('norse-companion-thor-thjalfi', 'character-thor', 'character-thjalfi', 'companion', edda('Gylfaginning 44'), 'Prose Edda Thor-journey tradition'),
+  relation('norse-companion-thor-roskva', 'character-thor', 'character-roskva', 'companion', edda('Gylfaginning 44'), 'Prose Edda Thor-journey tradition'),
+  relation('norse-enemy-vali-hodr', 'character-vali', 'character-hodr', 'enemy', poetic('Völuspá', '32–33'), 'Völuspá Baldr-revenge tradition'),
 ];
 
 export const norseP0RequiredRelationIds = norseRelations.map((item) => item.id);

@@ -40,6 +40,19 @@ const duplicateValues = (values: readonly string[]): string[] => {
   });
 };
 
+const editorialParagraphCharacters = (story: MythStory): number =>
+  story.blocks
+    .filter((block): block is Extract<MythStory['blocks'][number], { type: 'paragraph' }> => block.type === 'paragraph')
+    .reduce((total, block) => total + block.text.replace(/\s/g, '').length, 0);
+
+const editorialHeadingCount = (story: MythStory): number =>
+  story.blocks.filter((block) => block.type === 'heading').length;
+
+const TEMPLATE_SENTENCES = [
+  'MythCanvas 将本篇作为可追溯的神话叙事入口',
+  '版本差异保留在来源范围内，不以单一现代改编替代古典材料。',
+];
+
 const validateDependencyIds = (
   issues: StoryValidationIssue[],
   scope: { storyId: string },
@@ -123,6 +136,32 @@ export const validateMythStories = ({
       if (story.sourceNotes.length === 0) {
         issues.push({ ...scope, field: 'sourceNotes', message: 'Published Stories need a reader-facing version note.' });
       }
+    }
+
+    const needsEditorialGate = ['source-reviewed', 'visual-ready'].includes(story.editorialStatus ?? '');
+    if (needsEditorialGate) {
+      const proseLength = editorialParagraphCharacters(story);
+      if (editorialHeadingCount(story) < 3) {
+        issues.push({ ...scope, field: 'blocks', message: 'Source-reviewed Stories need at least three meaningful section headings.' });
+      }
+      if (proseLength < 800) {
+        issues.push({ ...scope, field: 'blocks', message: `Source-reviewed Story prose is too short (${proseLength} characters; expected at least 800).` });
+      }
+      if (TEMPLATE_SENTENCES.some((sentence) => story.blocks.some((block) => block.type === 'paragraph' && block.text.includes(sentence)))) {
+        issues.push({ ...scope, field: 'blocks', message: 'Source-reviewed Stories cannot retain the shared prototype body.' });
+      }
+      if (story.editorialReview?.status !== 'approved' || !hasText(story.editorialReview.reviewer) || !isIsoDate(story.editorialReview.reviewedAt)) {
+        issues.push({ ...scope, field: 'editorialReview', message: 'Source-reviewed Stories need an approved dated editorial review.' });
+      }
+      if (story.editorialReview?.unresolvedIssueIds.length) {
+        issues.push({ ...scope, field: 'editorialReview.unresolvedIssueIds', message: 'Source-reviewed Stories cannot retain unresolved editorial issues.' });
+      }
+      if (story.readingMinutes && Math.abs(Math.round(proseLength / 250) - story.readingMinutes) > 1) {
+        issues.push({ ...scope, field: 'readingMinutes', message: `readingMinutes (${story.readingMinutes}) does not match editorial prose length (${proseLength}).` });
+      }
+    }
+    if (story.editorialStatus === 'visual-ready' && !story.heroAssetId) {
+      issues.push({ ...scope, field: 'heroAssetId', message: 'Visual-ready Stories need an attributable key-moment illustration.' });
     }
 
     story.sources.forEach((item, index) => {

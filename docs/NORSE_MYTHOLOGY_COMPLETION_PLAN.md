@@ -1,8 +1,9 @@
 # MythCanvas 北欧神话体系完整补全计划
 
 > 状态：Canonical Content Completion Plan  
-> 版本：V2.0  
+> 版本：V2.1（执行版）
 > 日期：2026-09-06  
+> 基线：`main@c6a2ca2`；后续实现若改变基线数量，以自动 Coverage Report 为准，不手工维护本文数字。
 > 适用范围：北欧神话 Story Map、Character、World / Scene、MythicObject、Relation、Source / Claim、视觉资产、结构化内容流水线，以及后续 Story Series / Collection 的上游内容建设。  
 > 相关文档：`docs/CONTENT_POSITIONING.md`、`docs/STORY_SERIES_COLLECTION_PRODUCT_PLAN.md`、`docs/CHARACTER_ART_SYSTEM.md`、`docs/CHARACTER_GRAPH_PLAN.md`、`.agents/skills/mythcanvas-content-model/SKILL.md`
 
@@ -205,6 +206,100 @@ relation → source coverage
 visual → provenance coverage
 known issue → resolution status
 ```
+
+## 1.9 “已发布”被误当成“已完成”
+
+当前 36 篇 Story 虽然都标记为 `published`，但生成器统一写入：
+
+```text
+readingMinutes = 4
+1 个短叙事段落
+1 个模板说明段落
+1 个模板版本提示
+```
+
+这只能证明路由、关联与渲染链路已经跑通，不能证明文章达到 4 分钟阅读量，也不能证明内容已经完成来源审校。
+
+因此本文后续统一使用两组数量：
+
+```text
+Inventory Count  = 数据库 / 静态包里已有多少条记录
+Ready Count      = 通过对应 Gate 的记录数量
+```
+
+不得再用 `norseStories.length` 直接宣称“已完成 36 篇北欧故事”。
+
+## 1.10 现有 Dependency Closure 是结构闭包，不是语义闭包
+
+当前 `stories.ts` 中：
+
+```ts
+requiredCharacterIds = input.characters
+characterIds = input.characters
+```
+
+两者来自同一输入，因此校验只能发现“引用了不存在的 ID”，不能发现“故事明明出现了 Þrymr，但编辑时根本没有把 Þrymr 写进数组”。
+
+新版必须把依赖判断拆成两步：
+
+```text
+Source review / Story Manifest 决定 expected dependencies
+                         ↓
+Published Story 声明 reader-facing links
+                         ↓
+自动校验 expected ⊆ published links，人工复核 expected 是否忠于来源
+```
+
+只有这样，Dependency Closure 才能发现遗漏实体，而不是自证闭环。
+
+## 1.11 实施阶段顺序需要调整
+
+V2.0 把 `MythicObject`、taxonomy 与 Story 状态模型放在大量内容补全之后，但前面的 Dependency Closure 又依赖这些能力，形成循环依赖。
+
+V2.1 改为：
+
+```text
+热修事实错误
+→ 先补最小内容模型
+→ 再做 Source Registry / Coverage / Story Manifest
+→ 再补 Story 与 Entity
+→ 最后做深审、视觉和网站发布
+```
+
+## 1.12 Source Registry 不应再造一套北欧专用类型
+
+仓库已有通用 `ContentSource`、`SourceRef`、`MythStorySource`，凯尔特、阿兹特克、美索不达米亚内容包也已经有可复用的 `sources.ts` 模式。
+
+北欧应扩展通用字段并复用同一注册方式，不新增与 `ContentSource` 平行的 `NorseSourceRecord` 真源模型。
+
+## 1.13 缺少文章级编辑完成标准
+
+V2.0 规定了来源、实体和视觉，却没有规定一篇 Story 何时从数据占位符变成可供用户阅读的内容。
+
+V2.1 新增 `Editorial Gate`，覆盖正文完整度、版本说明、引用定位、关联实体、敏感内容、中文命名、插画槽位和人工审校。
+
+## 1.14 缺少兼容与上线策略
+
+当前已有可索引 URL、Story Series 和用户可能保存的页面。补全过程必须：
+
+- 保留已有 `id`；
+- 纠正 slug 时提供永久重定向；
+- 不让研究中 Story 出现在 sitemap；
+- 不把公共内容迁入运行时 D1；
+- 允许按 Cycle 分批上线，而不是等待全部 70～90 篇后一次性切换。
+
+## 1.15 缺少工作包和验收责任
+
+“补 Story / 补实体”仍然过粗。执行时必须以一个可审查 PR 工作包为单位，每包只包含：
+
+```text
+1 个 source lane 或 2～5 篇强关联 Story
++ 对应依赖实体
++ 对应 claims / relations
++ 测试与 coverage 更新
+```
+
+每个工作包至少经过内容审校与工程校验；视觉生产是后续独立 Gate，不与文字 PR 强耦合。
 
 ---
 
@@ -595,47 +690,86 @@ symbol context
 
 ---
 
-# 6. Source Registry 必须独立
+# 6. Source Registry 必须独立并复用通用模型
 
-当前 `stories.ts` 内嵌 source constants，随着规模增长会不可维护。
+当前 `stories.ts` 内嵌四个宽泛 source constants，locator 仍是“按诗篇与诗节 / 按章节”一类占位文字；随着规模增长既不可维护，也无法支撑 claim-level 审计。
 
-建议新增：
+新增：
 
 ```text
 src/content/norse/sources.ts
 ```
 
-统一维护：
+但不新增北欧专用真源类型。文件应导出通用 `ContentSource[]`，并提供与现有内容包一致的 `sourceRef()` / `storySource()` 适配器：
 
 ```ts
-type NorseSourceRecord = {
-  id: string;
-  title: string;
-  sourceFamily:
-    | 'eddic-mythological'
-    | 'eddic-heroic'
-    | 'prose-edda'
-    | 'skaldic'
-    | 'legendary-saga'
-    | 'regional-medieval'
-    | 'material-culture'
-    | 'academic-secondary';
-  period?: string;
-  manuscriptContext?: string;
-  language?: string;
-  region?: string;
-  evidenceRoles: readonly (
-    | 'narrative'
-    | 'identity'
-    | 'relation'
-    | 'visual-context'
-    | 'reception'
-  )[];
-  note?: string;
-};
+export const norseSources = {
+  thrymskvida: {
+    sourceId: 'norse-src-thrymskvida',
+    title: 'Þrymskviða',
+    type: 'primary-text',
+    storyType: 'translation',
+    tradition: 'Eddic mythological poetry',
+    period: 'medieval manuscript witness preserving older poetic material',
+    language: 'non',
+    edition: 'editorially approved edition / translation',
+    url: 'approved working source URL',
+    note: 'witness and dating caveat',
+  },
+  // ...
+} satisfies Record<string, ContentSource>;
+
+export const sourceRef = (
+  key: NorseSourceKey,
+  locator: string,
+  note?: string,
+): SourceRef => { /* registry adapter */ };
+
+export const storySource = (
+  key: NorseSourceKey,
+  locator: string,
+  note?: string,
+): MythStorySource => { /* registry adapter */ };
 ```
 
-Story / Claim 只引用 stable `sourceId` + locator。
+Story / Claim 只引用 stable `sourceId` + 精确 locator。`ContentSource` 需要扩展而不是旁路实现的字段包括：
+
+```text
+sourceFamily        便于 Coverage 分组
+evidenceRoles       narrative / identity / relation / visual-context / reception
+manuscriptContext   抄本 / witness 范围
+region              地域范围
+licenseNote         版本与翻译使用权
+```
+
+若暂时不扩展通用类型，上述信息先进入 `note` 也只能是过渡方案，并必须登记技术债；不能长期依赖不可查询的自由文本。
+
+### 6.1 Source 粒度
+
+不能只建一个笼统的 `source-norse-poetic-edda` 再让所有 Story 共用。
+
+推荐粒度：
+
+```text
+诗体埃达：每首诗一个 sourceId
+散文埃达：按作品建立 sourceId，locator 精确到章节
+斯卡尔德诗：每部作品 / 可识别 stanza witness 一个 sourceId
+萨迦：每部作品一个 sourceId，locator 精确到章节
+考古 / 图像：每件对象或正式 catalogue record 一个 sourceId
+学术研究：每本书 / 论文一个 sourceId，locator 精确到页或章节
+```
+
+### 6.2 Edition 与翻译策略
+
+每个 P0 文本必须登记：
+
+- 古诺尔斯文底本或可信数字版；
+- 团队实际使用的工作翻译；
+- 中文正文是自译、改写还是引用；
+- 版权 / 许可状态；
+- locator 如何在版本间保持稳定。
+
+Story 正文默认采用 MythCanvas 自有中文叙述；若使用译文原句，必须检查授权并限制引用长度。不能把“现代英文译本”标成古代原典本身。
 
 ---
 
@@ -655,6 +789,10 @@ src/content/norse/source-coverage.ts
   priority: 'P0',
   status: 'covered',
   storyIds: ['story-thryms-stolen-hammer'],
+  supportingClaimIds: [],
+  exclusionReason: undefined,
+  reviewer: 'editor-id',
+  reviewedAt: 'YYYY-MM-DD',
   note: 'Thor cycle core narrative'
 }
 ```
@@ -672,11 +810,113 @@ excluded-with-reason
 
 这样“完整北欧”变成可审计结果，而不是主观判断。
 
+## 7.1 优先级定义
+
+```text
+P0  不覆盖就会造成主干叙事断裂或事实错误；阻塞体系补全
+P1  重要独立传统或显著增强人物 / 关系理解；阻塞“扩展完整”但不阻塞首批 Divine 上线
+P2  接受史、区域平行材料、低叙事密度证据；登记但可延后产品化
+```
+
+P0 / P1 / P2 是研究优先级，不是来源价值高低。
+
+## 7.2 Coverage 状态定义
+
+| 状态 | 定义 | 是否 resolved |
+|---|---|---:|
+| `covered` | 已映射到至少一篇通过 source review 的 Story 或 Claim | 是 |
+| `partial` | 只覆盖了来源的一部分；必须记录剩余范围和后续任务 | 仅 P1/P2 可暂时是 |
+| `context-only` | 仅用于身份、关系、视觉或接受史，不应拆成 Story | 是 |
+| `excluded-with-reason` | 明确不进入当前 Norse 边界并写明理由 | 是 |
+| `unreviewed` | 尚未完成判断 | 否 |
+
+P0 的最终状态只能是 `covered`、`context-only` 或 `excluded-with-reason`；`partial` 不能伪装成 P0 已完成。
+
+## 7.3 初始 P0 Coverage 包
+
+Phase 2 必须至少冻结以下 manifest 组，而不是只列作品名：
+
+| Source lane | P0 最小范围 | 主要输出 |
+|---|---|---|
+| Eddic mythological poetry | 第 5.1 节列出的 12 首核心诗 | Divine Story / Claim |
+| Prose Edda | `Gylfaginning` 核心神话叙事；`Skáldskaparmál` 中 P0 宝物与事件 | Story / Object / Claim |
+| Skaldic poetry | `Haustlöng`、`Þórsdrápa`、`Húsdrápa` 及主干所需 stanza | 早期见证 / 版本交叉校验 |
+| Heroic Edda | Sigurd–Guðrún–Atli 主干、Helgi、Völundr | Heroic Story / Claim |
+| Völsunga saga | 从 Völsung 前史到 Guðrún 后续的主干章节 | Heroic Story / variant scope |
+| Regional / late witnesses | 仅纳入 P0 冲突说明所需部分 | Alternate Claim / exclusion |
+| Material evidence | 核心 S/A 视觉对象的首批 catalogue 清单 | Visual context，不产 Story |
+
 ---
 
 # 8. Story Map：9 条内容主干
 
 以下是内容研究层的 Story Cycle，不直接等于页面 Volume，也不直接等于未来 Collection。
+
+本节是完整范围的“研究母清单”，不是已经冻结的生产数据。Phase 2 必须把它落成 `src/content/norse/story-manifest.ts`；在该文件合并前，任何“70～90 篇”都只是容量估算。
+
+每个 Manifest 项必须具备：
+
+```ts
+type NorseStoryManifestItem = {
+  id: string;
+  proposedSlug: string;
+  titleZh: string;
+  titleEn: string;
+  cycleIds: readonly string[];
+  priority: 'P0' | 'P1' | 'P2';
+  status:
+    | 'proposed'
+    | 'researched'
+    | 'structured'
+    | 'source-reviewed'
+    | 'published'
+    | 'excluded';
+  sourceScopes: readonly {
+    sourceId: string;
+    locator: string;
+    role: 'primary-narrative' | 'parallel' | 'variant' | 'context';
+  }[];
+  expectedDependencies: {
+    characterIds: readonly string[];
+    worldIds: readonly string[];
+    sceneIds: readonly string[];
+    objectIds: readonly string[];
+    conceptIds?: readonly string[];
+  };
+  existingStoryId?: string;
+  mergeIntoStoryId?: string;
+  exclusionReason?: string;
+};
+```
+
+`expectedDependencies` 必须由读过对应 locator 的编辑者填写，不能从现有 `characterIds` 自动复制。
+
+## 8.1 Story 拆分规则
+
+一份来源不等于一篇 Story；一个 motif 也不必独立成篇。按以下规则拆分：
+
+- 有独立起因、行动、转折和结果，可形成 4～8 分钟阅读体验时，拆成 Story；
+- 只是谱系、称谓、宇宙知识或单个诗节时，进入 Claim / supporting content；
+- 同一事件有不同来源版本时，默认一个 Story + 多条 source-scoped Claim，不复制成两篇近似文章；
+- 不同版本导致角色动机、结局或伦理含义显著不同，才允许建立 variant Story 或独立 tradition lane；
+- 一个 Story 可以属于多个 Cycle，但只有一个主要阅读 Volume；
+- 不能为了达到 70～90 的数量范围拆碎叙事。
+
+## 8.2 初始容量与发布批次
+
+| Cycle | 唯一 Story 容量估算 | 首批级别 | 说明 |
+|---|---:|---|---|
+| 01 创世与宇宙结构 | 8～10 | P0 | 已有 6 条记录，但需重做实体和来源闭包 |
+| 02 阿萨、华纳与诸神秩序 | 10～13 | P0 | 宝物、婚姻、宴席与和平机制 |
+| 03 奥丁 | 8～10 | P0 | 与 Cycle 02/06 有交叉，不重复建文 |
+| 04 索尔与巨人 | 9～12 | P0 | `Þrymskviða`、Hymir、Útgarðr、Geirröðr 为重点 |
+| 05 洛基与秩序裂缝 | 9～12 | P0 | 多数条目跨 Cycle 02/04/06 |
+| 06 巴德尔与 Ragnarök | 12～16 | P0 | 先完成现有 Series 的内容可信度 |
+| 07 Völsung–Guðrún–Atli | 16～22 | P0/P1 | 最大新增工作包 |
+| 08 Helgi | 4～7 | P1 | 保持独立英雄传统 |
+| 09 独立 Eddic traditions | 5～9 | P1/P2 | Völundr 为 P1，其余按证据与产品价值排序 |
+
+表内相加会因跨 Cycle Story 重复计数而大于最终唯一 Story 数；Coverage Report 必须同时输出“Cycle memberships”和“unique stories”。
 
 ---
 
@@ -1135,7 +1375,16 @@ Grottasöngr
 TaxonomyTerm(kind = 'story-cycle')
 ```
 
-不要立刻新增第二套重复的 `StorySeries` domain entity。
+仓库已经存在 `StorySeriesManifest`，并已有 Ragnarök Series。不得再新增第二套系列类型；但也不能把 `StorySeriesManifest` 当 Story Cycle 使用。
+
+职责固定为：
+
+```text
+TaxonomyTerm(kind='story-cycle')  = 研究与内容关系标签，可多选
+MythStory.volumeId                = 网站阅读编排，单篇一个主要位置
+StorySeriesManifest               = 已策展、可版本化、面向用户/商品化的叙事主轴
+Collection Manifest              = 未来商品定义，本阶段不存在
+```
 
 一个 Story 可以同时属于多个 Cycle，例如：
 
@@ -1156,6 +1405,8 @@ Collection Manifest
 ```
 
 三者不能一一绑定。
+
+现有 Ragnarök Series 在北欧内容补全期间保留为可运行样板，但它的 `content-ready / collection-ready` 状态必须由新版 Coverage Gate 重新计算，不能因为页面已存在就视为内容完成。
 
 ---
 
@@ -1232,9 +1483,11 @@ type MythicObject = {
   slug: string;
   name: string;
   nameEn: string;
+  nativeName?: string;
+  aliases?: readonly string[];
   objectType: MythicObjectType;
   summary: string;
-  ownerCharacterIds?: readonly string[];
+  traditionTags?: readonly string[];
   sourceRefs: readonly SourceRef[];
   canonicalDesign: CanonicalDesign;
   heroImage?: ImageAsset;
@@ -1267,6 +1520,56 @@ Story Dependency 新增：
 ```text
 requiredObjectIds
 ```
+
+并同步扩展：
+
+```text
+StructuredMythologyBundle.objects
+publicCatalog.mythicObjects
+静态搜索索引
+内容校验器
+Story reader 关联对象区
+sitemap / detail route（若 Phase 8 决定提供独立对象页）
+D1 compatibility mirror migration（只做镜像，不改变静态真源）
+```
+
+## 11.1 Object Relation 不能塞进 CharacterRelation
+
+`CharacterRelation` 只表达 Character / Concept 图，不足以表示：
+
+```text
+Character owns Object
+Object forged-by Character
+Object used-in Story
+Object located-at Scene
+Object replaces / conflicts-with Object
+```
+
+V2.1 决策：
+
+- Story 与 Object 用 `requiredObjectIds / objectIds` 表达；
+- Character 与 Object、Object 与 Scene 的长期关系新增通用 `ContentRelation`，不要把对象伪造成 Character；
+- 现有 `CharacterRelation` 保留，避免一次性破坏角色图；
+- `ContentRelation` 合入前，可以由 MythicObject 的 source-scoped claims 暂存关系，但不得把无来源的 `ownerCharacterIds` 当事实。
+
+目标结构：
+
+```ts
+type ContentEntityType = 'character' | 'world' | 'scene' | 'story' | 'mythic-object' | 'concept';
+
+type ContentRelation = {
+  id: string;
+  mythologyId: string;
+  from: { type: ContentEntityType; id: string };
+  to: { type: ContentEntityType; id: string };
+  relationType: string;
+  traditionScope?: string;
+  confidence: CharacterInterpretationConfidence;
+  sourceRefs: readonly SourceRef[];
+};
+```
+
+这是跨文明能力，提交前必须同步更新架构文档、validation 和 compatibility mirror；不允许只在北欧 `catalog.ts` 中临时造对象关系数组。
 
 ---
 
@@ -1550,11 +1853,44 @@ Loki
 
 避免 `monster / mortal / lineage` 把复杂身份压扁。
 
+## P0-6：Story 来源与正文模板不匹配
+
+当前所有 Story 由四个宽泛 source constant 生成，locator 如“按诗篇与诗节 / 按章节”不够精确；所有 Character 又几乎统一引用 `Gylfaginning 1–54`。这会让 CI 形式通过、内容实际不可追溯。
+
+必须：
+
+- 每首 Eddic poem 独立 sourceId；
+- 每篇 Story locator 精确到诗节 / 章节；
+- Character 来源按身份事实重新绑定；
+- 删除统一模板段落作为正式正文的做法。
+
+## P0-7：英雄 Story 类型错误
+
+当前 `Völsung` Story 全部使用 `kind: 'myth'`。完成通用类型扩展后，应改为：
+
+```text
+heroic-legend
+```
+
+同时保留它们属于北欧内容体系，但不把英雄文学传统包装成与诸神诗完全相同的证据层。
+
+## P1 审计队列
+
+- `Ask / Embla` 同时核对 `Völuspá` 与 Snorri 叙述，不只保留单一 prose lane；
+- `Yggdrasil / wells / Norns` 不用一个 Story summary 合并所有来源差异；
+- `Æsir–Vanir war` 补 Gullveig / Heiðr 与来源范围；
+- `Kvasir / Mead` 判断拆分边界；
+- `Thor in Útgarðr` 补 Þjálfi、Röskva、Skrymir、Útgarða-Loki 等语义依赖；
+- `Lokasenna` 场景从泛化 `Asgard Court` 修正为来源支持的宴席空间；
+- `Baldr / Höðr` 的 Snorri、poetic、Saxo 版本保持分轨；
+- Ragnarök 幸存者、Týr / Garmr、Loki / Heimdall 等终局关系逐项校验；
+- `Völsung Hall` 不得被复用为所有 Sigurd、Fafnir、Brynhildr 场景。
+
 ---
 
 # 17. Story Dependency Closure
 
-每个 Story 必须声明：
+每个 Story Manifest 先声明 source-reviewed 的 `expectedDependencies`；正式 Story 再声明：
 
 ```text
 requiredCharacterIds
@@ -1564,6 +1900,25 @@ requiredObjectIds
 requiredSourceIds
 storyCycleIds / taxonomy mapping
 ```
+
+其中：
+
+```text
+expectedDependencies  = 研究层的应有依赖，回答“来源中谁/哪里/什么不可缺”
+required*Ids          = 发布层的强依赖，必须存在并显示给读者
+*Ids                  = reader-facing 全部关联，可包含非阻塞上下文
+```
+
+校验关系：
+
+```text
+Manifest expected required dependencies
+                 ⊆ Story required*Ids
+                 ⊆ Story reader-facing *Ids
+                 ⊆ registered static entities
+```
+
+Manifest 的正确性必须由来源审校负责；自动化只能验证集合关系，不能代替读懂原文。
 
 示例：
 
@@ -1593,6 +1948,34 @@ Source
 任何 required dependency 不存在：
 
 > Story 不允许进入 `dependency-complete`。
+
+任何已知主要行动者在 Manifest 中缺失：
+
+> Story 不允许进入 `source-reviewed`，即使 TypeScript 和现有测试全部通过。
+
+## 17.1 依赖分级
+
+避免把正文里出现一次的每个名字都强制建实体：
+
+```text
+required   主要行动者、关键地点、决定情节的物件；必须建模
+supporting 对理解有帮助，可链接已有实体；不阻塞单篇发布
+mentioned 仅正文提及；保留 Named Entity，不创建空实体
+```
+
+## 17.2 当前 36 篇的首轮语义审计
+
+不能沿用当前构造器生成的 closure 结果。每篇必须重新阅读 source locator，并产出：
+
+```text
+keep / split / merge / retitle / rewrite / unpublish
+expected Character / World / Scene / Object / Concept
+source locator
+tradition scope
+known conflicts
+```
+
+审计结束后，`norseStories.length >= 32` 这类测试保留为兼容性检查，但不再作为内容完成度测试。
 
 ---
 
@@ -1639,6 +2022,58 @@ Claim / version / source locator 已审计。
 
 进入用户侧页面。
 
+## 18.1 状态落地方式
+
+`publishStatus` 继续只负责公开可见性：
+
+```text
+draft | published
+```
+
+新增独立 `editorialStatus` 表达研究进度，避免把内部流程塞进路由判断。公开查询仍只返回 `publishStatus='published'` 且通过 Gate 的静态内容。
+
+每次状态跃迁必须由显式字段或 review record 驱动，不根据正文长度自动猜测。
+
+## 18.2 Editorial Gate：一篇 Story 何时算内容完成
+
+每篇 P0 Story 达到 `source-reviewed` 至少满足：
+
+- 标题、summary、正文与 source locator 一致；
+- 主要来源至少 1 个；关键并行版本需要独立 source scope；
+- 正文具备完整叙事，不是模板段落或百科摘要；
+- 推荐中文正文 800～1800 字、4～8 分钟，超出范围可有充分叙事理由；长度是 warning，不是事实正确性的替代品；
+- 至少 3 个有意义的正文 section 或等价叙事结构；
+- 没有统一模板句冒充文章正文；
+- 所有关键 claim 能定位到来源，编辑综合明确标记；
+- `expectedDependencies` 与正式 Story 关联闭合；
+- 中文名、Old Norse 名、英文名和 alias 符合命名规范；
+- 暴力、性、胁迫、乱伦等内容按来源与产品年龄定位克制表述，不猎奇化；
+- 通过至少一次非作者内容审校。
+
+达到 `visual-ready` 还需：
+
+- hero / key moment 插画槽位定义完成；
+- 图像 provenance 完整；
+- Character / World / Scene / MythicObject 的 Canonical Design 能支撑出图；
+- 视觉不依赖现代商业改编；
+- 桌面与移动关键图是独立构图需求，不以裁切替代。
+
+## 18.3 Review Record
+
+推荐通用审校记录：
+
+```ts
+type EditorialReview = {
+  status: 'needs-review' | 'approved' | 'changes-requested';
+  reviewer: string;
+  reviewedAt: string;
+  sourceDecisionNotes: readonly string[];
+  unresolvedIssueIds: readonly string[];
+};
+```
+
+机器生成的“已引用来源”不能自动变成 `approved`。
+
 ---
 
 # 19. 自动验证与 Coverage Report
@@ -1654,8 +2089,10 @@ reports/norse-content-coverage.json
 至少包含：
 
 ```text
+baselineInventory
 sourceCoverage
-storyCoverage
+storyManifestCoverage
+storyReadinessByStatus
 storyDependencyCoverage
 characterSourceCoverage
 worldSourceCoverage
@@ -1665,6 +2102,9 @@ aliasCollisions
 missingReferences
 orphanEntities
 unscopedContestedClaims
+placeholderContent
+readingTimeMismatch
+reviewStatus
 visualReadiness
 knownIssueStatus
 ```
@@ -1675,194 +2115,266 @@ P0 完成阶段加入：
 
 ```text
 required dependency missing            → fail
+manifest expected dependency missing   → fail
 required source missing                → fail
 duplicate id / slug                    → fail
 alias collision unresolved             → fail
 P0 source matrix blank                 → fail
 unscoped conflicting core claim        → fail
 known P0 factual issue unresolved      → fail
+published Story still uses template body → fail after migration window
+published Story lacks approved review  → fail after migration window
 ```
 
 图片未全部完成可以 warning，不应该阻塞早期 Story research branch。
+
+迁移窗口内，旧 36 篇的 `placeholderContent / reviewStatus` 先以 warning 呈现；对应 Cycle 宣布完成后升级为 fail，避免一次模型合并就令主分支永久红灯。
+
+新增命令：
+
+```text
+npm run content:coverage:norse
+npm run content:validate
+```
+
+Coverage 命令生成 JSON 供 CI 使用，并输出人类可读 Markdown 摘要；生成报告不作为 canonical content 提交，除非产品决定保留审计快照。
 
 ---
 
 # 20. 实施阶段
 
-## Phase 0：Baseline Audit + 已知错误修复
+阶段顺序是依赖关系，不允许把后置阶段作为前置阶段的完成证据。估算统一使用“工作包”而不是虚构人日：一个工作包为 1 个 source lane 或 2～5 篇强关联 Story 及其依赖。
 
-先把现状变成可信基线。
+## Phase 0：事实热修 + 可信基线
+
+目标：先停止继续传播已知错误，再获得真实完成度快照。
 
 交付：
 
-- 修正 P0 已知错误；
-- 重新统计 Character / World / Scene / Story；
-- 生成 current coverage snapshot；
-- 不新增大量内容。
+- 立即修复第 16 节中可在现有模型内处理的 P0 事实与关联错误（P0-1～P0-4）；
+- 把依赖新模型的 P0-5～P0-7 登记为阻塞任务，并在 Phase 1 / 3 完成；
+- 为 `freyja-and-gerdr` 增加兼容重定向后修正 canonical slug；
+- 重新统计 inventory 与 readiness；
+- 给现有 36 篇标记“prototype / needs-review”迁移状态；
+- 建立 `known-issues.ts` 或等价可校验清单；
+- 生成首份 `norse-content-coverage.json`。
 
-### Done
+验收：
 
 ```text
 Known factual P0 issues = 0
-Current entity references valid = 100%
+Broken current references = 0
+Existing public URLs preserved = 100%
+36 篇均有明确迁移状态
 ```
+
+预计：2～3 个工程 / 编辑工作包。
 
 ---
 
-## Phase 1：Source Registry + Coverage Matrix
+## Phase 1：通用内容模型前置
+
+目标：先具备后续补全真正需要的模型与校验能力。
+
+交付：
+
+```text
+ContentSource 扩展（sourceFamily / evidenceRoles / witness / license）
+TaxonomyKind 扩展（family-lineage / social-divine-group / being-class）
+MythStoryKind += heroic-legend
+MythStory.editorialStatus + review
+MythicObject + bundle.objects
+MythStory.objectIds / requiredObjectIds
+NorseStoryManifestItem.expectedDependencies
+ContentRelation 或批准的过渡实现
+```
+
+同步更新：
+
+- `docs/ARCHITECTURE.md`；
+- 静态 registry / public catalog / search；
+- validation；
+- 兼容镜像脚本与必要 D1 migration；
+- Story / Entity 测试夹具。
+
+验收：
+
+```text
+npm run content:validate 通过
+旧内容包无需一次性重写也能兼容
+新增模型不引入公共页面运行时 D1 依赖
+```
+
+预计：3～5 个工程工作包。
+
+---
+
+## Phase 2：Source Registry + Coverage Matrix + Story Manifest Freeze
+
+目标：回答“要补什么”，暂不批量写文章或出图。
 
 新增：
 
 ```text
 src/content/norse/sources.ts
 src/content/norse/source-coverage.ts
+src/content/norse/story-manifest.ts
+scripts/report-norse-content-coverage.mjs
+docs/NORSE_STORY_MAP.md（由 manifest / coverage 生成的人类可读快照）
 ```
 
-完成：
+执行顺序：
 
-- Eddic Mythological coverage；
-- Prose Edda coverage；
-- Skaldic coverage；
-- Heroic Edda coverage；
-- Saga / regional witness inventory；
-- Material evidence registry strategy。
+1. 登记 P0/P1 source、edition、license 和 locator 规则；
+2. 填满 Source Coverage Matrix；
+3. 把第 8 节转成唯一 Story Manifest；
+4. 对现有 36 篇逐项做 keep / split / merge / rewrite / unpublish 判断；
+5. 由来源审校填写 `expectedDependencies`；
+6. 自动生成 Character / World / Scene / Object / Concept Gap List。
 
-### Done
-
-P0 Source Matrix：
+验收：
 
 ```text
-100% = covered / partial / excluded-with-reason
-0 blank
+P0 source rows resolved = 100%
+P0 Story Manifest source scope = 100%
+P0 expectedDependencies reviewed = 100%
+Unreviewed P0 manifest item = 0
+每个现有 Story 都有迁移决策
 ```
+
+预计：8～12 个研究 / 编辑工作包，是本计划最关键的冻结点。
 
 ---
 
-## Phase 2：Story Map Freeze
+## Phase 3：现有 36 篇改造
 
-先确定最终 Story Map，再加实体。
+目标：先把已经在线的内容从原型条目升级为可信文章，避免一边新增、一边保留旧错误与模板正文。
 
-输出：
+按 Cycle 01～06 分批处理：
+
+- 精确 source locator；
+- 重写完整正文；
+- 建立 Story claims；
+- 补齐 expected / required / reader-facing dependencies；
+- 修 Volume 与 Cycle 归属；
+- 补命名、alias 与 redirect；
+- 通过 Editorial Gate。
+
+每个 Cycle 可以独立上线。一个 Cycle 完成后，其 placeholder warning 升级为 CI error。
+
+验收：
 
 ```text
-9 Story Cycles
-每个 Cycle 的 Story Manifest
-每篇 Story source scope
-每篇 Story dependency draft
+现有 36 篇：迁移决策执行率 = 100%
+保留发布的 Story：source-reviewed = 100%
+保留发布的 Story：template body = 0
+readingMinutes 与正文量明显不符 = 0
 ```
 
-推荐把 70～90 作为容量预估，不作为硬数。
-
-### Done
-
-所有 P0 source 都能定位到：
-
-```text
-Story
-或 supporting claim
-或 explicit exclusion reason
-```
+预计：8～12 个编辑 / 工程工作包。
 
 ---
 
-## Phase 3：Divine Mythology Dependency Closure
+## Phase 4：Divine Mythology Completion
 
-优先补：
+目标：补齐 Cycle 01～06 尚缺的 P0 Story 与实体依赖。
 
-```text
-Cycle 01 Origins
-Cycle 02 Divine Order
-Cycle 03 Odin
-Cycle 04 Thor
-Cycle 05 Loki
-Cycle 06 Baldr / Ragnarök
-```
-
-按 Story 顺序补：
+每个工作包顺序固定：
 
 ```text
-Character
-World
-Scene
-MythicObject
-Relation
+source locator
+→ Story draft
+→ expected dependency review
+→ Character / World / Scene / Object / Concept
+→ claims / relations
+→ Editorial Gate
+→ publish
 ```
 
-而不是一次性先灌 Character。
+优先批次：
 
-### Done
+1. Origins / cosmic structure；
+2. Æsir–Vanir / divine order；
+3. Odin；
+4. Thor；
+5. Loki；
+6. Baldr / Ragnarök。
 
-Divine P0 Story dependency closure = 100%。
+验收：
+
+```text
+Divine P0 source coverage resolved = 100%
+Divine P0 Story dependency closure = 100%
+Divine P0 source-reviewed Story = 100%
+```
+
+预计：10～16 个工作包。
 
 ---
 
-## Phase 4：Heroic Tradition Completion
+## Phase 5：Heroic Tradition Completion
 
-再补：
+目标：完成 Cycle 07～09，且在产品上与 divine mythology 明确分层。
+
+执行批次：
+
+1. Völsung 前史；
+2. Sigurd / Regin / Fafnir；
+3. Brynhildr / Niflung / Guðrún；
+4. Atli / Svanhildr / Hamðir；
+5. Helgi cycle；
+6. Völundr；
+7. 其余 P1 independent traditions。
+
+验收：
 
 ```text
-Cycle 07 Völsung / Sigurd / Guðrún / Atli
-Cycle 08 Helgi
-Cycle 09 Völundr / independent Eddic traditions
+Heroic P0 source coverage resolved = 100%
+Cycle 07 主干无叙事断层
+Helgi / Völundr 不再从 Coverage 消失
+heroic-legend 分类正确
 ```
 
-并给 `MythStoryKind` 增加更准确的：
-
-```text
-heroic-legend
-```
-
-不要把全部英雄诗标为普通 `myth`。
-
-### Done
-
-Heroic P0 source coverage resolved = 100%。
+预计：10～16 个工作包。
 
 ---
 
-## Phase 5：Entity Taxonomy + MythicObject + Relations
+## Phase 6：全量 Source / Claim / Relation Deep Audit
 
-完成跨内容模型升级：
+目标：从“单包已审”升级为“整个北欧体系互相不冲突”。
 
-- group / being-class / lineage 分离；
-- MythicObject；
-- Story object dependencies；
-- relation semantics；
-- alias / native name；
-- World / Scene granularity review。
+审计：
 
-### Done
-
-核心实体无悬空、无错误类别。
-
----
-
-## Phase 6：Source / Claim Deep Audit
-
-逐 Story / Relation 审计：
-
-- source locator；
-- manuscript / tradition scope；
-- conflicting claims；
+- source metadata / locator / edition；
+- manuscript / region / tradition scope；
 - Snorri-only reconstruction；
-- late regional versions；
-- Christian learned framing；
-- modern popular contamination。
+- Eddic / skaldic / saga 平行版本；
+- relation direction 与语义；
+- alias / duplicate identity；
+- World / Scene / Character / Object 分类；
+- modern popular contamination；
+- 敏感内容与编辑语气；
+- Story 间重复和断层。
 
-### Done
+执行记录：每次 `npm run content:coverage:norse` 都会生成 `docs/NORSE_EDITORIAL_REVIEW_QUEUE.md`。它按实际已发布 Story 列出 source locator、P0/P1 优先级、编辑状态与人工审校状态；该队列是 Phase 3、4、5 的逐篇人工审校输入，也是 Phase 6 对“非作者审校覆盖”的可追溯证据，不能由脚本自动清零。
+
+验收：
 
 ```text
 Core source coverage = 100%
 Unscoped conflicting core claims = 0
+Orphan required references = 0
+Duplicate canonical identity = 0
+Known P0 issue = 0
 ```
+
+预计：4～6 个交叉审计工作包。
 
 ---
 
 ## Phase 7：Visual Readiness
 
-内容稳定后再系统补图。
-
-按：
+内容稳定后，按：
 
 ```text
 Mythological Facts
@@ -1875,25 +2387,63 @@ Mythological Facts
 - Tier S / A Character Canonical Design；
 - World / Scene；
 - MythicObject；
-- PC / mobile compositions；
-- Story mother scenes。
+- Story key moments；
+- PC / mobile 独立构图；
+- provenance 与 identity/style/output QA。
 
-### Done
+Story 正文可以先于全部插画进入 `source-reviewed`，但不能在缺少所需视觉锚点时进入 `visual-ready`。
 
-所有未来可能进入 Collection 的核心对象 = `visual-ready`。
+验收：所有未来可能进入 Series / Collection 的核心对象均为 `visual-ready`。
 
 ---
 
-## Phase 8：网站内容上线
+## Phase 8：网站分批上线与 SEO 验收
+
+目标：把已通过 Gate 的静态内容交付给用户，而不是等待全体系一次发布。
 
 确保：
 
-- Mythology 页面能完整阅读；
-- Character / World / Story 互链；
+- Mythology 页面按 Volume 提供清晰入口；
+- Cycle 与 Story Series 在 UI 上不混淆；
+- Character / World / Scene / MythicObject / Story 互链；
 - source notes 清晰但不过度学术化；
-- Story detail route / SEO / sitemap 正常；
-- 核心内容 SSR；
-- 中英文 alias 为后续 i18n 做准备。
+- Story detail route、canonical、OG、sitemap 正常；
+- 核心内容 SSR，不依赖 D1 或客户端 fetch；
+- draft / researching 内容不进入 sitemap；
+- 旧 slug 301 到新 canonical URL；
+- 中英文名称与 alias 可搜索；完整英文长文不作为本轮默认 DoD。
+
+每个上线批次执行：
+
+```text
+npm run content:coverage:norse
+npm run content:validate
+npm run check
+```
+
+并抽查桌面 / 移动、Light / Dark、无 JavaScript 阅读和结构化数据。
+
+---
+
+## Phase 9：Completion Certification + Collection Handoff
+
+目标：只有在第 21 节 DoD 全部满足后，生成一份版本化 completion snapshot。
+
+交付：
+
+```text
+Norse completion version
+source coverage summary
+unique Story / cycle membership summary
+entity and relation closure summary
+visual readiness summary
+known exclusions and deferred P2 list
+Collection discovery input
+```
+
+这份 snapshot 是启动 Collection Discovery 的唯一入口；“页面看起来很多”或“Story 数到 80”都不能替代它。
+
+实施约束：`npm run content:coverage:norse` 会生成 `docs/NORSE_COMPLETION_SNAPSHOT.md` 作为持续更新的证据草稿，汇总来源、依赖、编辑和双端视觉状态。它在所有 P0 Gate 为绿且人工审校/视觉/产品批准已留痕前，必须显示为 `in-progress`；不得用自动化脚本改写为完成认证。
 
 ---
 
@@ -1914,7 +2464,11 @@ Mythological Facts
 - 9 条主干均有明确 Story Map；
 - 主要叙事不存在明显断层；
 - Story Cycle 与 Volume 分离；
-- 主要 heroic tradition 不再只有 Sigurd 4 篇。
+- 主要 heroic tradition 不再只有 Sigurd 4 篇；
+- 现有 Story 的 keep / split / merge / rewrite / unpublish 决策全部执行；
+- 所有 published P0 Story 均通过 Editorial Gate；
+- template / placeholder Story = 0；
+- `readingMinutes` 与实际正文量一致。
 
 ## Entity
 
@@ -1935,13 +2489,67 @@ Mythological Facts
 - orphan references = 0；
 - duplicate canonical identity = 0；
 - alias collision unresolved = 0；
-- modern franchise contamination = 0。
+- modern franchise contamination = 0；
+- P0 Story 非作者审校覆盖 = 100%；
+- P0 source / edition / translation license 状态已登记；
+- 任何 disputed core claim 均有 `traditionScope`。
 
 ## Visual
 
 - Tier S / A 核心对象拥有稳定 Canonical Design；
 - material culture 与 mythology fact 分离；
 - PC / mobile 仍保持独立 composition 原则。
+
+## Delivery
+
+- canonical content 仍来自 `src/content/`；
+- 公共内容运行时 D1 读取 = 0；
+- draft / researching 内容进入 sitemap = 0；
+- 已变更 slug 均有永久重定向；
+- `npm run content:coverage:norse`、`npm run content:validate`、`npm run check` 通过；
+- Completion Snapshot 已生成并人工批准。
+
+## 21.1 完成度计算
+
+总完成度不能按实体数简单平均，统一输出六个维度：
+
+```text
+Source Resolution
+Story Editorial Readiness
+Semantic Dependency Closure
+Entity / Relation Quality
+Visual Readiness
+Delivery Readiness
+```
+
+任何一个 P0 维度未达 100%，整体状态都只能是 `in-progress`。P1/P2 延后项必须进入 Completion Snapshot 的 exclusions / deferred 清单，不能静默消失。
+
+## 21.2 对产品功能的影响
+
+Phase 0～2 主要改内容内核、校验和编辑流程，用户侧功能变化较小：
+
+- 错误内容立即纠正；
+- 个别 Story canonical URL 修正并保留重定向；
+- 页面可能新增更准确的来源 / 版本标签；
+- 不增加卡牌、交易、付费或 Collection 功能。
+
+Phase 3～8 会逐步产生可见变化：
+
+- 北欧神话页从 36 个短条目升级为可连续阅读的完整图文体系；
+- Story、Character、World、Scene 和 MythicObject 的互链更完整；
+- Heroic tradition 与诸神主线分层展示；
+- 来源冲突不再被压成单一“正史”；
+- 搜索、SEO、GEO 和后续 AI Creator 能获得更可靠的静态上下文；
+- Ragnarök 等 Story Series 的 `content-ready` 状态变得可计算。
+
+不在本计划内：
+
+- 新的站点主题或文明专属 UI；
+- 把 Astro 改成 SPA；
+- 公共 canonical content 改读 D1；
+- 卡牌稀有度、套数、定价、供应链；
+- 为了视觉量先批量生成未经内容审校的图片；
+- 完整英文长文翻译。英文名称、alias 与 URL 兼容属于本轮，英文正文另立本地化计划。
 
 ---
 
@@ -1984,24 +2592,41 @@ Collection 必须是内容体系的结果，而不是前置约束。
 
 # 23. 当前执行优先级
 
-下一步只做：
+下一阶段只做 Phase 0～2，不直接批量增加 40 个角色，也不开始卡牌：
 
 ```text
-P0-1 修现有北欧事实错误
+P0-1 修复现有北欧事实错误并保留 URL 兼容
     ↓
-P0-2 Source Registry
+P0-2 生成 inventory / readiness 基线与迁移状态
     ↓
-P0-3 Source Coverage Matrix
+P0-3 前置通用模型：editorial status / taxonomy / MythicObject / manifest dependency
     ↓
-P0-4 冻结 9 条 Story Cycle 的完整 Story Manifest
+P0-4 建立 Source Registry 与 Edition / License 策略
     ↓
-P0-5 Dependency Gap Analysis
+P0-5 填满 P0 Source Coverage Matrix
+    ↓
+P0-6 冻结 9 条 Story Cycle 的唯一 Story Manifest
+    ↓
+P0-7 生成 Semantic Dependency Gap List
 ```
 
-得到明确 Gap List 以后，才进入：
+Phase 2 的最终交付必须能直接回答：
 
 ```text
-新增 Character / World / Scene / MythicObject
+保留、合并、拆分、重写、下线哪些现有 Story
+缺哪些新 Story
+缺哪些 Character / World / Scene / MythicObject / Concept
+哪些关系存在冲突版本
+哪些来源只做 supporting claim
+哪些 P1/P2 明确延期
+```
+
+得到这份经审校的 Gap List 以后，才进入 Phase 3～5：
+
+```text
+改造现有 Story
+→ 新增 Story
+→ 按 Story 补 Character / World / Scene / MythicObject / Relation
 ```
 
 暂不进入：
@@ -2015,6 +2640,28 @@ Card Manifest
 卡面设计
 供应链
 ```
+
+## 23.1 第一批可直接建立的任务
+
+| 顺序 | 工作包 | 主要文件 | 验收 |
+|---:|---|---|---|
+| 1 | P0 事实热修 | `catalog.ts`、`stories.ts`、redirect 配置、测试 | P0-1～P0-4 归零，其余进入阻塞任务 |
+| 2 | Completion 基础类型 | `types.ts`、registry、validation、architecture | 旧内容兼容，新模型可表达 |
+| 3 | Norse Source Registry | `sources.ts` | 不再使用四个宽泛 source constants |
+| 4 | Coverage + Story Manifest | `source-coverage.ts`、`story-manifest.ts` | P0 行无空白，expected dependency 经审校 |
+| 5 | Coverage Reporter | script、package script、tests | 能区分 inventory / ready，CI 可失败 |
+
+前五个工作包完成后再拆 Cycle 内容包，避免多人同时基于错误模型补数据。
+
+## 23.2 PR 规则
+
+- 一次 PR 不横跨两个 Phase，除非只是让前置类型与首个示例一起可编译；
+- 内容 PR 必须附 source locator 与 Coverage diff；
+- 新增实体必须说明由哪个 Story dependency 驱动；
+- 自动生成文本不可直接标 `source-reviewed`；
+- 修正已有 canonical slug 时，同 PR 提供 redirect 与测试；
+- 大量机械数据变更与模型变更分开提交，便于 review / rollback；
+- 每个完成 Cycle 都更新 completion snapshot 草稿，但只有 Phase 9 才发布最终认证。
 
 ---
 

@@ -8,12 +8,15 @@
 - Coverage Rows：45
 - Unique Story Units：74
 - P0 / P1 / P2：56 / 16 / 2
-- 已 source-reviewed / published 的 P0 Story Manifest：56 / 56
-- 当前已落库静态内容（Character / World / Scene / Object / Story / CharacterRelation / ContentRelation）：34 / 8 / 15 / 16 / 36 / 35 / 5
-- 当前 Story readiness（public / source-reviewed-or-visual-ready / prototype）：36 / 0 / 36
-- 现有 Story 迁移决策：36 / 36
-- 新增 Story 待办：37
-- Story Manifest 依赖缺口：71（作为 Phase 3–4 的实体补全待办，不是本阶段 gate failure）
+- 已完成来源研究的 P0 Story Manifest（研究状态，不代表读者页已审校）：56 / 56
+- 当前已落库静态内容（Character / World / Scene / Object / Story / CharacterRelation / ContentRelation）：90 / 8 / 15 / 16 / 73 / 58 / 5
+- 当前 Story editorial readiness（public / structured-or-better / source-reviewed-or-visual-ready / researching / prototype / shared-template）：73 / 52 / 0 / 21 / 0 / 0
+- 仍使用宽泛/Phase 3 占位 locator 的 Story：0
+- 世界视觉就绪度（独立生成桌面+移动组 / 人工批准组 / 总世界数）：4 / 0 / 8
+- Manifest 已有 Story 但静态内容缺失：0
+- 现有 Story 迁移决策：73 / 73
+- 新增 Story 待办：0
+- Story Manifest 依赖缺口：0（作为 Phase 3–4 的实体补全待办，不是本阶段 gate failure）
 - 已解决 P0 已知问题：7
 - 已范围化 P0 版本冲突：6
 - Report Gate：通过
@@ -142,80 +145,7 @@
 
 ## Phase 3–4 Dependency Gaps
 
-### character（71）
-
-- `character-urd` ← norse-manifest-norns-at-urdarbrunnr
-- `character-verdandi` ← norse-manifest-norns-at-urdarbrunnr
-- `character-skuld` ← norse-manifest-norns-at-urdarbrunnr
-- `character-sol` ← norse-manifest-sun-moon-pursuers
-- `character-mani` ← norse-manifest-sun-moon-pursuers
-- `character-skoll` ← norse-manifest-sun-moon-pursuers
-- `character-hati` ← norse-manifest-sun-moon-pursuers
-- `character-nidhoggr` ← norse-manifest-nidhoggr-and-world-tree
-- `character-gullveig` ← norse-manifest-gullveig-and-aesir-vanir-war
-- `character-kvasir` ← norse-manifest-kvasir-and-mead
-- `character-thjazi` ← norse-manifest-idunn-and-thjazi
-- `character-skirnir` ← norse-manifest-freyr-and-gerdr
-- `character-vafthrudnir` ← norse-manifest-odin-and-vafthrudnir
-- `character-huginn` ← norse-manifest-odin-ravens
-- `character-muninn` ← norse-manifest-odin-ravens
-- `character-hrungnir` ← norse-manifest-thor-and-hrungnir
-- `character-hymir` ← norse-manifest-thor-and-hymir
-- `character-hymir` ← norse-manifest-thor-fishes-for-serpent
-- `character-thjalfi` ← norse-manifest-thor-and-thjalfi-roskva
-- `character-roskva` ← norse-manifest-thor-and-thjalfi-roskva
-- `character-skrymir` ← norse-manifest-thor-and-skrymir
-- `character-utgarda-loki` ← norse-manifest-thor-in-utgard
-- `character-geirrod` ← norse-manifest-thor-and-geirrod
-- `character-gjalp` ← norse-manifest-thor-and-geirrod
-- `character-greip` ← norse-manifest-thor-and-geirrod
-- `character-alviss` ← norse-manifest-thor-and-alviss
-- `character-angrboda` ← norse-manifest-loki-and-angrboda
-- `character-vali` ← norse-manifest-vali-avenges-baldr
-- `character-garmr` ← norse-manifest-tyr-and-garmr
-- `character-volsung` ← norse-manifest-volsung-and-sword-tree
-- `character-sigmund` ← norse-manifest-volsung-and-sword-tree
-- `character-signy` ← norse-manifest-signy-and-siggeir
-- `character-siggeir` ← norse-manifest-signy-and-siggeir
-- `character-sigmund` ← norse-manifest-signy-and-siggeir
-- `character-sigmund` ← norse-manifest-sigmund-and-sinfjotli
-- `character-sinfjotli` ← norse-manifest-sigmund-and-sinfjotli
-- `character-sigmund` ← norse-manifest-sigmunds-death-and-hjordis
-- `character-hjordis` ← norse-manifest-sigmunds-death-and-hjordis
-- `character-andvari` ← norse-manifest-andvari-gold
-- `character-ottr` ← norse-manifest-andvari-gold
-- `character-hreidmar` ← norse-manifest-andvari-gold
-- `character-regin` ← norse-manifest-sigurd-and-regin
-- `character-regin` ← norse-manifest-sigurd-kills-fafnir
-- `character-gudrun` ← norse-manifest-sigurds-death
-- `character-gunnar` ← norse-manifest-sigurds-death
-- `character-hogni` ← norse-manifest-sigurds-death
-- `character-gudrun` ← norse-manifest-gudrun-and-atli
-- `character-atli` ← norse-manifest-gudrun-and-atli
-- `character-gunnar` ← norse-manifest-gudrun-and-atli
-- `character-hogni` ← norse-manifest-gudrun-and-atli
-- `character-gudrun` ← norse-manifest-gudrun-svanhild-hamdir-sorli
-- `character-svanhildr` ← norse-manifest-gudrun-svanhild-hamdir-sorli
-- `character-hamdir` ← norse-manifest-gudrun-svanhild-hamdir-sorli
-- `character-sorli` ← norse-manifest-gudrun-svanhild-hamdir-sorli
-- `character-helgi-hjorvardsson` ← norse-manifest-helgi-hjorvardsson-and-svava
-- `character-svava` ← norse-manifest-helgi-hjorvardsson-and-svava
-- `character-helgi-hundingsbani` ← norse-manifest-helgi-hundingsbani
-- `character-sigrun` ← norse-manifest-helgi-hundingsbani
-- `character-sinfjotli` ← norse-manifest-helgi-hundingsbani
-- `character-helgi-hundingsbani` ← norse-manifest-helgi-and-sigrun
-- `character-sigrun` ← norse-manifest-helgi-and-sigrun
-- `character-helgi-hundingsbani` ← norse-manifest-helgi-burial-mound
-- `character-sigrun` ← norse-manifest-helgi-burial-mound
-- `character-volundr` ← norse-manifest-volundr-captive-smith
-- `character-nidudr` ← norse-manifest-volundr-captive-smith
-- `character-volundr` ← norse-manifest-volundr-escape
-- `character-bodvildr` ← norse-manifest-volundr-escape
-- `character-svipdagr` ← norse-manifest-svipdagr-and-mengloth
-- `character-groa` ← norse-manifest-svipdagr-and-mengloth
-- `character-mengloth` ← norse-manifest-svipdagr-and-mengloth
-- `character-rigr` ← norse-manifest-rig-and-social-orders
-
+- 无。
 ## Gate Issues
 
 - 无。
