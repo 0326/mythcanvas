@@ -7,7 +7,12 @@
   "required": [
     "schemaVersion",
     "artworkId",
+    "contentCardId",
+    "mythologyCode",
     "seriesId",
+    "styleCode",
+    "styleName",
+    "cardNumber",
     "type",
     "slug",
     "titleZh",
@@ -23,9 +28,26 @@
     "qa"
   ],
   "properties": {
-    "schemaVersion": { "type": "string", "const": "1.0" },
-    "artworkId": { "type": "string", "pattern": "^MC-NOR-M01-[0-9]{3}$" },
+    "schemaVersion": { "type": "string", "const": "1.1" },
+    "artworkId": {
+      "type": "string",
+      "pattern": "^MC-NOR-M01-[A-Z]{2}-[0-9]{3}$"
+    },
+    "contentCardId": {
+      "type": "string",
+      "pattern": "^MC-NOR-M01-[0-9]{3}$"
+    },
+    "mythologyCode": { "type": "string", "const": "NOR" },
     "seriesId": { "type": "string", "const": "M01" },
+    "styleCode": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "styleName": { "type": "string", "minLength": 1 },
+    "cardNumber": {
+      "type": "string",
+      "pattern": "^[0-9]{3}$"
+    },
     "type": {
       "type": "string",
       "enum": ["character", "scene", "story", "mythic-object", "ensemble"]
@@ -83,40 +105,43 @@
     "composition": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "orientation",
-        "aspectRatio",
-        "shot",
-        "camera",
-        "primarySubject",
-        "subjectAnchor",
-        "cropSafe"
-      ],
+      "required": ["orientation", "camera", "shot", "subjectAnchor", "criticalIdentityZone", "cropSafe"],
       "properties": {
         "orientation": { "type": "string", "enum": ["portrait", "landscape"] },
-        "aspectRatio": { "type": "string", "enum": ["9:16", "16:9"] },
-        "shot": { "type": "string", "minLength": 1 },
         "camera": { "type": "string", "minLength": 1 },
-        "primarySubject": { "type": "string", "minLength": 1 },
-        "subjectAnchor": { "$ref": "#/$defs/point" },
-        "faceAnchor": { "anyOf": [{ "$ref": "#/$defs/point" }, { "type": "null" }] },
-        "actionAnchor": { "anyOf": [{ "$ref": "#/$defs/point" }, { "type": "null" }] },
+        "shot": { "type": "string", "minLength": 1 },
+        "subjectAnchor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y"],
+          "properties": {
+            "x": { "type": "number", "minimum": 0, "maximum": 1 },
+            "y": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "criticalIdentityZone": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["xMin", "xMax", "yMin", "yMax"],
+          "properties": {
+            "xMin": { "type": "number", "minimum": 0, "maximum": 1 },
+            "xMax": { "type": "number", "minimum": 0, "maximum": 1 },
+            "yMin": { "type": "number", "minimum": 0, "maximum": 1 },
+            "yMax": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
         "cropSafe": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "criticalIdentityZone",
-            "preferredSubjectZone",
-            "bottomFlexStartsAt",
-            "edgeFlex",
-            "notes"
-          ],
+          "required": ["sacrificialBottomStart", "sideCropTolerance", "mustRemainVisible"],
           "properties": {
-            "criticalIdentityZone": { "$ref": "#/$defs/zone" },
-            "preferredSubjectZone": { "$ref": "#/$defs/zone" },
-            "bottomFlexStartsAt": { "type": "number", "minimum": 0, "maximum": 1 },
-            "edgeFlex": { "type": "number", "minimum": 0, "maximum": 0.3 },
-            "notes": { "type": "string", "minLength": 1 }
+            "sacrificialBottomStart": { "type": "number", "minimum": 0, "maximum": 1 },
+            "sideCropTolerance": { "type": "number", "minimum": 0, "maximum": 0.5 },
+            "mustRemainVisible": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            }
           }
         }
       }
@@ -124,141 +149,67 @@
     "prompt": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["brief", "final", "avoid"],
+      "required": ["templateVersion", "components", "final", "negative"],
       "properties": {
-        "brief": { "type": "string", "minLength": 1 },
+        "templateVersion": { "type": "string", "minLength": 1 },
+        "components": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "final": { "type": "string", "minLength": 1 },
-        "avoid": { "type": "array", "items": { "type": "string" } }
+        "negative": { "type": "array", "items": { "type": "string" } }
       }
     },
     "references": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["referenceArtworkIds", "referenceImagePaths", "styleReferenceIds", "notes"],
+      "required": ["artworkIds", "characterCanonIds", "notes"],
       "properties": {
-        "referenceArtworkIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "referenceImagePaths": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "styleReferenceIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "artworkIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^MC-[A-Z]{3}-[A-Z][0-9]{2}-[A-Z]{2}-[0-9]{3}$"
+          },
+          "uniqueItems": true
+        },
+        "characterCanonIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
         "notes": { "type": "string" }
       }
     },
     "output": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["imagePath", "format", "width", "height", "orientation"],
+      "required": ["fileName", "width", "height", "format"],
       "properties": {
-        "imagePath": { "type": "string", "minLength": 1 },
-        "format": { "type": "string", "enum": ["png", "jpg", "jpeg", "webp"] },
+        "fileName": { "type": "string", "minLength": 1 },
         "width": { "type": "integer", "minimum": 1 },
         "height": { "type": "integer", "minimum": 1 },
-        "orientation": { "type": "string", "enum": ["portrait", "landscape"] }
+        "format": { "type": "string", "enum": ["png", "jpg", "jpeg", "webp"] }
       }
     },
     "generation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "version", "model", "generatedAt", "seed", "changeNote"],
+      "required": ["model", "attempt", "generatedAt", "notes"],
       "properties": {
-        "status": { "type": "string", "enum": ["planned", "generating", "rejected", "approved"] },
-        "version": { "type": "integer", "minimum": 1 },
-        "model": { "type": ["string", "null"] },
+        "model": { "type": "string" },
+        "attempt": { "type": "integer", "minimum": 0 },
         "generatedAt": { "type": ["string", "null"], "format": "date-time" },
-        "seed": { "type": ["string", "integer", "null"] },
-        "changeNote": { "type": "string" }
+        "notes": { "type": "string" }
       }
     },
     "qa": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "checks", "notes"],
+      "required": ["status", "reviewNotes"],
       "properties": {
-        "status": { "type": "string", "enum": ["pending", "rejected", "approved"] },
-        "checks": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "sourceAccurate",
-            "identityConsistent",
-            "anatomyValid",
-            "cropSafe",
-            "noText",
-            "noFranchiseContamination"
-          ],
-          "properties": {
-            "sourceAccurate": { "type": "boolean" },
-            "identityConsistent": { "type": "boolean" },
-            "anatomyValid": { "type": "boolean" },
-            "cropSafe": { "type": "boolean" },
-            "noText": { "type": "boolean" },
-            "noFranchiseContamination": { "type": "boolean" }
-          }
+        "status": {
+          "type": "string",
+          "enum": ["planned", "prompt-ready", "generating", "review", "approved", "rejected", "superseded"]
         },
-        "notes": { "type": "array", "items": { "type": "string" } }
+        "reviewNotes": { "type": "array", "items": { "type": "string" } }
       }
     }
-  },
-  "$defs": {
-    "point": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["x", "y"],
-      "properties": {
-        "x": { "type": "number", "minimum": 0, "maximum": 1 },
-        "y": { "type": "number", "minimum": 0, "maximum": 1 }
-      }
-    },
-    "zone": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["xMin", "xMax", "yMin", "yMax"],
-      "properties": {
-        "xMin": { "type": "number", "minimum": 0, "maximum": 1 },
-        "xMax": { "type": "number", "minimum": 0, "maximum": 1 },
-        "yMin": { "type": "number", "minimum": 0, "maximum": 1 },
-        "yMax": { "type": "number", "minimum": 0, "maximum": 1 }
-      }
-    }
-  },
-  "allOf": [
-    {
-      "if": {
-        "properties": { "type": { "const": "ensemble" } },
-        "required": ["type"]
-      },
-      "then": {
-        "properties": {
-          "composition": {
-            "properties": {
-              "orientation": { "const": "landscape" },
-              "aspectRatio": { "const": "16:9" }
-            }
-          },
-          "output": {
-            "properties": {
-              "width": { "minimum": 2880 },
-              "height": { "minimum": 1620 },
-              "orientation": { "const": "landscape" }
-            }
-          }
-        }
-      },
-      "else": {
-        "properties": {
-          "composition": {
-            "properties": {
-              "orientation": { "const": "portrait" },
-              "aspectRatio": { "const": "9:16" }
-            }
-          },
-          "output": {
-            "properties": {
-              "width": { "minimum": 1620 },
-              "height": { "minimum": 2880 },
-              "orientation": { "const": "portrait" }
-            }
-          }
-        }
-      }
-    }
-  ]
+  }
 }
