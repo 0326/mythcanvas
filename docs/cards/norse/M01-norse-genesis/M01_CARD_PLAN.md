@@ -4,9 +4,9 @@
 > 产品线：MYTHOS / 诸神神话  
 > 英文工作名：**Norse Genesis — Yggdrasil & Fate**  
 > 状态：Detailed Planning / No Generation Yet  
-> 版本：V1.3  
+> 版本：V1.4  
 > 日期：2026-09-06  
-> 规模：**50 个内容主题 / 50 组 Artwork Artifact**  
+> 规模：**50 个内容主题 / 每个 Style Edition 50 组 Artwork Artifact**  
 > 上游：`src/content/norse/`、`docs/NORSE_STORY_MAP.md`  
 > 总规划：`docs/cards/norse/NORSE_CARD_COLLECTION_PLAN.md`  
 > 强制产物规范：`M01_ARTIFACT_SPEC.md`  
@@ -18,7 +18,7 @@
 
 当前只做 **Artwork 规划与生产准备**，不生成实体卡面。
 
-M01 的每个主题最终必须交付：
+M01 的每个主题在每一种 Style Edition 下，最终必须交付：
 
 ```text
 1 张 approved 卡图壁纸
@@ -26,20 +26,76 @@ M01 的每个主题最终必须交付：
 1 个同名 JSON 描述文件
 ```
 
-即：
+例如当前首发风格 `PS = Primordial Saga / 原初史诗`：
 
 ```text
-MC-NOR-M01-001.png
-MC-NOR-M01-001.json
+MC-NOR-M01-PS-001.png
+MC-NOR-M01-PS-001.json
 ```
 
-图片负责视觉结果；JSON 负责内容依据、Canon、构图、完整 Prompt、Reference、版本与 QA，使后续可以稳定重新出图。
+图片负责视觉结果；JSON 负责内容依据、Canon、构图、完整 Prompt、Reference、Style、版本与 QA，使后续可以稳定重新出图。
 
 > **没有 JSON 的图片不算正式 Artwork；没有 approved 图片的 JSON 也不算完成。**
 
 ---
 
-# 1. 两阶段生产模型
+# 1. Artwork 唯一命名规则
+
+统一使用五段式 ID：
+
+```text
+MC-NOR-M01-PS-001
+│   │   │   │   └─ Card No.：卡牌内容编号
+│   │   │   └──── Style：两位大写英文字母风格码
+│   │   └──────── Series：系列 / 第几弹
+│   └──────────── Mythology：神话体系
+└──────────────── Theme Namespace：MythCanvas 卡片主题
+```
+
+字段定义：
+
+| 段 | 示例 | 含义 | 规则 |
+|---|---|---|---|
+| Theme | `MC` | MythCanvas 卡片主题命名空间 | 固定 |
+| Mythology | `NOR` | Norse / 北欧神话 | 三位大写英文缩写 |
+| Series | `M01` | MYTHOS 第 01 弹 | 产品线字母 + 两位数字 |
+| Style | `PS` | Primordial Saga / 原初史诗 | **两位大写英文字母**，全项目 Style Registry 唯一且不可复用 |
+| Card No. | `001` | 本系列第 001 个内容卡位 | 三位数字，内容身份稳定 |
+
+## 1.1 内容卡编号与 Artwork ID 分离
+
+`001` 是内容身份，不随画风改变。
+
+例如第 001 张永远是 Ymir：
+
+```text
+MC-NOR-M01-PS-001   原初史诗版 Ymir
+MC-NOR-M01-XX-001   未来另一 Style Edition 的 Ymir
+```
+
+因此：
+
+```text
+Content Card Key = MC-NOR-M01-001
+Artwork ID       = MC-NOR-M01-{STYLE}-001
+```
+
+同一 Content Card 可以有多个 Style Artwork，但不同 Artwork ID 不能指向不同内容主题。
+
+## 1.2 当前 Style Edition
+
+M01 首发 Style：
+
+```text
+Style Code：PS
+Style Name：Primordial Saga / 原初史诗
+```
+
+`PS` 一旦发布即冻结。未来新画风必须先登记新的两字母代码，禁止把 `PS` 改指其他画风。
+
+---
+
+# 2. 两阶段生产模型
 
 ## Phase A — Artwork Production / 当前阶段
 
@@ -97,7 +153,7 @@ Phase B 可以重新构图，不要求机械裁切 Phase A 壁纸。
 
 ---
 
-# 2. 核心构图原则：壁纸完整 + 未来可裁卡
+# 3. 核心构图原则：壁纸完整 + 未来可裁卡
 
 虽然现在不按实卡尺寸设计，但所有 48 张竖图必须天然适合后续裁卡。
 
@@ -105,7 +161,7 @@ Phase B 可以重新构图，不要求机械裁切 Phase A 壁纸。
 
 > **主体上移，身份信息集中在画面上半部；边缘和底部允许未来裁切或被卡面信息区遮挡。**
 
-## 2.1 竖图安全区域
+## 3.1 竖图安全区域
 
 以画布归一化坐标表示：
 
@@ -118,98 +174,85 @@ Y：12% ～ 52%
 
 脸、身份象征、故事关键动作、神物核心结构、场景第一地标必须尽量在此区域。
 
-### Preferred Subject Zone
+### Primary Subject Zone
 
 ```text
-X：14% ～ 86%
 Y：10% ～ 66%
 ```
 
-主体主要体量集中在此。
+主要角色、神物和 Story Action 尽量在这个区域内完成视觉闭环。
 
-### Bottom Flex Zone
+### Sacrificial Bottom Zone
 
 ```text
 Y：70% ～ 100%
 ```
 
-未来允许被遮挡或裁切，只放：
+底部 30% 可用于：
 
-- 腿脚；
-- 衣摆；
 - 地面；
 - 水面；
-- 根系延展；
-- 烟尘；
+- 根系延伸；
+- 衣摆；
+- 腿部下段；
+- 非关键前景；
+- 景深元素。
+
+未来即使底部被卡名 / 描述区遮挡或被裁去，也不得破坏主体身份与故事理解。
+
+### Crop-Tolerant Side Zones
+
+```text
+X：0% ～ 14%
+X：86% ～ 100%
+```
+
+左右边缘只允许放：
+
 - 雾；
-- 可损失的前景。
+- 云；
+- 枝叶；
+- 地貌延伸；
+- 非关键光效；
+- 次要背景角色局部。
 
-禁止让底部 30% 承担：
+禁止把脸、手、关键神器、关键动作终点放入边缘区。
 
-- 脸；
-- 唯一关键道具；
-- Story 的主要事件；
-- Scene 的唯一识别地标。
+## 3.2 各类主题主体位置
 
-### Edge Flex Zone
+### Character
 
-```text
-左右各约 14%
-```
+- 脸默认位于 `Y 22%–34%`；
+- 胸肩 / 核心 Symbol 位于 `Y 30%–50%`；
+- 允许腿部、衣摆进入底部可牺牲区；
+- 不能为了全身像把脸压到画布中下部。
 
-只放可损失环境，不放关键手势、脸、神器本体和故事唯一动作对象。
+### Story
 
-### Top Breathing Zone
+- 主要动作中心位于 `Y 20%–55%`；
+- 事件关键双方尽量在中上部建立关系；
+- 下方承担地面、海面、碎屑、前景。
 
-```text
-Y：0% ～ 8%
-```
+### Scene
 
-不让头顶、角、树冠唯一尖端等关键结构贴边。
+- 第一地标 / 视觉锚点放在中上区域；
+- 底部主要承担“进入场景的前景”；
+- 即使裁掉底部，仍能认出这个地方。
 
-## 2.2 角色默认锚点
+### Mythic Object
 
-```text
-脸中心：Y 约 22% ～ 34%
-胸 / 身份象征：Y 约 32% ～ 50%
-动作中心：Y 约 28% ～ 55%
-```
+- 物件核心结构整体位于 `Y 20%–58%`；
+- 不允许武器尖端、徽记、关键结构落在未来可能遮挡的底部。
 
-优先 3/4 身、膝上、动态中景；必须全身时，裁掉膝盖以下仍应成立。
+### Ensemble 横版
 
-## 2.3 Story 默认锚点
-
-关键事件中心：
-
-```text
-Y：20% ～ 55%
-```
-
-“发生了什么”不能依赖画面最底部。
-
-## 2.4 Scene 默认锚点
-
-Primary Landmark 尽量位于：
-
-```text
-X：18% ～ 82%
-Y：12% ～ 60%
-```
-
-## 2.5 Mythic Object 默认锚点
-
-物件本体尽量位于：
-
-```text
-X：22% ～ 78%
-Y：18% ～ 58%
-```
+横版不强制使用竖图坐标，但主要角色群和核心世界地标必须集中在画面中央约 70%，四边保留延展环境，便于网站 Hero 和后续横卡裁切。
 
 ---
 
-# 3. 系列定位与故事范围
+# 4. 系列定位
 
-M01 讲述北欧宇宙第一次成形：
+M01 完整讲述北欧宇宙第一次成形：
 
 ```text
 Ginnungagap
@@ -239,11 +282,15 @@ Sköll / Hati / Níðhöggr
 
 > **秩序从原初冲突中诞生，而命运与毁灭也从世界诞生之初同时存在。**
 
-视觉重点：
+M01 的视觉重点：
 
 > **宇宙尺度 > 维京文化符号。**
 
-Core Story Units：
+---
+
+# 5. 内容范围
+
+## Core Story Units
 
 1. 尤弥尔与世界的诞生
 2. 奥德胡姆拉与布里
@@ -254,7 +301,7 @@ Core Story Units：
 7. 日月与追逐者
 8. 尼德霍格与世界树
 
-不进入 M01：
+## 不进入 M01
 
 ```text
 Odin 献眼 / Mímir 求知        → M02
@@ -267,24 +314,26 @@ Fenrir / Ragnarök             → M04
 
 ---
 
-# 4. 50 个主题配额
+# 6. 50 个主题配额
 
-| 类型 | 数量 | 输出 |
-|---|---:|---|
-| Character | 16 | 竖版 1620×2880+ |
-| Scene | 11 | 竖版 1620×2880+ |
-| Story / Key Moment | 19 | 竖版 1620×2880+ |
-| Mythic Object | 2 | 竖版 1620×2880+ |
-| Hero / Ensemble | 2 | 横版 2880×1620+ |
-| **合计** | **50** | **48 竖 + 2 横** |
+| 类型 | 数量 | 默认方向 | 最低尺寸 |
+|---|---:|---|---|
+| Character | 16 | 竖版 9:16 | 1620×2880 |
+| Scene | 11 | 竖版 9:16 | 1620×2880 |
+| Story / Key Moment | 19 | 竖版 9:16 | 1620×2880 |
+| Mythic Object | 2 | 竖版 9:16 | 1620×2880 |
+| Hero / Ensemble | 2 | 横版 16:9 | 2880×1620 |
+| **总计** | **50** | **48 竖 + 2 横** | |
 
 ---
 
-# 5. Art Direction
+# 7. 整体 Art Direction
 
-## 5.1 Edition
+## 7.1 Edition
 
 > **原初史诗 / Primordial Saga**
+
+Style Code：`PS`
 
 设计语言：
 
@@ -292,433 +341,265 @@ Fenrir / Ragnarök             → M04
 
 避免：
 
-- Marvel / God of War 等现代商业角色语言；
-- 游戏登录页式炫光；
-- 影视剧照；
-- 泛二次元立绘；
+- 游戏登录页式过度炫光；
+- Marvel / God of War 等已有商业角色语言；
+- 写实影视剧照感；
+- 泛二次元角色立绘；
 - 全员维京盔甲；
 - 所有场景都是雪山 + 极光；
-- 无来源发光卢恩；
+- 无来源的发光卢恩；
 - 赛博 / 科幻宇宙 UI。
 
-## 5.2 材质语言
+## 7.2 材质语言
 
 ```text
-霜 / 冰 / 水 / 雾
-灰岩 / 黑石 / 风化木
-骨质感 / 泥土 / 深海
-灰烬 / 旧金属 / 低饱和织物
+霜
+冰
+水
+雾
+灰岩
+黑石
+风化木
+骨质感
+泥土
+深海
+灰烬
+旧金属
+低饱和织物
 ```
 
-## 5.3 四幕色彩
+## 7.3 四幕色彩结构
 
 ### Act I — Primordial Void
 
-深黑、冰蓝、灰白、熔火橙、暗红。
+深黑 / 冰蓝 / 灰白 / 熔火橙 / 暗红。
 
 ### Act II — World Making
 
-岩灰、土褐、血铁红、深海蓝、阴天灰白。
+岩灰 / 土褐 / 血铁红 / 深海蓝 / 阴天灰白。
 
 ### Act III — Yggdrasil & Fate
 
-深林绿、青黑、骨白、旧金、深泉蓝绿。
+深林绿 / 青黑 / 骨白 / 旧金 / 深泉蓝绿。
 
 ### Act IV — Celestial Order
 
-Sól：旧金 / 白金 / 炽橙；Máni：冷银 / 靛蓝 / 灰紫；Predators：黑灰 / 铁色。
+Sól：旧金 / 白金 / 炽橙。  
+Máni：冷银 / 靛蓝 / 灰紫。  
+Predators：黑灰 / 铁色。
 
 ---
 
-# 6. 五类 Artwork 设计语言
+# 8. 五类 Artwork 设计语言
 
 ## Character
 
 - 单角色优先；
-- 主体在上半部建立第一视觉；
 - 背景属于真实故事语境；
 - Pose 体现身份，不站桩；
-- Character Canon 优先于特效；
-- 腿脚可进入 Bottom Flex Zone。
+- Character Canon 比华丽特效重要；
+- 主体身份必须在上半部成立。
 
 ## Scene
 
 - 地点本身是主角；
-- Primary Landmark 位于中上安全区；
-- 人物只是尺度参照；
-- 下方前景允许未来裁切。
+- 人物只做尺度参照；
+- 每个 Scene 必须有唯一结构；
+- 核心地标必须在裁掉底部后仍清楚。
 
 ## Story / Key Moment
 
-- 一张只讲一个动作；
-- 核心事件位于中上；
-- 不做漫画分镜或时间线拼贴；
-- 关键人物脸、手势、道具不能落底部。
+- 一张只讲一个主要动作；
+- 不做漫画分镜；
+- 不拼时间线；
+- 动作高潮尽量位于中上部。
 
 ## Mythic Object
 
-- 物件本体居中偏上；
+- 物件是主角；
 - 不做游戏装备栏；
-- 环境向四边与下方延伸；
-- M01 不借用后续系列神器。
+- 核心物件完整结构必须位于安全区。
 
 ## Hero / Ensemble
 
-- 2 张横版系列海报；
-- 使用横版中央安全区；
-- 多元素属于一个世界状态；
+- 系列海报级；
+- 横版 16:9；
+- 多元素处于一个统一世界状态；
 - 禁止人物立绘拼贴。
 
 ---
 
-# 7. M01 50 张详细 Artwork Manifest
+# 9. M01 50 张 Content Manifest
 
-下面“主体位置”描述的是关键视觉中心，不限制环境延伸。
+本节的 `001–050` 是 **Content Card No.**，不包含 Style。
 
-## 7.1 Character — 16
+实际首发 `PS` 文件名统一写为：
 
-| # | ID | 主题 | 构图 / 主体位置 | 主视觉 | 避免 |
+```text
+001 → MC-NOR-M01-PS-001
+002 → MC-NOR-M01-PS-002
+...
+050 → MC-NOR-M01-PS-050
+```
+
+## 9.1 Character — 16
+
+| No. | 主题 | 构图 / 景别 | 主视觉与背景 | Crop Anchor | 避免 |
 |---:|---|---|---|---|---|
-| 001 | C01 | **尤弥尔 Ymir** | 低机位 3/4～全身；脸 Y≈28%，胸肩 Y≈40% | 冰火交界中的原初巨人，身体像尚未形成的世界 | 肌肉 Boss、重甲、蓝皮冰巨人模板 |
-| 002 | C02 | **奥德胡姆拉 Auðumbla** | 中大全景；头部 Y≈30%，身体主体上移 | 霜盐、乳流、原初生命；下方乳流可延展 | 普通牧场奶牛、卡通神兽 |
-| 003 | C03 | **布里 Búri** | 中近景；脸 Y≈28%，破冰中心 Y≈45% | 从盐霜冰层中逐渐显露 | 神王王冠、王座 |
-| 004 | C04 | **奥丁 Odin · Creator** | 3/4 身；脸 Y≈27%，核心手势 Y≈44% | 创世阶段 Odin，朴素、功能性强、独眼 | 后期完整王权套装、Marvel 式造型 |
-| 005 | C05 | **威利 Vili** | 动态 3/4 身；脸 Y≈27%，动作 Y≈45% | 参与塑造新世界，以“行动 / 意志”区分 Odin | Odin 换脸、三兄弟同姿势 |
-| 006 | C06 | **维 Vé** | 膝上 / 3/4 身；脸 Y≈28% | 强调神圣空间、边界和秩序 | 教士模板、现代魔法师 |
-| 007 | C07 | **阿斯克 Ask** | 膝上；脸 Y≈27%，胸部 Y≈42% | 海岸第一人，带细微木材起源暗示 | 树人、木偶、成熟维京战士 |
-| 008 | C08 | **恩布拉 Embla** | 膝上；脸 Y≈27%，镜头方向与 Ask 相反 | 初次感知世界，海风与新生环境 | Ask 女性换脸、性感化 |
-| 009 | C09 | **乌尔德 Urðr** | 中景；脸 Y≈28%，手与刻痕 Y≈47% | 已成之事、沉稳、井边刻痕 | 老巫婆模板、三姐妹同脸 |
-| 010 | C10 | **薇尔丹蒂 Verðandi** | 中景动态；脸 Y≈27%，动作 Y≈45% | 正在形成的线 / 枝 / 水纹 | 抽象魔法光线、与 Urðr 同姿势 |
-| 011 | C11 | **斯库尔德 Skuld** | 中景正面；脸 Y≈26%，未完成标记 Y≈46% | 将来 / 应然、锐利前视、未知空间 | 水晶球、科幻预言 UI |
-| 012 | C12 | **索尔 Sól** | 大中景；脸 Y≈28%，太阳体系 Y≈35% | 天体人格与太阳运行体系同框 | 普通日神光环、战车英雄模板 |
-| 013 | C13 | **马尼 Máni** | 大中景；脸 Y≈28%，月体 Y≈24% | 冷银月光路径和周期运行 | 拿月亮的法师、性别误识模板 |
-| 014 | C14 | **斯库尔 Sköll** | 奔跑大中景；头部 Y≈32%，太阳 Y≈20% | 巨狼追逐太阳，强逆光轮廓 | 普通森林狼、Fenrir 复制 |
-| 015 | C15 | **哈提 Hati** | 斜向追逐；头部 Y≈33%，月亮 Y≈20% | 冷色月域，与 Sköll 冷暖镜像 | Sköll 换颜色、复制 Pose |
-| 016 | C16 | **尼德霍格 Níðhöggr** | 纵向大中景；头部 Y≈36%，啃噬点 Y≈48% | 深层根系中的蛇形啃噬者 | 西方喷火龙、金属装甲龙 |
+| 001 | **尤弥尔 Ymir** | 低机位全身 | 冰火交界中的原初巨人，身体像未成形世界 | 脸与上胸 Y 18–45% | 肌肉 Boss、重甲、蓝皮模板 |
+| 002 | **奥德胡姆拉 Auðumbla** | 中大全景侧面 | 原初母牛、霜与乳流 | 头与肩背 Y 22–48% | 普通牧场奶牛、卡通神兽 |
+| 003 | **布里 Búri** | 中近景 | 从盐霜冰层中逐渐显现 | 脸与上身 Y 20–48% | 王冠王座、完整神王套装 |
+| 004 | **奥丁 Odin · Creator** | 3/4 身略低机位 | 创世阶段 Odin，朴素且功能性 | 脸 Y 22–32%；肩胸至 50% | 后期王者套装、Marvel 语言 |
+| 005 | **威利 Vili** | 全身动态 | 在未完成世界中参与塑造 | 头胸和手部动作 Y 18–52% | Odin 换脸、同姿势三兄弟 |
+| 006 | **维 Vé** | 全身偏静态 | 建立神圣空间与秩序 | 脸和双手 Y 20–52% | 教士袍、现代魔法师 |
+| 007 | **阿斯克 Ask** | 3/4 身 | 新生海岸上的第一人 | 脸胸 Y 22–50% | 树人、维京战士 |
+| 008 | **恩布拉 Embla** | 3/4 身反向构图 | 第一次感知新世界 | 脸胸 Y 22–50% | Ask 女性换脸、性感化 |
+| 009 | **乌尔德 Urðr** | 中景 | 刻痕与“已发生” | 脸、手、刻痕 Y 20–52% | 老巫婆模板 |
+| 010 | **薇尔丹蒂 Verðandi** | 中景动态 | 正在延伸的线 / 枝 / 水纹 | 脸手和线核心 Y 20–54% | 抽象魔法光线 |
+| 011 | **斯库尔德 Skuld** | 中景偏正面 | 未完成标记与未知空间 | 脸手 Y 20–52% | 水晶球、科幻预言 UI |
+| 012 | **索尔 Sól** | 全身 / 大中景 | 人格与太阳运行体系同框 | 脸 + 日轮关系 Y 16–48% | 普通太阳女神模板 |
+| 013 | **马尼 Máni** | 全身 | 月光路径与深蓝天穹 | 脸 + 月体关系 Y 18–48% | 魔法师拿月亮 |
+| 014 | **斯库尔 Sköll** | 奔跑全身 | 追逐太阳的逆光巨狼 | 头与前躯 Y 24–50% | 普通狼、Fenrir 复制 |
+| 015 | **哈提 Hati** | 斜向追逐 | 追逐月亮，与 Sköll 镜像 | 头与前躯 Y 22–50% | Sköll 换色 |
+| 016 | **尼德霍格 Níðhöggr** | 纵向近大全景 | 深层根系中的啃噬者 | 头部与根系咬合 Y 24–54% | 喷火龙 Boss |
 
-## 7.2 Scene — 11
+## 9.2 Scene — 11
 
-| # | ID | 场景 | Primary Landmark 位置 | 空间设计 | 避免 |
-|---:|---|---|---|---|---|
-| 017 | S01 | **金伦加鸿沟 Ginnungagap** | 冰火交汇中心 Y≈40% | 雾寒与火热之间真正“未成形”的空无 | 现实峡谷、虫洞 |
-| 018 | S02 | **尼福尔海姆 Niflheimr** | 寒泉 / 冰流结构 Y≈38% | 冰河、雾、低能见度、无建筑 | 北极旅游照、极光万能背景 |
-| 019 | S03 | **穆斯贝尔 Múspell** | 火焰边界裂层 Y≈38% | 世界边界般的热、火、黑色裂层 | 普通火山、提前出现末日军队 |
-| 020 | S04 | **世界树 Yggdrasil** | 主干中心 Y≈35%，树冠核心 Y≈18% | 宇宙轴贯穿上下层，根部可延伸入底部 | 普通森林巨树、固定九界标签图 |
-| 021 | S05 | **世界树之根** | 主根交汇 Y≈42% | 根系像巨大地貌，底部枝根可裁 | 普通树根特写 |
-| 022 | S06 | **乌尔德之泉 Urðarbrunnr** | 泉 + 根交界 Y≈48% | 清冷泉水、根系、仪式性自然空间 | 村井、魔法喷泉 |
-| 023 | S07 | **密米尔之井 Mímisbrunnr** | 深井水面 Y≈46% | 更深、更静、更知识性 | Odin 献眼提前出现 |
-| 024 | S08 | **赫瓦格密尔 Hvergelmir** | 原初水源 Y≈42% | 多水脉向下和四周发散 | 普通瀑布景区 |
-| 025 | S09 | **初生的米德加尔特** | 海陆边界 / 山体 Y≈40% | 新形成海陆，底部前景可裁 | 成熟村庄、城堡 |
-| 026 | S10 | **天穹之路 Celestial Path** | 日月路径转折 Y≈35% | 用光、云与空间节奏表现运行 | 星轨摄影、行星轨道 UI |
-| 027 | S11 | **铁森林 Járnviðr** | 黑色林冠 / 路径 Y≈38% | 黑铁色树干、湿雾、追逐伏线 | 普通恐怖森林、金属尖刺树 |
-
-## 7.3 Story / Key Moment — 19
-
-| # | ID | Key Moment | 事件中心 | 主要动作 | 避免 |
-|---:|---|---|---|---|---|
-| 028 | T01 | **雾冰流入鸿沟** | Y≈38% | Niflheim 寒流进入 Ginnungagap | 冰瀑旅游照 |
-| 029 | T02 | **火星越过边界** | Y≈38% | Muspell 热流侵入原初寒域 | 普通火山喷发 |
-| 030 | T03 | **尤弥尔苏醒** | 脸 Y≈29%，起身动作 Y≈44% | 蒸汽中第一次睁眼 / 抬头 | 完全站立英雄 Pose |
-| 031 | T04 | **奥德胡姆拉出现** | 牛头 Y≈31%，Ymir 远景 Y≈42% | 两种原初生命第一次同处一景 | 牧场场景 |
-| 032 | T05 | **四道乳流** | Auðumbla 上半身 Y≈32%，乳流起点 Y≈47% | 原初供养关系 | 过度生理特写、猎奇 |
-| 033 | T06 | **冰中显现的布里** | Búri 脸 Y≈29%，破冰点 Y≈45% | 舔霜后身体从冰中出现 | 三时刻拼贴 |
-| 034 | T07 | **三兄弟面对尤弥尔** | 三兄弟头部 Y≈30%，对峙中心 Y≈44% | 世界更替前的对峙 | 四人排队合照 |
-| 035 | T08 | **尤弥尔倒下** | 上身 / 倾倒动作 Y≈40% | 决定性倒下，尺度压迫 | 血腥斩首特写 |
-| 036 | T09 | **大地由血肉形成** | 转化中心 Y≈42% | 身体材质转成大地纹理 | Gore、人体解剖图 |
-| 037 | T10 | **海洋由血液形成** | 水陆变化 Y≈40% | 深海围绕新土地 | 红色血海猎奇 |
-| 038 | T11 | **骨化群山** | 山体形成 Y≈40% | 骨 / 牙转化为山与岩 | 骨头堆特写 |
-| 039 | T12 | **头骨撑起天空** | 三兄弟 + 头骨动作 Y≈38% | 共同抬升天空结构 | 底部才看得到人物 |
-| 040 | T13 | **海岸上的两段木材** | 木材 Y≈42% | 新生海岸的静止前一刻 | 已成人类提前出现 |
-| 041 | T14 | **第一口生命** | Ask / Embla 脸 Y≈29%，赋生命动作 Y≈43% | 从无生命到第一次呼吸 / 感知 | 科幻能量注入 |
-| 042 | T15 | **世界树贯穿诸界** | 主干 Y≈35% | 树体第一次成为宇宙轴 | 地图 UI / 九宫格 |
-| 043 | T16 | **三根通向三泉** | 根系三向结构 Y≈42% | 根与泉建立宇宙秩序 | 信息图标签 |
-| 044 | T17 | **诺恩在泉边定命** | 三人脸 Y≈28–34%，动作 Y≈46% | 同一时刻在泉边建立命运秩序 | 三张立绘拼贴 |
-| 045 | T18 | **日月开始运行** | Sól / Máni Y≈28–40% | 天体人格进入运行秩序 | 太阳系 UI |
-| 046 | T19 | **追逐与啃噬** | 天上追逐 Y≈30%，根部威胁只作次级提示 | 世界初生就出现毁灭压力 | 两张成品画面硬拼；若过载则拆卡调整槽位 |
-
-## 7.4 Mythic Object — 2
-
-| # | ID | 神物 | 主体位置 | 视觉方案 | 状态 |
-|---:|---|---|---|---|---|
-| 047 | O01 | **太阳之车 Chariot of the Sun** | 车体 Y≈34%，核心结构完整位于上 60% | Sól 的太阳运行系统，环境和尾迹向下延伸 | 需新增 MythicObject |
-| 048 | O02 | **斯瓦林之盾 Svalinn** | 盾体中心 Y≈36% | 盾位于太阳炽光之前，以宇宙功能而非战斗装备表现 | 需新增 MythicObject |
-
-## 7.5 Hero / Ensemble — 2
-
-| # | ID | 系列主视觉 | 横版构图 |
+| No. | 场景 | 核心设计 | Crop Anchor |
 |---:|---|---|---|
-| 049 | E01 | **北欧创世 / Norse Genesis** | 16:9；冰火从左右逼近中央 Ginnungagap，Ymir 为唯一原初尺度主体；中心 70% 保留核心信息 |
-| 050 | E02 | **世界树与命运 / Yggdrasil & Fate** | 16:9；Yggdrasil 为中央主轴，Norns / 创世神 / 人类 / 日月自然分布在同一宇宙环境，不做人物拼贴 |
+| 017 | **金伦加鸿沟 Ginnungagap** | 冰火之间尚未成形的空无 | 冰火交界主结构 Y 15–58% |
+| 018 | **尼福尔海姆 Niflheimr** | 雾、寒泉、冰流 | 寒泉 / 冰谷地标 Y 20–56% |
+| 019 | **穆斯贝尔 Múspell** | 火焰世界边界 | 火焰裂层主结构 Y 16–58% |
+| 020 | **世界树 Yggdrasil** | 宇宙轴，贯穿上下层 | 主干和核心分叉 X 30–70%，Y 8–66% |
+| 021 | **世界树之根** | 多层根系、泉域与洞隙 | 关键根结 / 水域 Y 20–58% |
+| 022 | **乌尔德之泉 Urðarbrunnr** | 命运井泉与世界树根 | 泉与根交点 Y 28–58% |
+| 023 | **密米尔之井 Mímisbrunnr** | 更深、更静、更知识性 | 井泉视觉中心 Y 26–56% |
+| 024 | **赫瓦格密尔 Hvergelmir** | 原初寒泉 / 水脉源头 | 水源核心 Y 20–56% |
+| 025 | **初生的米德加尔特** | 新形成海陆与山体 | 海陆主轮廓 Y 20–60% |
+| 026 | **天穹之路 Celestial Path** | 日月运行的天空秩序 | 光路 / 天体关系 Y 12–58% |
+| 027 | **铁森林 Járnviðr** | 暗黑森林与天体追逐伏线 | 特征树冠 / 天光 Y 18–58% |
+
+## 9.3 Story / Key Moment — 19
+
+| No. | Key Moment | 主要动作 | Crop Anchor |
+|---:|---|---|---|
+| 028 | **雾冰流入鸿沟** | 寒流进入 Ginnungagap | 冰流与空无交界 Y 18–58% |
+| 029 | **火星越过边界** | Muspell 火热侵入寒域 | 热 / 冷交锋 Y 20–56% |
+| 030 | **尤弥尔苏醒** | 原初生命第一次抬头 | Ymir 脸与上身 Y 20–52% |
+| 031 | **奥德胡姆拉出现** | 母牛从霜雾显现 | 头背 Y 24–50% |
+| 032 | **四道乳流** | 乳流维持 Ymir | Auðumbla + 乳流起点 Y 22–56% |
+| 033 | **冰中显现的布里** | 舔开盐霜，Búri 显现 | Auðumbla 头 + Búri 上身 Y 20–56% |
+| 034 | **三兄弟面对尤弥尔** | Odin / Vili / Vé 与 Ymir 对峙 | 三兄弟上身 + Ymir 头肩 Y 18–55% |
+| 035 | **尤弥尔倒下** | 世界旧形态终结 | Ymir 头胸 / 三兄弟 Y 18–54% |
+| 036 | **大地由血肉形成** | 肉身转化为地貌 | 转化核心 Y 20–58% |
+| 037 | **海洋由血液形成** | 深海包围新土地 | 海陆交界 Y 20–58% |
+| 038 | **骨化群山** | 骨牙化成山岩 | 转化主结构 Y 20–58% |
+| 039 | **头骨撑起天空** | 三兄弟建立天穹 | 三兄弟 + 天穹核心 Y 16–55% |
+| 040 | **海岸上的两段木材** | Ask / Embla 获得生命前 | 两段木材 Y 24–55% |
+| 041 | **第一口生命** | 两人获得生命与感知 | 两张脸 + 赋予动作 Y 20–52% |
+| 042 | **世界树贯穿诸界** | Yggdrasil 成为宇宙轴 | 主干 Y 8–64% |
+| 043 | **三根通向三泉** | 根系建立宇宙结构 | 三根分化起点 Y 18–56% |
+| 044 | **诺恩在泉边定命** | 三位 Norn 建立命运秩序 | 三人脸手 + 泉 Y 20–55% |
+| 045 | **日月开始运行** | Sól / Máni 进入天穹秩序 | 日月 + 人格主体 Y 15–55% |
+| 046 | **追逐与啃噬** | 世界初生即出现毁灭伏线 | 主要叙事中心 Y 18–55%；如过载则拆卡 |
+
+## 9.4 Mythic Object — 2
+
+| No. | 神物 | 设计 | Crop Anchor |
+|---:|---|---|---|
+| 047 | **太阳之车 Chariot of the Sun** | Sól、Árvakr / Alsviðr 与太阳运行系统 | 战车核心 / 日轮 Y 18–56% |
+| 048 | **斯瓦林之盾 Svalinn** | 位于太阳之前、隔绝炽热 | 盾完整轮廓 Y 22–56% |
+
+## 9.5 Hero / Ensemble — 2
+
+| No. | 封面 | 构图 |
+|---:|---|---|
+| 049 | **北欧创世 / Norse Genesis** | 横版；冰火两极形成视觉对角，Ymir 位于中部，四边留环境延展 |
+| 050 | **世界树与命运 / Yggdrasil & Fate** | 横版；Yggdrasil 居中，Norns / 创世神 / 日月形成同一世界层级，核心群像集中中央 70% |
 
 ---
 
-# 8. 每张 Artifact 的 JSON 契约
+# 10. 双文件 Artifact Contract
 
-所有 50 个 ID 都必须创建同名 JSON，并通过 `artwork.schema.json`。
+当前 `PS` Style 下，每一张输出：
 
-最低结构：
-
-```json
-{
-  "schemaVersion": "1.0",
-  "artworkId": "MC-NOR-M01-001",
-  "seriesId": "M01",
-  "type": "character",
-  "slug": "ymir",
-  "titleZh": "尤弥尔",
-  "titleEn": "Ymir",
-  "content": {
-    "storyIds": [],
-    "characterIds": [],
-    "worldIds": [],
-    "sceneIds": [],
-    "objectIds": [],
-    "sourceRefs": []
-  },
-  "canon": {
-    "identityAnchors": [],
-    "mustKeep": [],
-    "mustAvoid": []
-  },
-  "visual": {
-    "visualThesis": "",
-    "mood": [],
-    "palette": [],
-    "materials": []
-  },
-  "composition": {
-    "orientation": "portrait",
-    "aspectRatio": "9:16",
-    "shot": "",
-    "camera": "",
-    "primarySubject": "",
-    "subjectAnchor": { "x": 0.5, "y": 0.36 },
-    "faceAnchor": null,
-    "actionAnchor": null,
-    "cropSafe": {
-      "criticalIdentityZone": { "xMin": 0.20, "xMax": 0.80, "yMin": 0.12, "yMax": 0.52 },
-      "preferredSubjectZone": { "xMin": 0.14, "xMax": 0.86, "yMin": 0.10, "yMax": 0.66 },
-      "bottomFlexStartsAt": 0.70,
-      "edgeFlex": 0.14,
-      "notes": ""
-    }
-  },
-  "prompt": {
-    "brief": "",
-    "final": "",
-    "avoid": []
-  },
-  "references": {
-    "referenceArtworkIds": [],
-    "referenceImagePaths": [],
-    "styleReferenceIds": [],
-    "notes": ""
-  },
-  "output": {
-    "imagePath": "MC-NOR-M01-001.png",
-    "format": "png",
-    "width": 1620,
-    "height": 2880,
-    "orientation": "portrait"
-  },
-  "generation": {
-    "status": "planned",
-    "version": 1,
-    "model": null,
-    "generatedAt": null,
-    "seed": null,
-    "changeNote": "initial plan"
-  },
-  "qa": {
-    "status": "pending",
-    "checks": {
-      "sourceAccurate": false,
-      "identityConsistent": false,
-      "anatomyValid": false,
-      "cropSafe": false,
-      "noText": false,
-      "noFranchiseContamination": false
-    },
-    "notes": []
-  }
-}
+```text
+MC-NOR-M01-PS-001.png
+MC-NOR-M01-PS-001.json
 ```
 
-其中 `prompt.final` 必须保存 **实际发送给出图模型的完整 Prompt 原文**，不能只保存关键词。
+JSON 至少保存：
 
-详细定义见 `M01_ARTIFACT_SPEC.md`。
+```text
+artworkId           MC-NOR-M01-PS-001
+contentCardId       MC-NOR-M01-001
+cardNumber          001
+styleCode           PS
+styleName           Primordial Saga
+seriesId            M01
+mythologyCode        NOR
+类型 / 标题
+Story / Source / Entity IDs
+Canon
+Visual Thesis
+Composition
+Crop Safe Zones
+Prompt.final
+Prompt.negative / avoid
+References
+Output
+Generation Version
+QA
+```
+
+详细规范见 `M01_ARTIFACT_SPEC.md`，结构校验见 `artwork.schema.json`。
 
 ---
 
-# 9. Prompt 必须包含的统一裁切约束
+# 11. 出图前 Gate
 
-所有 48 张竖图的最终 Prompt 都必须包含等价语义：
+在任何图片生成前必须满足：
 
-```text
-vertical 9:16 mobile wallpaper composition;
-place the primary subject and all identity-critical features in the upper half of the image;
-keep the face, head, hands involved in the key action, signature object, and main story action safely inside the central upper region;
-use the outer edges and lower 30% mainly for expendable environment, ground, mist, water, roots, fabric tails or secondary detail;
-the image must remain visually complete if part of the outer edges and lower portion are later cropped or covered by a physical card layout;
-no typography, no card frame, no logo, no watermark.
-```
+### Naming Gate
 
-这是 **composition resilience / 构图韧性**，不是要求模型生成卡面。
+- 50 个 Content Card No. 固定为 `001–050`；
+- 当前 Style Code 固定为 `PS`；
+- 50 个 Artwork ID 固定为 `MC-NOR-M01-PS-001` ～ `050`；
+- 不允许不同内容共享同一 Artwork ID。
 
----
+### Content Gate
 
-# 10. Reference Lock
+- 50 个主题锁定；
+- P0 Source Scope 锁定；
+- 缺失 Character / Scene / Object 补齐或明确替换。
 
-正式 Story 图之前先锁 Character Canonical Artwork。
+### Composition Gate
 
-例如 Odin：
+- 每张竖图定义 `criticalIdentityZone`；
+- 每张定义 `cropSafe`；
+- 核心主体上移；
+- 底部 30% 被遮挡时仍能看懂；
+- 左右边缘裁切时不损失关键身份。
 
-```text
-C04 approved
-↓
-JSON 保存 face / costume / identity anchors
-↓
-T07 / T08 / T12 引用 C04 Artwork ID
-↓
-E02 再引用已批准版本
-```
+### Artifact Gate
 
-JSON 中禁止写“参考上一张”，必须记录稳定：
-
-```text
-referenceArtworkIds
-referenceImagePaths
-styleReferenceIds
-```
-
-Norns、Sköll / Hati 等成组角色同样执行 Reference Lock。
+- 每张 planned JSON 先建档；
+- JSON 通过 Schema；
+- Prompt / Canon / Composition 完整后才允许调用图片模型。
 
 ---
 
-# 11. 生产顺序
+# 12. 当前下一步
 
 ```text
-0. Content Lock
-1. 补 P0 Character / Scene / Object
-2. 建立 50 个 planned JSON
-3. 6 张 Style Test
-4. 锁 M01-STYLE-01
-5. Character Canonical Artwork
-6. Scene Canonical Artwork
-7. Story Artwork
-8. Mythic Object Artwork
-9. E01 / E02
-10. 50 组 image + JSON QA
+1. 冻结 Style Code = PS
+2. 生成 50 个 planned JSON（只建描述，不出图）
+3. 关闭 M01 P0 内容缺口
+4. Review 50 个 JSON 的 Canon / Prompt / Crop Safe
+5. 选择少量 Style Test
+6. 用户批准风格后才正式进入图片生成
 ```
 
-正式批量出图前，不允许跳过第 2 步。
+当前仍是：
 
----
-
-# 12. 出图前必须补的内容依赖
-
-## Character / Creature
-
-```text
-Auðumbla
-Ask
-Embla
-```
-
-## Scene / Concept
-
-```text
-Yggdrasil 全局场景
-Urðarbrunnr
-Hvergelmir
-Newborn Midgard variant
-Celestial Path
-Járnviðr（明确 source scope）
-```
-
-## Mythic Object
-
-```text
-Sól's Sun Chariot
-Svalinn
-```
-
-每个 Story Artwork 还必须补全：
-
-```text
-storyId
-sourceRefs
-characterIds
-sceneId / worldId
-objectIds
-visualThesis
-avoid
-```
-
----
-
-# 13. QA Gate
-
-## Content QA
-
-- 50/50 主题有来源 / 内容依据；
-- Character / Scene / Object 不悬空；
-- Story Key Moment 与来源范围一致；
-- 不把固定现代“九界地图”画成唯一事实；
-- 不提前混入 M02～M04 内容。
-
-## Visual QA
-
-- Character Identity Consistency = 100%；
-- anatomy / 手部 / 肢体结构通过；
-- 场景 Canon 稳定；
-- 无现代 franchise-specific 造型；
-- 无文字 / Logo / 乱码 / 卡 UI；
-- 主体明确位于上半部；
-- `cropSafe = true`；
-- 裁掉左右边缘一部分仍能理解；
-- 遮住 / 裁掉底部 30% 仍保留角色身份与故事主要信息。
-
-## Artifact QA
-
-每个 ID 必须：
-
-```text
-image exists
-JSON exists
-Schema valid
-Prompt final exists
-Source refs resolved
-Reference IDs stable
-Output dimensions correct
-QA approved
-```
-
----
-
-# 14. M01 Definition of Done
-
-M01 Phase A 完成不是“生成 50 张图”，而是：
-
-```text
-50 个 Artwork ID
-×
-(1 张 approved 图片 + 1 个 approved JSON)
-=
-50 组可追溯、可重放、可继续制卡的视觉资产
-```
-
-其中：
-
-```text
-48 × portrait ≥ 1620 × 2880
-2  × landscape ≥ 2880 × 1620
-```
-
-最终要求：
-
-- 50 个 JSON 全部可用于重新出图；
-- 所有角色具备稳定 Canon；
-- 所有竖图具备上半部主体安全构图；
-- 所有图片在未来边缘裁切与底部信息遮挡情况下仍保持核心视觉；
-- 实体卡尺寸、边框、排版和印刷工艺继续留到 Phase B。
+> **Detailed Planning / No Generation Yet**
