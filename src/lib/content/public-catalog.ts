@@ -1,9 +1,9 @@
-import { getStructuredCharacters, getStructuredRelations, getStructuredScenes, getStructuredWorlds, listStructuredMythologyBundles } from '../../content/registry';
+import { getStructuredCharacters, getStructuredContentRelations, getStructuredMythicObjects, getStructuredRelations, getStructuredScenes, getStructuredWorlds, listStructuredMythologyBundles } from '../../content/registry';
 import { artworks as seedArtworks, characterVariants as seedCharacterVariants, characters as seedCharacters, scenes as seedScenes, styles as seedStyles, worlds as seedWorlds } from '../../data/seed';
 import { mythologies as seedMythologies } from '../../data/mythologies';
 import { publishedArtworks } from '../../data/published-artworks';
 import { mythStories } from './stories';
-import type { Artwork, Character, CharacterInterpretation, CharacterName, CharacterRelation, CharacterVariant, ContentClaim, ContentConcept, ContentSource, Mythology, MythStory, Scene, Style, StorySeriesManifest, TaxonomyTerm, World } from './types';
+import type { Artwork, Character, CharacterInterpretation, CharacterName, CharacterRelation, CharacterVariant, ContentClaim, ContentConcept, ContentRelation, ContentSource, MythicObject, Mythology, MythStory, Scene, Style, StorySeriesManifest, TaxonomyTerm, World } from './types';
 import type { ArtworkListQuery, EntityListQuery } from './repositories/types';
 
 export type PublicArtwork = Artwork & {
@@ -16,7 +16,9 @@ export type PublicContentCatalog = {
   worlds: readonly World[];
   scenes: readonly Scene[];
   characters: readonly Character[];
+  mythicObjects: readonly MythicObject[];
   characterRelations: readonly CharacterRelation[];
+  contentRelations: readonly ContentRelation[];
   characterNames: readonly CharacterName[];
   characterInterpretations: readonly CharacterInterpretation[];
   contentConcepts: readonly ContentConcept[];
@@ -73,7 +75,9 @@ const publicContentCatalog: PublicContentCatalog = {
   worlds: mergeById(seedWorlds, getStructuredWorlds()).toSorted((a, b) => a.name.localeCompare(b.name, 'zh-CN')),
   scenes: mergeById(seedScenes, getStructuredScenes()).toSorted((a, b) => a.name.localeCompare(b.name, 'zh-CN')),
   characters: mergeCharacters(seedCharacters, getStructuredCharacters()).toSorted((a, b) => (b.clickCount ?? 0) - (a.clickCount ?? 0) || a.name.localeCompare(b.name, 'zh-CN') || a.id.localeCompare(b.id)),
+  mythicObjects: [...getStructuredMythicObjects()].toSorted((a, b) => a.name.localeCompare(b.name, 'zh-CN')),
   characterRelations: getStructuredRelations(),
+  contentRelations: getStructuredContentRelations(),
   characterNames: structuredBundles.flatMap((bundle) => bundle.names ?? []),
   characterInterpretations: structuredBundles.flatMap((bundle) => bundle.interpretations ?? []),
   contentConcepts: structuredBundles.flatMap((bundle) => bundle.concepts ?? []),
@@ -93,6 +97,8 @@ const worldById = new Map(publicContentCatalog.worlds.map((item) => [item.id, it
 const worldBySlug = new Map(publicContentCatalog.worlds.map((item) => [item.slug, item]));
 const characterById = new Map(publicContentCatalog.characters.map((item) => [item.id, item]));
 const characterBySlug = new Map(publicContentCatalog.characters.map((item) => [item.slug, item]));
+const mythicObjectById = new Map(publicContentCatalog.mythicObjects.map((item) => [item.id, item]));
+const mythicObjectBySlug = new Map(publicContentCatalog.mythicObjects.map((item) => [item.slug, item]));
 const sceneById = new Map(publicContentCatalog.scenes.map((item) => [item.id, item]));
 const artworkById = new Map(publicContentCatalog.curatedArtworks.map((item) => [item.id, item]));
 const artworkBySlug = new Map(publicContentCatalog.curatedArtworks.map((item) => [item.slug, item]));
@@ -103,6 +109,7 @@ const worldsByMythology = groupBy(publicContentCatalog.worlds, (item) => item.my
 const scenesByWorld = groupBy(publicContentCatalog.scenes.filter((item) => item.worldId), (item) => item.worldId!);
 const scenesByMythology = groupBy(publicContentCatalog.scenes, (item) => item.mythologyId);
 const charactersByMythology = groupBy(publicContentCatalog.characters, (item) => item.mythologyId);
+const mythicObjectsByMythology = groupBy(publicContentCatalog.mythicObjects, (item) => item.mythologyId);
 const charactersByWorld = groupBy(publicContentCatalog.characters.flatMap((character) => character.worldIds.map((worldId) => ({ worldId, character }))), (item) => item.worldId);
 const artworksByMythology = groupBy(publicContentCatalog.curatedArtworks, (item) => item.mythologyId);
 const artworksByWorld = groupBy(publicContentCatalog.curatedArtworks.filter((item) => item.worldId), (item) => item.worldId!);
@@ -162,6 +169,18 @@ export function getPublicCharactersByIds(ids: readonly string[]): Character[] {
 
 export function getPublicCharactersForMythology(mythologyId: string, query: EntityListQuery = {}): Character[] {
   return paginate(charactersByMythology.get(mythologyId) ?? [], query);
+}
+
+export function getPublicMythicObjectById(id: string): MythicObject | undefined {
+  return mythicObjectById.get(id);
+}
+
+export function getPublicMythicObjectBySlug(slug: string): MythicObject | undefined {
+  return mythicObjectBySlug.get(slug);
+}
+
+export function getPublicMythicObjectsForMythology(mythologyId: string): MythicObject[] {
+  return mythicObjectsByMythology.get(mythologyId) ?? [];
 }
 
 export function getPublicCharactersForWorld(worldId: string, query: EntityListQuery = {}): Character[] {

@@ -75,6 +75,21 @@ export type ContentSource = {
   author?: string;
   url?: string;
   note?: string;
+  /** Editorial grouping for coverage reports; never a claim of source authority. */
+  sourceFamily?:
+    | 'eddic-mythological'
+    | 'eddic-heroic'
+    | 'prose-edda'
+    | 'skaldic'
+    | 'legendary-saga'
+    | 'regional-medieval'
+    | 'material-culture'
+    | 'academic-secondary';
+  /** What this source may support in the content model. */
+  evidenceRoles?: readonly ('narrative' | 'identity' | 'relation' | 'visual-context' | 'reception')[];
+  manuscriptContext?: string;
+  region?: string;
+  licenseNote?: string;
 };
 
 /** Whether MythCanvas presents a statement as directly supported, disputed, or editorial synthesis. */
@@ -86,7 +101,7 @@ export type ContentClaimStatus = 'supported' | 'contested' | 'editorial-synthesi
  */
 export type ContentClaim = {
   id: string;
-  subjectType: 'character' | 'world' | 'scene' | 'story' | 'relation' | 'visual-anchor';
+  subjectType: 'character' | 'world' | 'scene' | 'story' | 'relation' | 'mythic-object' | 'visual-anchor';
   subjectId: string;
   claimType: 'identity' | 'genealogy' | 'narrative' | 'interpretation' | 'visual-anchor';
   summary: string;
@@ -95,7 +110,14 @@ export type ContentClaim = {
   sourceRefs: readonly SourceRef[];
 };
 
-export type TaxonomyKind = 'lineage' | 'domain' | 'story-cycle' | 'editorial-collection';
+export type TaxonomyKind =
+  | 'lineage'
+  | 'family-lineage'
+  | 'social-divine-group'
+  | 'being-class'
+  | 'domain'
+  | 'story-cycle'
+  | 'editorial-collection';
 
 export type TaxonomyTerm = {
   id: string;
@@ -206,7 +228,23 @@ export type Mythology = {
 export type StoryImageLayout = 'wide' | 'portrait' | 'inset';
 
 /** Editorial category. It is displayed to readers and must not be inferred from a volume title. */
-export type MythStoryKind = 'myth' | 'folk-legend' | 'religious-tradition' | 'literary-fantasy';
+export type MythStoryKind = 'myth' | 'heroic-legend' | 'folk-legend' | 'religious-tradition' | 'literary-fantasy';
+
+export type EditorialStatus =
+  | 'prototype'
+  | 'researching'
+  | 'structured'
+  | 'dependency-complete'
+  | 'source-reviewed'
+  | 'visual-ready';
+
+export type EditorialReview = {
+  status: 'needs-review' | 'approved' | 'changes-requested';
+  reviewer: string;
+  reviewedAt: string;
+  sourceDecisionNotes: readonly string[];
+  unresolvedIssueIds: readonly string[];
+};
 
 export type MythStorySourceType = 'primary-text' | 'translation' | 'scholarly-reference' | 'oral-tradition';
 
@@ -280,6 +318,8 @@ export type MythStory = {
   volumeOrder: number;
   displayOrder: number;
   kind: MythStoryKind;
+  /** Stable historical URLs that redirect to `slug`; never used as canonical links. */
+  legacySlugs?: readonly string[];
   tradition?: string;
   readingMinutes?: number;
   sources: readonly MythStorySource[];
@@ -288,15 +328,21 @@ export type MythStory = {
   requiredCharacterIds?: readonly string[];
   requiredWorldIds?: readonly string[];
   requiredSceneIds?: readonly string[];
+  /** Required objects are maintained separately from Characters and places. */
+  requiredObjectIds?: readonly string[];
   /** Source ids or inline source keys required before publication. */
   requiredSourceIds?: readonly string[];
   claims?: readonly ContentClaim[];
   characterIds: readonly string[];
   worldIds: readonly string[];
   sceneIds: readonly string[];
+  objectIds?: readonly string[];
   blocks: readonly MythStoryBlock[];
   heroAssetId?: string;
   publishStatus: 'draft' | 'published';
+  /** Editorial progress is independent from whether a public route is visible. */
+  editorialStatus?: EditorialStatus;
+  editorialReview?: EditorialReview;
   publishedAt: string;
   updatedAt: string;
 };
@@ -435,6 +481,46 @@ export type Scene = {
   summary: string;
   canonicalDesign: CanonicalDesign;
   heroImage?: ImageAsset;
+};
+
+export type MythicObjectType =
+  | 'weapon'
+  | 'jewel'
+  | 'artifact'
+  | 'vehicle'
+  | 'vessel'
+  | 'food'
+  | 'substance'
+  | 'symbolic-object';
+
+/** A source-scoped named object that matters to Story, visual design and future collections. */
+export type MythicObject = {
+  id: string;
+  mythologyId: string;
+  slug: string;
+  name: string;
+  nameEn: string;
+  nativeName?: string;
+  aliases?: readonly string[];
+  objectType: MythicObjectType;
+  summary: string;
+  traditionTags?: readonly string[];
+  sourceRefs: readonly SourceRef[];
+  canonicalDesign: CanonicalDesign;
+  heroImage?: ImageAsset;
+};
+
+export type ContentEntityType = 'character' | 'world' | 'scene' | 'story' | 'mythic-object' | 'concept';
+
+export type ContentRelation = {
+  id: string;
+  mythologyId: string;
+  from: { type: ContentEntityType; id: string };
+  to: { type: ContentEntityType; id: string };
+  relationType: string;
+  traditionScope?: string;
+  confidence: CharacterInterpretationConfidence;
+  sourceRefs: readonly SourceRef[];
 };
 
 export type Style = {

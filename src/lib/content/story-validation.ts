@@ -1,6 +1,7 @@
 import type {
   Character,
   MythStory,
+  MythicObject,
   Mythology,
   Scene,
   StoryIllustrationAsset,
@@ -19,6 +20,7 @@ export type StoryValidationInput = {
   characters: readonly Character[];
   worlds: readonly World[];
   scenes: readonly Scene[];
+  objects?: readonly MythicObject[];
   illustrations: readonly StoryIllustrationAsset[];
 };
 
@@ -41,7 +43,7 @@ const duplicateValues = (values: readonly string[]): string[] => {
 const validateDependencyIds = (
   issues: StoryValidationIssue[],
   scope: { storyId: string },
-  field: 'requiredCharacterIds' | 'requiredWorldIds' | 'requiredSceneIds',
+  field: 'requiredCharacterIds' | 'requiredWorldIds' | 'requiredSceneIds' | 'requiredObjectIds',
   requiredIds: readonly string[] | undefined,
   linkedIds: readonly string[],
   knownIds: ReadonlySet<string>,
@@ -71,6 +73,7 @@ export const validateMythStories = ({
   characters,
   worlds,
   scenes,
+  objects = [],
   illustrations,
 }: StoryValidationInput): StoryValidationIssue[] => {
   const issues: StoryValidationIssue[] = [];
@@ -78,6 +81,7 @@ export const validateMythStories = ({
   const characterIds = new Set(characters.map((item) => item.id));
   const worldIds = new Set(worlds.map((item) => item.id));
   const sceneIds = new Set(scenes.map((item) => item.id));
+  const objectIds = new Set(objects.map((item) => item.id));
   const illustrationIds = new Set(illustrations.map((item) => item.id));
 
   duplicateValues(stories.map((story) => story.id)).forEach((id) => {
@@ -149,10 +153,14 @@ export const validateMythStories = ({
     story.sceneIds.forEach((id) => {
       if (!sceneIds.has(id)) issues.push({ ...scope, field: 'sceneIds', message: `Unknown Scene: ${id}.` });
     });
+    story.objectIds?.forEach((id) => {
+      if (!objectIds.has(id)) issues.push({ ...scope, field: 'objectIds', message: `Unknown MythicObject: ${id}.` });
+    });
 
     validateDependencyIds(issues, scope, 'requiredCharacterIds', story.requiredCharacterIds, story.characterIds, characterIds, 'Character');
     validateDependencyIds(issues, scope, 'requiredWorldIds', story.requiredWorldIds, story.worldIds, worldIds, 'World');
     validateDependencyIds(issues, scope, 'requiredSceneIds', story.requiredSceneIds, story.sceneIds, sceneIds, 'Scene');
+    validateDependencyIds(issues, scope, 'requiredObjectIds', story.requiredObjectIds, story.objectIds ?? [], objectIds, 'MythicObject');
 
     story.claims?.forEach((claim, index) => {
       if (!hasText(claim.id) || !hasText(claim.summary) || claim.sourceRefs.length === 0) {

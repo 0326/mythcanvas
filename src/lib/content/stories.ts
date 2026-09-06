@@ -36,11 +36,21 @@ export const getStoriesForMythology = (mythologyId: string): MythStory[] =>
 export const getStoryForMythology = (mythologyId: string, slug: string): MythStory | undefined =>
   mythStories.find((story) => story.mythologyId === mythologyId && story.slug === slug && story.publishStatus === 'published');
 
+/** Returns the canonical Story for an old URL slug. Callers must redirect, not render it as canonical. */
+export const getStoryRedirectForMythology = (mythologyId: string, slug: string): MythStory | undefined =>
+  mythStories.find((story) => story.mythologyId === mythologyId && story.legacySlugs?.includes(slug) && story.publishStatus === 'published');
+
 export const getPublicStoryPaths = (): { mythologyId: string; slug: string }[] =>
   mythStories
     .filter((story) => story.publishStatus === 'published')
     .filter((story) => shouldUseMythStoryDetailRoutes(getStoriesForMythology(story.mythologyId).length))
     .map((story) => ({ mythologyId: story.mythologyId, slug: story.slug }));
+
+export const getPublicStoryRedirectPaths = (): { mythologyId: string; slug: string }[] =>
+  mythStories
+    .filter((story) => story.publishStatus === 'published')
+    .filter((story) => shouldUseMythStoryDetailRoutes(getStoriesForMythology(story.mythologyId).length))
+    .flatMap((story) => (story.legacySlugs ?? []).map((slug) => ({ mythologyId: story.mythologyId, slug })));
 
 export const groupStoriesByVolume = (stories: readonly MythStory[]): MythStoryVolume[] => {
   const volumes = new Map<string, MythStoryVolume>();

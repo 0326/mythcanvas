@@ -3,7 +3,7 @@ import { mythStories } from '../src/data/stories';
 import { storyIllustrations } from '../src/data/story-illustrations';
 import { characters, scenes, worlds } from '../src/data/seed';
 import { mythologies as catalogMythologies } from '../src/data/mythologies';
-import { getStructuredCharacters, getStructuredScenes, getStructuredWorlds } from '../src/content/registry';
+import { getStructuredCharacters, getStructuredMythicObjects, getStructuredScenes, getStructuredWorlds } from '../src/content/registry';
 import { validateMythStories } from '../src/lib/content/story-validation';
 import { MYTH_STORY_DETAIL_ROUTE_THRESHOLD, shouldUseMythStoryDetailRoutes } from '../src/lib/content/stories';
 import { japaneseStories } from '../src/content/japanese';
@@ -18,6 +18,7 @@ describe('MythStory editorial content', () => {
       characters: [...characters, ...getStructuredCharacters()],
       worlds: [...worlds, ...getStructuredWorlds()],
       scenes: [...scenes, ...getStructuredScenes()],
+      objects: getStructuredMythicObjects(),
       illustrations: storyIllustrations,
     });
 

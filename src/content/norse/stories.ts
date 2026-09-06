@@ -1,13 +1,14 @@
 import type { MythStory, MythStorySource } from '../../lib/content/types';
+import { storySource } from './sources';
 
 const mythologyId = 'myth-norse';
 const date = '2026-09-01';
 
 const sources = {
-  prose: { sourceId: 'source-norse-prose-edda', title: 'Snorri Sturluson, Prose Edda', sourceType: 'primary-text', tradition: '斯诺里整理传统', period: '13世纪', language: 'non', locator: 'Gylfaginning' },
-  poetic: { sourceId: 'source-norse-poetic-edda', title: 'Poetic Edda', sourceType: 'primary-text', tradition: '诗体埃达传统', period: '中世纪抄本记录', language: 'non', locator: '按诗篇与诗节' },
-  skaldic: { sourceId: 'source-norse-skaldic-poetry', title: 'Skaldic poetry', sourceType: 'primary-text', tradition: '斯卡尔德诗歌传统', period: '中世纪记录', language: 'non', locator: '按诗篇与段落' },
-  volsung: { sourceId: 'source-norse-volsunga-saga', title: 'Völsunga saga', sourceType: 'primary-text', tradition: '沃尔松格英雄传统', period: '13世纪', language: 'non', locator: '按章节' },
+  prose: storySource('proseEddaGylfaginning', '按相关章节；Phase 3 逐篇精确化'),
+  poetic: storySource('voluspa', '按相关诗篇与诗节；Phase 3 逐篇精确化'),
+  skaldic: storySource('haustlong', '按相关 stanza；Phase 3 逐篇精确化'),
+  volsung: storySource('volsungaSaga', '按相关章节；Phase 3 逐篇精确化'),
 } as const satisfies Record<string, MythStorySource>;
 
 type StoryInput = {
@@ -16,6 +17,7 @@ type StoryInput = {
   titleEn: string;
   subtitle: string;
   summary: string;
+  kind?: MythStory['kind'];
   volumeId: string;
   volumeTitle: string;
   volumeOrder: number;
@@ -25,6 +27,8 @@ type StoryInput = {
   characters: readonly string[];
   worlds?: readonly string[];
   scenes?: readonly string[];
+  objects?: readonly string[];
+  legacySlugs?: readonly string[];
   narrative: string;
 };
 
@@ -40,7 +44,8 @@ const story = (input: StoryInput): MythStory => ({
   volumeTitle: input.volumeTitle,
   volumeOrder: input.volumeOrder,
   displayOrder: input.displayOrder,
-  kind: 'myth',
+  kind: input.kind ?? 'myth',
+  legacySlugs: input.legacySlugs,
   tradition: input.tradition,
   readingMinutes: 4,
   sources: [input.source],
@@ -51,10 +56,12 @@ const story = (input: StoryInput): MythStory => ({
   requiredCharacterIds: input.characters,
   requiredWorldIds: input.worlds ?? [],
   requiredSceneIds: input.scenes ?? [],
+  requiredObjectIds: input.objects ?? [],
   requiredSourceIds: [input.source.sourceId ?? input.source.title],
   characterIds: input.characters,
   worldIds: input.worlds ?? [],
   sceneIds: input.scenes ?? [],
+  objectIds: input.objects ?? [],
   claims: [{
     id: `claim-${input.slug}-narrative`,
     subjectType: 'story',
@@ -71,6 +78,7 @@ const story = (input: StoryInput): MythStory => ({
     { type: 'quote', text: '版本差异保留在来源范围内，不以单一现代改编替代古典材料。', source: '版本说明' },
   ],
   publishStatus: 'published',
+  editorialStatus: 'prototype',
   publishedAt: date,
   updatedAt: date,
 });
@@ -90,20 +98,20 @@ export const norseStories: readonly MythStory[] = [
   story({ slug: 'kvasir-and-mead', title: '克瓦希尔与诗歌蜜酒', titleEn: 'Kvasir and the Mead of Poetry', subtitle: '知识被酿成可以争夺的液体', summary: '克瓦希尔的智慧与诗歌蜜酒把知识、语言和盗取联系在一起。', volumeId: 'norse-order', volumeTitle: '神族秩序与知识', volumeOrder: 2, displayOrder: 2, source: sources.prose, tradition: '诗歌蜜酒传统', characters: c('odin'), worlds: w('asgard'), scenes: s('asgard-court'), narrative: '诗歌蜜酒把智慧变成需要寻找、守护和夺取的资源。奥丁的知识追求因此带有代价与伪装，而不是抽象的全知。' }),
   story({ slug: 'odin-and-mimir', title: '奥丁以一只眼换取智慧', titleEn: 'Odin and Mímir’s Well', subtitle: '知识总有可见的代价', summary: '奥丁在密米尔之井前付出一只眼，以换取洞察力。', volumeId: 'norse-order', volumeTitle: '神族秩序与知识', volumeOrder: 2, displayOrder: 3, source: sources.poetic, tradition: '奥丁求知传统', characters: c('odin', 'mimir'), worlds: w('asgard'), scenes: s('well-of-mimir'), narrative: '奥丁的智慧不是无条件赠礼。他在井边留下身体的一部分，显示知识、牺牲与王权之间的紧张关系。' }),
   story({ slug: 'odin-world-tree', title: '奥丁悬于世界树九夜', titleEn: 'Odin on the World Tree', subtitle: '以牺牲换取符文知识', summary: '奥丁自我悬挂于世界树，在痛苦与等待中获得符文知识。', volumeId: 'norse-order', volumeTitle: '神族秩序与知识', volumeOrder: 2, displayOrder: 4, source: sources.poetic, tradition: '《高者之歌》传统', characters: c('odin'), worlds: w('asgard'), scenes: s('world-tree-roots'), narrative: '奥丁把自己悬在世界树上，既是求知者，也是知识仪式的参与者。符文在这里不是装饰性的发光字样，而是经过代价获得的能力。' }),
-  story({ slug: 'freyja-and-gerdr', title: '弗雷与葛德', titleEn: 'Frey and Gerðr', subtitle: '丰饶神对巨人庭院的凝望', summary: '弗雷爱上葛德，并派遣斯基尔尼尔穿过边界寻求她的同意。', volumeId: 'norse-order', volumeTitle: '神族秩序与知识', volumeOrder: 2, displayOrder: 5, source: sources.poetic, tradition: '华纳神族与巨人传统', characters: c('freyr', 'gerdr'), worlds: w('vanaheim', 'jotunheim'), scenes: s('jotunheim-border'), narrative: '弗雷与葛德的故事把爱慕、交换、威胁和跨越边界放在同一个谈判过程中。约顿并非单一敌对种族，而是拥有自身空间与主体性。' }),
+  story({ slug: 'freyr-and-gerdr', legacySlugs: ['freyja-and-gerdr'], title: '弗雷与葛德', titleEn: 'Freyr and Gerðr', subtitle: '丰饶神对巨人庭院的凝望', summary: '弗雷爱上葛德，并派遣斯基尔尼尔穿过边界向她求婚。', volumeId: 'norse-order', volumeTitle: '神族秩序与知识', volumeOrder: 2, displayOrder: 5, source: storySource('skirnismal', 'st. 1–42'), tradition: '《斯基尔尼尔之歌》传统', characters: c('freyr', 'gerdr'), worlds: w('vanaheim', 'jotunheim'), scenes: s('jotunheim-border'), objects: ['object-norse-freyrs-sword'], narrative: '弗雷与葛德的故事把爱慕、交换、威胁和跨越边界放在同一个谈判过程中。约顿并非单一敌对种族，而是拥有自身空间与主体性。' }),
   story({ slug: 'idunn-and-thjazi', title: '伊登被夏基掳走', titleEn: 'Iðunn and Þjazi', subtitle: '青春苹果离开神域', summary: '伊登与青春苹果被带离阿斯加德，诸神的衰老暴露了宝物的秩序作用。', volumeId: 'norse-order', volumeTitle: '神族秩序与知识', volumeOrder: 2, displayOrder: 6, source: sources.skaldic, tradition: '神祇与宝物传统', characters: c('idunn', 'loki'), worlds: w('asgard', 'jotunheim'), scenes: s('asgard-court', 'jotunheim-border'), narrative: '青春苹果不是普通道具。伊登离开后，诸神的身体和秩序开始衰老，迫使洛基承担把她带回来的责任。' }),
   story({ slug: 'asgard-wall-and-sleipnir', title: '阿斯加德城墙与斯莱普尼尔', titleEn: 'The Wall of Asgard and Sleipnir', subtitle: '一座城墙换来一匹跨界坐骑', summary: '城墙建造者、斯瓦迪尔法利与洛基的变形共同改变阿斯加德的防御。', volumeId: 'norse-order', volumeTitle: '神族秩序与知识', volumeOrder: 2, displayOrder: 7, source: sources.prose, tradition: '阿斯加德城墙传统', characters: c('loki', 'sleipnir'), worlds: w('asgard', 'jotunheim'), scenes: s('asgard-court'), narrative: '阿斯加德城墙的建造暴露了神族对契约、时间和外部力量的依赖。洛基的变形最终带来斯莱普尼尔，也让边界不再只是石头。' }),
   story({ slug: 'sifs-hair-and-treasures', title: '西芙的头发与诸神宝物', titleEn: 'Sif’s Hair and the Gods’ Treasures', subtitle: '失去的金色被重新锻造', summary: '洛基剪去西芙的头发，矮人锻造出新的金发与多件神圣宝物。', volumeId: 'norse-order', volumeTitle: '神族秩序与知识', volumeOrder: 2, displayOrder: 8, source: sources.prose, tradition: '神祇宝物锻造传统', characters: c('sif', 'loki', 'odin', 'freyr', 'thor'), worlds: w('asgard'), scenes: s('asgard-court'), narrative: '西芙的金发与宝物锻造把身体、赔偿、工艺和神权连在一起。宝物不是凭空出现，而是在冲突之后被工匠与契约制造出来。' }),
   story({ slug: 'thor-and-hrungnir', title: '索尔与赫朗格尼尔', titleEn: 'Thor and Hrungnir', subtitle: '神与巨人的决斗', summary: '索尔与赫朗格尼尔的冲突把力量、边界和巨人威胁集中在一场决斗中。', volumeId: 'norse-thor', volumeTitle: '索尔、洛基与巨人', volumeOrder: 3, displayOrder: 1, source: sources.skaldic, tradition: '索尔与巨人传统', characters: c('thor'), worlds: w('jotunheim', 'asgard'), scenes: s('jotunheim-border'), narrative: '赫朗格尼尔代表约顿世界中不可被简单归类为冰雪怪物的力量。索尔的胜利依赖锤、身体和边界空间的共同作用。' }),
   story({ slug: 'thor-fishes-for-serpent', title: '索尔垂钓世界蛇', titleEn: 'Thor Fishes for the World Serpent', subtitle: '海面下的宿敌', summary: '索尔试图钓起环绕米德加尔特的尘世巨蛇，二者的冲突延续到末日。', volumeId: 'norse-thor', volumeTitle: '索尔、洛基与巨人', volumeOrder: 3, displayOrder: 2, source: sources.poetic, tradition: '索尔与尘世巨蛇传统', characters: c('thor', 'jormungandr'), worlds: w('midgard', 'jotunheim'), scenes: s('midgard-coast'), narrative: '索尔垂钓世界蛇的场景让海洋成为宿命关系的舞台。巨蛇不是一个普通怪兽，而是包围人类世界、与雷神形成结构性对抗的存在。' }),
-  story({ slug: 'thryms-stolen-hammer', title: '雷神之锤被盗', titleEn: 'The Theft of Mjölnir', subtitle: '神锤与伪装的新娘', summary: '索尔的锤子被夏基之名的巨人夺走，洛基设计让索尔伪装成新娘取回武器。', volumeId: 'norse-thor', volumeTitle: '索尔、洛基与巨人', volumeOrder: 3, displayOrder: 3, source: sources.poetic, tradition: '《鹰羽之歌》传统', characters: c('thor', 'loki'), worlds: w('jotunheim', 'asgard'), scenes: s('jotunheim-border'), narrative: '失去妙尔尼尔后，索尔的守护身份暂时失去支点。故事以婚宴、服装和洛基的策略把武器归还变成一场公开的表演。' }),
+  story({ slug: 'thryms-stolen-hammer', title: '雷神之锤被盗', titleEn: 'The Theft of Mjölnir', subtitle: '神锤与伪装的新娘', summary: '巨人索列姆夺走索尔的锤子，洛基协助索尔伪装成新娘，在婚宴中取回武器。', volumeId: 'norse-thor', volumeTitle: '索尔、洛基与巨人', volumeOrder: 3, displayOrder: 3, source: storySource('thrymskvida', 'st. 1–32'), tradition: '《索列姆之歌》传统', characters: c('thor', 'loki', 'freyja', 'heimdall', 'thrymr'), worlds: w('jotunheim', 'asgard'), scenes: s('thryms-hall'), objects: ['object-norse-mjolnir'], narrative: '失去妙尔尼尔后，索尔的守护身份暂时失去支点。索列姆以芙蕾雅为交换条件，洛基则协助索尔伪装赴宴。故事以婚宴、服装与策略把武器归还变成一场公开的表演。' }),
   story({ slug: 'thor-in-utgard', title: '索尔在乌特加德', titleEn: 'Thor in Útgarða-Loki’s Hall', subtitle: '力量被幻象重新定义', summary: '索尔在巨人大厅中接受看似简单却被魔法改写的挑战。', volumeId: 'norse-thor', volumeTitle: '索尔、洛基与巨人', volumeOrder: 3, displayOrder: 4, source: sources.prose, tradition: '乌特加德传统', characters: c('thor', 'loki'), worlds: w('jotunheim'), scenes: s('jotunheim-border'), narrative: '乌特加德的挑战不是公平竞技，而是把海洋、老年和世界本身伪装成对手。索尔即使失败，也因此显露出力量的尺度。' }),
   story({ slug: 'thor-and-geirrod', title: '索尔与盖尔罗德', titleEn: 'Thor and Geirröðr', subtitle: '穿越巨人领地的危险旅程', summary: '索尔在洛基协助与意外装备下进入盖尔罗德的领地。', volumeId: 'norse-thor', volumeTitle: '索尔、洛基与巨人', volumeOrder: 3, displayOrder: 5, source: sources.skaldic, tradition: '索尔与巨人传统', characters: c('thor', 'loki'), worlds: w('jotunheim'), scenes: s('jotunheim-border'), narrative: '这段旅程把渡河、伪装、巨人厅堂和武器交给一个连续空间。索尔的力量始终需要通过道路与工具才能抵达冲突现场。' }),
   story({ slug: 'fenrir-and-gleipnir', title: '芬里尔与格莱普尼尔', titleEn: 'Fenrir and Gleipnir', subtitle: '一条看不见的束缚', summary: '诸神用格莱普尼尔束缚芬里尔，并由提尔付出一只手作为代价。', volumeId: 'norse-thor', volumeTitle: '索尔、洛基与巨人', volumeOrder: 3, displayOrder: 6, source: sources.prose, tradition: '芬里尔束缚传统', characters: c('fenrir', 'tyr', 'odin'), worlds: w('asgard', 'jotunheim'), scenes: s('asgard-court'), narrative: '格莱普尼尔由看似不可能的材料制成，芬里尔最终接受试探却不再相信诸神。提尔把手放入狼口，使契约的代价留在身体上。' }),
   story({ slug: 'lokis-feast', title: '洛基的宴席争辩', titleEn: 'Loki’s Flyting', subtitle: '宴席成为秩序的审判场', summary: '洛基在宴席中揭露诸神的秘密，语言冲突使共同体的裂缝公开化。', volumeId: 'norse-thor', volumeTitle: '索尔、洛基与巨人', volumeOrder: 3, displayOrder: 7, source: sources.poetic, tradition: '《洛基的争辩》传统', characters: c('loki', 'odin', 'thor', 'freyja', 'tyr'), worlds: w('asgard'), scenes: s('asgard-court'), narrative: '洛基的攻击不是普通吵架，而是把神族内部的债务、欲望和不体面历史重新带到公共宴席。秩序正是在被说出之后开始崩裂。' }),
   story({ slug: 'baldrs-dreams', title: '巴德尔的梦', titleEn: 'Baldr’s Dreams', subtitle: '死亡先以梦的形式到来', summary: '巴德尔反复梦见危险，诸神开始寻找梦境背后的死亡预兆。', volumeId: 'norse-baldr', volumeTitle: '巴德尔之死与秩序崩裂', volumeOrder: 4, displayOrder: 1, source: sources.poetic, tradition: '巴德尔循环', characters: c('baldr', 'odin', 'frigg'), worlds: w('asgard'), scenes: s('asgard-court'), narrative: '巴德尔的梦把末日提前写进神域日常。奥丁前往亡者道路寻找答案，预言由此成为无法轻易解除的压力。' }),
   story({ slug: 'baldrs-death', title: '巴德尔之死', titleEn: 'The Death of Baldr', subtitle: '一枝槲寄生穿过保护', summary: '弗丽嘉让万物保证不伤害巴德尔，却遗漏了槲寄生；洛基借霍德尔之手完成致命一击。', volumeId: 'norse-baldr', volumeTitle: '巴德尔之死与秩序崩裂', volumeOrder: 4, displayOrder: 2, source: sources.prose, tradition: '巴德尔之死传统', characters: c('baldr', 'frigg', 'loki', 'hodr'), worlds: w('asgard'), scenes: s('asgard-court'), narrative: '保护巴德尔的誓言制造出一种看似绝对的安全，却留下一个微小而致命的例外。洛基、霍德尔与槲寄生让神域的游戏转为真正的哀悼。' }),
-  story({ slug: 'baldrs-funeral', title: '巴德尔的葬礼', titleEn: 'Baldr’s Funeral', subtitle: '葬船驶入无法挽回的悲剧', summary: '巴德尔被送上葬船，诸神的秩序在仪式与哀悼中暴露出裂痕。', volumeId: 'norse-baldr', volumeTitle: '巴德尔之死与秩序崩裂', volumeOrder: 4, displayOrder: 3, source: sources.prose, tradition: '巴德尔葬礼传统', characters: c('baldr', 'odin', 'frigg', 'thor', 'loki'), worlds: w('asgard', 'hel'), scenes: s('asgard-court', 'ship-naglfar'), narrative: '葬礼把巴德尔的死亡从个人事件变成整个神族共同体的损失。船、火焰与哭泣并没有自动带来复原，反而使之后的追寻更加迫切。' }),
+  story({ slug: 'baldrs-funeral', title: '巴德尔的葬礼', titleEn: 'Baldr’s Funeral', subtitle: '葬船驶入无法挽回的悲剧', summary: '巴德尔被送上赫林霍尔尼葬船，诸神的秩序在仪式与哀悼中暴露出裂痕。', volumeId: 'norse-baldr', volumeTitle: '巴德尔之死与秩序崩裂', volumeOrder: 4, displayOrder: 3, source: storySource('proseEddaGylfaginning', 'ch. 49'), tradition: '《欺骗古鲁菲》葬礼传统', characters: c('baldr', 'odin', 'frigg', 'thor', 'nanna'), worlds: w('asgard', 'hel'), scenes: s('baldr-funeral-shore'), objects: ['object-norse-hringhorni'], narrative: '葬礼把巴德尔的死亡从个人事件变成整个神族共同体的损失。赫林霍尔尼、火焰与哭泣并没有自动带来复原，反而使之后的追寻更加迫切。纳吉尔法属于诸神黄昏的另一条末日叙事，不在此处出现。' }),
   story({ slug: 'hermod-rides-to-hel', title: '赫尔莫德前往赫尔', titleEn: 'Hermóðr Rides to Hel', subtitle: '穿过亡者道路的请求', summary: '赫尔莫德骑行前往海拉的国度，请求让巴德尔返回神域。', volumeId: 'norse-baldr', volumeTitle: '巴德尔之死与秩序崩裂', volumeOrder: 4, displayOrder: 4, source: sources.prose, tradition: '亡者道路传统', characters: c('hermod', 'baldr', 'hel'), worlds: w('asgard', 'hel'), scenes: s('hall-of-hel'), narrative: '赫尔莫德的旅程把 Hel 作为一个有道路、有统治者、有条件的空间，而不是把人物 Hel 与地点混为同一项。' }),
   story({ slug: 'loki-bound', title: '洛基被捕与束缚', titleEn: 'Loki Bound', subtitle: '毒液滴落在秩序裂缝上', summary: '洛基因巴德尔之死被捕并束缚，西格恩试图接住滴落的毒液。', volumeId: 'norse-baldr', volumeTitle: '巴德尔之死与秩序崩裂', volumeOrder: 4, displayOrder: 5, source: sources.prose, tradition: '洛基受缚传统', characters: c('loki', 'sigyn'), worlds: w('asgard'), scenes: s('world-tree-roots'), narrative: '洛基的束缚是惩罚，也是诸神试图把裂缝固定在一个身体上的行为。西格恩的碗让陪伴、疼痛与持续时间成为场景核心。' }),
   story({ slug: 'fimbulwinter', title: '芬布尔之冬与束缚崩解', titleEn: 'Fimbulwinter and the Breaking of Bonds', subtitle: '漫长冬季先于世界毁灭', summary: '芬布尔之冬、狼吞日月与束缚崩解共同预示诸神黄昏。', volumeId: 'norse-ragnarok', volumeTitle: '诸神黄昏与世界再生', volumeOrder: 5, displayOrder: 1, source: sources.poetic, tradition: '诸神黄昏传统', characters: c('fenrir', 'jormungandr', 'loki', 'odin'), worlds: w('midgard', 'jotunheim'), scenes: s('fimbulwinter-field'), narrative: '末日不是突然降临的一次爆炸，而是冬季、饥荒、冲突和束缚崩解逐步积累的过程。世界的尺度因此先通过天气和道路被感知。' }),
@@ -111,9 +119,9 @@ export const norseStories: readonly MythStory[] = [
   story({ slug: 'thor-and-jormungandr-final-battle', title: '索尔与世界蛇的最后一战', titleEn: 'Thor and Jörmungandr at Ragnarök', subtitle: '宿敌在海与雷之间相遇', summary: '索尔击杀世界蛇，却在九步之后倒下，宿命关系以双重胜负结束。', volumeId: 'norse-ragnarok', volumeTitle: '诸神黄昏与世界再生', volumeOrder: 5, displayOrder: 3, source: sources.poetic, tradition: '诸神黄昏传统', characters: c('thor', 'jormungandr'), worlds: w('midgard'), scenes: s('midgard-coast'), narrative: '索尔与世界蛇的结局不适合用单纯胜负概括。雷神完成守护者的动作，却也承受巨蛇毒液，二者的故事在同一瞬间完成。' }),
   story({ slug: 'freyr-and-surtr', title: '弗雷与苏尔特', titleEn: 'Freyr and Surtr', subtitle: '丰饶神面对火焰边界', summary: '弗雷在诸神黄昏中面对苏尔特，失去武器的代价最终显现。', volumeId: 'norse-ragnarok', volumeTitle: '诸神黄昏与世界再生', volumeOrder: 5, displayOrder: 4, source: sources.poetic, tradition: '诸神黄昏传统', characters: c('freyr', 'surtr'), worlds: w('muspell', 'asgard'), scenes: s('muspell-flame-border'), narrative: '弗雷与苏尔特把丰饶、武器和火焰末日放进同一个对照。穆斯贝尔不是普通的红色背景，而是旧世界终结的力量边界。' }),
   story({ slug: 'heimdall-and-loki', title: '海姆达尔、洛基与加拉尔号角', titleEn: 'Heimdall, Loki and Gjallarhorn', subtitle: '号角吹响最后的警报', summary: '海姆达尔吹响号角，最终与洛基相遇并在战斗中同归于尽。', volumeId: 'norse-ragnarok', volumeTitle: '诸神黄昏与世界再生', volumeOrder: 5, displayOrder: 5, source: sources.poetic, tradition: '诸神黄昏传统', characters: c('heimdall', 'loki'), worlds: w('asgard'), scenes: s('bifrost'), narrative: '海姆达尔的号角把末日从隐约预兆转为公共事件。彩虹桥成为守望、通行和最后冲突同时发生的窄地。' }),
-  story({ slug: 'ragnarok', title: '世界毁灭、回归与新生', titleEn: 'Destruction, Return and Renewal', subtitle: '火焰之后仍有世界', summary: '世界被火与海重塑，幸存者与归来的神祇重新开始生活。', volumeId: 'norse-ragnarok', volumeTitle: '诸神黄昏与世界再生', volumeOrder: 5, displayOrder: 6, source: sources.poetic, tradition: '诸神黄昏与再生传统', characters: c('vidarr', 'baldr', 'hodr', 'freyr'), worlds: w('midgard', 'asgard'), scenes: s('fimbulwinter-field'), narrative: '毁灭并不是北欧宇宙的唯一终点。火焰退去、土地重新显现，幸存者和归来的神祇让“再生”保留了损失之后的重量。' }),
-  story({ slug: 'sigurd-and-regin', title: '西格尔德与雷金', titleEn: 'Sigurd and Regin', subtitle: '英雄被锻造成命运的刀锋', summary: '西格尔德在雷金的引导下获得格拉墨，走进沃尔松格英雄传统。', volumeId: 'norse-volsung', volumeTitle: '沃尔松格英雄传统', volumeOrder: 6, displayOrder: 1, source: sources.volsung, tradition: '沃尔松格英雄传统', characters: c('sigurd'), worlds: w('midgard'), scenes: s('volsung-hall'), narrative: '沃尔松格故事把神话宇宙的英雄传统带入家族、锻造和复仇。西格尔德的身份由武器、师承和家族债务共同塑造。' }),
-  story({ slug: 'sigurd-kills-fafnir', title: '西格尔德斩杀法夫纳', titleEn: 'Sigurd Slays Fafnir', subtitle: '龙血与宝藏的危险知识', summary: '西格尔德在洞穴外设伏杀死法夫纳，获得宝藏却也继承诅咒。', volumeId: 'norse-volsung', volumeTitle: '沃尔松格英雄传统', volumeOrder: 6, displayOrder: 2, source: sources.volsung, tradition: '沃尔松格英雄传统', characters: c('sigurd', 'fafnir'), worlds: w('midgard'), scenes: s('volsung-hall'), narrative: '法夫纳不是天生的抽象恶龙，而是被贪欲转化的角色。西格尔德的胜利因此同时是屠龙、夺宝和进入诅咒网络。' }),
-  story({ slug: 'sigurd-and-brynhildr', title: '西格尔德与布伦希尔德', titleEn: 'Sigurd and Brynhildr', subtitle: '誓言穿过火焰边界', summary: '西格尔德与布伦希尔德的相遇和誓言为英雄传统埋下后续冲突。', volumeId: 'norse-volsung', volumeTitle: '沃尔松格英雄传统', volumeOrder: 6, displayOrder: 3, source: sources.volsung, tradition: '沃尔松格英雄传统', characters: c('sigurd', 'brynhildr'), worlds: w('midgard'), scenes: s('volsung-hall'), narrative: '布伦希尔德与西格尔德的关系以火焰、誓言和记忆为核心。它不是一个脱离传统的浪漫支线，而是家族政治与英雄声誉的关键节点。' }),
-  story({ slug: 'sigurds-death', title: '西格尔德之死', titleEn: 'The Death of Sigurd', subtitle: '英雄声名无法阻止背叛', summary: '西格尔德的死亡使誓言、婚姻与宝藏的冲突进入不可逆的结局。', volumeId: 'norse-volsung', volumeTitle: '沃尔松格英雄传统', volumeOrder: 6, displayOrder: 4, source: sources.volsung, tradition: '沃尔松格英雄传统', characters: c('sigurd', 'brynhildr'), worlds: w('midgard'), scenes: s('volsung-hall'), narrative: '西格尔德之死让英雄传统脱离单纯的胜利叙事。身份、误认、誓言和宝藏彼此交错，最终把声名转成哀悼。' }),
+  story({ slug: 'ragnarok', title: '世界毁灭、回归与新生', titleEn: 'Destruction, Return and Renewal', subtitle: '火焰之后仍有世界', summary: '世界被火与海重塑，幸存者与归来的神祇重新开始生活。', volumeId: 'norse-ragnarok', volumeTitle: '诸神黄昏与世界再生', volumeOrder: 5, displayOrder: 6, source: storySource('voluspa', 'st. 54–66'), tradition: '《女预言家之歌》诸神黄昏与再生传统', characters: c('vidarr', 'baldr', 'hodr'), worlds: w('midgard', 'asgard'), scenes: s('renewed-earth'), objects: ['object-norse-naglfar'], narrative: '毁灭并不是北欧宇宙的唯一终点。火焰退去、土地重新显现，幸存者和归来的神祇让“再生”保留了损失之后的重量。弗雷在与苏尔特的冲突中倒下，不列入此处的幸存者。' }),
+  story({ slug: 'sigurd-and-regin', title: '西格尔德与雷金', titleEn: 'Sigurd and Regin', subtitle: '英雄被锻造成命运的刀锋', summary: '西格尔德在雷金的引导下获得格拉墨，走进沃尔松格英雄传统。', kind: 'heroic-legend', volumeId: 'norse-volsung', volumeTitle: '沃尔松格英雄传统', volumeOrder: 6, displayOrder: 1, source: sources.volsung, tradition: '沃尔松格英雄传统', characters: c('sigurd'), worlds: w('midgard'), scenes: s('volsung-hall'), objects: ['object-norse-gram'], narrative: '沃尔松格故事把神话宇宙的英雄传统带入家族、锻造和复仇。西格尔德的身份由武器、师承和家族债务共同塑造。' }),
+  story({ slug: 'sigurd-kills-fafnir', title: '西格尔德斩杀法夫纳', titleEn: 'Sigurd Slays Fafnir', subtitle: '龙血与宝藏的危险知识', summary: '西格尔德在洞穴外设伏杀死法夫纳，获得宝藏却也继承诅咒。', kind: 'heroic-legend', volumeId: 'norse-volsung', volumeTitle: '沃尔松格英雄传统', volumeOrder: 6, displayOrder: 2, source: sources.volsung, tradition: '沃尔松格英雄传统', characters: c('sigurd', 'fafnir'), worlds: w('midgard'), scenes: s('volsung-hall'), objects: ['object-norse-gram', 'object-norse-andvaranaut'], narrative: '法夫纳不是天生的抽象恶龙，而是被贪欲转化的角色。西格尔德的胜利因此同时是屠龙、夺宝和进入诅咒网络。' }),
+  story({ slug: 'sigurd-and-brynhildr', title: '西格尔德与布伦希尔德', titleEn: 'Sigurd and Brynhildr', subtitle: '誓言穿过火焰边界', summary: '西格尔德与布伦希尔德的相遇和誓言为英雄传统埋下后续冲突。', kind: 'heroic-legend', volumeId: 'norse-volsung', volumeTitle: '沃尔松格英雄传统', volumeOrder: 6, displayOrder: 3, source: sources.volsung, tradition: '沃尔松格英雄传统', characters: c('sigurd', 'brynhildr'), worlds: w('midgard'), scenes: s('volsung-hall'), narrative: '布伦希尔德与西格尔德的关系以火焰、誓言和记忆为核心。它不是一个脱离传统的浪漫支线，而是家族政治与英雄声誉的关键节点。' }),
+  story({ slug: 'sigurds-death', title: '西格尔德之死', titleEn: 'The Death of Sigurd', subtitle: '英雄声名无法阻止背叛', summary: '西格尔德的死亡使誓言、婚姻与宝藏的冲突进入不可逆的结局。', kind: 'heroic-legend', volumeId: 'norse-volsung', volumeTitle: '沃尔松格英雄传统', volumeOrder: 6, displayOrder: 4, source: sources.volsung, tradition: '沃尔松格英雄传统', characters: c('sigurd', 'brynhildr'), worlds: w('midgard'), scenes: s('volsung-hall'), narrative: '西格尔德之死让英雄传统脱离单纯的胜利叙事。身份、误认、誓言和宝藏彼此交错，最终把声名转成哀悼。' }),
 ];

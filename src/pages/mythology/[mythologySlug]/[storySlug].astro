@@ -5,22 +5,26 @@ import {
   getPublicCharactersForMythology,
   getPublicMythologyById,
   getPublicMythologyBySlug,
+  getPublicMythicObjectById,
   getPublicWorldsForMythology,
 } from '../../../lib/content/public-catalog';
-import { getPublicStoryPaths, getStoriesForMythology, getStoryForMythology } from '../../../lib/content/stories';
+import { getPublicStoryPaths, getPublicStoryRedirectPaths, getStoriesForMythology, getStoryForMythology, getStoryRedirectForMythology } from '../../../lib/content/stories';
 import { getStoryIllustrationById } from '../../../data/story-illustrations';
 
 export const prerender = true;
 
 export function getStaticPaths() {
-  return getPublicStoryPaths().flatMap(({ mythologyId, slug }) => {
+  return [...getPublicStoryPaths(), ...getPublicStoryRedirectPaths()].flatMap(({ mythologyId, slug }) => {
     const mythology = getPublicMythologyById(mythologyId);
     return mythology ? [{ params: { mythologySlug: mythology.slug, storySlug: slug } }] : [];
   });
 }
 
 const mythology = getPublicMythologyBySlug(Astro.params.mythologySlug ?? '');
-const story = mythology ? getStoryForMythology(mythology.id, Astro.params.storySlug ?? '') : undefined;
+const requestedSlug = Astro.params.storySlug ?? '';
+const story = mythology ? getStoryForMythology(mythology.id, requestedSlug) : undefined;
+const redirectStory = mythology && !story ? getStoryRedirectForMythology(mythology.id, requestedSlug) : undefined;
+if (mythology && redirectStory) return Astro.redirect(`/mythology/${mythology.slug}/${redirectStory.slug}/`, 308);
 if (!mythology || !story) return Astro.redirect('/404');
 
 const stories = getStoriesForMythology(mythology.id);
@@ -37,6 +41,7 @@ const charactersById = new Map(characters.map((item) => [item.id, item]));
 const worldsById = new Map(worlds.map((item) => [item.id, item]));
 const relatedCharacters = story.characterIds.map((id) => charactersById.get(id)).filter(Boolean);
 const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Boolean);
+const relatedObjects = (story.objectIds ?? []).map((id) => getPublicMythicObjectById(id)).filter(Boolean);
 ---
 
 <BaseLayout
@@ -104,6 +109,7 @@ const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Bool
         <div class="story-link-grid">
           {relatedCharacters.map((character) => character && <a href={`/character/${character.slug}/`}><UserRound size={18} strokeWidth={1.8} aria-hidden="true" /><span><small>神灵</small><strong>{character.name}</strong></span></a>)}
           {relatedWorlds.map((world) => world && <a href={`/world/${world.slug}/`}><Landmark size={18} strokeWidth={1.8} aria-hidden="true" /><span><small>神域</small><strong>{world.name}</strong></span></a>)}
+          {relatedObjects.map((object) => object && <div class="story-object"><span><small>神话物件</small><strong>{object.name}</strong></span><p>{object.summary}</p></div>)}
         </div>
       </section>
 
@@ -159,6 +165,8 @@ const relatedWorlds = story.worldIds.map((id) => worldsById.get(id)).filter(Bool
   .story-links h2 { margin: 0 0 1rem; }
   .story-link-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
   .story-link-grid a { display: flex; align-items: center; gap: .7rem; padding: .9rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); }
+  .story-object { padding: .9rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-muted); color: var(--text-primary); }
+  .story-object small, .story-object strong { display: block; } .story-object small { color: var(--text-muted); font-size: .68rem; } .story-object p { margin: .45rem 0 0; color: var(--text-secondary); font-size: .8rem; line-height: 1.55; }
   .story-link-grid small, .story-link-grid strong { display: block; } .story-link-grid small { color: var(--text-muted); font-size: .68rem; }
   .story-sources summary { cursor: pointer; color: var(--text-primary); font-weight: 700; } .story-sources li, .story-sources p { color: var(--text-secondary); line-height: 1.7; }
   .story-sequence { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }

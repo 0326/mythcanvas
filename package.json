@@ -36,6 +36,7 @@
     "typecheck": "tsc --noEmit",
     "i18n:validate": "vitest run tests/i18n.test.ts",
     "content:validate": "vitest run tests/structured-content-contract.test.ts tests/greek-content.test.ts tests/norse-content.test.ts tests/maya-content.test.ts tests/japanese-content.test.ts tests/egyptian-content.test.ts tests/celtic-content.test.ts tests/aztec-content.test.ts tests/mesopotamian-content.test.ts",
+    "content:coverage:norse": "node scripts/report-norse-content-coverage.mjs --write",
     "content:import": "node scripts/sync-structured-content.mjs",
     "content:mirror:d1": "node scripts/sync-structured-content.mjs",
     "content:export-artworks": "node scripts/export-static-artworks.mjs",

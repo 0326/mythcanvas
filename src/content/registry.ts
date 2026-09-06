@@ -4,9 +4,11 @@ import type {
   CharacterInterpretation,
   CharacterName,
   ContentSource,
+  ContentRelation,
   ContentConcept,
   ContentClaim,
   MythStory,
+  MythicObject,
   Scene,
   TaxonomyTerm,
   StorySeriesManifest,
@@ -18,6 +20,8 @@ import { greekAssetProvenance } from './greek/assets';
 import { greekVisualTiers } from './greek/visual-tiers';
 import { norseCharacters, norseRelations, norseScenes, norseTaxonomy, norseWorlds } from './norse/catalog';
 import { norseStories } from './norse/stories';
+import { norseContentRelations, norseMythicObjects } from './norse/objects';
+import { norseSources } from './norse/sources';
 import { norseStorySeries } from './norse/series';
 import { norseAssetProvenance } from './norse/assets';
 import { norseVisualTiers } from './norse/visual-tiers';
@@ -58,6 +62,8 @@ export type StructuredMythologyBundle = {
   slug: string;
   characters: readonly Character[];
   relations: readonly CharacterRelation[];
+  contentRelations?: readonly ContentRelation[];
+  objects?: readonly MythicObject[];
   concepts?: readonly ContentConcept[];
   claims?: readonly ContentClaim[];
   names?: readonly CharacterName[];
@@ -91,6 +97,8 @@ const bundles: readonly StructuredMythologyBundle[] = [
     slug: 'norse',
     characters: norseCharacters,
     relations: norseRelations,
+    contentRelations: norseContentRelations,
+    objects: norseMythicObjects,
     taxonomy: norseTaxonomy,
     worlds: norseWorlds,
     scenes: norseScenes,
@@ -98,6 +106,7 @@ const bundles: readonly StructuredMythologyBundle[] = [
     series: norseStorySeries,
     assetProvenance: norseAssetProvenance,
     visualTiers: norseVisualTiers,
+    sources: norseSources,
   },
   {
     mythologyId: 'myth-maya',
@@ -212,6 +221,18 @@ export function getStructuredRelations(mythologyId?: string): readonly Character
   return mythologyId
     ? getStructuredMythologyBundle(mythologyId)?.relations ?? []
     : bundles.flatMap((bundle) => bundle.relations);
+}
+
+export function getStructuredMythicObjects(mythologyId?: string): readonly MythicObject[] {
+  return mythologyId
+    ? getStructuredMythologyBundle(mythologyId)?.objects ?? []
+    : bundles.flatMap((bundle) => bundle.objects ?? []);
+}
+
+export function getStructuredContentRelations(mythologyId?: string): readonly ContentRelation[] {
+  return mythologyId
+    ? getStructuredMythologyBundle(mythologyId)?.contentRelations ?? []
+    : bundles.flatMap((bundle) => bundle.contentRelations ?? []);
 }
 
 export function getStructuredWorlds(mythologyId?: string): readonly World[] {

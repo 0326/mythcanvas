@@ -1,4 +1,4 @@
-import type { Character, CharacterInterpretation, CharacterName, CharacterRelation, ContentClaim, ContentSource, Mythology, Scene, TaxonomyTerm, World } from './types';
+import type { Character, CharacterInterpretation, CharacterName, CharacterRelation, ContentClaim, ContentRelation, ContentSource, MythicObject, Mythology, Scene, TaxonomyTerm, World } from './types';
 import type { StructuredMythologyBundle } from '../../content/registry';
 import { validateMythStories, type StoryValidationIssue } from './story-validation';
 import { SUPPORTED_RELATION_TYPES } from './relation-semantics';
@@ -23,15 +23,16 @@ const hasLocator = (source: { locator?: string; section?: string }) => Boolean(s
 
 /** Stable Character types are shared across civilizations; taxonomy carries
  * culture-specific lineage, domain and editorial distinctions. */
-export const SUPPORTED_CHARACTER_TYPES = new Set(['deity', 'hero', 'mortal', 'monster', 'creature', 'collective']);
+export const SUPPORTED_CHARACTER_TYPES = new Set(['deity', 'hero', 'mortal', 'monster', 'creature', 'collective', 'mythic-being']);
 
 export function validateStructuredContent({ bundle, mythology, illustrations = storyIllustrations }: Input): StructuredContentIssue[] {
   const issues: StructuredContentIssue[] = [];
-  const { characters, worlds, scenes, stories, relations, taxonomy = [], concepts = [], claims = [], names = [], interpretations = [] } = bundle;
+  const { characters, worlds, scenes, stories, relations, contentRelations = [], objects = [], taxonomy = [], concepts = [], claims = [], names = [], interpretations = [] } = bundle;
   const characterIds = new Set(characters.map((item) => item.id));
   const conceptIds = new Set(concepts.map((item) => item.id));
   const worldIds = new Set(worlds.map((item) => item.id));
   const sceneIds = new Set(scenes.map((item) => item.id));
+  const objectIds = new Set(objects.map((item) => item.id));
   const taxonomySlugs = new Set(taxonomy.map((item) => item.slug));
   const interpretationIds = new Set(interpretations.map((item) => item.id));
   const storyIds = new Set(stories.map((item) => item.id));
@@ -62,6 +63,7 @@ export function validateStructuredContent({ bundle, mythology, illustrations = s
 
   bundle.sources?.forEach((source) => recordSource(source, `sources.${source.sourceId}`));
   characters.forEach((item) => item.sourceRefs?.forEach((source) => recordSource(source, `character.${item.id}`)));
+  objects.forEach((item) => item.sourceRefs.forEach((source) => recordSource(source, `object.${item.id}`)));
   concepts.forEach((item) => item.sourceRefs.forEach((source) => recordSource(source, `concept.${item.id}`)));
   relations.forEach((item) => item.sourceRefs.forEach((source) => recordSource(source, `relation.${item.id}`)));
   names.forEach((item) => item.sourceRefs.forEach((source) => recordSource(source, `name.${item.id}`)));
@@ -77,6 +79,8 @@ export function validateStructuredContent({ bundle, mythology, illustrations = s
   for (const slug of duplicateValues(characters.map((item) => item.slug))) issues.push({ category: 'entity', field: 'character.slug', message: `Duplicate Character slug: ${slug}` });
   for (const slug of duplicateValues(worlds.map((item) => item.slug))) issues.push({ category: 'entity', field: 'world.slug', message: `Duplicate World slug: ${slug}` });
   for (const slug of duplicateValues(scenes.map((item) => item.slug))) issues.push({ category: 'entity', field: 'scene.slug', message: `Duplicate Scene slug: ${slug}` });
+  for (const id of duplicateValues(objects.map((item) => item.id))) issues.push({ category: 'entity', field: 'object.id', message: `Duplicate MythicObject id: ${id}` });
+  for (const slug of duplicateValues(objects.map((item) => item.slug))) issues.push({ category: 'entity', field: 'object.slug', message: `Duplicate MythicObject slug: ${slug}` });
 
   const validateCharacter = (item: Character) => {
     if (item.mythologyId !== mythology.id) issues.push({ category: 'entity', field: 'character.mythologyId', message: `${item.id} belongs to another Mythology.` });
@@ -103,7 +107,7 @@ export function validateStructuredContent({ bundle, mythology, illustrations = s
   });
   claims.forEach((claim: ContentClaim) => {
     if (!claim.id || !claim.summary || !claim.sourceRefs.length || claim.sourceRefs.some((ref) => !hasLocator(ref))) issues.push({ category: 'entity', field: 'claim.source', message: `${claim.id} needs a summary and located source.` });
-    if (!claimSubjectExists(claim, { characterIds, conceptIds, worldIds, sceneIds, storyIds, relationIds: new Set(relations.map((item) => item.id)) })) issues.push({ category: 'entity', field: 'claim.subject', message: `${claim.id} references an unknown ${claim.subjectType} subject ${claim.subjectId}.` });
+    if (!claimSubjectExists(claim, { characterIds, conceptIds, worldIds, sceneIds, objectIds, storyIds, relationIds: new Set(relations.map((item) => item.id)) })) issues.push({ category: 'entity', field: 'claim.subject', message: `${claim.id} references an unknown ${claim.subjectType} subject ${claim.subjectId}.` });
   });
   worlds.forEach((item: World) => {
     if (item.mythologyId !== mythology.id || !item.summary || !item.canonicalDesign.anchors.length) issues.push({ category: 'entity', field: 'world.production', message: `${item.id} is missing World identity data.` });
@@ -111,6 +115,15 @@ export function validateStructuredContent({ bundle, mythology, illustrations = s
   });
   scenes.forEach((item: Scene) => {
     if (item.worldId && !worldIds.has(item.worldId)) issues.push({ category: 'entity', field: 'scene.worldId', message: `${item.id} references unknown World ${item.worldId}.` });
+  });
+  objects.forEach((item: MythicObject) => {
+    if (item.mythologyId !== mythology.id || !item.name || !item.summary || !item.objectType || !item.sourceRefs.length || !item.canonicalDesign.anchors.length || !item.canonicalDesign.originalDesignChoices?.length) {
+      issues.push({ category: 'entity', field: 'object.production', message: `${item.id} is missing MythicObject identity, source or Canonical Design data.` });
+    }
+    if (item.sourceRefs.some((source) => !hasLocator(source))) issues.push({ category: 'entity', field: 'object.source', message: `${item.id} needs a source locator or section.` });
+    item.traditionTags?.forEach((tag) => {
+      if (!taxonomySlugs.has(tag)) issues.push({ category: 'taxonomy', field: 'object.traditionTags', message: `${item.id} references unregistered taxonomy ${tag}.` });
+    });
   });
   concepts.forEach((item) => {
     if (item.mythologyId !== mythology.id || !item.name || !item.summary || item.sourceRefs.length === 0) {
@@ -144,13 +157,26 @@ export function validateStructuredContent({ bundle, mythology, illustrations = s
     assertions.add(key);
   });
 
-  validateMythStories({ stories, mythologies: [mythology], characters, worlds, scenes, illustrations }).forEach((issue) => issues.push({ ...issue, category: 'story' }));
+  const hasContentEntity = (endpoint: ContentRelation['from']): boolean => {
+    if (endpoint.type === 'character') return characterIds.has(endpoint.id);
+    if (endpoint.type === 'world') return worldIds.has(endpoint.id);
+    if (endpoint.type === 'scene') return sceneIds.has(endpoint.id);
+    if (endpoint.type === 'mythic-object') return objectIds.has(endpoint.id);
+    if (endpoint.type === 'concept') return conceptIds.has(endpoint.id);
+    return storyIds.has(endpoint.id);
+  };
+  contentRelations.forEach((relation) => {
+    if (relation.mythologyId !== mythology.id || !hasContentEntity(relation.from) || !hasContentEntity(relation.to)) issues.push({ category: 'relation', field: 'contentRelation.endpoint', message: `${relation.id} has an invalid endpoint or Mythology.` });
+    if (!relation.relationType || !relation.sourceRefs.length || relation.sourceRefs.some((source) => !hasLocator(source))) issues.push({ category: 'relation', field: 'contentRelation.source', message: `${relation.id} needs a relation type and located source.` });
+  });
+
+  validateMythStories({ stories, mythologies: [mythology], characters, worlds, scenes, objects, illustrations }).forEach((issue) => issues.push({ ...issue, category: 'story' }));
   stories.forEach((story) => {
     story.sources.forEach((source, index) => {
       if (story.publishStatus === 'published' && story.requiredSourceIds?.length && !hasLocator(source)) issues.push({ category: 'story', storyId: story.id, field: `sources.${index}.locator`, message: 'Closure-managed published Stories require a locator or section for every attached source.' });
     });
     story.claims?.forEach((claim) => {
-      if (!claimSubjectExists(claim, { characterIds, conceptIds, worldIds, sceneIds, storyIds, relationIds: new Set(relations.map((item) => item.id)) })) issues.push({ category: 'story', storyId: story.id, field: 'claims.subject', message: `${claim.id} references an unknown ${claim.subjectType} subject ${claim.subjectId}.` });
+      if (!claimSubjectExists(claim, { characterIds, conceptIds, worldIds, sceneIds, objectIds, storyIds, relationIds: new Set(relations.map((item) => item.id)) })) issues.push({ category: 'story', storyId: story.id, field: 'claims.subject', message: `${claim.id} references an unknown ${claim.subjectType} subject ${claim.subjectId}.` });
     });
   });
   return issues;
@@ -158,14 +184,15 @@ export function validateStructuredContent({ bundle, mythology, illustrations = s
 
 function claimSubjectExists(
   claim: ContentClaim,
-  ids: { characterIds: ReadonlySet<string>; conceptIds: ReadonlySet<string>; worldIds: ReadonlySet<string>; sceneIds: ReadonlySet<string>; storyIds: ReadonlySet<string>; relationIds: ReadonlySet<string> },
+  ids: { characterIds: ReadonlySet<string>; conceptIds: ReadonlySet<string>; worldIds: ReadonlySet<string>; sceneIds: ReadonlySet<string>; objectIds: ReadonlySet<string>; storyIds: ReadonlySet<string>; relationIds: ReadonlySet<string> },
 ): boolean {
   if (claim.subjectType === 'character') return ids.characterIds.has(claim.subjectId);
   if (claim.subjectType === 'world') return ids.worldIds.has(claim.subjectId);
   if (claim.subjectType === 'scene') return ids.sceneIds.has(claim.subjectId);
+  if (claim.subjectType === 'mythic-object') return ids.objectIds.has(claim.subjectId);
   if (claim.subjectType === 'story') return ids.storyIds.has(claim.subjectId);
   if (claim.subjectType === 'relation') return ids.relationIds.has(claim.subjectId);
-  return ids.characterIds.has(claim.subjectId) || ids.conceptIds.has(claim.subjectId) || ids.worldIds.has(claim.subjectId) || ids.sceneIds.has(claim.subjectId) || ids.storyIds.has(claim.subjectId);
+  return ids.characterIds.has(claim.subjectId) || ids.conceptIds.has(claim.subjectId) || ids.worldIds.has(claim.subjectId) || ids.sceneIds.has(claim.subjectId) || ids.objectIds.has(claim.subjectId) || ids.storyIds.has(claim.subjectId);
 }
 
 export function assertValidStructuredContent(input: Input): void {

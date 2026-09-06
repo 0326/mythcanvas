@@ -184,7 +184,7 @@ type MythStory = {
   title: string;
   subtitle?: string;
   summary: string;
-  kind: 'myth' | 'folk-legend' | 'religious-tradition' | 'literary-fantasy';
+  kind: 'myth' | 'folk-legend' | 'religious-tradition' | 'literary-fantasy' | 'heroic-legend';
   volumeId: string;
   volumeTitle: string;
   blocks: MythStoryBlock[];
@@ -192,6 +192,10 @@ type MythStory = {
   characterIds: string[];
   worldIds: string[];
   sceneIds?: string[];
+  objectIds?: string[];
+  legacySlugs?: string[];
+
+  editorialStatus?: 'prototype' | 'source-reviewed' | 'dependency-complete' | 'published';
 
   readingMinutes?: number;
   tradition?: string;
@@ -226,6 +230,12 @@ type StoryIllustrationAsset = {
   artworkId?: string;
 };
 ```
+
+### 4.6 MythicObject and source-scoped content relations
+
+`MythicObject` represents a named persistent artifact (for example Mjölnir or Hringhorni), independent from a Story body or a Character. `ContentRelation` is the shared, source-scoped edge model for relations among Characters, Worlds, Scenes, Concepts and MythicObjects. Both are versioned static content when published; D1 mirrors must not become a public-page dependency.
+
+Every public source citation uses the shared `ContentSource` registry plus a `SourceRef` locator. The registry records source family, witness/manuscript context, region and evidence role so poem, prose, skaldic, material-culture and scholarly evidence are not flattened into one generic bibliography field.
 
 `MythStory` is the content model for a specific **故事 / 传说** under a Mythology system. It is not the entity behind the user-facing **神话** Tab.
 
