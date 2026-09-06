@@ -1,0 +1,39 @@
+{
+  "schemaVersion":"4.0",
+  "cardId":1003010001,
+  "categoryCode":10,
+  "mythologyCode":3,
+  "seriesCode":1,
+  "seriesLabel":"M01",
+  "styleCode":0,
+  "styleName":"Primordial Saga",
+  "cardNumber":1,
+  "type":"character",
+  "slug":"ymir",
+  "titleZh":"尤弥尔",
+  "titleEn":"Ymir",
+  "description":"冰火交界中诞生的原初巨人，是巨人谱系与创世材料的起点。",
+  "fullDescription":"尤弥尔诞生于世界形成之前的金伦加鸿沟。寒冷的霜气与穆斯贝尔的热力在混沌中相遇，融霜滴水获得生命，原初巨人由此出现。他在这一阶段尚未死亡，因此画面中不能出现由其身体后来形成的大地、山川、海洋与天空；这些属于后续‘尤弥尔之躯化为世界’的故事阶段。尤弥尔必须被表现为足以在死后成为世界材料的超巨型原初存在。",
+  "roleInSeries":"建立M01最重要的原初生命主体，并锁定创世前世界尚未形成的视觉Canon。",
+  "storyIds":["story-ymir-creation"],
+  "characterIds":["character-ymir"],
+  "sceneIds":["scene-ginnungagap"],
+  "sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–8","note":"创世前的冰火相遇、尤弥尔诞生与后续世界材料叙事。"}],
+  "seriesNarrative":null,
+  "visualThesis":"创世前的尤弥尔必须像一个足以在死后化为世界的原初巨物：几乎完整的巨大人形从冰霜与火焰交汇的宇宙混沌中出现，主体尺度压倒一切，但背景仍保持无大地、无山川、无河流、无成熟天空的未成形状态。",
+  "composition":{
+    "orientation":"portrait",
+    "subjectAnchor":{"x":0.5,"y":0.28},
+    "cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.14,"mustRemainVisible":["Ymir face","upper torso","at least one giant hand","ice-fire primordial contrast"]}
+  },
+  "prompt":{
+    "draft":"Ymir as a primordial world-scale giant born where frost and fire meet in Ginnungagap, before the world exists.",
+    "final":"Create a vertical 9:16 mythological wallpaper of Ymir BEFORE the creation of the world. Depict Ymir as a primordial giant so colossal that his eventual corpse could plausibly become the material of the world. Use an extreme low-angle, worm's-eye composition and show almost his entire body: his ancient face high in the upper part of the frame, a vast chest and torso dominating the center, enormous arms and hands extending toward the viewer, and massive legs descending into primordial vapor. He should feel titanically larger than any later landscape, like a mythic world-sized being rather than a normal giant or a game boss. IMPORTANT MYTHOLOGICAL STATE: Ymir is still alive, so the world has NOT yet been made from his body. There must be NO mountains, NO land, NO rivers, NO seas, NO forests, NO cities, NO horizon, NO formed Earth, and NO ordinary blue sky. The environment is Ginnungagap in an unformed cosmic-chaos state. On one side, show broad blue-white masses of freezing frost, icy vapor, cold currents and melting rime associated with Niflheim. On the opposite side, show broad deep orange-red masses of primordial flame, incandescent heat and turbulent fire associated with Muspell. Between them is a dark, formless void where cold and heat collide and create the conditions for life. The background must read as abstract primordial ice-and-fire chaos, not as a finished landscape. Ymir's body should emerge from that collision: huge human-like giant anatomy, ancient gray-blue flesh with restrained frost along edges, long pale frost-laden hair and beard, severe timeless face, bare monumental torso, with the lower body modestly obscured by mist, frost and heat vapor where needed. Keep the anatomy massive and believable, but avoid exaggerated bodybuilder proportions. Make Ymir the single dominant visual subject and keep him noticeably sharper, higher-contrast and more readable than the background. Use the ice and fire as large simple environmental masses rather than filling every area with micro-detail. The image should feel monumental and shocking in scale, with a giant-object / colossal-titan effect, but still solemn and mythological. Art direction: painterly mythic illustration, matte surfaces, broad readable shapes, restrained detail, natural imperfect brush-like edges, limited focal sharpness, strong atmospheric depth, clear subject/background separation, dramatic blue-white cold light from one side and ember-orange warm light from the other. Preserve future card crop safety: the face and upper torso must stay safely in the upper half; hands and key anatomy should remain above the lower sacrificial zone; the bottom 30 percent may be cropped later without losing Ymir's identity. No typography, no title, no logo, no watermark, no card frame, no runes, no armor, no weapons, no Earth, no planet, no mountains, no rivers, no vegetation, no architecture, no decorative starfield, no galaxy wallpaper, no floating-debris overload, no glossy game-CG finish, no hyper-detailed-everything.",
+    "negative":["typography","logo","card frame","watermark","runes","armor","weapons","formed Earth","mountains","landscape","rivers","sea","forest","city","ordinary sky","decorative starfield","galaxy wallpaper","floating debris overload","glossy game-CG","hyper-detailed background"],
+    "notes":"2026-09-07 用户确认该视觉方向正确。后续重画必须保持‘尤弥尔活着时世界尚未形成，只存在冰霜+火焰的宇宙混沌’这一核心条件。"
+  },
+  "references":{"cardIds":[],"notes":"Approved visual reference was confirmed in chat. User will save the image externally as 1003010001.png."},
+  "generation":{"status":"approved","attempt":4,"approvedAt":"2026-09-07","referenceImageFile":"1003010001.png","notes":"前三版分别存在背景已形成世界、主体尺度不足或构图错误；第4版以冰霜+火焰的原初混沌和超巨型完整主体获得确认。"},
+  "output":{"fileName":"1003010001.png","width":1620,"height":2880,"format":"png"},
+  "qa":{"status":"approved","reviewNotes":["主体具备世界级巨物尺度","创世前背景不出现山川大地河流","冰霜与火焰形成清晰两极","主体与背景有明显层级","后续图片确认后必须同步更新对应 JSON 的 prompt.final"]}
+}
