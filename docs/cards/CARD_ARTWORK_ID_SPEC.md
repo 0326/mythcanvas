@@ -1,341 +1,336 @@
 # MythCanvas Card Artwork 10 位数字卡号规范
 
 > 状态：Normative  
-> 版本：V2.0  
+> 版本：V2.1  
 > 日期：2026-09-06
 
 ---
 
 # 1. 目标
 
-所有 MythCanvas 卡片视觉资产统一使用 **10 位纯数字卡号**，便于：
-
-- 文件查找；
-- 排序；
-- 数据库索引；
-- 批量生成；
-- 跨神话 / 系列 / 风格去重；
-- 后续实体卡、扑克牌、塔罗牌等不同产品统一管理。
-
-统一结构：
+所有 MythCanvas 卡片视觉资产统一使用 **10 位纯数字 Card ID**：
 
 ```text
 CC MM SS TT NN
 ```
 
-实际存储时不加空格：
+实际不加空格：
 
 ```text
-0003010001
+1003010001
 ```
 
-其中每一段固定 **2 位数字**。
+每段固定 2 位：
 
-> 卡号必须作为 **10 位字符串** 存储，不能作为整数存储，否则前导 `00` 会丢失。
+- `CC`：Category / 卡牌类别；
+- `MM`：Mythology / 神话体系；
+- `SS`：Series / 系列、第几弹；
+- `TT`：Style / 壁纸风格；
+- `NN`：Card No. / 系列内卡牌编号。
 
-推荐数据类型：`CHAR(10)` / `VARCHAR(10)` / JSON string。
+这一个 10 位 Card ID 即为最终唯一资产 ID，不再额外维护 Content Key。
 
 ---
 
-# 2. 五段定义
+# 2. 为什么 Category 从 10 开始
 
-以 M01 第 1 张、当前默认风格为例：
+Category 正式业务编号从 `10` 起。
 
 ```text
-0003010001
-│ │ │ │ └─ 01  Card No. / 卡牌编号
-│ │ │ └─── 00  Style / 壁纸风格
-│ │ └───── 01  Series / 系列、第几弹
-│ └─────── 03  Mythology / 神话体系
-└───────── 00  Category / 卡牌类别
+00–09  保留给系统 / 实验 / 未来基础命名空间
+10     收藏卡 Collectible Card
+11+    后续扑克牌 / 塔罗牌 / 其他卡牌品类按 Registry 分配
 ```
 
-| 段 | 位数 | 示例 | 含义 |
+这样正式 Card ID 的首位不会是 `0`，因此：
+
+- 数据库可以直接使用 `BIGINT`；
+- JSON 可以直接使用 number / integer；
+- 前端 JavaScript `Number` 可安全表示 10 位整数；
+- 无需为了保留前导零强制把完整 Card ID 存成字符串。
+
+> 不使用 32 位 `INT`。10 位 Card ID 可能超过 `2,147,483,647`，数据库统一使用 `BIGINT`。
+
+---
+
+# 3. 五段定义
+
+以北欧 M01 默认风格第 1 张为例：
+
+```text
+1003010001
+│ │ │ │ └─ 01  Card No.
+│ │ │ └─── 00  Style
+│ │ └───── 01  Series
+│ └─────── 03  Mythology
+└───────── 10  Category
+```
+
+| 段 | 位数 | 当前示例 | 含义 |
 |---|---:|---:|---|
-| Category | 2 | `00` | 卡牌类别：收藏卡 / 扑克牌 / 塔罗牌等 |
-| Mythology | 2 | `03` | 神话体系 |
-| Series | 2 | `01` | 同一类别 + 神话体系下的系列 / 第几弹 |
-| Style | 2 | `00` | 该内容卡的视觉风格 Edition |
-| Card No. | 2 | `01` | 系列内卡牌内容编号 |
+| Category | 2 | `10` | 收藏卡 |
+| Mythology | 2 | `03` | 北欧神话 |
+| Series | 2 | `01` | M01《北欧创世》 |
+| Style | 2 | `00` | 当前默认风格 |
+| Card No. | 2 | `01` | 第 1 张 |
 
-完整正则：
+Card ID 构造规则：
 
-```regex
-^[0-9]{10}$
+```text
+pad2(category)
++ pad2(mythology)
++ pad2(series)
++ pad2(style)
++ pad2(cardNo)
 ```
 
-解析正则：
+示例：
 
-```regex
-^([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$
+```text
+10 + 03 + 01 + 00 + 01 = 1003010001
 ```
 
 ---
 
-# 3. 当前已登记代码
+# 4. 当前 Registry
 
-## 3.1 Category Registry
+## 4.1 Category Registry
 
 | Code | 类别 | English | 状态 |
-|---|---|---|---|
-| `00` | 收藏卡 | Collectible Card | 已登记 |
+|---:|---|---|---|
+| `10` | 收藏卡 | Collectible Card | 已登记 |
 
-后续扑克牌、塔罗牌等从 `01` 起按 Registry 分配，不允许临时复用。
+`00–09` 保留，不分配正式商品类别。
 
-## 3.2 Mythology Registry
+## 4.2 Mythology Registry
 
 | Code | 神话体系 | English | 状态 |
-|---|---|---|---|
+|---:|---|---|---|
 | `03` | 北欧神话 | Norse Mythology | 已登记 |
 
 其他神话体系必须登记后使用。
 
-## 3.3 Series Registry — 北欧收藏卡
+## 4.3 Series Registry — 北欧收藏卡
 
 | Code | 逻辑系列 | 名称 | 状态 |
-|---|---|---|---|
+|---:|---|---|---|
 | `01` | M01 | 北欧创世：世界树与命运 | 已登记 |
 
-`M01` 继续作为人类可读的产品系列标签；卡号内部只使用数字 `01`。
+`M01` 继续作为人类可读标签；Card ID 内只使用数字 `01`。
 
-后续 M02 / M03 / M04 / H01 / H02 等必须在 Registry 中分配稳定的两位数字 Series Code。Series Code 一旦有正式资产不得改义。
-
-## 3.4 Style Registry
+## 4.4 Style Registry
 
 | Code | 风格 | English | 状态 |
-|---|---|---|---|
+|---:|---|---|---|
 | `00` | 当前默认风格 | Default / Canonical Style | 已登记 |
 
-M01 当前默认风格的 Art Direction 名称仍可使用：
+M01 当前 `00` 对应 Art Direction：
 
 > **原初史诗 / Primordial Saga**
 
-但 ID 中只记录风格代码 `00`。
-
-后续其他 Style 使用 `01–99`，必须先登记后使用。
+风格名称保存在 metadata / JSON 中，Card ID 只保存两位数字 Style Code。
 
 ---
 
-# 4. M01 示例
-
-当前定义：
+# 5. M01 Card ID 范围
 
 ```text
-Category   = 00  收藏卡
-Mythology  = 03  北欧
-Series     = 01  M01
-Style      = 00  默认风格 / Primordial Saga
-Card No.   = 01  第 1 张
-```
-
-最终卡号：
-
-```text
-0003010001
-```
-
-第 2 张：
-
-```text
-0003010002
-```
-
-第 50 张：
-
-```text
-0003010050
-```
-
-同一内容卡未来换 Style `01`：
-
-```text
-0003010101
-```
-
-这仍然是 M01 的第 01 张内容卡，只是视觉风格不同。
-
----
-
-# 5. 内容身份与具体 Artwork 身份
-
-最终 **10 位 Card ID** 是具体风格 Artwork 的全局唯一卡号：
-
-```text
-0003010001
-```
-
-为了识别“不同 Style 下其实是同一个内容卡”，内部额外定义 **8 位 Content Key**：
-
-```text
-CC MM SS NN
-```
-
-即跳过 Style：
-
-```text
-00030101
-```
-
-对于第 01 张 Ymir：
-
-```text
-Content Key     00030101
-Style 00 Card   0003010001
-Style 01 Card   0003010101
+Category   = 10
+Mythology  = 03
+Series     = 01
+Style      = 00
+Card No.   = 01–50
 ```
 
 因此：
 
-- `contentKey` 跨 Style 稳定；
-- `cardId` / `artworkId` 包含 Style，全球唯一；
-- 换 Style 不改变 Card No.；
-- 重画 / Prompt Version 不改变 10 位卡号。
+```text
+第 01 张  1003010001
+第 02 张  1003010002
+...
+第 50 张  1003010050
+```
+
+同一内容卡换 Style `01`：
+
+```text
+默认风格 00：1003010001
+新风格   01：1003010101
+```
+
+两者内容主题相同，只是 Style 不同。
 
 ---
 
-# 6. 各段分配规则
+# 6. 不再维护 Content Key
 
-## Category
+不再保存独立 8 位 Content Key。
 
-```text
-00–99
-```
-
-由全局 Category Registry 管理。
-
-## Mythology
+同一内容卡跨 Style 的稳定身份直接由以下四个字段决定：
 
 ```text
-00–99
+Category + Mythology + Series + Card No.
 ```
 
-由全局 Mythology Registry 管理；同一个数字不得对应两个神话体系。
-
-## Series
+例如：
 
 ```text
-00–99
+1003010001
+1003010101
+1003010201
 ```
 
-Series Code 在 `Category + Mythology` 范围内唯一。人类可读标签（如 `M01`、`H01`）保留在 metadata，不进入 10 位数字卡号。
-
-## Style
+解析后均为：
 
 ```text
-00–99
+Category   10
+Mythology  03
+Series     01
+Card No.   01
 ```
 
-`00` 保留给当前默认 / Canonical Style。其他 Style 必须登记。
+所以它们天然属于同一个内容卡位。
 
-## Card No.
+数据库需要查询“同一内容的所有 Style”时，直接使用复合条件 / 复合索引：
 
 ```text
-01–99
+(category_code, mythology_code, series_code, card_number)
 ```
 
-原则上每套控制在 50 张以内，因此两位足够。
-
-规则：
-
-- `01` 起编号；
-- 不因 Style 改变；
-- 不因重新出图改变；
-- 不因 Prompt Version 改变；
-- approved 后原则上不重排；
-- 被废弃的正式编号保留迁移记录，不静默换给其他内容。
-
-`00` 不分配给实际卡牌内容，保留作为系统 / 系列级特殊槽位的未来扩展空间。
+不为此复制一份 Content Key 字段。
 
 ---
 
-# 7. 文件命名
+# 7. 数字存储规则
 
-图片和 JSON 直接使用 10 位卡号：
+## 7.1 完整 Card ID
 
-```text
-0003010001.png
-0003010001.json
-```
-
-推荐目录仍使用可读名称，文件名使用数字 ID：
+数据库：
 
 ```text
-artifacts/cards/norse/m01/style-00/
-└── 0003010001/
-    ├── 0003010001.png
-    └── 0003010001.json
+BIGINT
 ```
 
-目录名不参与唯一性判断，**唯一身份只认 10 位卡号**。
+JSON：
 
----
+```json
+"cardId": 1003010001
+```
 
-# 8. JSON 建议字段
+前端 JS/TS：
+
+```text
+number
+```
+
+10 位数远低于 JavaScript 安全整数上限 `Number.MAX_SAFE_INTEGER`。
+
+## 7.2 分段字段
+
+分段字段也使用数字：
 
 ```json
 {
-  "cardId": "0003010001",
-  "contentKey": "00030101",
-  "categoryCode": "00",
-  "mythologyCode": "03",
-  "seriesCode": "01",
-  "seriesLabel": "M01",
-  "styleCode": "00",
-  "styleName": "Primordial Saga",
-  "cardNumber": "01"
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "styleCode": 0,
+  "cardNumber": 1
 }
 ```
 
-所有 code 字段必须是字符串，不得写成数字：
+显示或拼接 Card ID 时统一执行 `pad2`：
 
-```json
-"categoryCode": "00"
+```text
+3  → "03"
+1  → "01"
+0  → "00"
 ```
 
-而不是：
+因此“用数字存储”与“两位分段编码”不冲突。
+
+---
+
+# 8. 文件命名
+
+图片和 JSON 文件名直接使用 Card ID：
+
+```text
+1003010001.png
+1003010001.json
+```
+
+推荐目录：
+
+```text
+artifacts/cards/norse/m01/style-00/
+└── 1003010001/
+    ├── 1003010001.png
+    └── 1003010001.json
+```
+
+文件系统中的文件名当然是文本，但其中的唯一业务标识就是数字 Card ID。
+
+---
+
+# 9. JSON 建议字段
 
 ```json
-"categoryCode": 0
+{
+  "cardId": 1003010001,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 1
+}
+```
+
+不再存在：
+
+```text
+contentKey
 ```
 
 ---
 
-# 9. 唯一性 Gate
+# 10. 唯一性与解析 Gate
 
 正式资产必须满足：
 
 ```text
-cardId 长度 == 10
-cardId 仅包含 0–9
+cardId 为 10 位十进制正整数
 cardId 全局唯一
-文件名 == JSON.cardId
-JSON.contentKey == category + mythology + series + cardNumber
-JSON.cardId == category + mythology + series + style + cardNumber
-JSON.categoryCode == cardId[0:2]
-JSON.mythologyCode == cardId[2:4]
-JSON.seriesCode == cardId[4:6]
-JSON.styleCode == cardId[6:8]
-JSON.cardNumber == cardId[8:10]
+文件名数字部分 == JSON.cardId
+categoryCode == 前 2 位
+mythologyCode == 第 3–4 位
+seriesCode == 第 5–6 位
+styleCode == 第 7–8 位
+cardNumber == 第 9–10 位
 ```
+
+程序解析时先将 `cardId` 转成 10 位十进制文本，再按 2 位切分。
 
 M01 当前合法范围：
 
 ```text
-0003010001
+1003010001
 ...
-0003010050
+1003010050
 ```
 
 ---
 
-# 10. 版本与重画
+# 11. 版本与重画
 
-生成尝试次数、Prompt Version、模型版本不进入卡号。
+生成尝试次数、Prompt Version、模型版本不进入 Card ID。
 
 同一张卡第 4 次重画仍然是：
 
 ```text
-0003010001
+1003010001
 ```
 
 JSON 记录：
@@ -348,4 +343,4 @@ JSON 记录：
 }
 ```
 
-只有 Category / Mythology / Series / Style / Card No. 任一业务身份真正发生变化，才产生新的 10 位卡号。
+只有 Category / Mythology / Series / Style / Card No. 任一业务身份真正变化，才生成新的 10 位 Card ID。
