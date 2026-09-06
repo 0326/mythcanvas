@@ -1,217 +1,68 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://mythcanvas.local/schemas/norse/m01/artwork.schema.json",
-  "title": "MythCanvas M01 Card Artifact",
+  "title": "MythCanvas M01 Planned Card Data",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schemaVersion",
-    "cardId",
-    "categoryCode",
-    "mythologyCode",
-    "seriesCode",
-    "seriesLabel",
-    "styleCode",
-    "styleName",
-    "cardNumber",
-    "type",
-    "slug",
-    "titleZh",
-    "titleEn",
-    "cardDescription",
-    "content",
-    "seriesNarrative",
-    "canon",
-    "visual",
-    "composition",
-    "prompt",
-    "references",
-    "output",
-    "generation",
-    "qa"
+    "schemaVersion","cardId","categoryCode","mythologyCode","seriesCode","seriesLabel","styleCode","styleName","cardNumber","type","slug","titleZh","titleEn","cardDescription","content","seriesNarrative","visual","composition","prompt","specRef","output","qa"
   ],
   "properties": {
-    "schemaVersion": { "type": "string", "const": "3.0" },
-    "cardId": { "type": "integer", "minimum": 1003010001, "maximum": 1003019950 },
-    "categoryCode": { "type": "integer", "const": 10 },
-    "mythologyCode": { "type": "integer", "const": 3 },
-    "seriesCode": { "type": "integer", "const": 1 },
-    "seriesLabel": { "type": "string", "const": "M01" },
-    "styleCode": { "type": "integer", "minimum": 0, "maximum": 99 },
-    "styleName": { "type": "string", "minLength": 1 },
-    "cardNumber": { "type": "integer", "minimum": 1, "maximum": 50 },
-    "type": { "type": "string", "enum": ["character", "scene", "story", "mythic-object", "ensemble"] },
-    "slug": { "type": "string", "minLength": 1 },
-    "titleZh": { "type": "string", "minLength": 1 },
-    "titleEn": { "type": "string", "minLength": 1 },
+    "schemaVersion": {"type":"string","const":"3.1"},
+    "cardId": {"type":"integer","minimum":1003010001,"maximum":1003019950},
+    "categoryCode": {"type":"integer","const":10},
+    "mythologyCode": {"type":"integer","const":3},
+    "seriesCode": {"type":"integer","const":1},
+    "seriesLabel": {"type":"string","const":"M01"},
+    "styleCode": {"type":"integer","minimum":0,"maximum":99},
+    "styleName": {"type":"string","minLength":1},
+    "cardNumber": {"type":"integer","minimum":1,"maximum":50},
+    "type": {"type":"string","enum":["character","scene","story","mythic-object","ensemble"]},
+    "slug": {"type":"string","minLength":1},
+    "titleZh": {"type":"string","minLength":1},
+    "titleEn": {"type":"string","minLength":1},
     "cardDescription": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["short", "full", "roleInSeries"],
-      "properties": {
-        "short": { "type": "string", "minLength": 1 },
-        "full": { "type": "string", "minLength": 1 },
-        "roleInSeries": { "type": "string", "minLength": 1 }
-      }
+      "type":"object","additionalProperties":false,"required":["short","full","roleInSeries"],
+      "properties":{"short":{"type":"string"},"full":{"type":"string"},"roleInSeries":{"type":"string"}}
     },
     "content": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["storyIds", "characterIds", "worldIds", "sceneIds", "objectIds", "sourceRefs"],
+      "type":"object","additionalProperties":false,"required":["storyIds","characterIds","worldIds","sceneIds","objectIds","sourceRefs"],
       "properties": {
-        "storyIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "characterIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "worldIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "sceneIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "objectIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "sourceRefs": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["sourceId", "locator"],
-            "properties": {
-              "sourceId": { "type": "string", "minLength": 1 },
-              "locator": { "type": "string", "minLength": 1 },
-              "note": { "type": ["string", "null"] }
-            }
-          }
-        }
+        "storyIds":{"type":"array","items":{"type":"string"}},
+        "characterIds":{"type":"array","items":{"type":"string"}},
+        "worldIds":{"type":"array","items":{"type":"string"}},
+        "sceneIds":{"type":"array","items":{"type":"string"}},
+        "objectIds":{"type":"array","items":{"type":"string"}},
+        "sourceRefs":{"type":"array","items":{"type":"object","required":["sourceId","locator"],"properties":{"sourceId":{"type":"string"},"locator":{"type":"string"}}}}
       }
     },
     "seriesNarrative": {
-      "oneOf": [
-        { "type": "null" },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["seriesTitle", "seriesSummary", "chapter", "chapterTitle", "sequence", "keyMoment", "narrative", "previousCardId", "nextCardId"],
-          "properties": {
-            "seriesTitle": { "type": "string", "const": "北欧创世：世界树与命运" },
-            "seriesSummary": { "type": "string", "minLength": 1 },
-            "chapter": { "type": "integer", "minimum": 1, "maximum": 6 },
-            "chapterTitle": { "type": "string", "minLength": 1 },
-            "sequence": { "type": "integer", "minimum": 1, "maximum": 19 },
-            "keyMoment": { "type": "string", "minLength": 1 },
-            "narrative": { "type": "string", "minLength": 1 },
-            "previousCardId": { "type": ["integer", "null"] },
-            "nextCardId": { "type": ["integer", "null"] }
-          }
-        }
+      "oneOf":[
+        {"type":"null"},
+        {"type":"object","additionalProperties":false,"required":["seriesTitle","seriesSummary","chapter","chapterTitle","sequence","keyMoment","narrative","previousCardId","nextCardId"],
+         "properties":{
+           "seriesTitle":{"type":"string"},"seriesSummary":{"type":"string"},"chapter":{"type":"integer"},"chapterTitle":{"type":"string"},"sequence":{"type":"integer","minimum":1,"maximum":19},"keyMoment":{"type":"string"},"narrative":{"type":"string"},"previousCardId":{"type":["integer","null"]},"nextCardId":{"type":["integer","null"]}
+         }}
       ]
     },
-    "canon": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["identityAnchors", "mustKeep", "mustAvoid"],
-      "properties": {
-        "identityAnchors": { "type": "array", "items": { "type": "string" } },
-        "mustKeep": { "type": "array", "items": { "type": "string" } },
-        "mustAvoid": { "type": "array", "items": { "type": "string" } }
-      }
-    },
     "visual": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["visualThesis", "mood", "palette", "materials", "detailHierarchy", "subjectSeparation"],
-      "properties": {
-        "visualThesis": { "type": "string", "minLength": 1 },
-        "mood": { "type": "array", "items": { "type": "string" } },
-        "palette": { "type": "array", "items": { "type": "string" } },
-        "materials": { "type": "array", "items": { "type": "string" } },
-        "detailHierarchy": { "type": "string", "minLength": 1 },
-        "subjectSeparation": { "type": "string", "minLength": 1 }
-      }
+      "type":"object","additionalProperties":false,"required":["visualThesis","detailHierarchy","subjectSeparation"],
+      "properties":{"visualThesis":{"type":"string"},"detailHierarchy":{"type":"string"},"subjectSeparation":{"type":"string"}}
     },
     "composition": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["orientation", "camera", "shot", "subjectAnchor", "criticalIdentityZone", "cropSafe"],
-      "properties": {
-        "orientation": { "type": "string", "enum": ["portrait", "landscape"] },
-        "camera": { "type": "string", "minLength": 1 },
-        "shot": { "type": "string", "minLength": 1 },
-        "subjectAnchor": {
-          "type": "object",
-          "required": ["x", "y"],
-          "properties": {
-            "x": { "type": "number", "minimum": 0, "maximum": 1 },
-            "y": { "type": "number", "minimum": 0, "maximum": 1 }
-          }
-        },
-        "criticalIdentityZone": {
-          "type": "object",
-          "required": ["xMin", "xMax", "yMin", "yMax"],
-          "properties": {
-            "xMin": { "type": "number", "minimum": 0, "maximum": 1 },
-            "xMax": { "type": "number", "minimum": 0, "maximum": 1 },
-            "yMin": { "type": "number", "minimum": 0, "maximum": 1 },
-            "yMax": { "type": "number", "minimum": 0, "maximum": 1 }
-          }
-        },
-        "cropSafe": {
-          "type": "object",
-          "required": ["sacrificialBottomStart", "sideCropTolerance", "mustRemainVisible"],
-          "properties": {
-            "sacrificialBottomStart": { "type": "number", "minimum": 0, "maximum": 1 },
-            "sideCropTolerance": { "type": "number", "minimum": 0, "maximum": 0.5 },
-            "mustRemainVisible": { "type": "array", "minItems": 1, "items": { "type": "string" } }
-          }
-        }
+      "type":"object","additionalProperties":false,"required":["orientation","camera","shot","subjectAnchor","cropSafe"],
+      "properties":{
+        "orientation":{"type":"string","enum":["portrait","landscape"]},"camera":{"type":"string"},"shot":{"type":"string"},
+        "subjectAnchor":{"type":"object","required":["x","y"],"properties":{"x":{"type":"number"},"y":{"type":"number"}}},
+        "cropSafe":{"type":"object","required":["sacrificialBottomStart","sideCropTolerance","mustRemainVisible"],"properties":{"sacrificialBottomStart":{"type":"number"},"sideCropTolerance":{"type":"number"},"mustRemainVisible":{"type":"array","items":{"type":"string"}}}}
       }
     },
     "prompt": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["templateVersion", "draft", "final", "negative"],
-      "properties": {
-        "templateVersion": { "type": "string", "minLength": 1 },
-        "draft": { "type": "string" },
-        "final": { "type": ["string", "null"] },
-        "negative": { "type": "array", "items": { "type": "string" } }
-      }
+      "type":"object","additionalProperties":false,"required":["draft","final"],
+      "properties":{"draft":{"type":"string","minLength":1},"final":{"type":["string","null"]}}
     },
-    "references": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["cardIds", "characterCanonIds", "notes"],
-      "properties": {
-        "cardIds": { "type": "array", "items": { "type": "integer" }, "uniqueItems": true },
-        "characterCanonIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "notes": { "type": "string" }
-      }
-    },
-    "output": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["fileName", "width", "height", "format"],
-      "properties": {
-        "fileName": { "type": "string", "pattern": "^[0-9]{10}\\.(png|jpg|jpeg|webp)$" },
-        "width": { "type": "integer", "minimum": 1 },
-        "height": { "type": "integer", "minimum": 1 },
-        "format": { "type": "string", "enum": ["png", "jpg", "jpeg", "webp"] }
-      }
-    },
-    "generation": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["model", "attempt", "generatedAt", "notes"],
-      "properties": {
-        "model": { "type": "string" },
-        "attempt": { "type": "integer", "minimum": 0 },
-        "generatedAt": { "type": ["string", "null"] },
-        "notes": { "type": "string" }
-      }
-    },
-    "qa": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["status", "reviewNotes"],
-      "properties": {
-        "status": { "type": "string", "enum": ["planned", "prompt-ready", "generating", "review", "approved", "rejected", "superseded"] },
-        "reviewNotes": { "type": "array", "items": { "type": "string" } }
-      }
-    }
+    "specRef":{"type":"string","const":"../M01_ARTIFACT_SPEC.md"},
+    "output":{"type":"object","additionalProperties":false,"required":["fileName","width","height","format"],"properties":{"fileName":{"type":"string"},"width":{"type":"integer"},"height":{"type":"integer"},"format":{"type":"string"}}},
+    "qa":{"type":"object","additionalProperties":false,"required":["status","reviewNotes"],"properties":{"status":{"type":"string","enum":["planned","prompt-ready","generating","review","approved","rejected","superseded"]},"reviewNotes":{"type":"array","items":{"type":"string"}}}}
   }
 }
