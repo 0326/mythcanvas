@@ -3,22 +3,71 @@
 > 系列编号：M01  
 > 产品线：MYTHOS / 诸神神话  
 > 英文工作名：**Norse Genesis — Yggdrasil & Fate**  
-> 状态：Series Planning / Pre-Art  
-> 版本：V1.0  
+> 状态：Series Planning / Artwork First  
+> 版本：V1.1  
 > 日期：2026-09-06  
-> 套卡规模：**50 张固定精品收藏卡**  
+> 规划规模：**50 个收藏卡内容主题 / 50 组核心视觉资产**  
 > 上游：`src/content/norse/`、`docs/NORSE_STORY_MAP.md`  
 > 总规划：`docs/cards/norse/NORSE_CARD_COLLECTION_PLAN.md`
 
 ---
 
-# 0. 系列结论
+# 0. 核心原则：先卡图，后制卡
 
-M01 是整个 MythCanvas Norse Collection 的第一套正式系列，不只是“创世故事卡”，还承担三项基础任务：
+M01 分成两个完全独立的阶段。
+
+```text
+Phase A：Artwork Production / 卡图视觉资产
+
+Story / Character / Scene / Mythic Object
+                ↓
+         Visual Thesis
+                ↓
+      壁纸级纯画面资产
+                ↓
+ Character / Scene / Story 一致性 QA
+
+
+Phase B：Card Production / 实体卡设计
+
+已批准的壁纸 / 主视觉资产
+                ↓
+     确定实际成品卡尺寸
+                ↓
+   卡框 / 排版 / 裁切 / 出血
+                ↓
+   材质 / 工艺 / CMYK / 打样
+                ↓
+             实体卡
+```
+
+当前 **只执行 Phase A**。
+
+Phase A 不考虑：
+
+- 实体卡宽高；
+- 54 × 85 mm 等任何暂定尺寸；
+- 出血线；
+- 安全区；
+- 卡框；
+- 卡名排版；
+- 编号排版；
+- 烫金 / 压纹 / UV 等工艺；
+- 为未来某一种卡面比例强行裁图。
+
+> **卡牌只是未来使用这些视觉资产的一种载体。当前首先把每一个神话主题本身画好。**
+
+后续实卡尺寸、纸张、版式与供应商确定后，再单独建立 `CARD_PRODUCTION_SPEC.md`，根据卡图进行重构；必要时重新构图，不要求把壁纸机械裁成卡面。
+
+---
+
+# 1. M01 系列定位
+
+M01 是整个 MythCanvas Norse Collection 的第一套正式内容系列，承担三项基础任务：
 
 1. 建立北欧宇宙的原初世界观；
-2. 建立后续 M02～M04 共用的 Norse Collection 基础设计语言；
-3. 验证 50 张固定套卡的 Card Manifest → Art Production → Print QA 流程。
+2. 建立 M02～M04 共用的角色、世界和视觉 Canon；
+3. 验证“50 个内容主题 → 50 组高质量视觉资产”的生产方法。
 
 系列叙事主轴：
 
@@ -50,9 +99,9 @@ M01 是整个 MythCanvas Norse Collection 的第一套正式系列，不只是�
 
 ---
 
-# 1. 系列范围
+# 2. 系列范围
 
-## 1.1 Core Story Units
+## 2.1 Core Story Units
 
 映射当前 `creation` Cycle：
 
@@ -67,9 +116,7 @@ M01 是整个 MythCanvas Norse Collection 的第一套正式系列，不只是�
 08 尼德霍格与世界树
 ```
 
-## 1.2 明确不进入 M01
-
-以下内容虽然与世界观相关，但留给后续系列：
+## 2.2 明确不进入 M01
 
 ```text
 Odin 献眼 / Mímir 求知        → M02
@@ -84,40 +131,122 @@ Fenrir / Ragnarök             → M04
 
 ---
 
-# 2. 50 张卡牌结构
-
-最终结构：
+# 3. 50 个内容主题结构
 
 ```text
-Character / 角色卡              16
-Scene / 场景卡                  11
-Story / 故事 Key Moment 卡       19
-Mythic Object / 神物卡           2
-Hero / Ensemble / 封面群像卡     2
-                                ──
-                                50
+Character / 角色主题              16
+Scene / 场景主题                  11
+Story / Key Moment / 故事主题      19
+Mythic Object / 神物主题            2
+Hero / Ensemble / 系列主视觉        2
+                                  ──
+                                  50
 ```
 
-为什么这样分：
+这里的“卡”在 Phase A 中只表示 **未来卡槽对应的内容主题**，不代表当前就生成卡面。
 
-- 创世篇的价值主要在“世界形成过程”，Story / Scene 比单纯人物肖像重要；
-- 不为凑神器数量，把 Mjölnir / Gungnir 等后世神物提前放入 M01；
-- Character 只收真正参与创世 / 宇宙秩序的高价值对象；
-- 每个 MythStory 可以拆成多个独立 Key Moment，而不是一篇文章只做一张卡。
+每个主题首先产出：
+
+> **一张没有文字、卡框和制卡约束的独立高质量神话主视觉。**
 
 ---
 
-# 3. 整体视觉风格
+# 4. Phase A：壁纸级卡图资产规范
 
-## 3.1 首发 Edition
+## 4.1 输出不是“卡片图片”
 
-推荐第一版视觉 Edition：
+Phase A 的输出定义为：
+
+> **MythCanvas Norse Wallpaper Artwork / 神话壁纸母图**
+
+每张图必须脱离卡框依然成立，可以直接用于：
+
+- MythCanvas PC 壁纸；
+- MythCanvas 手机壁纸；
+- 网站 Hero / Story Illustration；
+- 社交传播图；
+- 后续实体收藏卡；
+- 后续海报、画册或其他衍生物。
+
+## 4.2 壁纸比例
+
+不再使用任何实体卡比例。
+
+默认视觉资产按 MythCanvas 已有壁纸体系生产：
+
+```text
+PC / 横版主图：16:9
+Mobile / 竖版版本：9:16
+```
+
+但不要求所有 50 个主题一开始同时生成两个版本。
+
+推荐流程：
+
+```text
+先完成一个方向的 Canonical Artwork
+↓
+视觉通过
+↓
+有网站 / 手机需求时，再生成对应横竖版本
+```
+
+构图原则：
+
+- 主体不要贴死画面边缘；
+- 重要头部、手、神器、世界地标保留完整；
+- 背景应有一定可延展空间；
+- 不为了未来卡面预留硬编码文字框；
+- 后续如果卡面比例不同，优先重新构图，而不是暴力裁切。
+
+## 4.3 纯画面原则
+
+所有 AI 主视觉必须：
+
+```text
+no typography
+no title
+no logo
+no card frame
+no card UI
+no number
+no watermark
+no pseudo-runes
+```
+
+**图片里不生成任何卡牌元素。**
+
+## 4.4 图片本身优先于“以后怎么印”
+
+视觉 QA 只问：
+
+- 这个角色是否好看、准确、有辨识度；
+- 这个场景是否有空间记忆点；
+- 这个故事瞬间是否一眼能理解；
+- 这个神物是否有独立视觉身份；
+- 50 张放在一起是否形成完整的 M01 世界。
+
+当前不问：
+
+- 裁切后会不会压标题；
+- 边框宽度多少；
+- CMYK 会不会偏色；
+- 哪些部位需要烫金；
+- 卡背放什么字段。
+
+这些全部属于 Phase B。
+
+---
+
+# 5. 整体视觉风格
+
+## 5.1 首发 Edition
 
 > **原初史诗 / Primordial Saga**
 
 风格定位：
 
-> **北境古典幻想绘画 × 现代高端收藏卡插画 × 克制的物质文化纹理。**
+> **北境古典幻想绘画 × 现代高端神话插画 × 克制的北欧物质文化纹理。**
 
 不是：
 
@@ -137,11 +266,11 @@ Hero / Ensemble / 封面群像卡     2
 克制细节
 自然材料
 强光影层次
-可印刷的清晰轮廓
-不同卡型一眼可辨
+清晰轮廓
+神话感而非游戏 UI 感
 ```
 
-## 3.2 核心美术关键词
+## 5.2 核心美术关键词
 
 ```text
 primordial
@@ -159,37 +288,32 @@ Nordic material texture
 painterly detail
 ```
 
-## 3.3 四阶段色彩叙事
-
-M01 不是 50 张随机同色卡，而是随着世界形成逐渐改变色彩。
+## 5.3 四阶段色彩叙事
 
 ### Act I：鸿沟 / 冰火
 
 ```text
-主色：深黑、冰蓝、灰白
-对比：熔火橙、暗红
-感觉：空无、寒冷、不可测
+深黑、冰蓝、灰白
++ 熔火橙、暗红
 ```
 
-用于：Ginnungagap、Niflheim、Muspell、Ymir 出现。
+感觉：空无、寒冷、不可测。
 
 ### Act II：巨人之躯化世界
 
 ```text
-主色：岩灰、血铁红、土褐、深海蓝
-感觉：物质诞生、沉重、巨大
+岩灰、血铁红、土褐、深海蓝
 ```
 
-用于：Ymir 之死、土地、海洋、山脉、天空形成。
+感觉：物质诞生、沉重、巨大。
 
 ### Act III：世界树与命运
 
 ```text
-主色：深林绿、青黑、骨白、旧金
-感觉：秩序、生命、时间、神秘
+深林绿、青黑、骨白、旧金
 ```
 
-用于：Yggdrasil、三口井、Norns。
+感觉：秩序、生命、时间、神秘。
 
 ### Act IV：日月与追逐
 
@@ -199,558 +323,306 @@ M01 不是 50 张随机同色卡，而是随着世界形成逐渐改变色彩。
 追逐者：黑灰、铁色
 ```
 
-最终开始出现 M04 的视觉伏线。
+开始出现 M04 的视觉伏线。
 
 ---
 
-# 4. 基础设计语言
+# 6. 五类内容主题的卡图设计语言
 
-## 4.1 卡片尺寸与印刷基线
+这里定义的是 **Artwork 语言**，不是卡面版式。
 
-沿用收藏卡规格：
+## 6.1 Character / 角色图
 
-```text
-成品尺寸：54 × 85 mm
-方向：竖版
-出血：四边 3 mm
-安全区：裁切线内至少 2.5–3 mm
-印刷母版：300 dpi 或以上
-```
+目标：
 
-AI 只生成主视觉，不让模型生成：
+> 不看文字，仅凭 silhouette、脸、服装、象征物和姿态就能识别角色。
 
-- 卡名；
-- 编号；
-- 边框文字；
-- Logo；
-- 来源说明；
-- 任何需要准确拼写的排版内容。
+画面要求：
 
-所有文字、编号、边框和印刷特效在后期排版层完成。
+- 单主体优先；
+- 半身、3/4 身、全身都可，由角色决定；
+- 背景来自角色真实故事空间，而非统一摄影棚；
+- 姿势体现身份与行为；
+- 原初存在不强行人类战士化；
+- 同角色跨图保持脸型、体型、发型和核心服装 Canon。
 
-## 4.2 统一构图骨架
+M01 特别规则：
 
-所有卡共用：
+- Ymir：原初世界尺度，不做普通大块头 Boss；
+- Búri：从冰 / 盐霜中显现，不做王座神王；
+- Odin Creator：是创世时期形态，不抢用后续 M02 的完整王权视觉；
+- Norns：三人必须拥有不同 silhouette / prop / posture；
+- Sól / Máni：体现天体运行，而不是普通“日神/月神立绘”；
+- Sköll / Hati：成对但不能同一狼模型换色；
+- Níðhöggr：荒野、树根、啃噬感优先于游戏 Boss 装甲。
 
-```text
-顶部：MYTHCANVAS · NORSE / M01 轻量系列识别
-中部：主视觉区，占卡面约 72–82%
-底部：名称 / 英文或古诺尔斯名 / 类型 / 编号
-边缘：卡型专属纹理与微型视觉编码
-```
+## 6.2 Scene / 场景图
 
-不做 TCG：
+目标：
 
-- 无攻击力；
-- 无血量；
-- 无技能框；
-- 无稀有度星级；
-- 不用游戏 UI 抢占画面。
+> 建立后续整个 Norse Collection 可复用的空间 Canon。
 
-## 4.3 装饰纹理
+画面要求：
 
-使用抽象化的：
+- 大景别优先；
+- 人物若出现只是尺度参照；
+- 每个地点必须有唯一地标；
+- 强调环境结构而不是“漂亮背景”；
+- 世界尺度应超越普通自然风景。
 
-- 木刻；
-- 石刻；
-- 金属冲压；
-- 编织 / 交错纹；
-- 风化裂纹；
-- 骨 / 霜纹理。
+特别注意：
 
-原则：
+- Yggdrasil 不是森林中的一棵大树；
+- Ginnungagap 不是普通峡谷；
+- Niflheim 不是简单雪地；
+- Muspell 不是普通火山；
+- Urðarbrunnr / Mímisbrunnr / Hvergelmir 要有明确区别。
 
-> 纹理用于建立北境物质感，不复制具体现代品牌，也不把不明字符伪装成“真实古诺尔斯符文”。
+## 6.3 Story / Key Moment / 故事图
 
-## 4.4 字体
+目标：
 
-建议：
+> 一张图只讲一个“看到画面就能复述”的事件瞬间。
 
-```text
-中文主名：Source Han Serif / 思源宋体体系
-中文说明：LXGW WenKai 或清晰正文宋 / 黑体系
-英文 / Old Norse：稳重 Serif Roman
-数字编号：简洁窄体 Sans
-```
+要求：
 
-禁止把“卢恩字体”作为大段正文。
+- 一个主要动作；
+- 一个主要叙事中心；
+- 人物与环境共同服务事件；
+- 允许电影式大构图；
+- 可以有多人，但必须属于同一时刻和空间。
 
----
+禁止：
 
-# 5. 五类卡片的详细视觉设计
-
-## 5.1 Character / 角色卡
-
-### 目标
-
-让收藏者在不看文字的情况下，也能通过 silhouette 和 symbol 认出角色。
-
-### 正面
-
-```text
-单主体占画面 55–75%
-3/4 身或全身优先
-背景为角色来源场景的弱化版本
-角色眼神 / 姿势体现职责，而不是统一站桩
-底部名字区较稳定
-边框为窄框，纵向强调人物
-```
-
-### 背面
-
-建议字段：
-
-```text
-中文名
-Old Norse / English 名
-身份一句话
-核心象征 3 个
-所属 Story Unit
-关键关系
-来源范围
-MythCanvas Canonical Design Note
-编号
-```
-
-### M01 角色卡设计特征
-
-M01 人物不能全穿“维京战士装”。
-
-- 原初存在：更像自然 / 宇宙力量；
-- 神族祖先：朴素、早期、克制；
-- Norns：以井、木刻、线 / 时间秩序区分三者；
-- Sól / Máni：天体人格化，但避免现代神圣光环模板；
-- Sköll / Hati / Níðhöggr：生物形态要具有北欧荒野感，不做游戏 Boss 过度装甲。
-
----
-
-## 5.2 Scene / 场景卡
-
-### 目标
-
-建立整个 Norse Collection 后续可以复用的空间 Canon。
-
-### 正面
-
-```text
-大景别
-人物即使出现也只能作为尺度参照
-边框比 Character 更轻
-画面尽量延伸到裁切边缘
-地点地标必须唯一
-```
-
-### 背面
-
-```text
-场景名
-World / Cosmic Layer
-场景作用
-相关 Story
-主要视觉锚点
-来源 / Editorial Scope
-后续会出现在哪些系列（可选）
-编号
-```
-
-### M01 场景要求
-
-最重要的是“尺度”。
-
-Yggdrasil 不能只是普通森林中的大树；Ginnungagap 不能只是峡谷；Niflheim / Muspell 不能只是冰地 / 火山地貌。
-
----
-
-## 5.3 Story / 故事卡
-
-### 目标
-
-每张抓住一个“看到画面就能复述”的事件瞬间。
-
-### 正面
-
-```text
-全幅电影感构图
-一个明确动作 / 转折
-人物与环境同时服务事件
-左上或底部保留小型 Chapter / Sequence 号码
-```
-
-不得：
-
-- 一张塞完整故事；
 - 多格漫画；
-- 拼贴多个时间点；
-- 用纯角色肖像冒充 Story Card。
+- 时间线拼贴；
+- 一张塞完整故事；
+- 多张卡面拼成一张图；
+- 用普通角色肖像冒充 Story Artwork。
 
-### 背面
+## 6.4 Mythic Object / 神物图
 
-```text
-事件标题
-发生了什么（50–90 字）
-前置 / 后续卡号
-相关 Story
-参与角色
-Scene / World
-Source Scope
-```
+目标：
 
-### 序列设计
+> 给真正具有独立身份的神话物件做“英雄级静物肖像”。
 
-M01 Story Card 可组成连续阅读链：
+要求：
 
-```text
-T01 → T02 → ... → T19
-```
+- 物件自身必须是主角；
+- 强调材质、使用痕迹和神话功能；
+- 环境只用于说明来源语境；
+- 不做游戏装备栏 UI；
+- 不做现代奢侈品产品摄影。
 
-让 19 张卡单独成立，同时按编号排开能读完 M01 主线。
+M01 不借用 M02/M03 的 Mjölnir / Gungnir 等神物。
 
----
+## 6.5 Hero / Ensemble / 系列主视觉
 
-## 5.4 Mythic Object / 神物卡
+目标：
 
-### 目标
+> 海报级系列记忆点。
 
-给真正具有独立身份的神话物件“英雄级静物肖像”。
+要求：
 
-### 正面
-
-```text
-对象居中
-背景极简或与来源情境呼应
-强调材质、磨损、结构
-比 Character Card 更强对称性
-可预留局部烫金 / 压纹区域
-```
-
-### 背面
-
-```text
-名称
-类型
-主人 / 使用者（如果适用）
-神话作用
-首次 / 核心出现 Story
-来源范围
-视觉设计说明
-```
-
-M01 不借用后续神物，只收与日月秩序直接相关、可由来源支撑的对象。
+- 多角色可以出现，但必须处于统一空间；
+- 不把多个独立人物立绘拼成 collage；
+- 必须表达一个明确的世界状态；
+- E01 表达“世界尚未形成”；
+- E02 表达“世界与命运秩序已经形成”。
 
 ---
 
-## 5.5 Hero / Ensemble / 封面群像卡
+# 7. M01 精确 50 个视觉主题 Manifest
 
-### 目标
-
-承担整套收藏的“海报级记忆点”。
-
-### 正面
-
-- Full bleed；
-- 最弱边框；
-- 允许多人，但必须是一个统一场景；
-- 不能把独立角色图片拼成 collage；
-- 不承担大量说明文字。
-
-### 背面
-
-```text
-系列名称
-Narrative Thesis
-M01 / 01 of 06
-主要角色 / 视觉元素
-系列编号
-```
-
----
-
-# 6. M01 精确 50 张 Card Manifest
-
-编号规则：
+编号用于内部生产追踪，不要求出现在图片中。
 
 ```text
 MC-NOR-M01-001 ~ MC-NOR-M01-050
 ```
 
-下面是 V1 精确卡位。最终出图前允许在不改变 50 总数的情况下做小范围替换，但每次替换必须写原因。
+## 7.1 Character — 16
 
----
-
-## 6.1 Character Cards — 16 张
-
-| # | ID | 卡名 | 视觉命题 | 主要来源 / Story | 状态 |
-|---:|---|---|---|---|---|
-| 001 | C01 | **尤弥尔 Ymir** | 冰与火之间诞生的原初巨人，身体像未成形世界 | Ymir Creation | Ready |
-| 002 | C02 | **奥德胡姆拉 Auðumbla** | 原初母牛、霜与乳流，不做普通家畜照 | Auðumbla & Búri | **需补实体** |
-| 003 | C03 | **布里 Búri** | 从盐霜 / 冰中逐渐显现的神族祖先 | Auðumbla & Búri | Ready |
-| 004 | C04 | **奥丁 Odin · Creator** | 创世阶段的 Odin，不用后期王者全套装备抢戏 | World Making | Ready |
-| 005 | C05 | **威利 Vili** | 与兄弟共同塑造世界，强调意志与行动 | World Making | Ready |
-| 006 | C06 | **维 Vé** | 与兄弟共同塑造世界，强调神圣空间与秩序 | World Making | Ready |
-| 007 | C07 | **阿斯克 Ask** | 海岸木材获得生命后的第一人 | Ask & Embla | **需补实体** |
-| 008 | C08 | **恩布拉 Embla** | 第一位女性，与 Ask 形成同源但不同构图 | Ask & Embla | **需补实体** |
-| 009 | C09 | **乌尔德 Urðr** | 诺恩之一：过去 / 已发生的命运感 | Norns | Ready |
-| 010 | C10 | **薇尔丹蒂 Verðandi** | 诺恩之一：正在生成的时间感 | Norns | Ready |
-| 011 | C11 | **斯库尔德 Skuld** | 诺恩之一：将来 / 应然，不做现代预言家 | Norns | Ready |
-| 012 | C12 | **索尔 Sól** | 驾驭太阳运行的天体人格，金白而非“太阳女神模板” | Sun & Moon | Ready |
-| 013 | C13 | **马尼 Máni** | 月亮运行与周期人格，冷银 / 靛蓝 | Sun & Moon | Ready |
-| 014 | C14 | **斯库尔 Sköll** | 追逐太阳的狼，以速度和天穹尺度表现 | Sun & Moon | Ready |
-| 015 | C15 | **哈提 Hati** | 追逐月亮的狼，与 Sköll 成视觉对卡 | Sun & Moon | Ready |
-| 016 | C16 | **尼德霍格 Níðhöggr** | 世界树根部的蛇形啃噬者，作为终局伏线 | Níðhöggr & Yggdrasil | Ready |
-
-### 角色卡刻意不选
-
-`Borr` 虽然谱系重要，但当前 Series 中缺少足够独立事件和视觉作用，不为 50 张配额强行给肖像卡。
-
-`Mímir` 的角色主戏集中在 Odin 求知，角色卡留给 M02；M01 只保留 Mímisbrunnr 场景。
-
----
-
-## 6.2 Scene Cards — 11 张
-
-| # | ID | 卡名 | 视觉命题 | 当前状态 |
+| # | ID | 主题 | 核心视觉命题 | 状态 |
 |---:|---|---|---|---|
-| 017 | S01 | **金伦加鸿沟 Ginnungagap** | 不是普通峡谷，而是冰火世界之间尚未成形的原初空隙 | Ready |
-| 018 | S02 | **尼福尔海姆 Niflheimr** | 雾、寒泉、冰流形成的原初寒冷空间 | World 已有，独立卡视觉需审 |
-| 019 | S03 | **穆斯贝尔 Múspell** | 火焰边界与飞散火星，不提前使用 Ragnarök 战场语言 | World 已有，独立卡视觉需审 |
-| 020 | S04 | **世界树 Yggdrasil** | 全局宇宙轴，不是普通森林巨树 | **需新增场景 / Concept 映射** |
-| 021 | S05 | **世界树之根 Roots of Yggdrasil** | 根系、深层空间与井泉交织 | Ready |
-| 022 | S06 | **乌尔德之泉 Urðarbrunnr** | 诺恩、井水与宇宙秩序的仪式空间 | **需新增 Scene** |
-| 023 | S07 | **密米尔之井 Mímisbrunnr** | 知识之井，画面不提前表现 Odin 献眼事件 | 现有 Well of Mímir 可复用 |
-| 024 | S08 | **赫瓦格密尔 Hvergelmir** | 与原初寒泉 / 根系相关的深层水源空间 | **需新增 Scene + source review** |
-| 025 | S09 | **初生的米德加尔特 Newborn Midgard** | 人类出现前后的新世界，海、陆、山脉仍保留创世尺度 | **需新增 Scene / World variant** |
-| 026 | S10 | **天穹之路 Celestial Path** | 日月开始运行的天空秩序，用轨迹而非科幻星轨表现 | **需新增 Scene** |
-| 027 | S11 | **铁森林 Járnviðr** | 天穹追逐者的黑暗空间伏线，避免做普通阴森森林 | **需新增 Scene + source scope** |
+| 001 | C01 | 尤弥尔 Ymir | 冰与火之间诞生的原初巨人，身体像未成形世界 | Ready |
+| 002 | C02 | 奥德胡姆拉 Auðumbla | 原初母牛、霜与乳流，不做普通家畜照 | 需补实体 |
+| 003 | C03 | 布里 Búri | 从盐霜 / 冰中逐渐显现的神族祖先 | Ready |
+| 004 | C04 | 奥丁 Odin · Creator | 创世阶段形态，不用后期王者全套装备 | Ready |
+| 005 | C05 | 威利 Vili | 创世行动、意志与力量 | Ready |
+| 006 | C06 | 维 Vé | 神圣空间与秩序 | Ready |
+| 007 | C07 | 阿斯克 Ask | 海岸木材获得生命后的第一人 | 需补实体 |
+| 008 | C08 | 恩布拉 Embla | 与 Ask 同源但构图独立 | 需补实体 |
+| 009 | C09 | 乌尔德 Urðr | 已发生之事、刻痕、沉稳 | Ready |
+| 010 | C10 | 薇尔丹蒂 Verðandi | 正在生成、线与连续时间 | Ready |
+| 011 | C11 | 斯库尔德 Skuld | 将来 / 应然、未完成空间 | Ready |
+| 012 | C12 | 索尔 Sól | 太阳人格与天体运行 | Ready |
+| 013 | C13 | 马尼 Máni | 月亮人格与周期运行 | Ready |
+| 014 | C14 | 斯库尔 Sköll | 追逐太阳、速度、天穹尺度 | Ready |
+| 015 | C15 | 哈提 Hati | 追逐月亮，与 Sköll 形成对卡 | Ready |
+| 016 | C16 | 尼德霍格 Níðhöggr | 世界树根部啃噬者，终局伏线 | Ready |
 
----
+## 7.2 Scene — 11
 
-## 6.3 Story / Key Moment Cards — 19 张
-
-| # | ID | 卡名 | Key Moment | 主要 Story |
+| # | ID | 主题 | 核心视觉命题 | 状态 |
 |---:|---|---|---|---|
-| 028 | T01 | **雾冰流入鸿沟** | Niflheim 的寒流进入尚未成形的 Ginnungagap | Ymir Creation |
-| 029 | T02 | **火星越过边界** | Muspell 的热与火星逼近冰霜 | Ymir Creation |
-| 030 | T03 | **尤弥尔苏醒** | 冰火交汇的滴水获得生命，原初存在显现 | Ymir Creation |
-| 031 | T04 | **奥德胡姆拉出现** | 与 Ymir 同处原初环境的母牛出现 | Auðumbla & Búri |
-| 032 | T05 | **四道乳流** | Auðumbla 的乳流维持 Ymir，强调原初生命供养 | Auðumbla & Búri |
-| 033 | T06 | **冰中显现的布里** | Auðumbla 舔舐盐霜，Búri 逐渐从冰中显现 | Auðumbla & Búri |
-| 034 | T07 | **三兄弟面对尤弥尔** | Odin / Vili / Vé 与原初巨人形成世界更替前的对峙 | World Making |
-| 035 | T08 | **尤弥尔倒下** | 世界旧形态终结的决定性瞬间 | World Making |
-| 036 | T09 | **大地由血肉形成** | 肉身转化为土地，画面强调尺度而非血腥 | World Making |
-| 037 | T10 | **海洋由血液形成** | 深海包围新土地，保持神话化、非猎奇表现 | World Making |
-| 038 | T11 | **骨化群山** | 骨与牙成为山脉、岩石的物质转换 | World Making |
-| 039 | T12 | **头骨撑起天空** | 三兄弟建立天穹，形成上下空间 | World Making |
-| 040 | T13 | **海岸上的两段木材** | Ask / Embla 尚未获得生命的前一刻 | Ask & Embla |
-| 041 | T14 | **第一口生命** | 神祇赋予两者生命 / 感知 / 人形秩序，按来源范围表现 | Ask & Embla |
-| 042 | T15 | **世界树贯穿诸界** | Yggdrasil 作为宇宙轴被完整建立 | Yggdrasil & Wells |
-| 043 | T16 | **三根通向三泉** | 以根系与井泉建立宇宙结构，不硬画固定现代九界地图 | Yggdrasil & Wells |
-| 044 | T17 | **诺恩在泉边定命** | Urðr / Verðandi / Skuld 于 Urðarbrunnr 形成命运秩序 | Norns |
-| 045 | T18 | **日月开始运行** | Sól 与 Máni 被置于天穹秩序，各自运行 | Sun & Moon |
-| 046 | T19 | **追逐与啃噬** | 天上狼群追逐、树根下 Níðhöggr 啃噬：世界诞生即带有毁灭伏线；需用统一时间点构图避免拼贴 | Sun & Moon + Níðhöggr |
+| 017 | S01 | 金伦加鸿沟 Ginnungagap | 冰火世界之间尚未成形的原初空隙 | Ready |
+| 018 | S02 | 尼福尔海姆 Niflheimr | 雾、寒泉、冰流的原初寒冷空间 | World 已有 |
+| 019 | S03 | 穆斯贝尔 Múspell | 火焰边界，不提前使用末日战争语言 | World 已有 |
+| 020 | S04 | 世界树 Yggdrasil | 全局宇宙轴，不是普通森林巨树 | 需新增 Scene / Concept |
+| 021 | S05 | 世界树之根 | 根系、深层空间与井泉交织 | Ready |
+| 022 | S06 | 乌尔德之泉 Urðarbrunnr | 诺恩、井水与宇宙秩序 | 需新增 Scene |
+| 023 | S07 | 密米尔之井 Mímisbrunnr | 知识之井，不提前表现 Odin 献眼 | 可复用 |
+| 024 | S08 | 赫瓦格密尔 Hvergelmir | 原初寒泉与深层水源 | 需新增 Scene |
+| 025 | S09 | 初生的米德加尔特 | 海、陆、山仍保留创世尺度 | 需新增 Scene / Variant |
+| 026 | S10 | 天穹之路 Celestial Path | 日月开始运行的天空秩序 | 需新增 Scene |
+| 027 | S11 | 铁森林 Járnviðr | 追逐者的暗黑空间伏线 | 需新增 Scene / Source Scope |
 
-### T19 特别说明
+## 7.3 Story / Key Moment — 19
 
-如果单图难以在一个自然构图中同时容纳“天上追逐 + 根部啃噬”，则正式 Manifest 允许拆成两张：
-
-```text
-Sköll / Hati 开始追逐
-Níðhöggr 啃噬树根
-```
-
-同时从 Scene 卡中删除一张弱场景，仍保持总数 50。
-
-优先保证一张卡只有一个主要视觉命题。
-
----
-
-## 6.4 Mythic Object Cards — 2 张
-
-M01 不使用 Mjölnir / Gungnir 等后续神器。
-
-| # | ID | 卡名 | 设计内容 | 来源要求 | 状态 |
-|---:|---|---|---|---|---|
-| 047 | O01 | **太阳之车 Chariot of the Sun** | Sól 驾驭、由 Árvakr / Alsviðr 牵引；画面主体是车与太阳火种，不做人马战车模板 | `Gylfaginning` Sól / Máni lane | **需新增 MythicObject** |
-| 048 | O02 | **斯瓦林之盾 Svalinn** | 置于太阳之前、隔绝炽热的盾；强调宇宙功能而非普通战盾 | `Grímnismál` celestial lane | **需新增 MythicObject** |
-
-如果后续 source / data model review 决定“太阳之车”不适合作为独立 persistent object，则替代优先级：
-
-1. 保留 Svalinn；
-2. 将第二个 Object slot 改为 Scene / Story；
-3. 不允许拿 M02 的神器补位。
-
----
-
-## 6.5 Hero / Ensemble Cards — 2 张
-
-| # | ID | 卡名 | 构图设计 |
+| # | ID | 主题 | Key Moment |
 |---:|---|---|---|
-| 049 | E01 | **北欧创世 / Norse Genesis** | Ginnungagap 中冰火两极汇聚，Ymir 为原初尺度参照，远处不是完成态世界；作为整套主封面 |
-| 050 | E02 | **世界树与命运 / Yggdrasil & Fate** | 完成态 Yggdrasil 占据纵向主轴；中层 Odin / Vili / Vé 与 Ask / Embla；泉边 Norns；天穹 Sól / Máni；所有元素处于同一宏大场景而非人物拼贴 |
+| 028 | T01 | 雾冰流入鸿沟 | Niflheim 的寒流进入 Ginnungagap |
+| 029 | T02 | 火星越过边界 | Muspell 的热与火星逼近冰霜 |
+| 030 | T03 | 尤弥尔苏醒 | 冰火交汇后原初存在显现 |
+| 031 | T04 | 奥德胡姆拉出现 | 原初母牛出现 |
+| 032 | T05 | 四道乳流 | Auðumbla 维持 Ymir 的生命 |
+| 033 | T06 | 冰中显现的布里 | 舔舐盐霜，Búri 从冰中显现 |
+| 034 | T07 | 三兄弟面对尤弥尔 | Odin / Vili / Vé 与原初巨人对峙 |
+| 035 | T08 | 尤弥尔倒下 | 世界旧形态终结 |
+| 036 | T09 | 大地由血肉形成 | 肉身转化为土地，避免猎奇 |
+| 037 | T10 | 海洋由血液形成 | 深海包围新土地 |
+| 038 | T11 | 骨化群山 | 骨与牙转化为山脉和岩石 |
+| 039 | T12 | 头骨撑起天空 | 三兄弟建立天穹 |
+| 040 | T13 | 海岸上的两段木材 | Ask / Embla 获得生命前一刻 |
+| 041 | T14 | 第一口生命 | 两者获得生命、感知与人形秩序 |
+| 042 | T15 | 世界树贯穿诸界 | Yggdrasil 成为宇宙轴 |
+| 043 | T16 | 三根通向三泉 | 根系与井泉构成宇宙结构 |
+| 044 | T17 | 诺恩在泉边定命 | 三位 Norn 建立命运秩序 |
+| 045 | T18 | 日月开始运行 | Sól / Máni 进入天穹秩序 |
+| 046 | T19 | 追逐与啃噬 | 狼群追逐与树根啃噬构成世界初生时的毁灭伏线 |
 
-E02 是整套“完成世界”对应 E01“尚未形成世界”的镜像卡。
+T19 如果单图叙事过载，优先拆成两个独立画面，同时删除一个弱 Scene Slot，保持 50 个主题总量不变。
 
----
+## 7.4 Mythic Object — 2
 
-# 7. 卡片背面信息架构
+| # | ID | 主题 | 核心视觉命题 | 状态 |
+|---:|---|---|---|---|
+| 047 | O01 | 太阳之车 Chariot of the Sun | Sól、Árvakr / Alsviðr 与太阳运行系统 | 需新增 MythicObject |
+| 048 | O02 | 斯瓦林之盾 Svalinn | 位于太阳之前、隔绝炽热的盾 | 需新增 MythicObject |
 
-## 7.1 通用字段
+如果后续 source / model review 认为太阳之车不适合作为 persistent MythicObject，则第二个槽位改为 Story / Scene，不拿 M02 神物补位。
 
-所有卡背统一：
+## 7.5 Hero / Ensemble — 2
 
-```text
-Series          M01 · 北欧创世
-Card No.        MC-NOR-M01-xxx
-Type            Character / Scene / Story / Mythic Object / Ensemble
-中文名
-English / Old Norse Name
-80 字以内核心说明
-Source Scope
-Related Story / Character / Scene
-MYTHCANVAS COLLECTION
-```
-
-## 7.2 不做的东西
-
-首版不放：
-
-- rarity；
-- 战斗数值；
-- 技能；
-- 抽卡概率；
-- 强制二维码绑定；
-- NFT / blockchain 标识；
-- AI model 名称作为卡面卖点。
-
-收藏价值来自：
-
-> **视觉质量 + 完整故事体系 + 可连续阅读 + 系列一致性。**
+| # | ID | 主题 | 核心构图 |
+|---:|---|---|---|
+| 049 | E01 | 北欧创世 / Norse Genesis | Ginnungagap 中冰火两极汇聚，Ymir 作为原初尺度参照 |
+| 050 | E02 | 世界树与命运 / Yggdrasil & Fate | Yggdrasil 纵向主轴，创世神、人类、Norns 与日月处于同一宏大宇宙场景 |
 
 ---
 
-# 8. M01 卡型视觉编码
+# 8. 一致性规则
 
-五类卡统一世界观，但通过非常轻的视觉代码区分：
+## 8.1 同角色跨图一致
 
-| 类型 | 边框 | 构图 | 底部标记 | 推荐工艺方向 |
-|---|---|---|---|---|
-| Character | 窄石 / 金属框 | 单主体纵向 | `CHARACTER` | 局部人物轮廓光油 |
-| Scene | 极轻 / 近无框 | 大景别 | `SCENE` | 雾 / 水 / 天空局部纹理 |
-| Story | 电影式全幅 | 动作瞬间 | `STORY · 01/19` | 关键光源局部光油 |
-| Mythic Object | 对称较厚框 | 单物件中心 | `MYTHIC OBJECT` | 金属 / 压纹最适合 |
-| Ensemble | Full bleed | 海报级群像 | `M01` | 可作为特别闪 / 特殊工艺候选 |
-
-工艺只是后续印刷建议，不能让设计依赖昂贵工艺才能成立。
-
----
-
-# 9. 角色与场景一致性规则
-
-## 9.1 同角色跨卡一致
-
-例如 Odin 在 C04、T07、T08、T12、E02 中出现：
-
-必须保持：
+同一角色在 Character / Story / Ensemble Artwork 中必须保持：
 
 ```text
 脸型
-发色 / 发型主特征
-单眼状态
+发色 / 发型
+眼部特征
 体型
 核心服装轮廓
 材质语言
+身份象征
 ```
 
-但允许随剧情：
+允许变化：
 
-- 姿势变化；
-- 镜头变化；
-- 光线变化；
-- 创世工作状态变化。
+- 动作；
+- 镜头；
+- 表情；
+- 光线；
+- 剧情状态。
 
-## 9.2 Norns 三人必须区分
-
-不能只做三个“同脸女神换颜色”。
-
-至少通过：
+## 8.2 Norns 三人必须区分
 
 ```text
-Urðr       刻痕 / 已成之事 / 更沉稳静态
-Verðandi   线 / 正在形成 / 动态连续
-Skuld      未完成空间 / 应然 / 更锐利前视
+Urðr       刻痕 / 已成之事 / 更静态
+Verðandi   线 / 正在形成 / 连续动态
+Skuld      未完成空间 / 应然 / 锐利前视
 ```
 
-形成独立 silhouette / prop / posture。
+不能“三个同脸女神换颜色”。
 
-## 9.3 Sköll / Hati 必须成对但不复制
+## 8.3 Sköll / Hati 必须成对但不复制
 
-两张卡在排在一起时形成太阳 / 月亮镜像；单独看仍必须是两种不同动物姿态、光源和天体关系。
+排在一起能形成太阳 / 月亮镜像；单独看仍必须拥有不同动物姿态、光源和天体关系。
 
 ---
 
-# 10. 出图规则
+# 9. 出图生产规则
 
-## 10.1 一卡一图
+## 9.1 一个主题一次只生成一张图
 
-绝对禁止一次提示生成：
+绝对禁止一次 Prompt 让模型生成：
 
-- 4 张角色卡；
-- 9 宫格；
+- 多张壁纸；
+- 四格 / 九宫格；
 - contact sheet；
-- 一张图里拼 3 个卡面。
+- 多个 Card ID；
+- 拼接多个独立成品画面。
 
-生成阶段：
+每个视觉主题独立生产。
 
-> **每个 Card ID 独立生成一张干净主视觉。**
+## 9.2 先 Canon，再扩图
 
-Contact Sheet 只在后期 QA 把已经完成的单卡缩略图排版到一起。
-
-## 10.2 主视觉不要文字
-
-出图 prompt 明确：
+推荐顺序：
 
 ```text
-no typography
-no title
-no logo
-no card frame text
-no pseudo-runes
-no watermark
+Series Style Tests
+↓
+Character Canonical Artwork
+↓
+Scene Canonical Artwork
+↓
+Story Key Moment Artwork
+↓
+Mythic Object Artwork
+↓
+Hero / Ensemble Artwork
+↓
+Wallpaper 横竖版本扩展
 ```
 
-## 10.3 角色优先 Reference Lock
+这样 Story / Ensemble 中的人物不会漂移。
 
-先完成 16 张 Character Canonical Art，再制作大量包含角色的 Story Card。
+## 9.3 壁纸可以复用，但卡面以后单独设计
 
-推荐生产顺序：
+未来 Phase B 原则：
 
 ```text
-Series Visual Tests
+Approved Artwork
 ↓
-Character Canonical Cards
+选择适合实卡的主题
 ↓
-Scene Canonical Cards
+根据最终卡比例重新裁切 / 扩图 / 重构
 ↓
-Story Cards
-↓
-Mythic Objects
-↓
-Ensemble Covers
+再加卡框、文字、编号和工艺
 ```
 
-这样群像和故事卡不会出现人物脸漂移。
+禁止现在为了未知卡尺寸牺牲壁纸构图。
 
 ---
 
-# 11. 出图前必须补的内容依赖
+# 10. 出图前必须关闭的内容缺口
 
-M01 当前不能直接进入 50 张批量生产，至少先关闭这些内容缺口。
-
-## P0：实体补全
+## P0：实体
 
 ```text
-Auðumbla            Character / Creature
-Ask                  Character
-Embla                Character
+Auðumbla
+Ask
+Embla
 ```
 
 ## P0：Scene / Concept
@@ -761,7 +633,7 @@ Urðarbrunnr
 Hvergelmir
 Newborn Midgard variant
 Celestial Path
-Járnviðr（明确 source scope 后）
+Járnviðr（明确 source scope）
 ```
 
 ## P0：Mythic Object
@@ -771,14 +643,12 @@ Sól's Sun Chariot
 Svalinn
 ```
 
-需先完成 source review 与数据模型判断，再进入正式卡位。
-
 ## P0：Key Moment Manifest
 
-每张 T01～T19 必须记录：
+每个 Story Artwork 必须记录：
 
 ```text
-cardId
+artworkId
 storyId
 sourceRefs
 characterIds
@@ -788,92 +658,92 @@ visualThesis
 avoid
 ```
 
-不能只依赖文档标题直接批量出图。
+不能只凭标题批量出图。
 
 ---
 
-# 12. QA Gate
+# 11. Phase A QA
 
-## 12.1 Content QA
+## 11.1 Content QA
 
-- 50/50 卡有内容依据；
-- 角色 / 场景 / 神物没有悬空 ID；
+- 50/50 主题有内容依据；
+- Character / Scene / Object 不悬空；
 - Story Key Moment 与来源范围一致；
-- 不把现代“固定九界地图”画成唯一事实；
+- 不画现代固定“九界地图”作为唯一事实；
 - 不提前混入 M02～M04 内容。
 
-## 12.2 Visual QA
+## 11.2 Visual QA
 
 - Character Identity Consistency = 100%；
-- 重复构图率低；
-- 不出现六指 / 多肢 / 武器结构错误等生成问题；
+- 不出现多指、多肢、结构错误；
 - 同一场景地标保持 Canon；
 - Niflheim / Muspell / Yggdrasil / Midgard 一眼可区分；
 - 不出现现代 franchise-specific 造型；
-- 不出现模型生成乱码文字。
+- 不出现文字、Logo、乱码或卡牌 UI；
+- 重复镜头与重复姿势控制在最低。
 
-## 12.3 Collection QA
+## 11.3 Series QA
 
-把 50 张生成 contact sheet 检查：
+最终可把 50 张 **已完成壁纸缩略图** 做成 contact sheet，仅用于内部 QA：
 
 ```text
-色彩是否有 Act I → IV 的叙事变化
-五类卡是否一眼可区分
-是否某一个人物占比过高
-是否有明显重复景别
-是否有低价值凑数卡
-是否能按卡号从 001 阅读到 050
+检查 Act I → IV 色彩变化
+检查角色露脸比例
+检查大景 / 中景 / 近景节奏
+检查是否重复构图
+检查是否有低价值凑数主题
+检查 50 张能否完整讲完 M01
 ```
 
-任何明显“只是为了凑 50 张”的卡直接删除并重新补位。
+Contact Sheet 不是生成目标，也不作为单张成品。
 
 ---
 
-# 13. M01 生产里程碑
+# 12. Phase B：实体制卡暂缓
 
-## Gate A — Content Lock
+实体卡阶段暂不定义任何参数。
 
-- 50 张 Manifest 冻结；
-- 缺失实体补齐；
-- 19 个 Key Moment 完成 source mapping。
-
-## Gate B — Art Bible Lock
-
-先生成并评审 6 张 Style Test：
+等以下信息确定后单独建立制卡规范：
 
 ```text
-C01 Ymir
-C09 Urðr
-S01 Ginnungagap
-S04 Yggdrasil
-T12 Skull Becomes Sky
-O02 Svalinn
+供应商
+实际成品尺寸
+纸张 / PVC / PET 等材质
+圆角
+印刷方式
+色彩空间
+出血
+安全区
+卡正反版式
+字体
+编号
+烫金 / UV / 压纹 / 镭射等工艺
+包装方式
 ```
 
-六张同时通过，才说明 Character / Scene / Story / Object 四类视觉语言已经成立。
+到时再创建：
 
-## Gate C — Character / Scene Canon Lock
+```text
+docs/cards/norse/M01-norse-genesis/CARD_PRODUCTION_SPEC.md
+```
 
-完成 16 Character + 11 Scene。
-
-## Gate D — Full Art Production
-
-完成 19 Story + 2 Object + 2 Ensemble。
-
-## Gate E — 50-card Review
-
-Content + Visual + Print 三重 QA 后才能进入实体打样。
+Phase B 可以复用 Phase A 的视觉资产，但允许为卡面重新构图；**壁纸母图永远不因未知的实卡规格被提前限制。**
 
 ---
 
-# 14. M01 最终设计原则
+# 13. 当前下一步
 
-> **M01 不是“维京时代人物卡”，而是“北欧宇宙从无到有的视觉史诗”。**
+```text
+1. Content Lock
+2. 补齐 M01 P0 依赖
+3. 选 6 个视觉主题做 Style Test
+4. 锁定 Primordial Saga 视觉风格
+5. 先完成核心 Character Canonical Artwork
+6. 再批量进入 Scene / Story / Object / Ensemble
+7. 50 张壁纸视觉 QA
+8. 实体制卡留到独立 Phase B
+```
 
-判断一张卡是否属于 M01，问三个问题：
+M01 当前阶段的唯一核心目标：
 
-1. 它是否帮助用户理解北欧世界如何出现？
-2. 它是否属于世界树 / 命运 / 日月秩序的建立？
-3. 去掉这张卡后，50 张连续阅读是否少了一个真正重要的画面？
-
-如果三个答案都是否，它就不应该进入 M01。
+> **先把 50 个北欧创世视觉主题画成一套高质量、可独立作为壁纸使用、同时能够支持未来制卡的 MythCanvas 原始艺术资产。**
