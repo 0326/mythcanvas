@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "2.1",
+  "cardId": 1003010001,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 1,
+  "type": "character",
+  "slug": "ymir",
+  "titleZh": "尤弥尔",
+  "titleEn": "Ymir",
+  "content": {
+    "storyIds": ["story-norse-ymir-creation"],
+    "characterIds": ["character-ymir"],
+    "worldIds": ["world-niflheim"],
+    "sceneIds": ["scene-ginnungagap"],
+    "objectIds": [],
+    "sourceRefs": [
+      {
+        "sourceId": "prose-edda-gylfaginning",
+        "locator": "Gylfaginning, creation account concerning Ginnungagap and Ymir",
+        "note": "Resolve to the repository Source Registry identifier before final approval if the canonical source ID differs."
+      }
+    ]
+  },
+  "canon": {
+    "identityAnchors": [
+      "primordial giant born where frost and heat meet",
+      "world-scale body rather than ordinary giant scale",
+      "body material language of frost, wet stone, ice, mist and raw earth"
+    ],
+    "mustKeep": [
+      "ancient restrained face",
+      "gray-white and stone-gray body rather than default blue skin",
+      "no armor, crown or weapon",
+      "upper body carries the identity and remains crop-safe",
+      "Ginnungagap visibly mediates cold Niflheim and warm Muspell influences"
+    ],
+    "mustAvoid": [
+      "modern game boss",
+      "superhero physique",
+      "blue-skinned ice giant stereotype",
+      "heavy Viking armor",
+      "horned helmet",
+      "God of War or other franchise-specific design language",
+      "demonic monster face"
+    ]
+  },
+  "visual": {
+    "visualThesis": "Ymir emerges as the first world-scale living presence inside Ginnungagap, where cold mist and ember heat meet before the world has fully formed.",
+    "mood": ["primordial", "vast", "ancient", "cold", "solemn"],
+    "palette": ["deep black", "ice blue", "ash gray", "gray white", "muted ember orange", "dark red"],
+    "materials": ["frost", "wet stone", "ice", "mist", "water", "raw earth", "embers"]
+  },
+  "composition": {
+    "orientation": "portrait",
+    "camera": "low-angle",
+    "shot": "full-body with upper-body visual emphasis",
+    "subjectAnchor": { "x": 0.5, "y": 0.3 },
+    "criticalIdentityZone": {
+      "xMin": 0.2,
+      "xMax": 0.8,
+      "yMin": 0.12,
+      "yMax": 0.52
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.14,
+      "mustRemainVisible": ["face", "head", "upper torso", "shoulders", "primordial scale cues", "cold-warm Ginnungagap contrast"]
+    }
+  },
+  "prompt": {
+    "templateVersion": "m01-style00-v1",
+    "components": [
+      "M01 Primordial Saga art direction",
+      "Ymir character canon",
+      "Ginnungagap environment canon",
+      "portrait crop-safe composition",
+      "pure wallpaper artwork without card UI"
+    ],
+    "final": "Create a vertical 9:16 MythCanvas Norse mythology wallpaper depicting Ymir, the primordial giant, as the first world-scale living presence emerging inside Ginnungagap where the cold of Niflheim meets the heat of Muspell. Use an original, source-respectful MythCanvas design. Ymir must feel enormous and primordial, not like an ordinary fantasy giant or a video-game boss. His body should look naturally formed from gray-white frost, wet stone, ice, mist, water and raw earth, with subtle organic skin beneath the elemental material language. Do not make him blue-skinned. Give him an ancient, restrained, solemn humanlike face rather than a demonic monster face. No armor, no crown, no weapon, no horned helmet, no modern Viking-warrior styling. Compose from a low angle, showing the full body but making the head, shoulders and upper torso the clear visual focus. Place the face roughly in the upper quarter of the image and keep all identity-defining details within the upper-middle safe area. The lower 30 percent should contain only expendable fog, ice-water, legs, rough ground and atmospheric foreground so future card cropping or a lower information panel will not damage the character identity. Keep the outer left and right edges free of critical anatomy or symbols. Environment: a vast dark Ginnungagap, with cold ice-blue mist and frozen flows entering from one side, muted ember-orange sparks and restrained heat from the other, steam and meltwater where they meet. The world is not yet formed: no cities, no halls, no mature landscapes, no Viking buildings. Art direction: painterly northern classical fantasy, premium mythological concept illustration, tactile natural materials, monumental scale, restrained lighting, sophisticated atmospheric depth, fine hand-painted texture, visually elegant rather than flashy game CG. Pure artwork only, no typography, no title, no logo, no card frame, no card UI, no numbers, no watermark, no pseudo-runes.",
+    "negative": [
+      "typography",
+      "title",
+      "logo",
+      "card frame",
+      "card UI",
+      "numbers",
+      "watermark",
+      "pseudo-runes",
+      "blue skin",
+      "heavy armor",
+      "horned helmet",
+      "weapon",
+      "superhero physique",
+      "video game boss",
+      "demonic face",
+      "franchise-specific character design",
+      "city",
+      "palace",
+      "Viking village"
+    ]
+  },
+  "references": {
+    "cardIds": [],
+    "characterCanonIds": ["character-ymir"],
+    "notes": "First Style 00 test. No prior approved M01 artwork reference exists yet."
+  },
+  "output": {
+    "fileName": "1003010001.png",
+    "width": 1620,
+    "height": 2880,
+    "format": "png"
+  },
+  "generation": {
+    "model": "OpenAI image generation",
+    "attempt": 1,
+    "generatedAt": null,
+    "notes": "Initial Style 00 visual test for Ymir."
+  },
+  "qa": {
+    "status": "generating",
+    "reviewNotes": []
+  }
+}
