@@ -1,9 +1,9 @@
 # MythCanvas 北欧收藏卡总规划
 
 > 状态：Master Planning  
-> 版本：V1.0  
+> 版本：V1.1  
 > 日期：2026-09-06  
-> 适用范围：北欧神话收藏卡系列拆分、逐期 50 张套卡规划、后续 Series Bible / Card Manifest / 视觉 Edition 设计。  
+> 适用范围：北欧神话收藏卡系列拆分、逐期 50 张套卡规划、后续 Series Bible / Card Manifest / Art Bible / QA。  
 > 上游内容：`src/content/norse/`、`docs/NORSE_STORY_MAP.md`、`docs/NORSE_MYTHOLOGY_COMPLETION_PLAN.md`  
 > 相关产品方案：`docs/STORY_SERIES_COLLECTION_PRODUCT_PLAN.md`
 
@@ -13,7 +13,7 @@
 
 北欧收藏卡不按现有 Story Cycle 一一出套，也不按“一个热门神 = 一套卡”拆分。
 
-最终采用：
+统一链路：
 
 ```text
 完整北欧内容体系
@@ -24,7 +24,7 @@ Story Cycle / Saga
       ↓
 Collection Series
       ↓
-每系列约 50 张固定精品套卡
+每系列 50 张固定精品套卡
 ```
 
 每套固定包含五类：
@@ -37,980 +37,366 @@ Collection Series
 系列封面 / 群像卡 Hero / Ensemble
 ```
 
-五类数量不做统一配额，按各系列叙事结构灵活分配；唯一硬要求是：
+五类数量按系列内容灵活分配，不做统一配额。硬要求只有一条：
 
 > **50 张都必须有独立叙事或视觉价值，禁止靠同角色换姿势、换背景、换色凑数。**
 
-基于当前仓库内容与外部北欧神话资料复核，建议第一阶段形成 **6 套 × 50 张 = 300 张**，并预留第二阶段扩展。
+第一阶段规划 **6 套 × 50 张 = 300 张**。
 
 ---
 
-# 1. 当前内容基线
+# 1. 命名规则
 
-以当前 `main` 的 North Story Map 为基线：
+所有系列统一采用：
 
-```text
-Source Registry              45
-Unique Story Units           74
-Static Characters            90
-Worlds                        8
-Scenes                       15
-Mythic Objects               16
-Static Stories               73
-Story Cycles                  9
-Manifest Dependency Gaps      0
-```
+> **大众认知主标题 + 准确叙事副标题**
 
-当前 9 个 Story Cycle：
+主标题负责让用户一眼知道“这是什么”；副标题负责说明“这一套具体讲什么”。
 
-```text
-creation
-gods-and-treasures
-odin-cycle
-thor-cycle
-loki-cycle
-baldr-ragnarok
-volsung-cycle
-helgi-cycle
-independent-eddic
-```
+避免：
 
-这些 Cycle 是知识 / 内容组织层，不直接等于商品系列。
+- 用生僻古诺尔斯词作为唯一主标题；
+- 用“世界之初 / 诸神时代”这类跨文明都能套用的泛标题；
+- 为了知名度混入其他传统，例如用“尼伯龙根”替代 Old Norse 的 Völsung / Sigurd 传统；
+- 过度文学化，导致用户看完标题仍不知道内容。
 
 ---
 
 # 2. 产品分层
 
-北欧收藏宇宙建议分成三条产品线。
-
 ## 2.1 MYTHOS / 诸神神话
 
-围绕神祇、世界秩序和 Ragnarök 的主神话体系。
+围绕宇宙创生、神族秩序、诸神冒险与 Ragnarök。
 
 ```text
-M01 世界之初
-M02 诸神时代
-M03 雷神远征
-M04 世界终局
+M01 北欧创世：世界树与命运
+M02 奥丁与诸神：阿萨与华纳的时代
+M03 雷神索尔：巨人国远征
+M04 诸神黄昏：巴德尔之死与世界终局
 ```
 
-四套共同构成一条大的神话历史：
+四套形成连续的大叙事：
 
 ```text
-创世
- ↓
-诸神秩序建立
- ↓
+世界诞生
+↓
+诸神建立秩序
+↓
 诸神时代的冒险与冲突
- ↓
-Baldr 之死
- ↓
-Ragnarök
- ↓
+↓
+巴德尔之死
+↓
+诸神黄昏
+↓
 世界再生
 ```
 
 ## 2.2 HEROIC SAGAS / 英雄传奇
 
-围绕人类英雄、家族、诅咒、战争和传奇 Saga。
+围绕人类英雄、家族、诅咒、战争与传奇 Saga。
 
 ```text
-H01 沃尔松格
-H02 提尔锋：赫尔沃尔与诅咒之剑
+H01 屠龙者西格尔德：黄金诅咒
+H02 诅咒之剑提尔锋：赫尔沃尔传奇
 ```
 
-其中 H01 已进入当前内容体系；H02 是外部资料 review 后新增的高价值候选，尚需先完成网站内容补全。
+H01 已进入当前内容体系。H02 为外部资料复核后新增的高价值系列，正式出卡前必须先补完对应网站 Story / Character / Scene / MythicObject。
 
 ## 2.3 LEGENDS / 北境传奇（后续）
 
-不纳入首期 300 张核心产品。
-
-候选：
+暂不纳入第一阶段 300 张：
 
 ```text
-H03 Hrólfr Kraki / 赫罗尔夫·克拉基
-L01 Ragnar Loðbrók / 拉格纳·洛德布罗克
+H03 赫罗尔夫·克拉基：最后的王与狂战士
+L01 拉格纳·洛德布罗克：蛇坑与诸子传奇
 其他高价值 fornaldarsögur
 ```
 
-Helgi、Völundr、Svipdagr、Rígr、Grottasöngr 等继续保留在网站完整北欧内容体系中，但暂不为了凑 50 张强行拼成一套实体 Collection。
+Helgi、Völundr、Svipdagr、Rígr、Grottasöngr 等继续保留在网站完整内容体系中，不为了满足 50 张体量强行拼成实体套卡。
 
 ---
 
 # 3. 第一阶段六套总规划
 
-| 编号 | 系列 | 核心内容 | 角色卡 | 场景卡 | 故事卡 | 神物卡 | 封面/群像 | 总计 |
+| 编号 | 正式系列名 | 内容内核 | 角色卡 | 场景卡 | 故事卡 | 神物卡 | 封面/群像 | 总计 |
 |---|---|---|---:|---:|---:|---:|---:|---:|
-| M01 | 世界之初：尤弥尔、世界树与命运 | Creation | 16 | 12 | 18 | 2 | 2 | 50 |
-| M02 | 诸神时代：阿萨、华纳与奥丁 | Gods & Treasures + Odin + Early Loki | 15 | 8 | 16 | 9 | 2 | 50 |
-| M03 | 雷神远征：索尔与巨人 | Thor Cycle | 15 | 8 | 20 | 5 | 2 | 50 |
-| M04 | 世界终局：巴德尔之死与诸神黄昏 | Baldr + Ragnarök + Late Loki | 17 | 9 | 15 | 7 | 2 | 50 |
-| H01 | 沃尔松格：黄金诅咒与屠龙者 | Völsung / Sigurd / Gudrun / Atli | 18 | 8 | 17 | 5 | 2 | 50 |
-| H02 | 提尔锋：赫尔沃尔与诅咒之剑 | Hervarar saga / Tyrfing | 16 | 8 | 20 | 4 | 2 | 50 |
+| M01 | **北欧创世：世界树与命运** | Creation / Yggdrasil / Fate | 16 | 12 | 18 | 2 | 2 | **50** |
+| M02 | **奥丁与诸神：阿萨与华纳的时代** | Gods & Treasures + Odin + Early Loki | 15 | 8 | 16 | 9 | 2 | **50** |
+| M03 | **雷神索尔：巨人国远征** | Thor Cycle | 15 | 8 | 20 | 5 | 2 | **50** |
+| M04 | **诸神黄昏：巴德尔之死与世界终局** | Baldr + Ragnarök + Late Loki | 17 | 9 | 15 | 7 | 2 | **50** |
+| H01 | **屠龙者西格尔德：黄金诅咒** | Völsung / Sigurd / Guðrún / Atli | 18 | 8 | 17 | 5 | 2 | **50** |
+| H02 | **诅咒之剑提尔锋：赫尔沃尔传奇** | Hervarar saga / Tyrfing | 16 | 8 | 20 | 4 | 2 | **50** |
 
-> 上表是系列级卡槽预算，不是最终逐卡 Manifest。逐期详细设计允许在五类之间重新调整，但总数固定 50。
-
----
-
-# 4. M01《世界之初：尤弥尔、世界树与命运》
-
-## 4.1 系列定位
-
-北欧世界观 Genesis Set。
-
-核心主题：
-
-> **世界不是被一次创造完成，而是在冰、火、巨人、神、命运与宇宙树之间逐渐成形。**
-
-## 4.2 内容来源
-
-主要映射当前 `creation` Cycle：
-
-```text
-尤弥尔与世界的诞生
-奥德胡姆拉与布里
-尤弥尔之躯化为世界
-阿斯克与恩布拉
-世界树与三口井
-诺恩与命运之井
-日月与追逐者
-尼德霍格与世界树
-```
-
-## 4.3 卡牌结构建议
-
-```text
-角色卡       16
-场景卡       12
-故事卡       18
-神物卡        2
-封面群像卡    2
-              ──
-              50
-```
-
-这套刻意提高 Scene / Story 占比，不强行制造大量“神祇肖像”。
-
-重点角色候选：
-
-```text
-Ymir
-Búri
-Odin
-Vili
-Vé
-Mímir
-Urðr
-Verðandi
-Skuld
-Sól
-Máni
-Sköll
-Hati
-Níðhöggr
-Ask
-Embla
-```
-
-重点视觉空间：
-
-```text
-Ginnungagap
-Niflheim
-Muspell
-Yggdrasil
-Urðarbrunnr
-Mímisbrunnr
-Midgard 初成
-Asgard 初成
-日月天穹
-世界树根系
-```
-
-## 4.4 产品特点
-
-视觉重点：
-
-> 原初、巨大尺度、冰火、宇宙树、命运、日月。
-
-与后续“维京铠甲 + 神战”视觉彻底拉开差异。
+> 上表是系列级卡槽预算。逐期详细设计允许在五类间微调，但总数固定 50；如果某类缺少自然内容，应调整结构，不得造伪神物或重复画面凑数量。
 
 ---
 
-# 5. M02《诸神时代：阿萨、华纳与奥丁》
+# 4. Story Cycle → Collection 映射
 
-## 5.1 系列定位
-
-讲清楚北欧“诸神文明”如何建立，而不是做 Odin Portrait Set。
-
-核心主题：
-
-> **战争、和解、知识、宝物、契约与牺牲共同构成诸神时代的秩序。**
-
-## 5.2 内容合并规则
-
-合并：
+当前内容层 Story Cycle 是知识图谱组织，不等于商品边界。
 
 ```text
+creation
+    → M01 北欧创世
+
 gods-and-treasures
-+
-odin-cycle
-+
-early loki stories
-```
++ odin-cycle
++ early loki
+    → M02 奥丁与诸神
 
-不单独做 Odin Collection，也不单独做 Loki Collection。
+thor-cycle
+    → M03 雷神索尔
 
-Early Loki 主要归本套：
-
-```text
-Iðunn / Þjazi
-Asgard Wall / Sleipnir
-Sif's Hair / Treasures
-```
-
-## 5.3 核心故事
-
-```text
-Gullveig 与阿萨—华纳战争
-阿萨与华纳和约
-Kvasir 与诗歌蜜酒
-Odin 夺取诗歌蜜酒
-Iðunn 与 Þjazi
-Skaði 的赔偿
-Njörðr 与 Skaði
-阿斯加德城墙与 Sleipnir
-Sif 的金发与诸神宝物
-Freyr 与 Gerðr
-Odin 献眼
-Odin 世界树九夜
-Odin 与 Vafþrúðnir
-Grímnir 的启示
-Huginn / Muninn
-Valhöll 与 Valkyries
-Odin 与 Seiðr
-```
-
-## 5.4 卡牌结构建议
-
-```text
-角色卡       15
-场景卡        8
-故事卡       16
-神物卡        9
-封面群像卡    2
-              ──
-              50
-```
-
-这是六套中 Mythic Object 占比最高的一套。
-
-重点神物：
-
-```text
-Gungnir
-Draupnir
-Skíðblaðnir
-Mead of Poetry
-Iðunn's Apples
-Freyr's Sword
-Mjölnir
-Brísingamen
-其他来源充分的宝物
-```
-
-## 5.5 建议补强内容
-
-后续逐期设计时重点检查：
-
-### Heimdall vs Loki / Brísingamen
-
-来自 `Húsdrápa` 的重要视觉神话，可以作为两人在 Ragnarök 最终冲突之前的前置关系。
-
-### Ægir Feast
-
-把：
-
-```text
-寻找 Hymir 大锅
-→ Ægir Feast
-→ Lokasenna
-```
-
-串成跨 M02 / M03 的诸神社会场景。
-
----
-
-# 6. M03《雷神远征：索尔与巨人》
-
-## 6.1 系列定位
-
-Adventure Collection，而不是纯战斗合集。
-
-核心主题：
-
-> **索尔不断跨越边界进入巨人世界，在力量、幻术、海洋、宴席和知识挑战中反复证明守护者身份。**
-
-## 6.2 当前 Story Cycle
-
-映射 `thor-cycle`：
-
-```text
-Thor 与 Hrungnir
-Thor 与 Hymir 的大锅
-Thor 垂钓 Jörmungandr
-Mjölnir 被盗
-Thor / Þjálfi / Röskva
-Thor 与 Skrymir
-Thor 在 Útgarðr
-Thor 与 Geirröðr
-Thor 与 Alvíss
-Thor 与 Hárbarðr
-```
-
-## 6.3 卡牌结构建议
-
-```text
-角色卡       15
-场景卡        8
-故事卡       20
-神物卡        5
-封面群像卡    2
-              ──
-              50
-```
-
-故事卡占比最高，因为每篇冒险都有多个真正独立的视觉 Key Moment。
-
-例如《雷神之锤被盗》可自然拆：
-
-```text
-Thor 发现 Mjölnir 消失
-Loki 借 Freyja 羽衣
-Þrymr 提出婚约条件
-Thor 被装扮成新娘
-巨人婚宴
-Mjölnir 被送上婚礼
-Thor 夺回 Mjölnir
-```
-
-原则：
-
-> `MythStory ≠ 一张 Story Card`，一篇 Story 应由多个 source-backed Key Moments 产生多张故事卡。
-
----
-
-# 7. M04《世界终局：巴德尔之死与诸神黄昏》
-
-## 7.1 系列定位
-
-北欧 Mythos 第一优先级实体打样系列。
-
-核心主题：
-
-> **末日不是突然发生的一场大战，而是誓约、亲缘、背叛、预言与旧秩序长期积累后的必然崩塌。**
-
-## 7.2 内容合并规则
-
-```text
 baldr-ragnarok
-+
-late loki stories
++ late loki
+    → M04 诸神黄昏
+
+volsung-cycle
+    → H01 屠龙者西格尔德
+
+Hervarar saga / Tyrfing（待补内容）
+    → H02 诅咒之剑提尔锋
 ```
 
-Late Loki 主要归本套：
+Loki 不单独做 50 张套卡：
 
-```text
-Fenrir / Gleipnir
-Loki 与 Baldr
-Loki Bound
-Loki at Ragnarök
-```
+- 早期 Loki 作为诸神秩序中的问题制造者 / 修复者进入 M02；
+- 后期 Loki 从 Baldr 事件到 Ragnarök 进入 M04。
 
-## 7.3 主要故事弧
-
-```text
-Fenrir 被束缚
-↓
-Baldr 的梦
-↓
-万物誓约与槲寄生
-↓
-Baldr 之死
-↓
-Hringhorni 葬礼
-↓
-Hermóðr 前往 Hel
-↓
-Loki 被束缚
-↓
-Fimbulwinter
-↓
-世界秩序崩溃
-↓
-Gjallarhorn
-↓
-Odin vs Fenrir
-↓
-Víðarr 复仇
-↓
-Thor vs Jörmungandr
-↓
-Týr vs Garmr
-↓
-Freyr vs Surtr
-↓
-Heimdall vs Loki
-↓
-世界焚毁
-↓
-世界再生
-```
-
-## 7.4 卡牌结构建议
-
-```text
-角色卡       17
-场景卡        9
-故事卡       15
-神物卡        7
-封面群像卡    2
-              ──
-              50
-```
-
-核心神物：
-
-```text
-Gleipnir
-Hringhorni
-Naglfar
-Gjallarhorn
-Gungnir
-Mjölnir
-Freyr's Sword
-```
-
-## 7.5 建议补强内容
-
-Baldr 葬礼不要只做 1 张卡。
-
-可继续细分：
-
-```text
-Baldr 遗体
-Hringhorni
-Hyrrokkin 推船
-诸神 procession
-Nanna
-Odin 放置 Draupnir
-火焰葬船
-```
-
-目标是把“Ragnarök 战斗海报”升级成完整的悲剧—末日—新生叙事。
+这样避免与 M02 / M04 大量重复。
 
 ---
 
-# 8. H01《沃尔松格：黄金诅咒与屠龙者》
+# 5. 六套系列定位
 
-## 8.1 系列定位
+## M01《北欧创世：世界树与命运》
 
-北欧 Heroic Sagas 第一套。
+核心：Ymir、Auðumbla、Búri、Odin / Vili / Vé、Ask / Embla、Yggdrasil、Norns、Sól / Máni、Sköll / Hati、Níðhöggr。
 
-核心主题：
+关键词：
 
-> **一份黄金诅咒如何跨越家族、英雄、爱情与王权，最终摧毁拥有它的人。**
+> 原初、冰火、创世、宇宙尺度、世界树、命运、日月。
 
-## 8.2 当前内容主干
+重点是 Scene / Story，不把它做成“神祇肖像集”。
 
-映射 `volsung-cycle`：
+详细方案：`docs/cards/norse/M01-norse-genesis/M01_CARD_PLAN.md`
 
-```text
-Völsung 与树中神剑
-Signý / Siggeir
-Sigmund / Sinfjötli
-Sigmund 之死 / Hjördis
-Andvari 黄金
-Sigurd / Regin
-Sigurd 杀 Fafnir
-Sigurd / Sigrdrífa
-Sigurd / Brynhildr
-Sigurd 之死
-Gudrun / Atli
-Svanhildr / Hamðir / Sörli
-```
+## M02《奥丁与诸神：阿萨与华纳的时代》
 
-## 8.3 卡牌结构建议
+核心：Æsir–Vanir War、Kvasir、Mead of Poetry、Iðunn / Þjazi、Skaði / Njörðr、Asgard Wall、Gods' Treasures、Freyr / Gerðr、Odin 求知、Valhöll / Valkyries。
 
-```text
-角色卡       18
-场景卡        8
-故事卡       17
-神物卡        5
-封面群像卡    2
-              ──
-              50
-```
+关键词：
 
-核心神物：
+> 奥丁、神族、战争与和解、知识、牺牲、神器、秩序。
 
-```text
-Gram
-Andvaranaut
-Andvari Gold / Treasure
-相关英雄遗物
-其他来源充分的家族 / 战争物件
-```
+这是六套中神物卡占比最高的一套。
 
-## 8.4 产品特点
+## M03《雷神索尔：巨人国远征》
 
-与 Mythos 四套明确区分：
+核心：Hrungnir、Hymir、Jörmungandr、Þrymr、Skrymir、Útgarða-Loki、Geirröðr、Alvíss、Hárbarðr。
 
-```text
-神祇 → 人类英雄
-宇宙秩序 → 家族命运
-神战 → 屠龙 / 婚姻 / 背叛 / 复仇
-神器 → 诅咒遗物
-```
+关键词：
 
-视觉关键词：
+> 雷神、远征、巨人国、海洋、力量、幻术、宴会、挑战。
 
-> 长屋、黄金、龙、铁匠、火焰、誓言、婚姻、家族战争、悲剧。
+定位是 Adventure Collection，不是纯战斗合集。
+
+## M04《诸神黄昏：巴德尔之死与世界终局》
+
+核心：Fenrir / Gleipnir、Baldr、Hringhorni、Hermóðr / Hel、Loki Bound、Fimbulwinter、Gjallarhorn、终局宿敌、世界焚毁与再生。
+
+关键词：
+
+> 预言、死亡、背叛、束缚、末日、宿敌、毁灭、新生。
+
+商业视觉冲击最强，但正式发行顺序仍排在 M01～M03 之后。
+
+## H01《屠龙者西格尔德：黄金诅咒》
+
+核心：Völsung、Sigmund、Signý、Regin、Andvari、Fafnir、Sigurd、Brynhildr / Sigrdrífa、Guðrún、Gunnar、Högni、Atli。
+
+关键词：
+
+> 屠龙、黄金、诅咒、家族、誓约、背叛、复仇。
+
+“Völsung Saga”保留为学术 / 系列内部英文标签，不作为中文主标题认知门槛。
+
+## H02《诅咒之剑提尔锋：赫尔沃尔传奇》
+
+核心：Tyrfingr、Angantýr、Hervör、墓丘取剑、Heiðrekr、谜语、继承、家族战争、Goths / Huns。
+
+关键词：
+
+> 诅咒之剑、女战士、亡灵墓丘、继承、王权、战争。
+
+正式立项前必须先完成网站内容闭包。
 
 ---
 
-# 9. H02《提尔锋：赫尔沃尔与诅咒之剑》
+# 6. 卡片五类统一定义
 
-## 9.1 状态
+## 6.1 Character / 角色卡
 
-**Collection Candidate / Content Not Yet Complete**
-
-该系列来自对北欧传奇传统的外部 review，目前不属于现有 9 个主要 Story Cycle 的完整实现范围。
-
-在启动卡牌详细设计前，必须先将对应内容补入网站 Story / Character / Scene / MythicObject 体系。
-
-## 9.2 为什么替代原“埃达英雄诗篇合集”
-
-原候选：
-
-```text
-Helgi
-Völundr
-Svipdagr
-Rígr
-Grottasöngr
-```
-
-虽然都属于 Eddic / Eddic-like corpus，但并不形成统一 Story World。
-
-原则：
-
-> **同属一本诗歌集，不等于适合成为同一实体收藏系列。**
-
-因此它们继续作为网站内容存在，但不强行拼成 50 张商品。
-
-## 9.3 H02 核心内核
-
-以 `Hervarar saga ok Heiðreks` / Tyrfing tradition 为主：
-
-```text
-诅咒之剑 Tyrfingr
-↓
-Angantýr
-↓
-死亡与墓丘
-↓
-Hervör 唤醒亡父
-↓
-取得 Tyrfingr
-↓
-诅咒继续传承
-↓
-Heiðrekr
-↓
-王权、谜语与谋杀
-↓
-后代继承
-↓
-Goths vs Huns
-↓
-诅咒完成
-```
-
-## 9.4 卡牌结构建议
-
-```text
-角色卡       16
-场景卡        8
-故事卡       20
-神物卡        4
-封面群像卡    2
-              ──
-              50
-```
-
-最大的视觉中心：
-
-> **Tyrfingr 本身必须像一个“贯穿几代人的角色”一样存在。**
-
-视觉关键词：
-
-> 墓丘、亡灵、女战士、诅咒剑、王权、继承、谜语、北境大战。
-
----
-
-# 10. 第二阶段候选
-
-## H03《赫罗尔夫·克拉基：最后的王与狂战士》
-
-候选原因：
-
-- 独立 Saga 内核强；
-- Hrólfr、Bǫðvarr Bjarki 等角色辨识度高；
-- 熊之诅咒、英雄入廷、怪物、战士群体、最终覆灭等足够支撑 50 张；
-- 与 Völsung / Tyrfing 的故事气质不同。
-
-## L01《拉格纳·洛德布罗克》
-
-有极强市场认知度和丰富传奇事件，但历史 / 传奇边界复杂。
-
-建议未来单开：
-
-```text
-LEGENDS / 北境传奇
-```
-
-而不是直接归入 MYTHOS。
-
----
-
-# 11. 暂不商品化为 50 张大套卡的内容
-
-当前仍应保留在 MythCanvas 北欧完整内容体系，但暂不强行形成 Collection：
-
-```text
-Helgi Cycle
-Völundr
-Svipdagr / Menglöð
-Rígr
-Grottasöngr
-```
-
-未来处理方式：
-
-1. 继续作为 Story / Character / Artwork 内容；
-2. 可做小型数字专题；
-3. 可在找到更完整的相邻 Saga 后重新组合；
-4. 不为了“商品套数”破坏真实叙事边界。
-
----
-
-# 12. 卡牌五类定义
-
-## 12.1 角色卡 Character Card
-
-目标：展示一个具有稳定 Canonical Design 的独立人物 / 神祇 / 英雄 / 重要神话存在。
+表现一个角色的稳定身份，不是“角色在某场剧情中的截图”。
 
 要求：
 
-- 不同角色才算不同卡；
-- 同角色普通 Pose A / Pose B 不算新增内容价值；
-- 同角色只有在不同神话阶段确实有叙事身份变化时，才能考虑多张角色卡。
+- 单主体为主；
+- 明确 silhouette / signature symbol；
+- 同一 Character 跨系列需保持 Canonical Design；
+- 系列可改变服装状态、年龄阶段或情境，但不能改变核心身份锚点。
 
-例如：
+## 6.2 Scene / 场景卡
 
-```text
-Loki · Companion
-Loki · Bound
-```
+表现有独立空间价值的 World / Scene。
 
-必须证明它们代表不同叙事阶段，而不是换衣服。
+要求：
 
-## 12.2 场景卡 Scene Card
+- 人物不是主体；
+- 一眼可区分地点；
+- 必须有空间尺度、材质、气候和地标；
+- 不用“空旷雪山 + 极光”作为所有北欧场景的万能模板。
 
-表现有独立空间意义的：
+## 6.3 Story / 故事卡
 
-```text
-World
-Realm
-Hall
-Coast
-Battlefield
-Bridge
-Well
-Burial Mound
-Underworld Road
-```
+表现 MythStory 中 source-backed 的具体 Key Moment。
 
-场景必须能脱离具体角色依然成立。
-
-## 12.3 故事卡 Story Card
-
-实际应理解为：
-
-> **Key Moment Card**
-
-数据逻辑：
+核心规则：
 
 ```text
 MythStory
-    ↓
-Source-backed Key Moments
-    ↓
+   ↓
+Key Moments
+   ↓
 Story Cards
 ```
 
-一篇 Story 可以拆 1～7 张，取决于真实叙事密度。
+一篇 Story 可以产出多张故事卡；一张故事卡只讲一个关键瞬间。
 
-## 12.4 神物卡 Mythic Object Card
+## 6.4 Mythic Object / 神物卡
 
-产品展示可以使用中文“神器 / 神物卡”，底层统一使用 `MythicObject`。
+产品层统一称“神物卡”，不局限武器。
 
-覆盖：
-
-```text
-Weapon
-Artifact
-Jewel
-Vehicle
-Vessel
-Food
-Substance
-Symbolic Object
-```
-
-避免“创世篇没有神器所以硬塞武器”的问题。
-
-## 12.5 系列封面 / 群像卡 Hero / Ensemble
-
-每套建议固定 2 张：
+可以包含：
 
 ```text
-01 Series Hero / 封面主视觉
-02 Ensemble / 核心群像
+weapon
+artifact
+jewel
+vehicle
+vessel
+food
+substance
+symbolic-object
 ```
 
-可以承担实体包装和数字典藏封面的视觉锚点。
+必须是有来源、有稳定身份、有独立视觉价值的对象，禁止为了配额创造不存在的“神器”。
+
+## 6.5 Hero / Ensemble / 系列封面群像卡
+
+每套原则上 2 张：
+
+1. 系列主封面；
+2. 系列终章 / 另一极性群像。
+
+必须生成成单一完整构图，禁止把多个独立角色图拼贴成海报。
 
 ---
 
-# 13. 逐期详细设计的标准模板
+# 7. 正式生产 / 发行顺序
 
-后续每进入一期，不直接出图，先创建：
-
-```text
-docs/cards/norse/<series-id>/
-├── SERIES_BIBLE.md
-├── CARD_MANIFEST.md
-├── ART_BIBLE.md
-└── QA_CHECKLIST.md
-```
-
-建议系列 ID：
+正式系列应按神话叙事顺序推进：
 
 ```text
-M01-creation
-M02-age-of-gods
-M03-thor
-M04-ragnarok
-H01-volsung
-H02-tyrfing
+M01 北欧创世
+↓
+M02 奥丁与诸神
+↓
+M03 雷神索尔
+↓
+M04 诸神黄昏
+↓
+H01 屠龙者西格尔德
+↓
+H02 诅咒之剑提尔锋
 ```
 
-## 13.1 SERIES_BIBLE.md
+原因：
 
-至少定义：
+- M01 建立世界观和整套 Norse Collection 的基础视觉语言；
+- M02 建立诸神与神器体系；
+- M03 在既有世界中展开冒险；
+- M04 回收前面所有伏线；
+- H01 / H02 再进入 Heroic Sagas 产品线。
 
-```text
-系列主题
-叙事起点 / 终点
-核心 Story
-角色依赖
-空间地图
-神物依赖
-版本差异
-不纳入范围
-视觉母题
-```
-
-## 13.2 CARD_MANIFEST.md
-
-逐张定义 50 张：
-
-```text
-cardId
-type
-nameZh
-nameEn
-sourceStory / sourceEntity
-narrativePurpose
-visualSubject
-mustHave
-avoid
-duplicateRisk
-```
-
-要求：
-
-> 每张卡都必须回答“为什么它值得占用 50 个槽位中的一个”。
-
-## 13.3 ART_BIBLE.md
-
-Series Core 与 Style Edition 分离。
-
-```text
-Series Core
-    ↓
-Edition A · Sacred / Cinematic / Anime / ...
-Edition B · ...
-```
-
-不同 Edition 可以重新生成全套 50 张，但不能修改人物关系、故事事实和叙事顺序。
-
-## 13.4 QA_CHECKLIST.md
-
-检查：
-
-```text
-神话事实准确
-来源范围正确
-角色 Canonical Design 一致
-场景连续性
-神器正确
-无商业 IP 视觉污染
-无同质化 Pose
-无 AI 手指 / 文字 / 解剖错误
-整套色彩与构图有统一语言
-50 张放在 Contact Sheet 上仍像同一个 Series
-```
+若只需要做印刷 / 工艺技术样卡，可以从 M04 抽取 6～10 张高冲击画面测试，但不改变正式发行顺序。
 
 ---
 
-# 14. Series Ready Gate
+# 8. Series Ready Gate
 
-一个系列只有同时满足以下条件，才能进入真正的 50 张详细设计。
+每套进入批量出图前必须同时满足：
 
-```text
-1. Narrative Closure
-   有明确故事内核、起点、发展和终点。
+### Narrative
 
-2. Content Closure
-   主要 Story / Character / Scene / MythicObject 已进入内容体系。
+- 有完整 Narrative Spine；
+- Story / Key Moment 足够自然支撑 50 张；
+- 每张 Story Card 能追溯到具体 Story / source scope。
 
-3. Source Closure
-   核心 Story 均有明确来源范围；重大版本差异已标记。
+### Entity
 
-4. Natural Card Capacity
-   不重复立绘、不换色凑数时，自然容量 >= 50。
+- 所有角色、场景、神物依赖已闭包；
+- 需要新增的网站实体先补内容，再出卡；
+- 不用卡牌设计反向制造伪 Canon。
 
-5. Visual Diversity
-   至少有角色、空间、事件、物件四种视觉层次。
+### Visual
 
-6. Series Identity
-   与其他北欧系列有明显不同的叙事主题和视觉母题。
-```
+- 核心角色 Canonical Design 稳定；
+- 场景具有可区分 Visual Anchor；
+- Series Visual DNA 完成；
+- 五类卡均有明确构图语法。
 
-任何一项不满足：
+### Product
 
-> **继续补内容，不进入出图。**
-
----
-
-# 15. 推荐开发 / 产品顺序
-
-系列编号代表世界观阅读顺序，不代表实际生产顺序。
-
-建议实际打样顺序：
-
-```text
-M04 世界终局
-↓
-M03 雷神远征
-↓
-H01 沃尔松格
-↓
-M02 诸神时代
-↓
-M01 世界之初
-↓
-H02 提尔锋
-```
-
-理由：
-
-- M04：人物、故事、神器、场景最齐，商业视觉最强；
-- M03：最容易验证“多 Key Moment 的冒险型卡组”；
-- H01：验证神祇之外的 Heroic Saga 产品线；
-- M02：验证高 Mythic Object 占比套卡；
-- M01：验证低人物、高世界观套卡；
-- H02：先完成网站上游内容后再商品化。
-
-如果前三套都能稳定做到 50 张“不水”，基本可以证明整个 North Collection 模型成立。
+- 精确 Card Manifest = 50；
+- 同一张卡只有一个主要视觉命题；
+- 无重复肖像 / 换色 / 同构图凑数；
+- 印刷安全区、出血、文字层、编号系统已定义。
 
 ---
 
-# 16. 总体产品结构
+# 9. 逐期详细规划目录规范
 
 ```text
-MYTHCANVAS · NORSE COLLECTION
-
-MYTHOS / 诸神神话
-├── M01 世界之初
-├── M02 诸神时代
-├── M03 雷神远征
-└── M04 世界终局
-
-HEROIC SAGAS / 英雄传奇
-├── H01 沃尔松格
-└── H02 提尔锋
-
-SECOND WAVE
-├── H03 赫罗尔夫·克拉基
-└── L01 拉格纳·洛德布罗克
+docs/cards/norse/
+├── NORSE_CARD_COLLECTION_PLAN.md
+│
+├── M01-norse-genesis/
+│   ├── M01_CARD_PLAN.md
+│   ├── CARD_MANIFEST.md          # 后续落地时可拆
+│   ├── ART_BIBLE.md              # 后续落地时可拆
+│   └── QA_CHECKLIST.md           # 后续落地时可拆
+│
+├── M02-odin-and-gods/
+├── M03-thor-jotunheim/
+├── M04-ragnarok/
+├── H01-sigurd/
+└── H02-tyrfing/
 ```
 
-第一阶段：
-
-```text
-6 Series × 50 Cards = 300 Cards
-```
-
-这 300 张不是 300 幅独立 AI 插图合集，而应共同构成：
-
-> **一套可以从世界诞生一直收藏到诸神覆灭，再进入北境英雄传奇的完整北欧视觉叙事宇宙。**
+M01 先用一份完整详细方案验证结构；后续若内容继续膨胀，再将 Card Manifest / Art Bible / QA 拆成独立文档。
 
 ---
 
-# 17. 最终原则
-
-北欧卡牌长期遵循：
+# 10. 总原则
 
 ```text
 Source drives Story
 Story drives Entity
-Story Cycle / Saga drives Collection
-Series Bible drives Card Manifest
-Card Manifest drives Art
-Style creates Edition, not Canon
+Entity drives Visual
+Story Cycle drives Collection
+Series Bible drives 50-card Manifest
+Manifest drives Art Production
 ```
 
-产品上永远避免：
-
-```text
-先定 50 张
-→ 不够
-→ 重复角色
-→ 换姿势
-→ 换颜色
-→ 制造假稀有度
-```
-
-正确流程是：
-
-```text
-完整内容体系
-→ 找到自然容量 >= 50 的独立故事世界
-→ 冻结 Series Bible
-→ 逐张证明 Card Slot 的价值
-→ 才进入视觉生产
-```
+收藏卡是完整神话体系的产品化结果，不反过来修改神话事实。
