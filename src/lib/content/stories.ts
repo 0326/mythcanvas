@@ -46,6 +46,19 @@ export const getPublicStoryPaths = (): { mythologyId: string; slug: string }[] =
     .filter((story) => shouldUseMythStoryDetailRoutes(getStoriesForMythology(story.mythologyId).length))
     .map((story) => ({ mythologyId: story.mythologyId, slug: story.slug }));
 
+/**
+ * A public reader route and a search-engine canonical URL are deliberately
+ * different gates. This lets an editorial team keep a legacy published reader
+ * available while preventing a prototype/researching Story from being added to
+ * a sitemap before its source and editorial review are complete.
+ */
+export const getIndexableStoryPaths = (): { mythologyId: string; slug: string }[] =>
+  mythStories
+    .filter((story) => story.publishStatus === 'published')
+    .filter((story) => ['source-reviewed', 'visual-ready'].includes(story.editorialStatus ?? ''))
+    .filter((story) => shouldUseMythStoryDetailRoutes(getStoriesForMythology(story.mythologyId).length))
+    .map((story) => ({ mythologyId: story.mythologyId, slug: story.slug }));
+
 export const getPublicStoryRedirectPaths = (): { mythologyId: string; slug: string }[] =>
   mythStories
     .filter((story) => story.publishStatus === 'published')

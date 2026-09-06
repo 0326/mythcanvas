@@ -63,6 +63,54 @@ const helMobileV1 = {
   width: 941,
   height: 1672,
 };
+const muspellDesktopV1 = {
+  src: '/art/norse-muspell-v1.png',
+  alt: '黑色玄武岩裂隙与熔岩构成的穆斯贝尔海姆火焰边界，远处的火焰之剑立于末日天光中',
+  width: 1672,
+  height: 941,
+};
+const muspellMobileV1 = {
+  src: '/art/norse-muspell-mobile-v1.png',
+  alt: '竖幅穆斯贝尔海姆火焰边界：黑色玄武岩裂隙、熔岩与远处火焰之剑向上延伸',
+  width: 941,
+  height: 1672,
+};
+const niflheimDesktopV1 = {
+  src: '/art/norse-niflheim-v1.png',
+  alt: '银蓝雾气笼罩的尼福尔海姆冰河与冰川峡谷，冷寂的原初雾界向远处消失',
+  width: 1672,
+  height: 941,
+};
+const niflheimMobileV1 = {
+  src: '/art/norse-niflheim-mobile-v1.png',
+  alt: '竖幅尼福尔海姆：暗色冰河从前景穿过狭窄冰谷，银蓝雾气向高处汇聚',
+  width: 941,
+  height: 1672,
+};
+const vanaheimDesktopV1 = {
+  src: '/art/norse-vanaheim-v1.png',
+  alt: '河口草地、湿润木材与海风中的石台构成华纳海姆的丰饶边界',
+  width: 1672,
+  height: 941,
+};
+const vanaheimMobileV1 = {
+  src: '/art/norse-vanaheim-mobile-v1.png',
+  alt: '竖幅华纳海姆：前景丰饶草地与湿润木材通向河口石台和灰蓝海面',
+  width: 941,
+  height: 1672,
+};
+const alfheimDesktopV1 = {
+  src: '/art/norse-alfheim-v1.png',
+  alt: '浅色桦木林与微光水面构成亚尔夫海姆的清晨林地，远处隐约可见浅色木石居所',
+  width: 1672,
+  height: 941,
+};
+const alfheimMobileV1 = {
+  src: '/art/norse-alfheim-mobile-v1.png',
+  alt: '竖幅亚尔夫海姆：浅色林木与微光水面向上延伸，远处是隐约的木石居所',
+  width: 941,
+  height: 1672,
+};
 
 const edda = (locator: string, note?: string): SourceRef => sourceRef('proseEddaGylfaginning', locator, note);
 const poeticSourceKeys = {
@@ -137,6 +185,8 @@ const seeds: readonly CharacterSeed[] = [
   ['bor', '博尔', 'Borr', '布里之子与奥丁的父亲', ['祖先', '寒地', '神族家系'], 'deity', ['world-asgard'], ['aesir', 'family']],
   ['vili', '威利', 'Vili', '参与创造世界的兄弟神', ['意志', '长矛', '创世'], 'deity', ['world-asgard'], ['aesir', 'creation']],
   ['ve', '维', 'Vé', '参与创造世界与人类的兄弟神', ['神圣空间', '海岸', '创世'], 'deity', ['world-asgard'], ['aesir', 'creation']],
+  ['honir', '海尼尔', 'Hœnir', '《女预言家之歌》中与奥丁、洛德尔共同赋予人类感知的神祇', ['感知', '人类起源', '使者'], 'mythic-being', ['world-asgard'], ['aesir', 'creation'], 'voluspa', 'sts. 17–18'],
+  ['lodur', '洛德尔', 'Lóðurr', '《女预言家之歌》中与奥丁、海尼尔共同赋予人类生命与色彩的神祇', ['生命之热', '人类起源', '身份争议'], 'mythic-being', ['world-asgard'], ['aesir', 'creation', 'identity-variant'], 'voluspa', 'sts. 17–18'],
   ['mimir', '密米尔', 'Mímir', '守护智慧之井的知识者', ['智慧之井', '头颅', '井水'], 'deity', ['world-asgard'], ['wisdom']],
   ['njordr', '尼约德', 'Njörðr', '海风、航海与财富之神', ['海风', '长船', '财富'], 'deity', ['world-vanaheim'], ['vanir', 'sea']],
   ['skadi', '斯卡蒂', 'Skaði', '山地、冬季与狩猎女神', ['滑雪', '弓', '山地'], 'deity', ['world-jotunheim', 'world-asgard'], ['jotunn', 'vanir']],
@@ -219,10 +269,10 @@ export const norseWorlds: readonly World[] = [
   { id: 'world-midgard', mythologyId, slug: 'midgard', name: '米德加尔特', nameEn: 'Miðgarðr', summary: '人类居住的中庭，被海洋与尘世巨蛇环绕，是神与巨人行动的交界。', canonicalDesign: { anchors: ['海岸聚落', '木制长屋', '环世海洋'], signatureMaterials: ['木材', '湿岩', '铁'], atmosphere: ['海风', '长夜', '人间火光'] }, heroImage: midgardDesktopV1, heroImageMobile: midgardMobileV1 },
   { id: 'world-jotunheim', mythologyId, slug: 'jotunheim', name: '约顿海姆', nameEn: 'Jötunheimr', summary: '约顿诸族活动的边境空间，不应被简化为单一的冰雪巨人之地。', canonicalDesign: { anchors: ['峡谷', '原始山地', '边境道路'], signatureMaterials: ['风化岩', '骨木', '粗纺织物'], atmosphere: ['旷野', '风暴', '不确定边界'] }, heroImage: jotunheimDesktopV1, heroImageMobile: jotunheimMobileV1 },
   { id: 'world-hel', mythologyId, slug: 'hel', name: '赫尔', nameEn: 'Hel', summary: '由海拉统治的亡者空间；人物 Hel 与空间 Hel 在产品中始终分开建模。', canonicalDesign: { anchors: ['亡者之门', '半明半暗边界', '静默道路'], signatureMaterials: ['黑石', '灰土', '旧木'], atmosphere: ['冷雾', '无风静默', '边界感'] }, heroImage: helDesktopV1, heroImageMobile: helMobileV1 },
-  { id: 'world-muspell', mythologyId, slug: 'muspell', name: '穆斯贝尔海姆', nameEn: 'Múspellsheimr', summary: '火焰与毁灭力量所在的边界空间，服务于创世与诸神黄昏叙事。', canonicalDesign: { anchors: ['火焰边界', '熔岩裂隙', '火焰之剑'], signatureMaterials: ['熔岩', '黑铁', '炽热玻璃'], atmosphere: ['热浪', '红黑烟尘', '末日光'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
-  { id: 'world-niflheim', mythologyId, slug: 'niflheim', name: '尼福尔海姆', nameEn: 'Niflheimr', summary: '雾与寒冷的原初空间，与创世水汽和世界边界相关。', canonicalDesign: { anchors: ['雾气', '冰河', '寒冷深谷'], signatureMaterials: ['冰', '雾', '蓝灰岩'], atmosphere: ['低能见度', '冷寂', '原初寒气'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
-  { id: 'world-vanaheim', mythologyId, slug: 'vanaheim', name: '华纳海姆', nameEn: 'Vanaheimr', summary: '华纳神族相关的丰饶与海风空间，保留来源有限时的原创设计边界。', canonicalDesign: { anchors: ['河口草地', '丰饶庭院', '海风祭台'], signatureMaterials: ['木材', '琥珀', '湿润土壤'], atmosphere: ['丰饶', '海风', '低矮日光'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
-  { id: 'world-alfheim', mythologyId, slug: 'alfheim', name: '亚尔夫海姆', nameEn: 'Álfheimr', summary: '与精灵相关的光明空间，仅按明确叙事依赖建模，不硬编码为固定九界地图。', canonicalDesign: { anchors: ['浅色林地', '微光水面', '精灵居所'], signatureMaterials: ['白木', '薄纱', '浅色石'], atmosphere: ['微光', '林间风', '清晨'] }, heroImage: asgardImage, heroImageMobile: asgardMobile },
+  { id: 'world-muspell', mythologyId, slug: 'muspell', name: '穆斯贝尔海姆', nameEn: 'Múspellsheimr', summary: '火焰与毁灭力量所在的边界空间，服务于创世与诸神黄昏叙事。', canonicalDesign: { anchors: ['火焰边界', '熔岩裂隙', '火焰之剑'], signatureMaterials: ['熔岩', '黑铁', '炽热玻璃'], atmosphere: ['热浪', '红黑烟尘', '末日光'] }, heroImage: muspellDesktopV1, heroImageMobile: muspellMobileV1 },
+  { id: 'world-niflheim', mythologyId, slug: 'niflheim', name: '尼福尔海姆', nameEn: 'Niflheimr', summary: '雾与寒冷的原初空间，与创世水汽和世界边界相关。', canonicalDesign: { anchors: ['雾气', '冰河', '寒冷深谷'], signatureMaterials: ['冰', '雾', '蓝灰岩'], atmosphere: ['低能见度', '冷寂', '原初寒气'] }, heroImage: niflheimDesktopV1, heroImageMobile: niflheimMobileV1 },
+  { id: 'world-vanaheim', mythologyId, slug: 'vanaheim', name: '华纳海姆', nameEn: 'Vanaheimr', summary: '华纳神族相关的丰饶与海风空间，保留来源有限时的原创设计边界。', canonicalDesign: { anchors: ['河口草地', '丰饶庭院', '海风祭台'], signatureMaterials: ['木材', '琥珀', '湿润土壤'], atmosphere: ['丰饶', '海风', '低矮日光'] }, heroImage: vanaheimDesktopV1, heroImageMobile: vanaheimMobileV1 },
+  { id: 'world-alfheim', mythologyId, slug: 'alfheim', name: '亚尔夫海姆', nameEn: 'Álfheimr', summary: '与精灵相关的光明空间，仅按明确叙事依赖建模，不硬编码为固定九界地图。', canonicalDesign: { anchors: ['浅色林地', '微光水面', '精灵居所'], signatureMaterials: ['白木', '薄纱', '浅色石'], atmosphere: ['微光', '林间风', '清晨'] }, heroImage: alfheimDesktopV1, heroImageMobile: alfheimMobileV1 },
 ];
 
 const scene = (slug: string, name: string, nameEn: string, summary: string, worldId?: string): Scene => ({
@@ -274,6 +324,7 @@ const taxonomySeeds: readonly TaxonomySeed[] = [
   ['fertility', '丰饶与和平', 'Fertility and peace', 'domain', 160],
   ['seidr', '魔法与预言', 'Seiðr', 'domain', 170],
   ['creation', '创世行动', 'Creation', 'story-cycle', 180],
+  ['identity-variant', '身份异文与争议', 'Identity variants and disputes', 'domain', 185],
   ['sea', '海洋与航海', 'Sea and voyage', 'domain', 190],
   ['monster', '怪物与变形', 'Monsters and transformation', 'domain', 200],
 ];

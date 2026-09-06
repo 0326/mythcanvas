@@ -9,16 +9,25 @@
 - Unique Story Units：74
 - P0 / P1 / P2：56 / 16 / 2
 - 已完成来源研究的 P0 Story Manifest（研究状态，不代表读者页已审校）：56 / 56
-- 当前已落库静态内容（Character / World / Scene / Object / Story / CharacterRelation / ContentRelation）：90 / 8 / 15 / 16 / 73 / 58 / 5
-- 当前 Story editorial readiness（public / structured-or-better / source-reviewed-or-visual-ready / researching / prototype / shared-template）：73 / 52 / 0 / 21 / 0 / 0
+- 当前已落库静态内容（Character / World / Scene / Object / Story / CharacterRelation / ContentRelation）：92 / 8 / 15 / 18 / 74 / 58 / 7
+- Manifest 已明确 World + Scene 依赖计划的现有 Story 单元：74 / 74
+- 网站交付路由（public / indexable / legacy redirect）：74 / 0 / 1
+- 当前 Story editorial readiness（public / structured-or-better / source-reviewed-or-visual-ready / researching / prototype / shared-template）：74 / 74 / 0 / 0 / 0 / 0
 - 仍使用宽泛/Phase 3 占位 locator 的 Story：0
-- 世界视觉就绪度（独立生成桌面+移动组 / 人工批准组 / 总世界数）：4 / 0 / 8
+- Editorial body gate 候选（正文 ≥800 字符、至少 3 个分段、无模板、阅读时长一致）：74 / 74
+- 正文仍低于 Editorial Gate 的 Story：0
+- readingMinutes 不一致的 Story：0
+- 世界视觉就绪度（独立生成桌面+移动组 / 人工批准组 / 总世界数）：8 / 0 / 8
+- Story key-moment 视觉槽位（已归属 / 已批准 / 总数）：56 / 0 / 74
+- Tier S/A Character Canonical Design（已具备 / 总数）：28 / 28
 - Manifest 已有 Story 但静态内容缺失：0
-- 现有 Story 迁移决策：73 / 73
+- Manifest expectedDependencies 未进入 Story.required*Ids 的闭包缺口：0
+- 现有 Story 迁移决策：74 / 74
 - 新增 Story 待办：0
 - Story Manifest 依赖缺口：0（作为 Phase 3–4 的实体补全待办，不是本阶段 gate failure）
 - 已解决 P0 已知问题：7
 - 已范围化 P0 版本冲突：6
+- Collection Discovery 输入：blocked-until-completion（候选 Cycle 0 / 9）
 - Report Gate：通过
 
 ## Story Cycles
@@ -61,14 +70,14 @@
 
 ### thor-cycle（10）
 
-- [P0] 索尔与赫朗格尼尔 · `thor-and-hrungnir` · norse-src-haustlong st. 14–20
+- [P0] 索尔与赫朗格尼尔 · `thor-and-hrungnir` · norse-src-prose-edda-skaldskaparmal ch. 17
 - [P0] 索尔与海米尔的大锅 · `thor-and-hymir` · norse-src-hymiskvida st. 1–39
 - [P0] 索尔垂钓世界蛇 · `thor-fishes-for-serpent` · norse-src-hymiskvida st. 17–24
 - [P0] 雷神之锤被盗 · `thryms-stolen-hammer` · norse-src-thrymskvida st. 1–32
 - [P1] 索尔、夏尔菲与罗丝克瓦 · `thor-and-thjalfi-roskva` · norse-src-prose-edda-gylfaginning ch. 44
 - [P0] 索尔与斯克里米尔 · `thor-and-skrymir` · norse-src-prose-edda-gylfaginning ch. 45
 - [P0] 索尔在乌特加德 · `thor-in-utgard` · norse-src-prose-edda-gylfaginning ch. 46–47
-- [P0] 索尔与盖尔罗德 · `thor-and-geirrod` · norse-src-thorsdrapa selected stanzas
+- [P0] 索尔与盖尔罗德 · `thor-and-geirrod` · norse-src-thorsdrapa sts. 1–3, 5–23; Geirröðr sequence
 - [P1] 索尔与阿尔维斯 · `thor-and-alviss` · norse-src-alvissmal st. 1–35
 - [P1] 索尔与哈巴德 · `thor-and-harbard` · norse-src-harbardsljod st. 1–60
 
@@ -114,7 +123,7 @@
 - [P0] 西格尔德斩杀法夫纳 · `sigurd-kills-fafnir` · norse-src-fafnismal st. 1–44
 - [P0] 西格尔德与西格德里法 · `sigurd-and-sigrdrifa` · norse-src-sigrdrifumal st. 1–37
 - [P0] 西格尔德与布伦希尔德 · `sigurd-and-brynhildr` · norse-src-volsunga-saga chs. 20–27
-- [P0] 西格尔德之死 · `sigurds-death` · norse-src-sigurdarkvida fragmentary poems; scoped comparison with saga
+- [P0] 西格尔德之死 · `sigurds-death` · norse-src-sigurdarkvida Sigurðarkviða en skamma sts. 22–24, 29–31; compare Brot af Sigurðarkviðu st. 4
 - [P0] 古德伦与阿特利 · `gudrun-and-atli` · norse-src-atlakvida st. 1–46
 - [P1] 古德伦、斯万希尔德与哈姆迪尔兄弟 · `gudrun-svanhild-hamdir-sorli` · norse-src-hamdismal st. 1–30
 
@@ -129,9 +138,9 @@
 
 - [P1] 沃伦德：被囚的铁匠 · `volundr-captive-smith` · norse-src-volundarkvida st. 1–19
 - [P1] 沃伦德的逃离 · `volundr-escape` · norse-src-volundarkvida st. 20–41
-- [P1] 斯维普达格与孟格洛德 · `svipdagr-and-mengloth` · norse-src-svipdagsmal Grógaldr and Fjölsvinnsmál; editorial split to be reviewed
-- [P2] 里格与社会秩序 · `rig-and-social-orders` · norse-src-rigsthula selected stanzas
-- [P2] 格罗蒂之歌 · `grottasongr` · norse-src-grottasongr selected stanzas
+- [P1] 斯维普达格与孟格洛德 · `svipdagr-and-mengloth` · norse-src-svipdagsmal Grógaldr sts. 1–14; Fjölsvinnsmál sts. 1–65; combined reading is provisional
+- [P2] 里格与社会秩序 · `rig-and-social-orders` · norse-src-rigsthula sts. 1–49
+- [P2] 格罗蒂之歌 · `grottasongr` · norse-src-grottasongr sts. 1–24
 
 ## Source-scoped Variant Notes
 
@@ -144,6 +153,9 @@
 - [P1] Ynglinga saga’s euhemeristic framing is not interchangeable with mythological-poetry claims. · Name the euhemeristic frame whenever this witness is used; do not let it silently determine divine biography.
 
 ## Phase 3–4 Dependency Gaps
+
+- 无。
+## Manifest → Story Required Dependency Closure
 
 - 无。
 ## Gate Issues

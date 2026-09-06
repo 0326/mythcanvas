@@ -1,0 +1,317 @@
+# 北欧 Story 编辑审校队列
+
+> 由 `npm run content:coverage:norse` 生成。每一项必须由具名人工审校者依据列出的来源范围作出决定；不得把此队列或自动校验视为审校通过。
+
+- 生成时间：2026-09-06T18:21:24.772Z
+- 已发布 Story：74
+- 待人工来源审校：74
+
+## Review procedure
+
+1. 核对正文、摘要、人物/地点/物件和 Claim 是否被指定 locator 支持。
+2. 记录版本差异、争议、错误或需要补充的来源；不能确认时标记 `changes-requested`。
+3. 仅在正文达到 Editorial Gate 后，将 `editorialStatus` 改为 `source-reviewed`，并写入具名 reviewer、日期、决定说明及空的 unresolvedIssueIds。
+4. key moment 图像与双端视觉通过人工 QA 后，才可再升为 `visual-ready`。
+
+## Current queue
+
+- [P0] `ymir-creation` · 尤弥尔与世界的诞生 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning chs. 4–8
+  - dependency closure: characters=character-ymir · worlds=world-jotunheim, world-niflheim · scenes=scene-ginnungagap · objects=none
+  - body gate: 955 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `audhumla-and-buri` · 奥德胡姆拉与布里的出现 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 6
+  - dependency closure: characters=character-buri, character-ymir · worlds=world-niflheim · scenes=scene-ginnungagap · objects=none
+  - body gate: 900 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `odin-creates-world` · 奥丁兄弟以尤弥尔之躯创造世界 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 8
+  - dependency closure: characters=character-odin, character-vili, character-ve, character-ymir · worlds=world-midgard, world-asgard · scenes=scene-ginnungagap · objects=none
+  - body gate: 937 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `ask-and-embla` · 阿斯克与恩布拉 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa sts. 17–18
+  - dependency closure: characters=character-odin, character-honir, character-lodur · worlds=world-midgard · scenes=scene-midgard-coast · objects=none
+  - body gate: 934 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `yggdrasil-wells-norns` · 世界树、三口井与诺恩 · editorial: `structured` · review: `needs-review` · sources: norse-src-grimnismal sts. 29–35
+  - dependency closure: characters=character-mimir · worlds=world-asgard, world-niflheim · scenes=scene-world-tree-roots, scene-well-of-mimir · objects=none
+  - body gate: 919 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `norns-at-urdarbrunnr` · 诺恩与命运之井 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa st. 20
+  - dependency closure: characters=character-urd, character-verdandi, character-skuld · worlds=world-asgard · scenes=scene-world-tree-roots · objects=none
+  - body gate: 892 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `sun-and-moon-chase` · 日月运行与追逐者 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa sts. 5, 40–41
+  - dependency closure: characters=character-sol, character-mani, character-skoll, character-hati · worlds=world-midgard · scenes=scene-world-tree-roots · objects=none
+  - body gate: 857 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `nidhoggr-and-world-tree` · 尼德霍格与世界树 · editorial: `structured` · review: `needs-review` · sources: norse-src-grimnismal sts. 32–35
+  - dependency closure: characters=character-nidhoggr · worlds=world-niflheim · scenes=scene-world-tree-roots · objects=none
+  - body gate: 819 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `aesir-vanir-war` · 阿萨神族与华纳神族的冲突与和解 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa st. 21–24
+  - dependency closure: characters=character-gullveig, character-odin · worlds=world-asgard, world-vanaheim · scenes=scene-asgard-court · objects=none
+  - body gate: 983 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `aesir-vanir-truce` · 阿萨与华纳的和约 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-skaldskaparmal ch. 57
+  - dependency closure: characters=character-njordr, character-freyr, character-freyja · worlds=world-asgard, world-vanaheim · scenes=scene-asgard-court · objects=none
+  - body gate: 806 chars / 4 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `kvasir-and-mead` · 克瓦希尔与诗歌蜜酒 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-skaldskaparmal ch. 1
+  - dependency closure: characters=character-kvasir, character-odin · worlds=world-asgard · scenes=scene-asgard-court · objects=object-norse-mead-of-poetry
+  - body gate: 879 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `odin-and-mimir` · 奥丁以一只眼换取智慧 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa st. 28
+  - dependency closure: characters=character-odin, character-mimir · worlds=world-asgard · scenes=scene-well-of-mimir · objects=none
+  - body gate: 896 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `odin-world-tree` · 奥丁悬于世界树九夜 · editorial: `structured` · review: `needs-review` · sources: norse-src-havamal sts. 138–141
+  - dependency closure: characters=character-odin · worlds=world-asgard · scenes=scene-world-tree-roots · objects=none
+  - body gate: 879 chars / 4 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `freyr-and-gerdr` · 弗雷与葛德 · editorial: `structured` · review: `needs-review` · sources: norse-src-skirnismal sts. 1–42
+  - dependency closure: characters=character-freyr, character-gerdr, character-skirnir · worlds=world-vanaheim, world-jotunheim · scenes=scene-jotunheim-border · objects=object-norse-freyrs-sword
+  - body gate: 856 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `idunn-and-thjazi` · 伊登被夏基掳走 · editorial: `structured` · review: `needs-review` · sources: norse-src-haustlong sts. 1–13
+  - dependency closure: characters=character-idunn, character-loki, character-thjazi · worlds=world-asgard, world-jotunheim · scenes=scene-asgard-court, scene-jotunheim-border · objects=object-norse-idunn-apples
+  - body gate: 862 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `odin-steals-mead` · 奥丁夺取诗歌蜜酒 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-skaldskaparmal ch. 1
+  - dependency closure: characters=character-odin · worlds=world-asgard, world-jotunheim · scenes=scene-jotunheim-border · objects=object-norse-mead-of-poetry
+  - body gate: 805 chars / 4 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `asgard-wall-and-sleipnir` · 阿斯加德城墙与斯莱普尼尔 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 42
+  - dependency closure: characters=character-loki, character-sleipnir · worlds=world-asgard, world-jotunheim · scenes=scene-asgard-court · objects=none
+  - body gate: 886 chars / 4 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `sifs-hair-and-treasures` · 西芙的头发与诸神宝物 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-skaldskaparmal ch. 35
+  - dependency closure: characters=character-sif, character-loki, character-thor, character-freyr · worlds=world-asgard · scenes=scene-asgard-court · objects=object-norse-mjolnir, object-norse-skidbladnir, object-norse-draupnir
+  - body gate: 921 chars / 4 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `skadi-compensation` · 斯卡蒂的赔偿 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 23
+  - dependency closure: characters=character-skadi, character-njordr · worlds=world-asgard, world-jotunheim · scenes=scene-asgard-court · objects=none
+  - body gate: 902 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `njordr-and-skadi` · 尼约德与斯卡蒂的婚姻 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 23
+  - dependency closure: characters=character-njordr, character-skadi · worlds=world-asgard, world-jotunheim · scenes=scene-jotunheim-border · objects=none
+  - body gate: 802 chars / 4 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `odin-and-vafthrudnir` · 奥丁与瓦夫苏鲁德尼尔 · editorial: `structured` · review: `needs-review` · sources: norse-src-vafthrudnismal sts. 1–55
+  - dependency closure: characters=character-odin, character-vafthrudnir · worlds=world-asgard, world-jotunheim · scenes=scene-jotunheim-border · objects=none
+  - body gate: 881 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `grimnir-revealed` · 格里姆尼尔的启示 · editorial: `structured` · review: `needs-review` · sources: norse-src-grimnismal sts. 1–54
+  - dependency closure: characters=character-odin · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 821 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `valholl-and-valkyries` · 瓦尔哈拉与女武神 · editorial: `structured` · review: `needs-review` · sources: norse-src-grimnismal sts. 8–13, 36
+  - dependency closure: characters=character-odin · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 827 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `odin-ravens` · 胡金与穆宁 · editorial: `structured` · review: `needs-review` · sources: norse-src-grimnismal st. 20
+  - dependency closure: characters=character-odin, character-huginn, character-muninn · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 815 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `odin-seidr` · 奥丁与塞德魔法 · editorial: `structured` · review: `needs-review` · sources: norse-src-ynglinga-saga ch. 7
+  - dependency closure: characters=character-odin, character-freyja · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 881 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `thor-and-hrungnir` · 索尔与赫朗格尼尔 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-skaldskaparmal ch. 17
+  - dependency closure: characters=character-thor, character-hrungnir · worlds=world-jotunheim, world-asgard · scenes=scene-jotunheim-border · objects=none
+  - body gate: 861 chars / 4 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `thor-fishes-for-serpent` · 索尔垂钓世界蛇 · editorial: `structured` · review: `needs-review` · sources: norse-src-hymiskvida sts. 17–24
+  - dependency closure: characters=character-thor, character-jormungandr, character-hymir · worlds=world-midgard, world-jotunheim · scenes=scene-midgard-coast · objects=none
+  - body gate: 944 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `thryms-stolen-hammer` · 雷神之锤被盗 · editorial: `structured` · review: `needs-review` · sources: norse-src-thrymskvida st. 1–32
+  - dependency closure: characters=character-thor, character-loki, character-freyja, character-heimdall, character-thrymr · worlds=world-jotunheim, world-asgard · scenes=scene-thryms-hall · objects=object-norse-mjolnir
+  - body gate: 963 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `thor-in-utgard` · 索尔在乌特加德 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 46–47
+  - dependency closure: characters=character-thor, character-loki, character-utgarda-loki · worlds=world-jotunheim · scenes=scene-jotunheim-border · objects=none
+  - body gate: 961 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `thor-and-geirrod` · 索尔与盖尔罗德 · editorial: `structured` · review: `needs-review` · sources: norse-src-thorsdrapa sts. 1–3, 5–23; Geirröðr sequence
+  - dependency closure: characters=character-thor, character-geirrod, character-gjalp, character-greip · worlds=world-jotunheim · scenes=scene-jotunheim-border · objects=object-norse-megingjord, object-norse-jarngreipr
+  - body gate: 1008 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `fenrir-and-gleipnir` · 芬里尔与格莱普尼尔 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 34
+  - dependency closure: characters=character-fenrir, character-tyr · worlds=world-asgard, world-jotunheim · scenes=scene-asgard-court · objects=object-norse-gleipnir
+  - body gate: 923 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `lokis-feast` · 洛基的宴席争辩 · editorial: `structured` · review: `needs-review` · sources: norse-src-lokasenna st. 1–65
+  - dependency closure: characters=character-loki, character-odin, character-thor, character-freyja, character-tyr · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 944 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `thor-and-hymir` · 索尔与海米尔的大锅 · editorial: `structured` · review: `needs-review` · sources: norse-src-hymiskvida sts. 1–39
+  - dependency closure: characters=character-thor, character-hymir · worlds=world-jotunheim · scenes=scene-jotunheim-border · objects=none
+  - body gate: 899 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `loki-and-angrboda` · 洛基与安格尔伯达 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 34
+  - dependency closure: characters=character-loki, character-angrboda, character-fenrir, character-jormungandr, character-hel · worlds=world-asgard, world-jotunheim, world-midgard, world-hel · scenes=scene-asgard-court · objects=none
+  - body gate: 802 chars / 4 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `thor-and-skrymir` · 索尔与斯克里米尔 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 45
+  - dependency closure: characters=character-thor, character-loki, character-skrymir · worlds=world-jotunheim · scenes=scene-jotunheim-border · objects=none
+  - body gate: 840 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `thor-and-thjalfi-roskva` · 索尔、夏尔菲与罗丝克瓦 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 44
+  - dependency closure: characters=character-thor, character-thjalfi, character-roskva · worlds=world-midgard · scenes=scene-midgard-coast · objects=none
+  - body gate: 835 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `thor-and-alviss` · 索尔与阿尔维斯 · editorial: `structured` · review: `needs-review` · sources: norse-src-alvissmal sts. 1–35
+  - dependency closure: characters=character-thor, character-alviss · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 808 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `thor-and-harbard` · 索尔与哈巴德 · editorial: `structured` · review: `needs-review` · sources: norse-src-harbardsljod sts. 1–60
+  - dependency closure: characters=character-thor, character-odin · worlds=world-midgard · scenes=scene-midgard-coast · objects=none
+  - body gate: 800 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `baldrs-dreams` · 巴德尔的梦 · editorial: `structured` · review: `needs-review` · sources: norse-src-baldrs-draumar st. 1–14
+  - dependency closure: characters=character-baldr, character-odin · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 902 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `baldrs-death` · 巴德尔之死 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 49
+  - dependency closure: characters=character-baldr, character-hodr, character-loki, character-frigg · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 938 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `baldrs-funeral` · 巴德尔的葬礼 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 49
+  - dependency closure: characters=character-baldr, character-nanna, character-thor · worlds=world-asgard, world-hel · scenes=scene-baldr-funeral-shore · objects=object-norse-hringhorni
+  - body gate: 946 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `hermod-rides-to-hel` · 赫尔莫德前往赫尔 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 49
+  - dependency closure: characters=character-hermod, character-hel, character-baldr · worlds=world-asgard, world-hel · scenes=scene-hall-of-hel · objects=none
+  - body gate: 898 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `loki-bound` · 洛基被捕与束缚 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 50
+  - dependency closure: characters=character-loki, character-sigyn · worlds=world-asgard · scenes=scene-world-tree-roots · objects=none
+  - body gate: 908 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `loki-and-baldr` · 洛基与巴德尔之死 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 49
+  - dependency closure: characters=character-loki, character-baldr, character-hodr, character-frigg · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 836 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `fimbulwinter` · 芬布尔之冬与束缚崩解 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa st. 41–45
+  - dependency closure: characters=character-fenrir, character-jormungandr, character-loki · worlds=world-midgard, world-jotunheim · scenes=scene-fimbulwinter-field · objects=none
+  - body gate: 867 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `odin-and-fenrir` · 奥丁与芬里尔 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa st. 53–54
+  - dependency closure: characters=character-odin, character-fenrir, character-vidarr · worlds=world-midgard, world-asgard · scenes=scene-fimbulwinter-field · objects=none
+  - body gate: 861 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `thor-and-jormungandr-final-battle` · 索尔与世界蛇的最后一战 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa st. 56
+  - dependency closure: characters=character-thor, character-jormungandr · worlds=world-midgard · scenes=scene-midgard-coast · objects=none
+  - body gate: 859 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `freyr-and-surtr` · 弗雷与苏尔特 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 51
+  - dependency closure: characters=character-freyr, character-surtr · worlds=world-muspell, world-asgard · scenes=scene-muspell-flame-border · objects=object-norse-freyrs-sword
+  - body gate: 897 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `heimdall-and-loki` · 海姆达尔、洛基与加拉尔号角 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa st. 46, 51
+  - dependency closure: characters=character-heimdall, character-loki · worlds=world-asgard · scenes=scene-bifrost · objects=object-norse-gjallarhorn
+  - body gate: 863 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `ragnarok` · 世界毁灭、回归与新生 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa st. 54–66
+  - dependency closure: characters=character-vidarr, character-baldr, character-hodr · worlds=world-midgard, world-asgard · scenes=scene-renewed-earth · objects=object-norse-naglfar
+  - body gate: 931 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `loki-at-ragnarok` · 洛基在诸神黄昏 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa sts. 46–51
+  - dependency closure: characters=character-loki, character-heimdall · worlds=world-asgard, world-midgard · scenes=scene-bifrost · objects=none
+  - body gate: 811 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `vali-avenges-baldr` · 瓦利为巴德尔复仇 · editorial: `structured` · review: `needs-review` · sources: norse-src-voluspa sts. 32–33
+  - dependency closure: characters=character-vali, character-hodr · worlds=world-asgard · scenes=scene-asgard-court · objects=none
+  - body gate: 807 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `tyr-and-garmr` · 提尔与加姆 · editorial: `structured` · review: `needs-review` · sources: norse-src-prose-edda-gylfaginning ch. 51
+  - dependency closure: characters=character-tyr, character-garmr · worlds=world-hel · scenes=scene-fimbulwinter-field · objects=none
+  - body gate: 803 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `volsung-and-sword-tree` · 沃尔松格与树中神剑 · editorial: `structured` · review: `needs-review` · sources: norse-src-volsunga-saga chs. 2–3
+  - dependency closure: characters=character-volsung, character-sigmund · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 893 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `signy-and-siggeir` · 西格妮与西格盖尔 · editorial: `structured` · review: `needs-review` · sources: norse-src-volsunga-saga chs. 3–8
+  - dependency closure: characters=character-signy, character-siggeir, character-sigmund · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 878 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `sigurd-kills-fafnir` · 西格尔德斩杀法夫纳 · editorial: `structured` · review: `needs-review` · sources: norse-src-fafnismal st. 1–44
+  - dependency closure: characters=character-sigurd, character-fafnir, character-regin · worlds=world-midgard · scenes=scene-volsung-hall · objects=object-norse-gram, object-norse-andvaranaut
+  - body gate: 872 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `sigmund-and-sinfjotli` · 西格蒙德与辛菲奥特利 · editorial: `structured` · review: `needs-review` · sources: norse-src-volsunga-saga chs. 7–10
+  - dependency closure: characters=character-sigmund, character-sinfjotli · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 861 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `sigurd-and-brynhildr` · 西格尔德与布伦希尔德 · editorial: `structured` · review: `needs-review` · sources: norse-src-volsunga-saga chs. 20–27
+  - dependency closure: characters=character-sigurd, character-brynhildr · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 919 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `sigurd-and-regin` · 西格尔德与雷金 · editorial: `structured` · review: `needs-review` · sources: norse-src-reginsmal st. 1–40
+  - dependency closure: characters=character-sigurd, character-regin · worlds=world-midgard · scenes=scene-volsung-hall · objects=object-norse-gram
+  - body gate: 902 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `sigurds-death` · 西格尔德之死 · editorial: `structured` · review: `needs-review` · sources: norse-src-sigurdarkvida Sigurðarkviða en skamma sts. 22–24, 29–31; compare Brot af Sigurðarkviðu st. 4
+  - dependency closure: characters=character-sigurd, character-brynhildr, character-gudrun, character-gunnar, character-hogni · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 1000 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `andvari-gold` · 安德瓦里与被诅咒的黄金 · editorial: `structured` · review: `needs-review` · sources: norse-src-reginsmal sts. 1–26
+  - dependency closure: characters=character-andvari, character-ottr, character-hreidmar, character-fafnir · worlds=world-midgard · scenes=scene-volsung-hall · objects=object-norse-andvaranaut
+  - body gate: 869 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `sigmunds-death-and-hjordis` · 西格蒙德之死与希奥尔迪斯 · editorial: `structured` · review: `needs-review` · sources: norse-src-volsunga-saga chs. 11–12
+  - dependency closure: characters=character-sigmund, character-hjordis, character-sigurd · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 836 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `sigurd-and-sigrdrifa` · 西格尔德与西格德里法 · editorial: `structured` · review: `needs-review` · sources: norse-src-sigrdrifumal sts. 1–37
+  - dependency closure: characters=character-sigurd, character-brynhildr · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 807 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P0] `gudrun-and-atli` · 古德伦与阿特利 · editorial: `structured` · review: `needs-review` · sources: norse-src-atlakvida sts. 1–46
+  - dependency closure: characters=character-gudrun, character-atli, character-gunnar, character-hogni · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 816 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `gudrun-svanhild-hamdir-sorli` · 古德伦、斯万希尔德与哈姆迪尔兄弟 · editorial: `structured` · review: `needs-review` · sources: norse-src-hamdismal sts. 1–30
+  - dependency closure: characters=character-gudrun, character-svanhildr, character-hamdir, character-sorli · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 804 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `helgi-hundingsbani` · 赫尔吉·洪丁斯巴尼 · editorial: `structured` · review: `needs-review` · sources: norse-src-helgakvida-hundingsbana-1 sts. 1–57
+  - dependency closure: characters=character-helgi-hundingsbani, character-sigrun, character-sinfjotli · worlds=world-midgard · scenes=scene-midgard-coast · objects=none
+  - body gate: 979 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `helgi-hjorvardsson-and-svava` · 赫尔吉·希奥尔瓦尔松与斯瓦瓦 · editorial: `structured` · review: `needs-review` · sources: norse-src-helgakvida-hjorvardssonar sts. 1–51
+  - dependency closure: characters=character-helgi-hjorvardsson, character-svava · worlds=world-midgard · scenes=scene-midgard-coast · objects=none
+  - body gate: 835 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `helgi-and-sigrun` · 赫尔吉与西格伦 · editorial: `structured` · review: `needs-review` · sources: norse-src-helgakvida-hundingsbana-2 sts. 1–51
+  - dependency closure: characters=character-helgi-hundingsbani, character-sigrun · worlds=world-midgard · scenes=scene-midgard-coast · objects=none
+  - body gate: 809 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `helgi-burial-mound` · 赫尔吉的葬丘与归来 · editorial: `structured` · review: `needs-review` · sources: norse-src-helgakvida-hundingsbana-2 sts. 39–51
+  - dependency closure: characters=character-helgi-hundingsbani, character-sigrun · worlds=world-midgard · scenes=scene-midgard-coast · objects=none
+  - body gate: 809 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `volundr-captive-smith` · 沃伦德：被囚的铁匠 · editorial: `structured` · review: `needs-review` · sources: norse-src-volundarkvida sts. 1–19
+  - dependency closure: characters=character-volundr, character-nidudr · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 947 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `volundr-escape` · 沃伦德的逃离 · editorial: `structured` · review: `needs-review` · sources: norse-src-volundarkvida sts. 20–41
+  - dependency closure: characters=character-volundr, character-bodvildr · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 810 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P1] `svipdagr-and-mengloth` · 斯维普达格与孟格洛德 · editorial: `structured` · review: `needs-review` · sources: norse-src-svipdagsmal Grógaldr sts. 1–14; Fjölsvinnsmál sts. 1–65; combined reading is provisional
+  - dependency closure: characters=character-svipdagr, character-groa, character-mengloth · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 904 chars / 4 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P2] `rig-and-social-orders` · 里格与社会秩序 · editorial: `structured` · review: `needs-review` · sources: norse-src-rigsthula sts. 1–49
+  - dependency closure: characters=character-rigr · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 818 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+- [P2] `grottasongr` · 格罗蒂之歌 · editorial: `structured` · review: `needs-review` · sources: norse-src-grottasongr sts. 1–24
+  - dependency closure: characters=none · worlds=world-midgard · scenes=scene-volsung-hall · objects=none
+  - body gate: 801 chars / 5 headings / readingMinutes aligned · candidate
+  - reviewer: pending · reviewed at: pending · unresolved issues: none recorded
+
+## Certification note
+
+- 本队列全部清零也不自动构成 Phase 9 完成；最终仍需检查 P0 coverage、关系审计、视觉批准、SEO/无 JS 阅读与 Completion Snapshot 的人工签核。

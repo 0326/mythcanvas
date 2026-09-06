@@ -1,0 +1,1221 @@
+{
+  "version": "0.1.0",
+  "status": "blocked-until-completion",
+  "mythologyId": "myth-norse",
+  "generatedFor": "collection-discovery",
+  "eligibleCycleIds": [],
+  "deferredCycleIds": [
+    "baldr-ragnarok",
+    "creation",
+    "gods-and-treasures",
+    "helgi-cycle",
+    "independent-eddic",
+    "loki-cycle",
+    "odin-cycle",
+    "thor-cycle",
+    "volsung-cycle"
+  ],
+  "gates": {
+    "sourceReviewedP0": "pending",
+    "visualApprovedWorlds": "pending",
+    "visualApprovedStoryKeyMoments": "pending",
+    "productSignoff": "pending"
+  },
+  "exclusions": [
+    "不创建 Collection Manifest、Card Manifest、卡数、定价或稀有度。",
+    "P2 独立传统是否纳入 Collection 仍需 Phase 9 人工排除项决定。"
+  ],
+  "cycles": [
+    {
+      "cycleId": "baldr-ragnarok",
+      "storyCount": 16,
+      "publishedStoryCount": 16,
+      "sourceReviewedStoryCount": 0,
+      "p0StoryCount": 14,
+      "p0SourceReviewedStoryCount": 0,
+      "missingStoryManifestIds": [],
+      "characterIds": [
+        "character-baldr",
+        "character-fenrir",
+        "character-freyr",
+        "character-frigg",
+        "character-garmr",
+        "character-heimdall",
+        "character-hel",
+        "character-hermod",
+        "character-hodr",
+        "character-jormungandr",
+        "character-loki",
+        "character-nanna",
+        "character-odin",
+        "character-sigyn",
+        "character-surtr",
+        "character-thor",
+        "character-tyr",
+        "character-vali",
+        "character-vidarr"
+      ],
+      "worldIds": [
+        "world-asgard",
+        "world-hel",
+        "world-jotunheim",
+        "world-midgard",
+        "world-muspell"
+      ],
+      "sceneIds": [
+        "scene-asgard-court",
+        "scene-baldr-funeral-shore",
+        "scene-bifrost",
+        "scene-fimbulwinter-field",
+        "scene-hall-of-hel",
+        "scene-midgard-coast",
+        "scene-muspell-flame-border",
+        "scene-renewed-earth",
+        "scene-world-tree-roots"
+      ],
+      "objectIds": [
+        "object-norse-freyrs-sword",
+        "object-norse-gjallarhorn",
+        "object-norse-gleipnir",
+        "object-norse-hringhorni",
+        "object-norse-naglfar"
+      ],
+      "crossCycleDependencies": [
+        {
+          "cycleId": "creation",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "gods-and-treasures",
+          "sharedCharacterIds": [
+            "character-freyr",
+            "character-loki",
+            "character-odin",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "helgi-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "independent-eddic",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "loki-cycle",
+          "sharedCharacterIds": [
+            "character-baldr",
+            "character-fenrir",
+            "character-freyr",
+            "character-frigg",
+            "character-heimdall",
+            "character-hel",
+            "character-hodr",
+            "character-jormungandr",
+            "character-loki",
+            "character-odin",
+            "character-sigyn",
+            "character-thor",
+            "character-tyr"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-hel",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "odin-cycle",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "thor-cycle",
+          "sharedCharacterIds": [
+            "character-heimdall",
+            "character-jormungandr",
+            "character-loki",
+            "character-odin",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "volsung-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        }
+      ],
+      "narrativeContinuity": {
+        "status": "blocked",
+        "reasons": [
+          "16 个 Story 尚未完成来源审校",
+          "P0 来源审校为 0/14"
+        ]
+      },
+      "visualDiversity": {
+        "worldCount": 5,
+        "approvedWorldCount": 0,
+        "sceneCount": 9,
+        "objectCount": 5,
+        "storyKeyMomentCount": 14,
+        "approvedStoryKeyMomentCount": 0,
+        "status": "blocked",
+        "reasons": [
+          "World 双端视觉批准为 0/5",
+          "Story key-moment 批准为 0/16"
+        ]
+      },
+      "naturalCardCapacity": {
+        "status": "deferred-until-content-gate",
+        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+      }
+    },
+    {
+      "cycleId": "creation",
+      "storyCount": 8,
+      "publishedStoryCount": 8,
+      "sourceReviewedStoryCount": 0,
+      "p0StoryCount": 7,
+      "p0SourceReviewedStoryCount": 0,
+      "missingStoryManifestIds": [],
+      "characterIds": [
+        "character-buri",
+        "character-hati",
+        "character-honir",
+        "character-lodur",
+        "character-mani",
+        "character-mimir",
+        "character-nidhoggr",
+        "character-odin",
+        "character-skoll",
+        "character-skuld",
+        "character-sol",
+        "character-urd",
+        "character-ve",
+        "character-verdandi",
+        "character-vili",
+        "character-ymir"
+      ],
+      "worldIds": [
+        "world-asgard",
+        "world-jotunheim",
+        "world-midgard",
+        "world-niflheim"
+      ],
+      "sceneIds": [
+        "scene-ginnungagap",
+        "scene-midgard-coast",
+        "scene-well-of-mimir",
+        "scene-world-tree-roots"
+      ],
+      "objectIds": [],
+      "crossCycleDependencies": [
+        {
+          "cycleId": "baldr-ragnarok",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "gods-and-treasures",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "helgi-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "independent-eddic",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "loki-cycle",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "odin-cycle",
+          "sharedCharacterIds": [
+            "character-mimir",
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "thor-cycle",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "volsung-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        }
+      ],
+      "narrativeContinuity": {
+        "status": "blocked",
+        "reasons": [
+          "8 个 Story 尚未完成来源审校",
+          "P0 来源审校为 0/7"
+        ]
+      },
+      "visualDiversity": {
+        "worldCount": 4,
+        "approvedWorldCount": 0,
+        "sceneCount": 4,
+        "objectCount": 0,
+        "storyKeyMomentCount": 8,
+        "approvedStoryKeyMomentCount": 0,
+        "status": "blocked",
+        "reasons": [
+          "World 双端视觉批准为 0/4",
+          "Story key-moment 批准为 0/8"
+        ]
+      },
+      "naturalCardCapacity": {
+        "status": "deferred-until-content-gate",
+        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+      }
+    },
+    {
+      "cycleId": "gods-and-treasures",
+      "storyCount": 10,
+      "publishedStoryCount": 10,
+      "sourceReviewedStoryCount": 0,
+      "p0StoryCount": 10,
+      "p0SourceReviewedStoryCount": 0,
+      "missingStoryManifestIds": [],
+      "characterIds": [
+        "character-freyja",
+        "character-freyr",
+        "character-gerdr",
+        "character-gullveig",
+        "character-idunn",
+        "character-kvasir",
+        "character-loki",
+        "character-njordr",
+        "character-odin",
+        "character-sif",
+        "character-skadi",
+        "character-skirnir",
+        "character-sleipnir",
+        "character-thjazi",
+        "character-thor"
+      ],
+      "worldIds": [
+        "world-asgard",
+        "world-jotunheim",
+        "world-vanaheim"
+      ],
+      "sceneIds": [
+        "scene-asgard-court",
+        "scene-jotunheim-border"
+      ],
+      "objectIds": [
+        "object-norse-draupnir",
+        "object-norse-freyrs-sword",
+        "object-norse-idunn-apples",
+        "object-norse-mead-of-poetry",
+        "object-norse-mjolnir",
+        "object-norse-skidbladnir"
+      ],
+      "crossCycleDependencies": [
+        {
+          "cycleId": "baldr-ragnarok",
+          "sharedCharacterIds": [
+            "character-freyr",
+            "character-loki",
+            "character-odin",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "creation",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "loki-cycle",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-freyr",
+            "character-idunn",
+            "character-loki",
+            "character-odin",
+            "character-sif",
+            "character-sleipnir",
+            "character-thjazi",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "odin-cycle",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-kvasir",
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "thor-cycle",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-loki",
+            "character-odin",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        }
+      ],
+      "narrativeContinuity": {
+        "status": "blocked",
+        "reasons": [
+          "10 个 Story 尚未完成来源审校",
+          "P0 来源审校为 0/10"
+        ]
+      },
+      "visualDiversity": {
+        "worldCount": 3,
+        "approvedWorldCount": 0,
+        "sceneCount": 2,
+        "objectCount": 6,
+        "storyKeyMomentCount": 5,
+        "approvedStoryKeyMomentCount": 0,
+        "status": "blocked",
+        "reasons": [
+          "World 双端视觉批准为 0/3",
+          "Story key-moment 批准为 0/10"
+        ]
+      },
+      "naturalCardCapacity": {
+        "status": "deferred-until-content-gate",
+        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+      }
+    },
+    {
+      "cycleId": "helgi-cycle",
+      "storyCount": 4,
+      "publishedStoryCount": 4,
+      "sourceReviewedStoryCount": 0,
+      "p0StoryCount": 0,
+      "p0SourceReviewedStoryCount": 0,
+      "missingStoryManifestIds": [],
+      "characterIds": [
+        "character-helgi-hjorvardsson",
+        "character-helgi-hundingsbani",
+        "character-sigrun",
+        "character-sinfjotli",
+        "character-svava"
+      ],
+      "worldIds": [
+        "world-midgard"
+      ],
+      "sceneIds": [
+        "scene-midgard-coast"
+      ],
+      "objectIds": [],
+      "crossCycleDependencies": [
+        {
+          "cycleId": "baldr-ragnarok",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "creation",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "independent-eddic",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "loki-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "thor-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "volsung-cycle",
+          "sharedCharacterIds": [
+            "character-sinfjotli"
+          ],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        }
+      ],
+      "narrativeContinuity": {
+        "status": "blocked",
+        "reasons": [
+          "4 个 Story 尚未完成来源审校"
+        ]
+      },
+      "visualDiversity": {
+        "worldCount": 1,
+        "approvedWorldCount": 0,
+        "sceneCount": 1,
+        "objectCount": 0,
+        "storyKeyMomentCount": 3,
+        "approvedStoryKeyMomentCount": 0,
+        "status": "blocked",
+        "reasons": [
+          "World 双端视觉批准为 0/1",
+          "Story key-moment 批准为 0/4"
+        ]
+      },
+      "naturalCardCapacity": {
+        "status": "deferred-until-content-gate",
+        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+      }
+    },
+    {
+      "cycleId": "independent-eddic",
+      "storyCount": 5,
+      "publishedStoryCount": 5,
+      "sourceReviewedStoryCount": 0,
+      "p0StoryCount": 0,
+      "p0SourceReviewedStoryCount": 0,
+      "missingStoryManifestIds": [],
+      "characterIds": [
+        "character-bodvildr",
+        "character-groa",
+        "character-mengloth",
+        "character-nidudr",
+        "character-rigr",
+        "character-svipdagr",
+        "character-volundr"
+      ],
+      "worldIds": [
+        "world-midgard"
+      ],
+      "sceneIds": [
+        "scene-volsung-hall"
+      ],
+      "objectIds": [],
+      "crossCycleDependencies": [
+        {
+          "cycleId": "baldr-ragnarok",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "creation",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "helgi-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "loki-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "thor-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "volsung-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        }
+      ],
+      "narrativeContinuity": {
+        "status": "blocked",
+        "reasons": [
+          "5 个 Story 尚未完成来源审校"
+        ]
+      },
+      "visualDiversity": {
+        "worldCount": 1,
+        "approvedWorldCount": 0,
+        "sceneCount": 1,
+        "objectCount": 0,
+        "storyKeyMomentCount": 1,
+        "approvedStoryKeyMomentCount": 0,
+        "status": "blocked",
+        "reasons": [
+          "World 双端视觉批准为 0/1",
+          "Story key-moment 批准为 0/5"
+        ]
+      },
+      "naturalCardCapacity": {
+        "status": "deferred-until-content-gate",
+        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+      }
+    },
+    {
+      "cycleId": "loki-cycle",
+      "storyCount": 9,
+      "publishedStoryCount": 9,
+      "sourceReviewedStoryCount": 0,
+      "p0StoryCount": 9,
+      "p0SourceReviewedStoryCount": 0,
+      "missingStoryManifestIds": [],
+      "characterIds": [
+        "character-angrboda",
+        "character-baldr",
+        "character-fenrir",
+        "character-freyja",
+        "character-freyr",
+        "character-frigg",
+        "character-heimdall",
+        "character-hel",
+        "character-hodr",
+        "character-idunn",
+        "character-jormungandr",
+        "character-loki",
+        "character-odin",
+        "character-sif",
+        "character-sigyn",
+        "character-sleipnir",
+        "character-thjazi",
+        "character-thor",
+        "character-tyr"
+      ],
+      "worldIds": [
+        "world-asgard",
+        "world-hel",
+        "world-jotunheim",
+        "world-midgard"
+      ],
+      "sceneIds": [
+        "scene-asgard-court",
+        "scene-bifrost",
+        "scene-jotunheim-border",
+        "scene-world-tree-roots"
+      ],
+      "objectIds": [
+        "object-norse-draupnir",
+        "object-norse-gleipnir",
+        "object-norse-idunn-apples",
+        "object-norse-mjolnir",
+        "object-norse-skidbladnir"
+      ],
+      "crossCycleDependencies": [
+        {
+          "cycleId": "baldr-ragnarok",
+          "sharedCharacterIds": [
+            "character-baldr",
+            "character-fenrir",
+            "character-freyr",
+            "character-frigg",
+            "character-heimdall",
+            "character-hel",
+            "character-hodr",
+            "character-jormungandr",
+            "character-loki",
+            "character-odin",
+            "character-sigyn",
+            "character-thor",
+            "character-tyr"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-hel",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "creation",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "gods-and-treasures",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-freyr",
+            "character-idunn",
+            "character-loki",
+            "character-odin",
+            "character-sif",
+            "character-sleipnir",
+            "character-thjazi",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "helgi-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "independent-eddic",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "odin-cycle",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "thor-cycle",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-heimdall",
+            "character-jormungandr",
+            "character-loki",
+            "character-odin",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "volsung-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        }
+      ],
+      "narrativeContinuity": {
+        "status": "blocked",
+        "reasons": [
+          "9 个 Story 尚未完成来源审校",
+          "P0 来源审校为 0/9"
+        ]
+      },
+      "visualDiversity": {
+        "worldCount": 4,
+        "approvedWorldCount": 0,
+        "sceneCount": 4,
+        "objectCount": 5,
+        "storyKeyMomentCount": 7,
+        "approvedStoryKeyMomentCount": 0,
+        "status": "blocked",
+        "reasons": [
+          "World 双端视觉批准为 0/4",
+          "Story key-moment 批准为 0/9"
+        ]
+      },
+      "naturalCardCapacity": {
+        "status": "deferred-until-content-gate",
+        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+      }
+    },
+    {
+      "cycleId": "odin-cycle",
+      "storyCount": 9,
+      "publishedStoryCount": 9,
+      "sourceReviewedStoryCount": 0,
+      "p0StoryCount": 7,
+      "p0SourceReviewedStoryCount": 0,
+      "missingStoryManifestIds": [],
+      "characterIds": [
+        "character-freyja",
+        "character-huginn",
+        "character-kvasir",
+        "character-mimir",
+        "character-muninn",
+        "character-odin",
+        "character-vafthrudnir"
+      ],
+      "worldIds": [
+        "world-asgard",
+        "world-jotunheim"
+      ],
+      "sceneIds": [
+        "scene-asgard-court",
+        "scene-jotunheim-border",
+        "scene-well-of-mimir",
+        "scene-world-tree-roots"
+      ],
+      "objectIds": [
+        "object-norse-mead-of-poetry"
+      ],
+      "crossCycleDependencies": [
+        {
+          "cycleId": "baldr-ragnarok",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "creation",
+          "sharedCharacterIds": [
+            "character-mimir",
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "gods-and-treasures",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-kvasir",
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "loki-cycle",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "thor-cycle",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        }
+      ],
+      "narrativeContinuity": {
+        "status": "blocked",
+        "reasons": [
+          "9 个 Story 尚未完成来源审校",
+          "P0 来源审校为 0/7"
+        ]
+      },
+      "visualDiversity": {
+        "worldCount": 2,
+        "approvedWorldCount": 0,
+        "sceneCount": 4,
+        "objectCount": 1,
+        "storyKeyMomentCount": 7,
+        "approvedStoryKeyMomentCount": 0,
+        "status": "blocked",
+        "reasons": [
+          "World 双端视觉批准为 0/2",
+          "Story key-moment 批准为 0/9"
+        ]
+      },
+      "naturalCardCapacity": {
+        "status": "deferred-until-content-gate",
+        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+      }
+    },
+    {
+      "cycleId": "thor-cycle",
+      "storyCount": 10,
+      "publishedStoryCount": 10,
+      "sourceReviewedStoryCount": 0,
+      "p0StoryCount": 7,
+      "p0SourceReviewedStoryCount": 0,
+      "missingStoryManifestIds": [],
+      "characterIds": [
+        "character-alviss",
+        "character-freyja",
+        "character-geirrod",
+        "character-gjalp",
+        "character-greip",
+        "character-heimdall",
+        "character-hrungnir",
+        "character-hymir",
+        "character-jormungandr",
+        "character-loki",
+        "character-odin",
+        "character-roskva",
+        "character-skrymir",
+        "character-thjalfi",
+        "character-thor",
+        "character-thrymr",
+        "character-utgarda-loki"
+      ],
+      "worldIds": [
+        "world-asgard",
+        "world-jotunheim",
+        "world-midgard"
+      ],
+      "sceneIds": [
+        "scene-asgard-court",
+        "scene-jotunheim-border",
+        "scene-midgard-coast",
+        "scene-thryms-hall"
+      ],
+      "objectIds": [
+        "object-norse-jarngreipr",
+        "object-norse-megingjord",
+        "object-norse-mjolnir"
+      ],
+      "crossCycleDependencies": [
+        {
+          "cycleId": "baldr-ragnarok",
+          "sharedCharacterIds": [
+            "character-heimdall",
+            "character-jormungandr",
+            "character-loki",
+            "character-odin",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "creation",
+          "sharedCharacterIds": [
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "gods-and-treasures",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-loki",
+            "character-odin",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "helgi-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "independent-eddic",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "loki-cycle",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-heimdall",
+            "character-jormungandr",
+            "character-loki",
+            "character-odin",
+            "character-thor"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim",
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "odin-cycle",
+          "sharedCharacterIds": [
+            "character-freyja",
+            "character-odin"
+          ],
+          "sharedWorldIds": [
+            "world-asgard",
+            "world-jotunheim"
+          ]
+        },
+        {
+          "cycleId": "volsung-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        }
+      ],
+      "narrativeContinuity": {
+        "status": "blocked",
+        "reasons": [
+          "10 个 Story 尚未完成来源审校",
+          "P0 来源审校为 0/7"
+        ]
+      },
+      "visualDiversity": {
+        "worldCount": 3,
+        "approvedWorldCount": 0,
+        "sceneCount": 4,
+        "objectCount": 3,
+        "storyKeyMomentCount": 7,
+        "approvedStoryKeyMomentCount": 0,
+        "status": "blocked",
+        "reasons": [
+          "World 双端视觉批准为 0/3",
+          "Story key-moment 批准为 0/10"
+        ]
+      },
+      "naturalCardCapacity": {
+        "status": "deferred-until-content-gate",
+        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+      }
+    },
+    {
+      "cycleId": "volsung-cycle",
+      "storyCount": 12,
+      "publishedStoryCount": 12,
+      "sourceReviewedStoryCount": 0,
+      "p0StoryCount": 11,
+      "p0SourceReviewedStoryCount": 0,
+      "missingStoryManifestIds": [],
+      "characterIds": [
+        "character-andvari",
+        "character-atli",
+        "character-brynhildr",
+        "character-fafnir",
+        "character-gudrun",
+        "character-gunnar",
+        "character-hamdir",
+        "character-hjordis",
+        "character-hogni",
+        "character-hreidmar",
+        "character-ottr",
+        "character-regin",
+        "character-siggeir",
+        "character-sigmund",
+        "character-signy",
+        "character-sigurd",
+        "character-sinfjotli",
+        "character-sorli",
+        "character-svanhildr",
+        "character-volsung"
+      ],
+      "worldIds": [
+        "world-midgard"
+      ],
+      "sceneIds": [
+        "scene-volsung-hall"
+      ],
+      "objectIds": [
+        "object-norse-andvaranaut",
+        "object-norse-gram"
+      ],
+      "crossCycleDependencies": [
+        {
+          "cycleId": "baldr-ragnarok",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "creation",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "helgi-cycle",
+          "sharedCharacterIds": [
+            "character-sinfjotli"
+          ],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "independent-eddic",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "loki-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        },
+        {
+          "cycleId": "thor-cycle",
+          "sharedCharacterIds": [],
+          "sharedWorldIds": [
+            "world-midgard"
+          ]
+        }
+      ],
+      "narrativeContinuity": {
+        "status": "blocked",
+        "reasons": [
+          "12 个 Story 尚未完成来源审校",
+          "P0 来源审校为 0/11"
+        ]
+      },
+      "visualDiversity": {
+        "worldCount": 1,
+        "approvedWorldCount": 0,
+        "sceneCount": 1,
+        "objectCount": 2,
+        "storyKeyMomentCount": 11,
+        "approvedStoryKeyMomentCount": 0,
+        "status": "blocked",
+        "reasons": [
+          "World 双端视觉批准为 0/1",
+          "Story key-moment 批准为 0/12"
+        ]
+      },
+      "naturalCardCapacity": {
+        "status": "deferred-until-content-gate",
+        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+      }
+    }
+  ]
+}

@@ -269,6 +269,11 @@ export type StoryIllustrationProvenance = {
   licenseName?: string;
   model?: string;
   promptRecipeId?: string;
+  /** Asset QA is separate from provenance; draft assets must not satisfy visual-ready. */
+  reviewStatus?: 'draft' | 'approved' | 'hidden';
+  reviewer?: string;
+  reviewedAt?: string;
+  reviewNotes?: readonly string[];
 };
 
 /**

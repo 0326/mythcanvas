@@ -1,0 +1,238 @@
+# 北欧 Story Key-Moment 视觉审查队列
+
+> 本队列对应 Phase 7 的 Story key-moment 插画槽位。World 双端草稿不能替代故事视觉证据；没有明确 hero/key-moment 资产的 Story 不得进入 `visual-ready`。
+
+- 已归属槽位：56 / 74
+- 已批准槽位：0 / 74
+- Tier S/A Character Canonical Design：28 / 28
+
+## Story queue
+
+- **尤弥尔与世界的诞生** (`ymir-creation`) · attributed
+  - characters: character-ymir · worlds: world-jotunheim, world-niflheim · scenes: scene-ginnungagap · objects: none
+  - heroAssetId: story-illustration-norse-ymir-creation · asset review: draft
+- **奥德胡姆拉与布里的出现** (`audhumla-and-buri`) · attributed
+  - characters: character-buri, character-ymir · worlds: world-niflheim · scenes: scene-ginnungagap · objects: none
+  - heroAssetId: story-illustration-norse-audhumla-and-buri · asset review: draft
+- **奥丁兄弟以尤弥尔之躯创造世界** (`odin-creates-world`) · attributed
+  - characters: character-odin, character-vili, character-ve, character-ymir · worlds: world-midgard, world-asgard · scenes: scene-ginnungagap · objects: none
+  - heroAssetId: story-illustration-norse-odin-creates-world · asset review: draft
+- **阿斯克与恩布拉** (`ask-and-embla`) · attributed
+  - characters: character-odin, character-honir, character-lodur · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
+  - heroAssetId: story-illustration-norse-ask-and-embla · asset review: draft
+- **世界树、三口井与诺恩** (`yggdrasil-wells-norns`) · attributed
+  - characters: character-odin, character-mimir · worlds: world-asgard, world-niflheim · scenes: scene-world-tree-roots, scene-well-of-mimir · objects: none
+  - heroAssetId: story-illustration-norse-yggdrasil-wells-norns · asset review: draft
+- **诺恩与命运之井** (`norns-at-urdarbrunnr`) · attributed
+  - characters: character-urd, character-verdandi, character-skuld · worlds: world-asgard · scenes: scene-world-tree-roots · objects: none
+  - heroAssetId: story-illustration-norse-norns-at-urdarbrunnr · asset review: draft
+- **日月运行与追逐者** (`sun-and-moon-chase`) · attributed
+  - characters: character-sol, character-mani, character-skoll, character-hati · worlds: world-midgard · scenes: scene-world-tree-roots · objects: none
+  - heroAssetId: story-illustration-norse-sun-and-moon-chase · asset review: draft
+- **阿萨神族与华纳神族的冲突与和解** (`aesir-vanir-war`) · attributed
+  - characters: character-odin, character-freyja, character-freyr, character-njordr, character-gullveig · worlds: world-asgard, world-vanaheim · scenes: scene-asgard-court · objects: none
+  - heroAssetId: story-illustration-norse-aesir-vanir-war · asset review: draft
+- **阿萨与华纳的和约** (`aesir-vanir-truce`) · needs-key-moment-asset
+  - characters: character-njordr, character-freyr, character-freyja · worlds: world-asgard, world-vanaheim · scenes: scene-asgard-court · objects: none
+  - heroAssetId: pending · asset review: missing
+- **克瓦希尔与诗歌蜜酒** (`kvasir-and-mead`) · attributed
+  - characters: character-kvasir, character-odin · worlds: world-asgard · scenes: scene-asgard-court · objects: object-norse-mead-of-poetry
+  - heroAssetId: story-illustration-norse-kvasir-and-mead · asset review: draft
+- **奥丁以一只眼换取智慧** (`odin-and-mimir`) · attributed
+  - characters: character-odin, character-mimir · worlds: world-asgard · scenes: scene-well-of-mimir · objects: none
+  - heroAssetId: story-illustration-norse-odin-and-mimir · asset review: draft
+- **奥丁悬于世界树九夜** (`odin-world-tree`) · attributed
+  - characters: character-odin · worlds: world-asgard · scenes: scene-world-tree-roots · objects: none
+  - heroAssetId: story-illustration-norse-odin-world-tree · asset review: draft
+- **弗雷与葛德** (`freyr-and-gerdr`) · attributed
+  - characters: character-freyr, character-gerdr, character-skirnir · worlds: world-vanaheim, world-jotunheim · scenes: scene-jotunheim-border · objects: object-norse-freyrs-sword
+  - heroAssetId: story-illustration-norse-freyr-and-gerdr · asset review: draft
+- **伊登被夏基掳走** (`idunn-and-thjazi`) · attributed
+  - characters: character-idunn, character-loki, character-thjazi · worlds: world-asgard, world-jotunheim · scenes: scene-asgard-court, scene-jotunheim-border · objects: object-norse-idunn-apples
+  - heroAssetId: story-illustration-norse-idunn-and-thjazi · asset review: draft
+- **奥丁夺取诗歌蜜酒** (`odin-steals-mead`) · attributed
+  - characters: character-odin · worlds: world-asgard, world-jotunheim · scenes: scene-jotunheim-border · objects: object-norse-mead-of-poetry
+  - heroAssetId: story-illustration-norse-odin-steals-mead · asset review: draft
+- **斯卡蒂的赔偿** (`skadi-compensation`) · needs-key-moment-asset
+  - characters: character-skadi, character-njordr · worlds: world-asgard, world-jotunheim · scenes: scene-asgard-court · objects: none
+  - heroAssetId: pending · asset review: missing
+- **尼约德与斯卡蒂的婚姻** (`njordr-and-skadi`) · needs-key-moment-asset
+  - characters: character-njordr, character-skadi · worlds: world-asgard, world-jotunheim · scenes: scene-jotunheim-border · objects: none
+  - heroAssetId: pending · asset review: missing
+- **阿斯加德城墙与斯莱普尼尔** (`asgard-wall-and-sleipnir`) · needs-key-moment-asset
+  - characters: character-loki, character-sleipnir · worlds: world-asgard, world-jotunheim · scenes: scene-asgard-court · objects: none
+  - heroAssetId: pending · asset review: missing
+- **西芙的头发与诸神宝物** (`sifs-hair-and-treasures`) · needs-key-moment-asset
+  - characters: character-sif, character-loki, character-odin, character-freyr, character-thor · worlds: world-asgard · scenes: scene-asgard-court · objects: object-norse-mjolnir, object-norse-skidbladnir, object-norse-draupnir
+  - heroAssetId: pending · asset review: missing
+- **索尔与赫朗格尼尔** (`thor-and-hrungnir`) · attributed
+  - characters: character-thor, character-hrungnir · worlds: world-jotunheim, world-asgard · scenes: scene-jotunheim-border · objects: object-norse-mjolnir
+  - heroAssetId: story-illustration-norse-thor-and-hrungnir · asset review: draft
+- **索尔垂钓世界蛇** (`thor-fishes-for-serpent`) · attributed
+  - characters: character-thor, character-jormungandr, character-hymir · worlds: world-midgard, world-jotunheim · scenes: scene-midgard-coast · objects: none
+  - heroAssetId: story-illustration-norse-thor-fishes-for-serpent · asset review: draft
+- **雷神之锤被盗** (`thryms-stolen-hammer`) · attributed
+  - characters: character-thor, character-loki, character-freyja, character-heimdall, character-thrymr · worlds: world-jotunheim, world-asgard · scenes: scene-thryms-hall · objects: object-norse-mjolnir
+  - heroAssetId: story-illustration-norse-thryms-stolen-hammer · asset review: draft
+- **索尔在乌特加德** (`thor-in-utgard`) · attributed
+  - characters: character-thor, character-loki, character-utgarda-loki · worlds: world-jotunheim · scenes: scene-jotunheim-border · objects: none
+  - heroAssetId: story-illustration-norse-thor-in-utgard · asset review: draft
+- **索尔与盖尔罗德** (`thor-and-geirrod`) · attributed
+  - characters: character-thor, character-loki, character-geirrod, character-gjalp, character-greip · worlds: world-jotunheim · scenes: scene-jotunheim-border · objects: object-norse-megingjord, object-norse-jarngreipr
+  - heroAssetId: story-illustration-norse-thor-and-geirrod · asset review: draft
+- **芬里尔与格莱普尼尔** (`fenrir-and-gleipnir`) · attributed
+  - characters: character-fenrir, character-tyr, character-odin · worlds: world-asgard, world-jotunheim · scenes: scene-asgard-court · objects: object-norse-gleipnir
+  - heroAssetId: story-illustration-norse-fenrir-and-gleipnir · asset review: draft
+- **洛基的宴席争辩** (`lokis-feast`) · attributed
+  - characters: character-loki, character-odin, character-thor, character-freyja, character-tyr · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: story-illustration-norse-lokis-feast · asset review: draft
+- **巴德尔的梦** (`baldrs-dreams`) · attributed
+  - characters: character-baldr, character-odin, character-frigg · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: story-illustration-norse-baldrs-dreams · asset review: draft
+- **巴德尔之死** (`baldrs-death`) · attributed
+  - characters: character-baldr, character-frigg, character-loki, character-hodr · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: story-illustration-norse-baldrs-death · asset review: draft
+- **巴德尔的葬礼** (`baldrs-funeral`) · attributed
+  - characters: character-baldr, character-odin, character-frigg, character-thor, character-nanna · worlds: world-asgard, world-hel · scenes: scene-baldr-funeral-shore · objects: object-norse-hringhorni
+  - heroAssetId: story-illustration-norse-baldrs-funeral · asset review: draft
+- **赫尔莫德前往赫尔** (`hermod-rides-to-hel`) · attributed
+  - characters: character-hermod, character-baldr, character-hel · worlds: world-asgard, world-hel · scenes: scene-hall-of-hel · objects: none
+  - heroAssetId: story-illustration-norse-hermod-rides-to-hel · asset review: draft
+- **洛基被捕与束缚** (`loki-bound`) · attributed
+  - characters: character-loki, character-sigyn · worlds: world-asgard · scenes: scene-world-tree-roots · objects: none
+  - heroAssetId: story-illustration-norse-loki-bound · asset review: draft
+- **芬布尔之冬与束缚崩解** (`fimbulwinter`) · attributed
+  - characters: character-fenrir, character-jormungandr, character-loki, character-odin · worlds: world-midgard, world-jotunheim · scenes: scene-fimbulwinter-field · objects: none
+  - heroAssetId: story-illustration-norse-fimbulwinter · asset review: draft
+- **奥丁与芬里尔** (`odin-and-fenrir`) · attributed
+  - characters: character-odin, character-fenrir, character-vidarr · worlds: world-midgard, world-asgard · scenes: scene-fimbulwinter-field · objects: none
+  - heroAssetId: story-illustration-norse-odin-and-fenrir · asset review: draft
+- **索尔与世界蛇的最后一战** (`thor-and-jormungandr-final-battle`) · attributed
+  - characters: character-thor, character-jormungandr · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
+  - heroAssetId: story-illustration-norse-thor-jormungandr-final-battle · asset review: draft
+- **弗雷与苏尔特** (`freyr-and-surtr`) · attributed
+  - characters: character-freyr, character-surtr · worlds: world-muspell, world-asgard · scenes: scene-muspell-flame-border · objects: object-norse-freyrs-sword
+  - heroAssetId: story-illustration-norse-freyr-and-surtr · asset review: draft
+- **海姆达尔、洛基与加拉尔号角** (`heimdall-and-loki`) · attributed
+  - characters: character-heimdall, character-loki · worlds: world-asgard · scenes: scene-bifrost · objects: object-norse-gjallarhorn
+  - heroAssetId: story-illustration-norse-heimdall-and-loki · asset review: draft
+- **世界毁灭、回归与新生** (`ragnarok`) · attributed
+  - characters: character-vidarr, character-baldr, character-hodr · worlds: world-midgard, world-asgard · scenes: scene-renewed-earth · objects: object-norse-naglfar
+  - heroAssetId: story-illustration-norse-ragnarok · asset review: draft
+- **沃尔松格与树中神剑** (`volsung-and-sword-tree`) · attributed
+  - characters: character-volsung, character-sigmund · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: story-illustration-norse-volsung-and-sword-tree · asset review: draft
+- **西格妮与西格盖尔** (`signy-and-siggeir`) · attributed
+  - characters: character-signy, character-siggeir, character-sigmund · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: story-illustration-norse-signy-and-siggeir · asset review: draft
+- **西格蒙德与辛菲奥特利** (`sigmund-and-sinfjotli`) · attributed
+  - characters: character-sigmund, character-sinfjotli · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: story-illustration-norse-sigmund-and-sinfjotli · asset review: draft
+- **西格尔德与雷金** (`sigurd-and-regin`) · attributed
+  - characters: character-sigurd, character-regin · worlds: world-midgard · scenes: scene-volsung-hall · objects: object-norse-gram
+  - heroAssetId: story-illustration-norse-sigurd-and-regin · asset review: draft
+- **西格尔德斩杀法夫纳** (`sigurd-kills-fafnir`) · attributed
+  - characters: character-sigurd, character-fafnir, character-regin · worlds: world-midgard · scenes: scene-volsung-hall · objects: object-norse-gram, object-norse-andvaranaut
+  - heroAssetId: story-illustration-norse-sigurd-kills-fafnir · asset review: draft
+- **西格尔德与布伦希尔德** (`sigurd-and-brynhildr`) · attributed
+  - characters: character-sigurd, character-brynhildr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: story-illustration-norse-sigurd-and-brynhildr · asset review: draft
+- **西格尔德之死** (`sigurds-death`) · attributed
+  - characters: character-sigurd, character-brynhildr, character-gudrun, character-gunnar, character-hogni · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: story-illustration-norse-sigurds-death · asset review: draft
+- **奥丁与瓦夫苏鲁德尼尔** (`odin-and-vafthrudnir`) · attributed
+  - characters: character-odin, character-vafthrudnir · worlds: world-asgard, world-jotunheim · scenes: scene-jotunheim-border · objects: none
+  - heroAssetId: story-illustration-norse-odin-and-vafthrudnir · asset review: draft
+- **索尔与海米尔的大锅** (`thor-and-hymir`) · attributed
+  - characters: character-thor, character-hymir · worlds: world-jotunheim · scenes: scene-jotunheim-border · objects: none
+  - heroAssetId: story-illustration-norse-thor-and-hymir · asset review: draft
+- **洛基与安格尔伯达** (`loki-and-angrboda`) · attributed
+  - characters: character-loki, character-angrboda, character-fenrir, character-jormungandr, character-hel · worlds: world-asgard, world-jotunheim, world-midgard, world-hel · scenes: scene-asgard-court · objects: none
+  - heroAssetId: story-illustration-norse-loki-and-angrboda · asset review: draft
+- **格里姆尼尔的启示** (`grimnir-revealed`) · attributed
+  - characters: character-odin · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: story-illustration-norse-grimnir-revealed · asset review: draft
+- **瓦尔哈拉与女武神** (`valholl-and-valkyries`) · attributed
+  - characters: character-odin · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: story-illustration-norse-valholl-and-valkyries · asset review: draft
+- **安德瓦里与被诅咒的黄金** (`andvari-gold`) · attributed
+  - characters: character-andvari, character-ottr, character-hreidmar, character-fafnir · worlds: world-midgard · scenes: scene-volsung-hall · objects: object-norse-andvaranaut
+  - heroAssetId: story-illustration-norse-andvari-gold · asset review: draft
+- **赫尔吉·洪丁斯巴尼** (`helgi-hundingsbani`) · attributed
+  - characters: character-helgi-hundingsbani, character-sigrun, character-sinfjotli · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
+  - heroAssetId: story-illustration-norse-helgi-hundingsbani · asset review: draft
+- **沃伦德：被囚的铁匠** (`volundr-captive-smith`) · attributed
+  - characters: character-volundr, character-nidudr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: story-illustration-norse-volundr-captive-smith · asset review: draft
+- **索尔与斯克里米尔** (`thor-and-skrymir`) · attributed
+  - characters: character-thor, character-loki, character-skrymir · worlds: world-jotunheim · scenes: scene-jotunheim-border · objects: none
+  - heroAssetId: story-illustration-norse-thor-and-skrymir · asset review: draft
+- **洛基与巴德尔之死** (`loki-and-baldr`) · attributed
+  - characters: character-loki, character-baldr, character-hodr, character-frigg · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: story-illustration-norse-loki-and-baldr · asset review: draft
+- **西格蒙德之死与希奥尔迪斯** (`sigmunds-death-and-hjordis`) · attributed
+  - characters: character-sigmund, character-hjordis, character-sigurd · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: story-illustration-norse-sigmunds-death-and-hjordis · asset review: draft
+- **洛基在诸神黄昏** (`loki-at-ragnarok`) · attributed
+  - characters: character-loki, character-heimdall · worlds: world-asgard, world-midgard · scenes: scene-bifrost · objects: none
+  - heroAssetId: story-illustration-norse-loki-at-ragnarok · asset review: draft
+- **西格尔德与西格德里法** (`sigurd-and-sigrdrifa`) · attributed
+  - characters: character-sigurd, character-brynhildr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: story-illustration-norse-sigurd-and-sigrdrifa · asset review: draft
+- **古德伦与阿特利** (`gudrun-and-atli`) · attributed
+  - characters: character-gudrun, character-atli, character-gunnar, character-hogni · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: story-illustration-norse-gudrun-and-atli · asset review: draft
+- **赫尔吉·希奥尔瓦尔松与斯瓦瓦** (`helgi-hjorvardsson-and-svava`) · attributed
+  - characters: character-helgi-hjorvardsson, character-svava · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
+  - heroAssetId: story-illustration-norse-helgi-hjorvardsson-and-svava · asset review: draft
+- **赫尔吉与西格伦** (`helgi-and-sigrun`) · attributed
+  - characters: character-helgi-hundingsbani, character-sigrun · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
+  - heroAssetId: story-illustration-norse-helgi-and-sigrun · asset review: draft
+- **赫尔吉的葬丘与归来** (`helgi-burial-mound`) · needs-key-moment-asset
+  - characters: character-helgi-hundingsbani, character-sigrun · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
+  - heroAssetId: pending · asset review: missing
+- **沃伦德的逃离** (`volundr-escape`) · needs-key-moment-asset
+  - characters: character-volundr, character-bodvildr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: pending · asset review: missing
+- **尼德霍格与世界树** (`nidhoggr-and-world-tree`) · attributed
+  - characters: character-nidhoggr · worlds: world-niflheim · scenes: scene-world-tree-roots · objects: none
+  - heroAssetId: story-illustration-norse-nidhoggr-and-world-tree · asset review: draft
+- **胡金与穆宁** (`odin-ravens`) · needs-key-moment-asset
+  - characters: character-odin, character-huginn, character-muninn · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: pending · asset review: missing
+- **奥丁与塞德魔法** (`odin-seidr`) · needs-key-moment-asset
+  - characters: character-odin, character-freyja · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: pending · asset review: missing
+- **索尔、夏尔菲与罗丝克瓦** (`thor-and-thjalfi-roskva`) · needs-key-moment-asset
+  - characters: character-thor, character-thjalfi, character-roskva · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
+  - heroAssetId: pending · asset review: missing
+- **索尔与阿尔维斯** (`thor-and-alviss`) · needs-key-moment-asset
+  - characters: character-thor, character-alviss · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: pending · asset review: missing
+- **索尔与哈巴德** (`thor-and-harbard`) · needs-key-moment-asset
+  - characters: character-thor, character-odin · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
+  - heroAssetId: pending · asset review: missing
+- **瓦利为巴德尔复仇** (`vali-avenges-baldr`) · needs-key-moment-asset
+  - characters: character-vali, character-hodr · worlds: world-asgard · scenes: scene-asgard-court · objects: none
+  - heroAssetId: pending · asset review: missing
+- **提尔与加姆** (`tyr-and-garmr`) · needs-key-moment-asset
+  - characters: character-tyr, character-garmr · worlds: world-hel · scenes: scene-fimbulwinter-field · objects: none
+  - heroAssetId: pending · asset review: missing
+- **古德伦、斯万希尔德与哈姆迪尔兄弟** (`gudrun-svanhild-hamdir-sorli`) · needs-key-moment-asset
+  - characters: character-gudrun, character-svanhildr, character-hamdir, character-sorli · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: pending · asset review: missing
+- **斯维普达格与孟格洛德** (`svipdagr-and-mengloth`) · needs-key-moment-asset
+  - characters: character-svipdagr, character-groa, character-mengloth · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: pending · asset review: missing
+- **里格与社会秩序** (`rig-and-social-orders`) · needs-key-moment-asset
+  - characters: character-rigr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: pending · asset review: missing
+- **格罗蒂之歌** (`grottasongr`) · needs-key-moment-asset
+  - characters: none · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
+  - heroAssetId: pending · asset review: missing
+
+## Gate
+
+- Reviewer: pending
+- Decision: pending
+- Note: 资产生成、来源边界、桌面/移动构图和产品文案安全区必须分别审查。

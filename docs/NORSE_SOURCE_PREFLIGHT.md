@@ -1,0 +1,315 @@
+# 北欧 Story 来源预审报告
+
+> 由 `npm run content:coverage:norse` 生成。这里是机器预审，不是人工来源审校：它只检查来源是否登记、是否映射到 Manifest、locator 是否足够具体、正文是否达到结构门槛；不得据此把 Story 标记为 `source-reviewed`。
+
+- 总 Story：74
+- 机器预审可进入人工复核：74
+- 机器预审需先修改：0
+- P0 可进入人工复核：56 / 56
+- P0 需先修改：0
+
+## 使用方式
+
+1. 先处理 `changes-needed-before-human-review`，尤其是宽泛 locator、错误来源映射和正文门槛问题。
+2. 对 `review-ready` Story 逐条打开指定来源，核对正文、摘要、Claim、人物/地点/物件关系。
+3. 只有具名编辑完成核对并写入 `editorialReview` 后，才可推进 `editorialStatus: source-reviewed`。
+4. `variantNoteIds` 只是提醒审校者加载版本边界，不代表事实已经被自动判定。
+
+## Story 预审结果
+
+- [P0] `aesir-vanir-truce` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Skáldskaparmál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `aesir-vanir-war` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `andvari-gold` · review-ready · human review: `needs-review`
+  - sources: Reginsmál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `asgard-wall-and-sleipnir` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `ask-and-embla` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `audhumla-and-buri` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `baldrs-death` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: norse-variant-loki-baldr-agency
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `baldrs-dreams` · review-ready · human review: `needs-review`
+  - sources: Baldrs draumar · variant notes: norse-variant-loki-baldr-agency
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `baldrs-funeral` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `fenrir-and-gleipnir` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `fimbulwinter` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `freyr-and-gerdr` · review-ready · human review: `needs-review`
+  - sources: Skírnismál · variant notes: norse-variant-freyr-gerdr-coercion
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `freyr-and-surtr` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `grimnir-revealed` · review-ready · human review: `needs-review`
+  - sources: Grímnismál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `gudrun-and-atli` · review-ready · human review: `needs-review`
+  - sources: Atlakviða · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `heimdall-and-loki` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `hermod-rides-to-hel` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `idunn-and-thjazi` · review-ready · human review: `needs-review`
+  - sources: Þjóðólfr of Hvinir, Haustlöng · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `kvasir-and-mead` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Skáldskaparmál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `loki-and-angrboda` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `loki-and-baldr` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: norse-variant-loki-baldr-agency
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `loki-at-ragnarok` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `loki-bound` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `lokis-feast` · review-ready · human review: `needs-review`
+  - sources: Lokasenna · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `njordr-and-skadi` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `norns-at-urdarbrunnr` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `odin-and-fenrir` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: norse-variant-garmr-fenrir
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `odin-and-mimir` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `odin-and-vafthrudnir` · review-ready · human review: `needs-review`
+  - sources: Vafþrúðnismál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `odin-creates-world` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `odin-steals-mead` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Skáldskaparmál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `odin-world-tree` · review-ready · human review: `needs-review`
+  - sources: Hávamál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `ragnarok` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: norse-variant-ragnarok-survivors
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `sifs-hair-and-treasures` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Skáldskaparmál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `sigmund-and-sinfjotli` · review-ready · human review: `needs-review`
+  - sources: Völsunga saga · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `sigmunds-death-and-hjordis` · review-ready · human review: `needs-review`
+  - sources: Völsunga saga · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `signy-and-siggeir` · review-ready · human review: `needs-review`
+  - sources: Völsunga saga · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `sigurd-and-brynhildr` · review-ready · human review: `needs-review`
+  - sources: Völsunga saga · variant notes: norse-variant-sigrdrifa-brynhildr
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `sigurd-and-regin` · review-ready · human review: `needs-review`
+  - sources: Reginsmál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `sigurd-and-sigrdrifa` · review-ready · human review: `needs-review`
+  - sources: Sigrdrífumál · variant notes: norse-variant-sigrdrifa-brynhildr
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `sigurd-kills-fafnir` · review-ready · human review: `needs-review`
+  - sources: Fáfnismál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `sigurds-death` · review-ready · human review: `needs-review`
+  - sources: Sigurðarkviða in skamma / fragmentary Sigurd poems · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `skadi-compensation` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `sun-and-moon-chase` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `thor-and-geirrod` · review-ready · human review: `needs-review`
+  - sources: Eilífr Goðrúnarson, Þórsdrápa · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `thor-and-hrungnir` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Skáldskaparmál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `thor-and-hymir` · review-ready · human review: `needs-review`
+  - sources: Hymiskviða · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `thor-and-jormungandr-final-battle` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `thor-and-skrymir` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `thor-fishes-for-serpent` · review-ready · human review: `needs-review`
+  - sources: Hymiskviða · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `thor-in-utgard` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `thryms-stolen-hammer` · review-ready · human review: `needs-review`
+  - sources: Þrymskviða · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `valholl-and-valkyries` · review-ready · human review: `needs-review`
+  - sources: Grímnismál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `volsung-and-sword-tree` · review-ready · human review: `needs-review`
+  - sources: Völsunga saga · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `yggdrasil-wells-norns` · review-ready · human review: `needs-review`
+  - sources: Grímnismál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P0] `ymir-creation` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `gudrun-svanhild-hamdir-sorli` · review-ready · human review: `needs-review`
+  - sources: Hamdismál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `helgi-and-sigrun` · review-ready · human review: `needs-review`
+  - sources: Helgakviða Hundingsbana II · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `helgi-burial-mound` · review-ready · human review: `needs-review`
+  - sources: Helgakviða Hundingsbana II · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `helgi-hjorvardsson-and-svava` · review-ready · human review: `needs-review`
+  - sources: Helgakviða Hjörvarðssonar · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `helgi-hundingsbani` · review-ready · human review: `needs-review`
+  - sources: Helgakviða Hundingsbana I · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `nidhoggr-and-world-tree` · review-ready · human review: `needs-review`
+  - sources: Grímnismál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `odin-ravens` · review-ready · human review: `needs-review`
+  - sources: Grímnismál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `odin-seidr` · review-ready · human review: `needs-review`
+  - sources: Ynglinga saga / Heimskringla · variant notes: norse-variant-ynglinga-euhemerism
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `svipdagr-and-mengloth` · review-ready · human review: `needs-review`
+  - sources: Grógaldr / Fjölsvinnsmál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `thor-and-alviss` · review-ready · human review: `needs-review`
+  - sources: Alvíssmál · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `thor-and-harbard` · review-ready · human review: `needs-review`
+  - sources: Hárbarðsljóð · variant notes: norse-variant-harbard-identity
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `thor-and-thjalfi-roskva` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `tyr-and-garmr` · review-ready · human review: `needs-review`
+  - sources: Snorri Sturluson, Gylfaginning · variant notes: norse-variant-garmr-fenrir
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `vali-avenges-baldr` · review-ready · human review: `needs-review`
+  - sources: Völuspá · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `volundr-captive-smith` · review-ready · human review: `needs-review`
+  - sources: Völundarkviða · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P1] `volundr-escape` · review-ready · human review: `needs-review`
+  - sources: Völundarkviða · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P2] `grottasongr` · review-ready · human review: `needs-review`
+  - sources: Grottasöngr · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none
+- [P2] `rig-and-social-orders` · review-ready · human review: `needs-review`
+  - sources: Rígsþula · variant notes: none
+  - checks: registry=ok · coverage=ok · story-source=ok · locator=ok · body=ok
+  - missing registry: none · missing coverage: none · missing from Story sources: none · broad locators: none

@@ -8,12 +8,13 @@ export type NorseAssetProvenance = {
   outputSpecId: 'desktop-wallpaper' | 'mobile-wallpaper';
   reviewStatus: 'draft' | 'approved';
   generatedAt: string;
+  note?: string;
 };
 
 const owners = ['world-asgard', 'world-midgard', 'world-jotunheim', 'world-hel', 'world-muspell', 'world-niflheim', 'world-vanaheim', 'world-alfheim'];
 const prototypeAssets: readonly NorseAssetProvenance[] = owners.flatMap((ownerId) => [
-  { assetPath: '/art/norse-asgard.jpg', ownerType: 'world' as const, ownerId, sourceType: 'prototype' as const, generator: 'MythCanvas prototype asset registry', promptRecipeId: `norse-${ownerId}-desktop-v0`, outputSpecId: 'desktop-wallpaper' as const, reviewStatus: 'draft' as const, generatedAt: '2026-09-01' },
-  { assetPath: '/art/art-asgard-aurora.jpg', ownerType: 'world' as const, ownerId, sourceType: 'prototype' as const, generator: 'MythCanvas prototype asset registry', promptRecipeId: `norse-${ownerId}-mobile-v0`, outputSpecId: 'mobile-wallpaper' as const, reviewStatus: 'draft' as const, generatedAt: '2026-09-01' },
+  { assetPath: '/art/norse-asgard.jpg', ownerType: 'world' as const, ownerId, sourceType: 'prototype' as const, generator: 'MythCanvas prototype asset registry', promptRecipeId: `norse-${ownerId}-desktop-v0`, outputSpecId: 'desktop-wallpaper' as const, reviewStatus: 'draft' as const, generatedAt: '2026-09-01', note: 'Shared fallback placeholder; not a world-specific visual approval.' },
+  { assetPath: '/art/art-asgard-aurora.jpg', ownerType: 'world' as const, ownerId, sourceType: 'prototype' as const, generator: 'MythCanvas prototype asset registry', promptRecipeId: `norse-${ownerId}-mobile-v0`, outputSpecId: 'mobile-wallpaper' as const, reviewStatus: 'draft' as const, generatedAt: '2026-09-01', note: 'Shared fallback placeholder; not a world-specific visual approval.' },
 ]);
 
 export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
@@ -105,5 +106,93 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     outputSpecId: 'mobile-wallpaper' as const,
     reviewStatus: 'draft' as const,
     generatedAt: '2026-09-06',
+  },
+  {
+    assetPath: '/art/norse-muspell-v1.png',
+    ownerType: 'world' as const,
+    ownerId: 'world-muspell',
+    sourceType: 'ai' as const,
+    generator: 'OpenAI GPT Image built-in generation',
+    promptRecipeId: 'norse-world-muspell-desktop-v1',
+    outputSpecId: 'desktop-wallpaper' as const,
+    reviewStatus: 'draft' as const,
+    generatedAt: '2026-09-07',
+  },
+  {
+    assetPath: '/art/norse-muspell-mobile-v1.png',
+    ownerType: 'world' as const,
+    ownerId: 'world-muspell',
+    sourceType: 'ai' as const,
+    generator: 'OpenAI GPT Image built-in generation',
+    promptRecipeId: 'norse-world-muspell-mobile-v1',
+    outputSpecId: 'mobile-wallpaper' as const,
+    reviewStatus: 'draft' as const,
+    generatedAt: '2026-09-07',
+  },
+  {
+    assetPath: '/art/norse-niflheim-v1.png',
+    ownerType: 'world' as const,
+    ownerId: 'world-niflheim',
+    sourceType: 'ai' as const,
+    generator: 'OpenAI GPT Image built-in generation',
+    promptRecipeId: 'norse-world-niflheim-desktop-v1',
+    outputSpecId: 'desktop-wallpaper' as const,
+    reviewStatus: 'draft' as const,
+    generatedAt: '2026-09-07',
+  },
+  {
+    assetPath: '/art/norse-niflheim-mobile-v1.png',
+    ownerType: 'world' as const,
+    ownerId: 'world-niflheim',
+    sourceType: 'ai' as const,
+    generator: 'OpenAI GPT Image built-in generation',
+    promptRecipeId: 'norse-world-niflheim-mobile-v1',
+    outputSpecId: 'mobile-wallpaper' as const,
+    reviewStatus: 'draft' as const,
+    generatedAt: '2026-09-07',
+  },
+  {
+    assetPath: '/art/norse-vanaheim-v1.png',
+    ownerType: 'world' as const,
+    ownerId: 'world-vanaheim',
+    sourceType: 'ai' as const,
+    generator: 'OpenAI GPT Image built-in generation',
+    promptRecipeId: 'norse-world-vanaheim-desktop-v1',
+    outputSpecId: 'desktop-wallpaper' as const,
+    reviewStatus: 'draft' as const,
+    generatedAt: '2026-09-07',
+  },
+  {
+    assetPath: '/art/norse-vanaheim-mobile-v1.png',
+    ownerType: 'world' as const,
+    ownerId: 'world-vanaheim',
+    sourceType: 'ai' as const,
+    generator: 'OpenAI GPT Image built-in generation',
+    promptRecipeId: 'norse-world-vanaheim-mobile-v1',
+    outputSpecId: 'mobile-wallpaper' as const,
+    reviewStatus: 'draft' as const,
+    generatedAt: '2026-09-07',
+  },
+  {
+    assetPath: '/art/norse-alfheim-v1.png',
+    ownerType: 'world' as const,
+    ownerId: 'world-alfheim',
+    sourceType: 'ai' as const,
+    generator: 'OpenAI GPT Image built-in generation',
+    promptRecipeId: 'norse-world-alfheim-desktop-v1',
+    outputSpecId: 'desktop-wallpaper' as const,
+    reviewStatus: 'draft' as const,
+    generatedAt: '2026-09-07',
+  },
+  {
+    assetPath: '/art/norse-alfheim-mobile-v1.png',
+    ownerType: 'world' as const,
+    ownerId: 'world-alfheim',
+    sourceType: 'ai' as const,
+    generator: 'OpenAI GPT Image built-in generation',
+    promptRecipeId: 'norse-world-alfheim-mobile-v1',
+    outputSpecId: 'mobile-wallpaper' as const,
+    reviewStatus: 'draft' as const,
+    generatedAt: '2026-09-07',
   },
 ];

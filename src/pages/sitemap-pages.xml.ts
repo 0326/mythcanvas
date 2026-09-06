@@ -5,7 +5,7 @@ import {
   getPublicMythologies,
   getPublicWorlds,
 } from '../lib/content/public-catalog';
-import { getPublicStoryPaths } from '../lib/content/stories';
+import { getIndexableStoryPaths } from '../lib/content/stories';
 import { localizedPath } from '../lib/i18n/url';
 import {
   absoluteUrl,
@@ -55,7 +55,7 @@ export const GET: APIRoute = async ({ site, url }) => {
     ...mythologies.map((item) => `/mythology/${item.slug}/`),
     ...worlds.map((item) => `/world/${item.slug}/`),
     ...characters.map((item) => `/character/${item.slug}/`),
-    ...getPublicStoryPaths().flatMap((story) => {
+    ...getIndexableStoryPaths().flatMap((story) => {
       const mythology = mythologies.find((item) => item.id === story.mythologyId);
       return mythology ? [`/mythology/${mythology.slug}/${story.slug}/`] : [];
     }),

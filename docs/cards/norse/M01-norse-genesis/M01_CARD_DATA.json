@@ -13,7 +13,12 @@
   "artworkDefaults": {
     "portrait": { "width": 1620, "height": 2880, "aspectRatio": "9:16" },
     "landscape": { "width": 2880, "height": 1620, "aspectRatio": "16:9" },
-    "criticalIdentityZone": { "xMin": 0.2, "xMax": 0.8, "yMin": 0.12, "yMax": 0.52 },
+    "criticalIdentityZone": {
+      "xMin": 0.2,
+      "xMax": 0.8,
+      "yMin": 0.12,
+      "yMax": 0.52
+    },
     "sacrificialBottomStart": 0.7,
     "sideCropTolerance": 0.14,
     "detailHierarchy": "主体脸、手、核心神物或关键动作最高细节；主体其他部分中等细节；背景只保留大形、空气透视和少量地标，禁止全画面同等精细。",
@@ -22,55 +27,993 @@
     "negativePrompt": "no typography, no logo, no card frame, no watermark, no random glowing runes, no excessive particles, no galaxy or nebula by default, no floating debris overload, no glossy game-CG finish, no hyper-detailed-everything, no ornamental micro-detail everywhere"
   },
   "cards": [
-    {"cardId":1003010001,"cardNumber":1,"type":"character","slug":"ymir","titleZh":"尤弥尔","titleEn":"Ymir","description":"冰火交界中诞生的原初巨人，是巨人谱系与创世材料的起点。","roleInSeries":"建立M01最重要的原初生命主体。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–8"}],"visualThesis":"巨大但造型简洁的原初巨人，主体清楚，背景仅保留冰火交界和原初雾。","promptSubject":"Ymir as a primordial giant born where frost and heat meet; massive readable silhouette, upper-body emphasis, restrained ice and stone materials, simple misty ice-fire boundary background."},
-    {"cardId":1003010002,"cardNumber":2,"type":"character","slug":"audhumla","titleZh":"奥德胡姆拉","titleEn":"Auðumbla","description":"以乳流滋养尤弥尔、舔开咸冰并使布里显现的原初母牛。","roleInSeries":"连接尤弥尔与神族祖先布里。","storyIds":["story-audhumla-and-buri"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 6"}],"visualThesis":"自然、庄重的原初牛科形态，头肩位于上半部，背景只保留霜冰与盐石。","promptSubject":"Audhumla, the primordial cow, dignified natural bovine anatomy, frost and salt-ice environment, subtle milk streams, no fantasy armor, clear subject against soft mist."},
-    {"cardId":1003010003,"cardNumber":3,"type":"character","slug":"buri","titleZh":"布里","titleEn":"Búri","description":"由奥德胡姆拉舔开的咸冰中逐日显现的神族祖先。","roleInSeries":"把原初世界连接到后来的神族谱系。","storyIds":["story-audhumla-and-buri"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 6"}],"visualThesis":"人物从冰层中显现，脸与上身清晰，服装和装饰极简。","promptSubject":"Buri emerging gradually from salt-frosted ice, face and upper torso becoming visible, ancient restrained Nordic material language, no crown or throne."},
-    {"cardId":1003010004,"cardNumber":4,"type":"character","slug":"odin-creator","titleZh":"奥丁·创世者","titleEn":"Odin · Creator","description":"创世阶段参与尤弥尔之死与世界塑造的奥丁，不使用后期完整王权造型。","roleInSeries":"建立奥丁创世阶段的视觉Canon。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"visualThesis":"朴素、行动中的创世者，独眼身份保留，背景简化为未完成世界。","promptSubject":"creator-era Odin, one-eyed, restrained functional clothing, strong simple silhouette, no royal throne or franchise armor, unfinished world softly behind him."},
-    {"cardId":1003010005,"cardNumber":5,"type":"character","slug":"vili","titleZh":"威利","titleEn":"Vili","description":"与奥丁、维共同参与塑造世界的兄弟神。","roleInSeries":"避免创世叙事只剩奥丁一人。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"visualThesis":"以动作体现参与塑造世界，不做奥丁换脸。","promptSubject":"Vili during world-making, active purposeful pose, distinct face and silhouette from Odin, restrained textile and stone setting, background simplified."},
-    {"cardId":1003010006,"cardNumber":6,"type":"character","slug":"ve","titleZh":"维","titleEn":"Vé","description":"与奥丁、威利共同把原初材料组织为新世界的兄弟神。","roleInSeries":"完成三兄弟创世主体。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"visualThesis":"更稳定、秩序感的姿态，与威利形成差异。","promptSubject":"Ve during world-making, calm ordering gesture, distinct identity from Odin and Vili, simple newly formed landscape, painterly restrained background."},
-    {"cardId":1003010007,"cardNumber":7,"type":"character","slug":"ask","titleZh":"阿斯克","titleEn":"Ask","description":"在新世界海岸获得生命的人类始祖之一。","roleInSeries":"把宇宙创生转入人类出现。","storyIds":["story-ask-and-embla"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"sts. 17–18"}],"visualThesis":"新生的人类主体，海岸背景柔化，不做树人或维京战士。","promptSubject":"Ask, newly awakened first human on a young coast, natural human form with subtle origin-from-wood suggestion only, quiet sea and land background, no warrior gear."},
-    {"cardId":1003010008,"cardNumber":8,"type":"character","slug":"embla","titleZh":"恩布拉","titleEn":"Embla","description":"与阿斯克共同获得生命的人类始祖之一。","roleInSeries":"与阿斯克共同完成M01的人类起源。","storyIds":["story-ask-and-embla"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"sts. 17–18"}],"visualThesis":"第一次感知世界的自然人物姿态，避免性感化与现代服装。","promptSubject":"Embla, newly awakened first woman on the young Midgard coast, natural dignified pose, soft sea wind, restrained textile, no glamour styling."},
-    {"cardId":1003010009,"cardNumber":9,"type":"character","slug":"urd","titleZh":"乌尔德","titleEn":"Urðr","description":"《女预言家之歌》点名的三位诺恩之一，与生命和命运安排相连。","roleInSeries":"把命运引入宇宙秩序。","storyIds":["story-norns-at-urdarbrunnr"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 20"}],"visualThesis":"沉稳、静态、与刻痕和泉水相连，不做老巫婆模板。","promptSubject":"Urd beside the world-tree spring, calm grounded presence, simple carved marks and water as secondary motifs, face clearly separated from soft background."},
-    {"cardId":1003010010,"cardNumber":10,"type":"character","slug":"verdandi","titleZh":"薇尔丹蒂","titleEn":"Verðandi","description":"与乌尔德、斯库尔德共同参与命运秩序的诺恩。","roleInSeries":"构成命运三人组。","storyIds":["story-norns-at-urdarbrunnr"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 20"}],"visualThesis":"以正在延伸的水纹或线条表现生成感，避免抽象魔法光线。","promptSubject":"Verdandi by the spring, subtle continuous motion through water ripples or simple thread-like natural motif, distinct posture from Urd, restrained background."},
-    {"cardId":1003010011,"cardNumber":11,"type":"character","slug":"skuld","titleZh":"斯库尔德","titleEn":"Skuld","description":"三位诺恩之一，与人的生命与命运安排相连。","roleInSeries":"完成命运三人组。","storyIds":["story-norns-at-urdarbrunnr"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 20"}],"visualThesis":"更锐利的前视与未完成空间，避免水晶球和科幻预言UI。","promptSubject":"Skuld near the world-tree spring, sharper forward-looking posture, unfinished natural space behind her, no crystal ball, no magic UI."},
-    {"cardId":1003010012,"cardNumber":12,"type":"character","slug":"sol","titleZh":"索尔","titleEn":"Sól","description":"人格化的太阳运行者，与太阳之车共同构成天体秩序。","roleInSeries":"把创世后的世界带入可循环的时间秩序。","storyIds":["story-sun-and-moon-chase"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 5"},{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 11"}],"visualThesis":"人物与太阳运行关系清楚，背景大面积简化，不做普通太阳女神光环。","promptSubject":"Sol as the personified sun-runner, clear human figure with restrained solar light and hint of chariot system, simple sky background, no giant halo ornament."},
-    {"cardId":1003010013,"cardNumber":13,"type":"character","slug":"mani","titleZh":"马尼","titleEn":"Máni","description":"人格化的月亮运行者，与索尔共同构成日月秩序。","roleInSeries":"形成月亮侧的时间与天象轴。","storyIds":["story-sun-and-moon-chase"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 5"}],"visualThesis":"冷色、安静、清楚的人物月体关系，不做手托月亮的魔法师。","promptSubject":"Mani as the personified moon-runner, calm masculine figure, moon and path clearly related, muted indigo sky, no wizard pose or ornamental cosmic clutter."},
-    {"cardId":1003010014,"cardNumber":14,"type":"character","slug":"skoll","titleZh":"斯库尔","titleEn":"Sköll","description":"《欺骗古鲁菲》中追逐太阳的狼。","roleInSeries":"把末日压力提前埋入日常天空。","storyIds":["story-sun-and-moon-chase"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 12"}],"visualThesis":"狼头与前躯清楚、太阳只做远处目标，不做装甲Boss。","promptSubject":"Skoll in a strong upward chase toward distant sunlight, natural powerful wolf anatomy, simple clouded sky, no armor, no Fenrir copy."},
-    {"cardId":1003010015,"cardNumber":15,"type":"character","slug":"hati","titleZh":"哈提","titleEn":"Hati","description":"《欺骗古鲁菲》中追逐月亮的狼。","roleInSeries":"形成月亮侧的末日伏线。","storyIds":["story-sun-and-moon-chase"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 12"}],"visualThesis":"与斯库尔成对但姿态完全不同，月体低细节背景。","promptSubject":"Hati chasing the moon through a restrained dark sky, distinct pose and silhouette from Skoll, natural wolf anatomy, no armor or duplicate composition."},
-    {"cardId":1003010016,"cardNumber":16,"type":"character","slug":"nidhoggr","titleZh":"尼德霍格","titleEn":"Níðhöggr","description":"在世界树根部持续啃噬、让宇宙秩序从诞生起就存在侵蚀的存在。","roleInSeries":"以根部侵蚀结束M01的稳定幻觉。","storyIds":["story-nidhoggr-and-yggdrasil"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"st. 35"}],"visualThesis":"头部与咬住根系的动作清楚，身体可隐入阴影，不做喷火巨龙。","promptSubject":"Nidhoggr biting a massive root of Yggdrasil, head and bite action clear, most body receding into soft shadow, no armored dragon, no fire-breathing spectacle."},
-    {"cardId":1003010017,"cardNumber":17,"type":"scene","slug":"ginnungagap","titleZh":"金伦加鸿沟","titleEn":"Ginnungagap","description":"寒冷与热力相遇前尚未稳定的原初间隙。","roleInSeries":"M01一切事件的空间起点。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–5"}],"visualThesis":"用冰雾与远处热光两大形表达原初空间，不做峡谷旅游照。","promptSubject":"Ginnungagap as a vast unformed gap between cold mist and distant heat, broad simple masses, minimal landmarks, atmospheric painterly space."},
-    {"cardId":1003010018,"cardNumber":18,"type":"scene","slug":"niflheim","titleZh":"尼福尔海姆","titleEn":"Niflheimr","description":"雾、寒泉与冰流构成的原初寒域。","roleInSeries":"定义创世北侧力量。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–5"}],"visualThesis":"寒泉与冰雾为核心地标，背景层次简单。","promptSubject":"primordial Niflheim of cold springs, mist and ice-flow, one clear water-ice landmark, muted values, no aurora wallpaper clichés."},
-    {"cardId":1003010019,"cardNumber":19,"type":"scene","slug":"muspell","titleZh":"穆斯贝尔","titleEn":"Múspell","description":"与寒域相对的火焰和热力边界。","roleInSeries":"定义创世南侧力量。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–5"}],"visualThesis":"一个清楚的火热边界大形，不提前出现苏尔特或末日军队。","promptSubject":"primordial Muspell as a simple vast heat-and-fire boundary, dark ground and broad flame light, no armies, no Surtr, no particle overload."},
-    {"cardId":1003010020,"cardNumber":20,"type":"scene","slug":"yggdrasil","titleZh":"世界树","titleEn":"Yggdrasil","description":"贯穿宇宙层级、连接根域与泉域的世界轴。","roleInSeries":"建立北欧宇宙结构核心。","storyIds":["story-yggdrasil-and-wells"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"sts. 31–35"}],"visualThesis":"树干与主要分叉是唯一一级地标，其余空间低细节。","promptSubject":"Yggdrasil as a colossal world-axis, one readable trunk and major branching structure, roots descending into mist, no labeled nine-world diagram, simplified atmospheric layers."},
-    {"cardId":1003010021,"cardNumber":21,"type":"scene","slug":"yggdrasil-roots","titleZh":"世界树之根","titleEn":"Roots of Yggdrasil","description":"连接泉域、命运、知识与侵蚀的巨大根系空间。","roleInSeries":"连接三泉、诺恩与尼德霍格。","storyIds":["story-yggdrasil-and-wells","story-nidhoggr-and-yggdrasil"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"sts. 31–35"}],"visualThesis":"少数巨大根系和一处水域关系清楚，避免满屏纹理。","promptSubject":"massive roots of Yggdrasil as landscape-scale forms, a single quiet water source, deep mist, broad shapes, no microscopic root-detail everywhere."},
-    {"cardId":1003010022,"cardNumber":22,"type":"scene","slug":"urdarbrunnr","titleZh":"乌尔德之泉","titleEn":"Urðarbrunnr","description":"与世界树和诺恩命运秩序相连的泉域。","roleInSeries":"承载命运章节。","storyIds":["story-norns-at-urdarbrunnr"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 20"}],"visualThesis":"泉水、树根与安静空间三个大形即可，诺恩只做远景尺度。","promptSubject":"Urdarbrunnr beneath Yggdrasil, quiet clear spring and one major root, restrained natural ritual atmosphere, tiny distant figures only if needed."},
-    {"cardId":1003010023,"cardNumber":23,"type":"scene","slug":"mimisbrunnr","titleZh":"密米尔之井","titleEn":"Mímisbrunnr","description":"世界树结构中的知识之井，本套不提前表现奥丁献眼。","roleInSeries":"预埋M02知识线但不越界。","storyIds":["story-yggdrasil-and-wells"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"st. 31"}],"visualThesis":"幽深水面是中心，周围结构简洁、安静。","promptSubject":"Mimisbrunnr as a deep still well within Yggdrasil's root-world, quiet dark water, minimal stone and root forms, no Odin sacrifice scene."},
-    {"cardId":1003010024,"cardNumber":24,"type":"scene","slug":"hvergelmir","titleZh":"赫瓦格密尔","titleEn":"Hvergelmir","description":"与世界树根和原初水脉源头相连的泉。","roleInSeries":"完成三泉空间层次。","storyIds":["story-yggdrasil-and-wells"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"st. 26"}],"visualThesis":"水源向外发散的结构清楚，其他背景雾化。","promptSubject":"Hvergelmir as an ancient source spring feeding branching waters beneath vast roots, one clear source point, cold mist, simplified background."},
-    {"cardId":1003010025,"cardNumber":25,"type":"scene","slug":"newborn-midgard","titleZh":"初生的米德加尔特","titleEn":"Newborn Midgard","description":"由尤弥尔之躯塑成、尚未出现成熟文明的新世界。","roleInSeries":"承接世界塑造到人类诞生。","storyIds":["story-odin-creates-world","story-ask-and-embla"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"visualThesis":"海、陆、山三个大形，禁止村庄、城堡和过度景观细节。","promptSubject":"newborn Midgard with newly formed sea, land and mountains, raw broad geological shapes, no villages or castles, muted painterly atmosphere."},
-    {"cardId":1003010026,"cardNumber":26,"type":"scene","slug":"celestial-path","titleZh":"天穹之路","titleEn":"Celestial Path","description":"日月获得运行秩序后的天空路径。","roleInSeries":"把世界推进到时间与周期。","storyIds":["story-sun-and-moon-chase"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 5"}],"visualThesis":"用光与云层节律表现运行，不画科幻轨道。","promptSubject":"a mythic celestial path for sun and moon, broad light and cloud rhythm, simple sky architecture, no orbital UI or astrophotography star trails."},
-    {"cardId":1003010027,"cardNumber":27,"type":"scene","slug":"jarnvidr","titleZh":"铁森林","titleEn":"Járnviðr","description":"与追逐日月的狼后代相关的黑暗森林。","roleInSeries":"连接天体秩序与未来末日伏线。","storyIds":["story-sun-and-moon-chase"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"sts. 40–41"}],"visualThesis":"少量黑色树干与远处天光即可，不做尖刺金属森林。","promptSubject":"Jarnvidr as a dark wet northern forest with a few strong black trunks and distant celestial light, restrained danger, no literal metal trees or horror clutter."},
-    {"cardId":1003010028,"cardNumber":28,"type":"story","slug":"mist-enters-gap","titleZh":"雾冰流入鸿沟","titleEn":"Cold Mist Enters the Gap","description":"尼福尔海姆的寒流进入尚未成形的金伦加鸿沟。","roleInSeries":"连续Story第1段。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–5"}],"seriesNarrative":{"chapter":1,"chapterTitle":"鸿沟与寒流","sequence":1,"keyMoment":"雾冰流入鸿沟","narrative":"世界尚未成形时，北方尼福尔海姆的寒气、冰霜与水流向金伦加鸿沟延伸。这里没有城市、诸神王国或固定九界地图，只有逐渐汇聚的原初材料。创世首先表现为冷热、雾与流动建立条件，而不是一位造物者凭空完成世界。","previousCardId":null,"nextCardId":1003010029},"visualThesis":"冰流与巨大空无的交界是唯一事件中心。","promptSubject":"cold mist and ice-flow entering the vast Ginnungagap, one clear directional movement, broad empty space, restrained atmosphere."},
-    {"cardId":1003010029,"cardNumber":29,"type":"story","slug":"embers-cross-boundary","titleZh":"火星越过边界","titleEn":"Embers Cross the Boundary","description":"穆斯贝尔的热力与火星进入寒冷原初空间。","roleInSeries":"连续Story第2段。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–5"}],"seriesNarrative":{"chapter":1,"chapterTitle":"鸿沟与寒流","sequence":2,"keyMoment":"火星越过边界","narrative":"与北方寒流相对，南方穆斯贝尔的热力与火星逼近鸿沟。寒冷与火焰在原初间隙相遇，使霜开始融化；世界的第一步因此是一场物质状态的变化。","previousCardId":1003010028,"nextCardId":1003010030},"visualThesis":"热与冷的接触点明确，避免火山大片。","promptSubject":"embers and warm air crossing into primordial cold mist, one simple meeting boundary, no volcanic spectacle or particle storm."},
-    {"cardId":1003010030,"cardNumber":30,"type":"story","slug":"ymir-awakens","titleZh":"尤弥尔苏醒","titleEn":"Ymir Awakens","description":"冰霜受热的生成中，尤弥尔作为原初巨人第一次显现。","roleInSeries":"连续Story第3段。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 5–6"}],"seriesNarrative":{"chapter":1,"chapterTitle":"鸿沟与寒流","sequence":3,"keyMoment":"尤弥尔苏醒","narrative":"冰霜受热后产生的滴水获得生命，尤弥尔作为原初巨人出现。他不是普通巨人角色，而是连接巨人谱系与宇宙材料的起点；北欧创世由此第一次出现可以行动和繁衍的生命主体。","previousCardId":1003010029,"nextCardId":1003010031},"visualThesis":"尤弥尔脸与上身是绝对主体，背景只有融霜和雾。","promptSubject":"Ymir first awakening from melting frost, face and upper body as the sole focal subject, simple fog and thawing ice background, painterly and restrained."},
-    {"cardId":1003010031,"cardNumber":31,"type":"story","slug":"audhumla-appears","titleZh":"奥德胡姆拉出现","titleEn":"Auðumbla Appears","description":"原初母牛奥德胡姆拉在霜雾中出现并进入生命循环。","roleInSeries":"连续Story第4段。","storyIds":["story-audhumla-and-buri"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 6"}],"seriesNarrative":{"chapter":2,"chapterTitle":"原初生命与祖先","sequence":4,"keyMoment":"奥德胡姆拉出现","narrative":"原初世界里同时出现奥德胡姆拉。她从冰霜环境中取食，并以乳汁滋养尤弥尔。巨人的生存不是孤立发生的，牛、冰、盐与乳流共同组成最早的生命循环。","previousCardId":1003010030,"nextCardId":1003010032},"visualThesis":"母牛为主体，尤弥尔仅可远景模糊出现。","promptSubject":"Audhumla emerging through pale frost mist, clear natural bovine subject, Ymir only a distant soft scale reference if present."},
-    {"cardId":1003010032,"cardNumber":32,"type":"story","slug":"four-milk-streams","titleZh":"四道乳流","titleEn":"Four Streams of Milk","description":"奥德胡姆拉的乳流维持尤弥尔的生命。","roleInSeries":"连续Story第5段。","storyIds":["story-audhumla-and-buri"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 6"}],"seriesNarrative":{"chapter":2,"chapterTitle":"原初生命与祖先","sequence":5,"keyMoment":"四道乳流","narrative":"《欺骗古鲁菲》以非常具体的身体图像描述奥德胡姆拉的四道乳流供养尤弥尔。这个片段说明创世并非只有宏大景观，也包含生命如何被维持的细节。","previousCardId":1003010031,"nextCardId":1003010033},"visualThesis":"乳流起点和奥德胡姆拉清楚，环境极简，避免猎奇。","promptSubject":"Audhumla nourishing Ymir through four milk streams, dignified non-sensational mythic scene, clear cow subject, minimal frost background."},
-    {"cardId":1003010033,"cardNumber":33,"type":"story","slug":"buri-emerges","titleZh":"冰中显现的布里","titleEn":"Búri Emerges from Ice","description":"奥德胡姆拉逐日舔开咸冰，使布里完整显现。","roleInSeries":"连续Story第6段。","storyIds":["story-audhumla-and-buri"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 6"}],"seriesNarrative":{"chapter":2,"chapterTitle":"原初生命与祖先","sequence":6,"keyMoment":"冰中显现的布里","narrative":"奥德胡姆拉舔食带盐的冰块，第一日显出头发，第二日显出头，第三日布里完整显现。神族祖先因此不是从天而降，而是逐步从同一片原初物质中出现，并最终连到奥丁、威利与维的谱系。","previousCardId":1003010032,"nextCardId":1003010034},"visualThesis":"布里的脸和上身从冰面显出，奥德胡姆拉头部作为动作来源。","promptSubject":"Buri emerging from salt ice as Audhumla licks the surface, Buri face and upper torso clear, restrained frost environment, one action only."},
-    {"cardId":1003010034,"cardNumber":34,"type":"story","slug":"brothers-face-ymir","titleZh":"三兄弟面对尤弥尔","titleEn":"The Brothers Face Ymir","description":"奥丁、威利与维面对原初巨人，创世进入主动重组阶段。","roleInSeries":"连续Story第7段。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"seriesNarrative":{"chapter":3,"chapterTitle":"旧世界的终结","sequence":7,"keyMoment":"三兄弟面对尤弥尔","narrative":"随着神族谱系发展，奥丁、威利与维成为改变原初秩序的力量。三兄弟与尤弥尔之间的冲突标志着创世进入第二阶段：新世界将不再只是自然生成，而要通过对原初生命的重新组织建立。","previousCardId":1003010033,"nextCardId":1003010035},"visualThesis":"三兄弟清晰成组，尤弥尔用巨大局部形成尺度，不做混战。","promptSubject":"Odin, Vili and Ve standing together against the immense partial silhouette of Ymir, clear group hierarchy, no battle clutter, simple primordial setting."},
-    {"cardId":1003010035,"cardNumber":35,"type":"story","slug":"ymir-falls","titleZh":"尤弥尔倒下","titleEn":"Ymir Falls","description":"三兄弟杀死尤弥尔，原初秩序结束。","roleInSeries":"连续Story第8段。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"seriesNarrative":{"chapter":3,"chapterTitle":"旧世界的终结","sequence":8,"keyMoment":"尤弥尔倒下","narrative":"三兄弟杀死尤弥尔。这个事件不是单纯的英雄战斗，而是宇宙结构转换的门槛；在这一散文传统中，新秩序以原初存在的死亡为代价。","previousCardId":1003010034,"nextCardId":1003010036},"visualThesis":"倒下的巨大上身和三兄弟是唯一信息，不强调血腥。","promptSubject":"Ymir collapsing at world scale while the three brothers remain small but readable, mythic solemnity, no gore spectacle, simplified environment."},
-    {"cardId":1003010036,"cardNumber":36,"type":"story","slug":"earth-from-flesh","titleZh":"大地由血肉形成","titleEn":"Earth from Flesh","description":"尤弥尔之肉被重新塑造成大地。","roleInSeries":"连续Story第9段。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"seriesNarrative":{"chapter":3,"chapterTitle":"旧世界的终结","sequence":9,"keyMoment":"大地由血肉形成","narrative":"尤弥尔死后，他的肉被塑造成大地。身体与地貌之间的转化让新世界拥有可站立、可居住的基础，也体现北欧创世叙事以既有材料重组世界的特点。","previousCardId":1003010035,"nextCardId":1003010037},"visualThesis":"身体材质向土地大形转化，避免猎奇肉体细节。","promptSubject":"mythic transformation of Ymir's flesh into broad earth and land, symbolic material transition, no gore, simple readable terrain forms."},
-    {"cardId":1003010037,"cardNumber":37,"type":"story","slug":"sea-from-blood","titleZh":"海洋由血液形成","titleEn":"Sea from Blood","description":"尤弥尔之血成为海与湖，包围新生陆地。","roleInSeries":"连续Story第10段。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"seriesNarrative":{"chapter":3,"chapterTitle":"旧世界的终结","sequence":10,"keyMoment":"海洋由血液形成","narrative":"尤弥尔的血成为海与湖，水体围绕新形成的陆地。世界从一具原初身体中分化出不同环境，海陆边界也开始出现。","previousCardId":1003010036,"nextCardId":1003010038},"visualThesis":"海陆交界是主体，颜色神话化处理，不做血海猎奇。","promptSubject":"mythic transformation of Ymir's blood into the first sea around new land, subdued deep-water color, symbolic not gory, simple sea-land boundary."},
-    {"cardId":1003010038,"cardNumber":38,"type":"story","slug":"mountains-from-bones","titleZh":"骨化群山","titleEn":"Mountains from Bones","description":"尤弥尔的骨与牙齿化为山石。","roleInSeries":"连续Story第11段。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"seriesNarrative":{"chapter":3,"chapterTitle":"旧世界的终结","sequence":11,"keyMoment":"骨化群山","narrative":"尤弥尔的骨与牙齿被转化为山石。大地不再是一整块平面，而获得起伏、岩层和可以区分的空间结构。","previousCardId":1003010037,"nextCardId":1003010039},"visualThesis":"骨骼向山体大形过渡，减少纹理密度。","promptSubject":"bones and teeth of Ymir transforming symbolically into broad mountain forms, restrained painterly geology, no body-horror detail."},
-    {"cardId":1003010039,"cardNumber":39,"type":"story","slug":"skull-becomes-sky","titleZh":"头骨撑起天空","titleEn":"The Skull Becomes Sky","description":"三兄弟把尤弥尔的头盖骨安置为天穹。","roleInSeries":"连续Story第12段。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"seriesNarrative":{"chapter":3,"chapterTitle":"旧世界的终结","sequence":12,"keyMoment":"头骨撑起天空","narrative":"三兄弟把尤弥尔的头盖骨安置为天空，又把火星安排到天穹中。到这一刻，上下空间被明确区分，新世界从原初物质变成具有天地层次的宇宙。","previousCardId":1003010038,"nextCardId":1003010040},"visualThesis":"三兄弟与巨大弧形天穹关系清楚，背景不堆星云。","promptSubject":"Odin, Vili and Ve raising the vast skull-vault of Ymir into a new sky, simple monumental arc, minimal sparks, no nebula spectacle."},
-    {"cardId":1003010040,"cardNumber":40,"type":"story","slug":"two-timbers-on-shore","titleZh":"海岸上的两段木材","titleEn":"Two Timbers on the Shore","description":"阿斯克与恩布拉获得生命前，海岸上出现两段木材。","roleInSeries":"连续Story第13段。","storyIds":["story-ask-and-embla"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"sts. 17–18"}],"seriesNarrative":{"chapter":4,"chapterTitle":"人类进入世界","sequence":13,"keyMoment":"海岸上的两段木材","narrative":"在已经形成的世界海岸，三位神发现阿斯克与恩布拉的前身。他们尚无呼吸、意识与完整生命，这让人类起源与树木、海岸和新世界的材料直接相连。","previousCardId":1003010039,"nextCardId":1003010041},"visualThesis":"两段木材与海岸构成安静画面，神只做远处提示。","promptSubject":"two human-origin timbers lying on a quiet young Midgard shore, simple sea and sky, distant divine figures only if needed, contemplative composition."},
-    {"cardId":1003010041,"cardNumber":41,"type":"story","slug":"first-breath","titleZh":"第一口生命","titleEn":"The First Breath","description":"神祇赋予阿斯克与恩布拉生命和感知。","roleInSeries":"连续Story第14段。","storyIds":["story-ask-and-embla"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"sts. 17–18"}],"seriesNarrative":{"chapter":4,"chapterTitle":"人类进入世界","sequence":14,"keyMoment":"第一口生命","narrative":"神祇赋予阿斯克与恩布拉生命、感知与人的状态。人类由此进入米德加尔特，但并不站在宇宙之外；他们只是新秩序中的一部分，也将受到时间与命运约束。","previousCardId":1003010040,"nextCardId":1003010042},"visualThesis":"阿斯克与恩布拉的脸与第一次呼吸是中心，神祇动作克制。","promptSubject":"Ask and Embla receiving first life and awareness, their faces and breath as focal point, restrained divine gestures, soft young coast background."},
-    {"cardId":1003010042,"cardNumber":42,"type":"story","slug":"yggdrasil-spans-worlds","titleZh":"世界树贯穿诸界","titleEn":"Yggdrasil Spans the Worlds","description":"世界树成为宇宙持续结构的轴心。","roleInSeries":"连续Story第15段。","storyIds":["story-yggdrasil-and-wells"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"sts. 31–35"}],"seriesNarrative":{"chapter":5,"chapterTitle":"世界树与命运","sequence":15,"keyMoment":"世界树贯穿诸界","narrative":"世界成形后，世界树把不同宇宙层级联系起来。它不是现代固定九界地图，而是一棵拥有巨大根系、树冠与多处泉域的宇宙轴，让空间第一次拥有持续的结构。","previousCardId":1003010041,"nextCardId":1003010043},"visualThesis":"世界树主干是绝对中心，层级用雾和光简洁分开。","promptSubject":"Yggdrasil becoming the world-axis, one monumental trunk linking broad atmospheric layers, no labels, no crowded nine-world infographic."},
-    {"cardId":1003010043,"cardNumber":43,"type":"story","slug":"three-roots-three-wells","titleZh":"三根通向三泉","titleEn":"Three Roots toward Three Wells","description":"世界树的根系把不同泉域纳入宇宙结构。","roleInSeries":"连续Story第16段。","storyIds":["story-yggdrasil-and-wells"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"sts. 31–35"}],"seriesNarrative":{"chapter":5,"chapterTitle":"世界树与命运","sequence":16,"keyMoment":"三根通向三泉","narrative":"世界树的根延伸至不同方向，并与重要泉域相连。命运、知识和原初水源由此被放到同一宇宙结构中，但它们各有不同来源和功能，不应画成三个相同的魔法水池。","previousCardId":1003010042,"nextCardId":1003010044},"visualThesis":"三条主要根向不同空间分化，泉域只作远处差异提示。","promptSubject":"three major roots of Yggdrasil diverging toward distinct distant water realms, broad readable structure, no identical glowing magic pools."},
-    {"cardId":1003010044,"cardNumber":44,"type":"story","slug":"norns-shape-fate","titleZh":"诺恩在泉边定命","titleEn":"The Norns Shape Fate","description":"三位诺恩在世界树附近把人的生命与命运纳入秩序。","roleInSeries":"连续Story第17段。","storyIds":["story-norns-at-urdarbrunnr"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 20"}],"seriesNarrative":{"chapter":5,"chapterTitle":"世界树与命运","sequence":17,"keyMoment":"诺恩在泉边定命","narrative":"乌尔德、薇尔丹蒂与斯库尔德在世界树附近出现，为人安排生命与命运。世界至此不只有物理空间，也出现了法则、时间与个体命运的秩序。","previousCardId":1003010043,"nextCardId":1003010045},"visualThesis":"三位诺恩的脸与手形成清楚三角关系，泉和树根柔化。","promptSubject":"Urd, Verdandi and Skuld together beside the spring, distinct faces and gestures, simple triangular grouping, soft root and water background, no identical triplets."},
-    {"cardId":1003010045,"cardNumber":45,"type":"story","slug":"sun-moon-begin-course","titleZh":"日月开始运行","titleEn":"Sun and Moon Begin Their Course","description":"太阳和月亮获得位置与运行节律。","roleInSeries":"连续Story第18段。","storyIds":["story-sun-and-moon-chase"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 5"}],"seriesNarrative":{"chapter":6,"chapterTitle":"天空开始运行","sequence":18,"keyMoment":"日月开始运行","narrative":"太阳和月亮获得各自的运行秩序，天空从静态背景变成有周期的时间系统。日月知道自己的位置与力量，新世界开始拥有可以重复的节律。","previousCardId":1003010044,"nextCardId":1003010046},"visualThesis":"索尔与马尼作为两个清晰主体，天空极简，不做宇宙星云。","promptSubject":"Sol and Mani beginning their ordered courses across a simple mythic sky, two clear human-celestial subjects, restrained light paths, no cosmic clutter."},
-    {"cardId":1003010046,"cardNumber":46,"type":"story","slug":"pursuit-and-gnawing","titleZh":"追逐与啃噬","titleEn":"Pursuit and Gnawing","description":"日月被狼追逐，世界树根部也持续遭到侵蚀。","roleInSeries":"连续Story第19段，也是M01终章伏线。","storyIds":["story-sun-and-moon-chase","story-nidhoggr-and-yggdrasil"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"sts. 40–41"},{"sourceId":"norse-src-grimnismal","locator":"st. 35"}],"seriesNarrative":{"chapter":6,"chapterTitle":"天空开始运行","sequence":19,"keyMoment":"追逐与啃噬","narrative":"秩序建立的同时，毁灭的种子已经存在：天穹有追逐日月的狼，世界树根部也有尼德霍格持续侵蚀。M01因此不以完美创世结束，而以一个稳定却始终承受压力的世界收束，为诸神时代与最终黄昏留下伏线。","previousCardId":1003010045,"nextCardId":null},"visualThesis":"优先表现一个统一视觉中心；若天空追逐与根部啃噬无法自然同框，正式出图前拆卡并调整弱场景槽位。","promptSubject":"a restrained final omen image showing the newborn world's hidden pressure; choose one coherent focal relationship rather than split-screen collage, no visual overload."},
-    {"cardId":1003010047,"cardNumber":47,"type":"mythic-object","slug":"sun-chariot","titleZh":"太阳之车","titleEn":"Chariot of the Sun","description":"索尔驾驭、由阿尔瓦克与阿尔斯维德牵引的太阳运行载具。","roleInSeries":"M01正式神物之一，连接索尔与天体秩序。","storyIds":["story-sun-and-moon-chase"],"objectIds":["object-norse-sun-chariot"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 11"}],"visualThesis":"战车轮廓与太阳关系清楚，背景只有简化天穹，不做游戏战车。","promptSubject":"the Chariot of the Sun as a mythic celestial vehicle, clear readable chariot and solar relationship, restrained horses and sky, no ornate game equipment or excess VFX."},
-    {"cardId":1003010048,"cardNumber":48,"type":"mythic-object","slug":"svalinn","titleZh":"斯瓦林之盾","titleEn":"Svalinn","description":"位于太阳之前、阻隔其炽热的宇宙功能之盾。","roleInSeries":"M01第二件正式神物，补充日月秩序的物质机制。","storyIds":["story-sun-and-moon-chase"],"objectIds":["object-norse-svalinn"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"st. 38"}],"visualThesis":"盾是唯一主体，太阳只是柔化背光，不画满屏符文。","promptSubject":"Svalinn as a simple powerful shield before the sun, shield silhouette dominant, softened solar backlight, restrained material detail, no glowing runes or game UI."},
-    {"cardId":1003010049,"cardNumber":49,"type":"ensemble","slug":"norse-genesis","titleZh":"北欧创世","titleEn":"Norse Genesis","description":"冰火相遇与原初生命的系列开篇横版封面。","roleInSeries":"代表世界尚未形成。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–8"}],"visualThesis":"尤弥尔是唯一主要角色，冰火两极只做大面积低细节背景。","promptSubject":"horizontal series cover, Ymir as the single dominant subject in Ginnungagap, simple cold-vs-warm environmental masses, painterly negative space, no galaxy or debris overload."},
-    {"cardId":1003010050,"cardNumber":50,"type":"ensemble","slug":"yggdrasil-and-fate","titleZh":"世界树与命运","titleEn":"Yggdrasil & Fate","description":"世界成形后的M01终章横版封面。","roleInSeries":"与49形成未成形/已成形的镜像。","storyIds":["story-yggdrasil-and-wells","story-norns-at-urdarbrunnr","story-sun-and-moon-chase"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"sts. 31–35"},{"sourceId":"norse-src-voluspa","locator":"st. 20; st. 5"}],"visualThesis":"世界树为绝对一级视觉中心，诺恩与日月只做小比例次级层级。","promptSubject":"horizontal series finale cover, Yggdrasil as the dominant central world-axis, small Norns and sun-moon elements secondary, broad calm background, no character collage."}
+    {
+      "cardId": 1003010001,
+      "cardNumber": 1,
+      "type": "character",
+      "slug": "ymir",
+      "titleZh": "尤弥尔",
+      "titleEn": "Ymir",
+      "description": "冰火交界中诞生的原初巨人，是巨人谱系与创世材料的起点。",
+      "roleInSeries": "建立M01最重要的原初生命主体。",
+      "storyIds": ["story-ymir-creation"],
+      "sourceRefs": [
+        {
+          "sourceId": "norse-src-prose-edda-gylfaginning",
+          "locator": "chs. 4–8"
+        }
+      ],
+      "visualThesis": "巨大但造型简洁的原初巨人，主体清楚，背景仅保留冰火交界和原初雾。",
+      "promptSubject": "Ymir as a primordial giant born where frost and heat meet; massive readable silhouette, upper-body emphasis, restrained ice and stone materials, simple misty ice-fire boundary background."
+    },
+    {
+      "cardId": 1003010002,
+      "cardNumber": 2,
+      "type": "character",
+      "slug": "audhumla",
+      "titleZh": "奥德胡姆拉",
+      "titleEn": "Auðumbla",
+      "description": "以乳流滋养尤弥尔、舔开咸冰并使布里显现的原初母牛。",
+      "roleInSeries": "连接尤弥尔与神族祖先布里。",
+      "storyIds": ["story-audhumla-and-buri"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 6" }
+      ],
+      "visualThesis": "自然、庄重的原初牛科形态，头肩位于上半部，背景只保留霜冰与盐石。",
+      "promptSubject": "Audhumla, the primordial cow, dignified natural bovine anatomy, frost and salt-ice environment, subtle milk streams, no fantasy armor, clear subject against soft mist."
+    },
+    {
+      "cardId": 1003010003,
+      "cardNumber": 3,
+      "type": "character",
+      "slug": "buri",
+      "titleZh": "布里",
+      "titleEn": "Búri",
+      "description": "由奥德胡姆拉舔开的咸冰中逐日显现的神族祖先。",
+      "roleInSeries": "把原初世界连接到后来的神族谱系。",
+      "storyIds": ["story-audhumla-and-buri"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 6" }
+      ],
+      "visualThesis": "人物从冰层中显现，脸与上身清晰，服装和装饰极简。",
+      "promptSubject": "Buri emerging gradually from salt-frosted ice, face and upper torso becoming visible, ancient restrained Nordic material language, no crown or throne."
+    },
+    {
+      "cardId": 1003010004,
+      "cardNumber": 4,
+      "type": "character",
+      "slug": "odin-creator",
+      "titleZh": "奥丁·创世者",
+      "titleEn": "Odin · Creator",
+      "description": "创世阶段参与尤弥尔之死与世界塑造的奥丁，不使用后期完整王权造型。",
+      "roleInSeries": "建立奥丁创世阶段的视觉Canon。",
+      "storyIds": ["story-odin-creates-world"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "visualThesis": "朴素、行动中的创世者，独眼身份保留，背景简化为未完成世界。",
+      "promptSubject": "creator-era Odin, one-eyed, restrained functional clothing, strong simple silhouette, no royal throne or franchise armor, unfinished world softly behind him."
+    },
+    {
+      "cardId": 1003010005,
+      "cardNumber": 5,
+      "type": "character",
+      "slug": "vili",
+      "titleZh": "威利",
+      "titleEn": "Vili",
+      "description": "与奥丁、维共同参与塑造世界的兄弟神。",
+      "roleInSeries": "避免创世叙事只剩奥丁一人。",
+      "storyIds": ["story-odin-creates-world"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "visualThesis": "以动作体现参与塑造世界，不做奥丁换脸。",
+      "promptSubject": "Vili during world-making, active purposeful pose, distinct face and silhouette from Odin, restrained textile and stone setting, background simplified."
+    },
+    {
+      "cardId": 1003010006,
+      "cardNumber": 6,
+      "type": "character",
+      "slug": "ve",
+      "titleZh": "维",
+      "titleEn": "Vé",
+      "description": "与奥丁、威利共同把原初材料组织为新世界的兄弟神。",
+      "roleInSeries": "完成三兄弟创世主体。",
+      "storyIds": ["story-odin-creates-world"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "visualThesis": "更稳定、秩序感的姿态，与威利形成差异。",
+      "promptSubject": "Ve during world-making, calm ordering gesture, distinct identity from Odin and Vili, simple newly formed landscape, painterly restrained background."
+    },
+    {
+      "cardId": 1003010007,
+      "cardNumber": 7,
+      "type": "character",
+      "slug": "ask",
+      "titleZh": "阿斯克",
+      "titleEn": "Ask",
+      "description": "在新世界海岸获得生命的人类始祖之一。",
+      "roleInSeries": "把宇宙创生转入人类出现。",
+      "storyIds": ["story-ask-and-embla"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-voluspa", "locator": "sts. 17–18" }
+      ],
+      "visualThesis": "新生的人类主体，海岸背景柔化，不做树人或维京战士。",
+      "promptSubject": "Ask, newly awakened first human on a young coast, natural human form with subtle origin-from-wood suggestion only, quiet sea and land background, no warrior gear."
+    },
+    {
+      "cardId": 1003010008,
+      "cardNumber": 8,
+      "type": "character",
+      "slug": "embla",
+      "titleZh": "恩布拉",
+      "titleEn": "Embla",
+      "description": "与阿斯克共同获得生命的人类始祖之一。",
+      "roleInSeries": "与阿斯克共同完成M01的人类起源。",
+      "storyIds": ["story-ask-and-embla"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-voluspa", "locator": "sts. 17–18" }
+      ],
+      "visualThesis": "第一次感知世界的自然人物姿态，避免性感化与现代服装。",
+      "promptSubject": "Embla, newly awakened first woman on the young Midgard coast, natural dignified pose, soft sea wind, restrained textile, no glamour styling."
+    },
+    {
+      "cardId": 1003010009,
+      "cardNumber": 9,
+      "type": "character",
+      "slug": "urd",
+      "titleZh": "乌尔德",
+      "titleEn": "Urðr",
+      "description": "《女预言家之歌》点名的三位诺恩之一，与生命和命运安排相连。",
+      "roleInSeries": "把命运引入宇宙秩序。",
+      "storyIds": ["story-norns-at-urdarbrunnr"],
+      "sourceRefs": [{ "sourceId": "norse-src-voluspa", "locator": "st. 20" }],
+      "visualThesis": "沉稳、静态、与刻痕和泉水相连，不做老巫婆模板。",
+      "promptSubject": "Urd beside the world-tree spring, calm grounded presence, simple carved marks and water as secondary motifs, face clearly separated from soft background."
+    },
+    {
+      "cardId": 1003010010,
+      "cardNumber": 10,
+      "type": "character",
+      "slug": "verdandi",
+      "titleZh": "薇尔丹蒂",
+      "titleEn": "Verðandi",
+      "description": "与乌尔德、斯库尔德共同参与命运秩序的诺恩。",
+      "roleInSeries": "构成命运三人组。",
+      "storyIds": ["story-norns-at-urdarbrunnr"],
+      "sourceRefs": [{ "sourceId": "norse-src-voluspa", "locator": "st. 20" }],
+      "visualThesis": "以正在延伸的水纹或线条表现生成感，避免抽象魔法光线。",
+      "promptSubject": "Verdandi by the spring, subtle continuous motion through water ripples or simple thread-like natural motif, distinct posture from Urd, restrained background."
+    },
+    {
+      "cardId": 1003010011,
+      "cardNumber": 11,
+      "type": "character",
+      "slug": "skuld",
+      "titleZh": "斯库尔德",
+      "titleEn": "Skuld",
+      "description": "三位诺恩之一，与人的生命与命运安排相连。",
+      "roleInSeries": "完成命运三人组。",
+      "storyIds": ["story-norns-at-urdarbrunnr"],
+      "sourceRefs": [{ "sourceId": "norse-src-voluspa", "locator": "st. 20" }],
+      "visualThesis": "更锐利的前视与未完成空间，避免水晶球和科幻预言UI。",
+      "promptSubject": "Skuld near the world-tree spring, sharper forward-looking posture, unfinished natural space behind her, no crystal ball, no magic UI."
+    },
+    {
+      "cardId": 1003010012,
+      "cardNumber": 12,
+      "type": "character",
+      "slug": "sol",
+      "titleZh": "索尔",
+      "titleEn": "Sól",
+      "description": "人格化的太阳运行者，与太阳之车共同构成天体秩序。",
+      "roleInSeries": "把创世后的世界带入可循环的时间秩序。",
+      "storyIds": ["story-sun-and-moon-chase"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-voluspa", "locator": "st. 5" },
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 11" }
+      ],
+      "visualThesis": "人物与太阳运行关系清楚，背景大面积简化，不做普通太阳女神光环。",
+      "promptSubject": "Sol as the personified sun-runner, clear human figure with restrained solar light and hint of chariot system, simple sky background, no giant halo ornament."
+    },
+    {
+      "cardId": 1003010013,
+      "cardNumber": 13,
+      "type": "character",
+      "slug": "mani",
+      "titleZh": "马尼",
+      "titleEn": "Máni",
+      "description": "人格化的月亮运行者，与索尔共同构成日月秩序。",
+      "roleInSeries": "形成月亮侧的时间与天象轴。",
+      "storyIds": ["story-sun-and-moon-chase"],
+      "sourceRefs": [{ "sourceId": "norse-src-voluspa", "locator": "st. 5" }],
+      "visualThesis": "冷色、安静、清楚的人物月体关系，不做手托月亮的魔法师。",
+      "promptSubject": "Mani as the personified moon-runner, calm masculine figure, moon and path clearly related, muted indigo sky, no wizard pose or ornamental cosmic clutter."
+    },
+    {
+      "cardId": 1003010014,
+      "cardNumber": 14,
+      "type": "character",
+      "slug": "skoll",
+      "titleZh": "斯库尔",
+      "titleEn": "Sköll",
+      "description": "《欺骗古鲁菲》中追逐太阳的狼。",
+      "roleInSeries": "把末日压力提前埋入日常天空。",
+      "storyIds": ["story-sun-and-moon-chase"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 12" }
+      ],
+      "visualThesis": "狼头与前躯清楚、太阳只做远处目标，不做装甲Boss。",
+      "promptSubject": "Skoll in a strong upward chase toward distant sunlight, natural powerful wolf anatomy, simple clouded sky, no armor, no Fenrir copy."
+    },
+    {
+      "cardId": 1003010015,
+      "cardNumber": 15,
+      "type": "character",
+      "slug": "hati",
+      "titleZh": "哈提",
+      "titleEn": "Hati",
+      "description": "《欺骗古鲁菲》中追逐月亮的狼。",
+      "roleInSeries": "形成月亮侧的末日伏线。",
+      "storyIds": ["story-sun-and-moon-chase"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 12" }
+      ],
+      "visualThesis": "与斯库尔成对但姿态完全不同，月体低细节背景。",
+      "promptSubject": "Hati chasing the moon through a restrained dark sky, distinct pose and silhouette from Skoll, natural wolf anatomy, no armor or duplicate composition."
+    },
+    {
+      "cardId": 1003010016,
+      "cardNumber": 16,
+      "type": "character",
+      "slug": "nidhoggr",
+      "titleZh": "尼德霍格",
+      "titleEn": "Níðhöggr",
+      "description": "在世界树根部持续啃噬、让宇宙秩序从诞生起就存在侵蚀的存在。",
+      "roleInSeries": "以根部侵蚀结束M01的稳定幻觉。",
+      "storyIds": ["story-nidhoggr-and-yggdrasil"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-grimnismal", "locator": "st. 35" }
+      ],
+      "visualThesis": "头部与咬住根系的动作清楚，身体可隐入阴影，不做喷火巨龙。",
+      "promptSubject": "Nidhoggr biting a massive root of Yggdrasil, head and bite action clear, most body receding into soft shadow, no armored dragon, no fire-breathing spectacle."
+    },
+    {
+      "cardId": 1003010017,
+      "cardNumber": 17,
+      "type": "scene",
+      "slug": "ginnungagap",
+      "titleZh": "金伦加鸿沟",
+      "titleEn": "Ginnungagap",
+      "description": "寒冷与热力相遇前尚未稳定的原初间隙。",
+      "roleInSeries": "M01一切事件的空间起点。",
+      "storyIds": ["story-ymir-creation"],
+      "sourceRefs": [
+        {
+          "sourceId": "norse-src-prose-edda-gylfaginning",
+          "locator": "chs. 4–5"
+        }
+      ],
+      "visualThesis": "用冰雾与远处热光两大形表达原初空间，不做峡谷旅游照。",
+      "promptSubject": "Ginnungagap as a vast unformed gap between cold mist and distant heat, broad simple masses, minimal landmarks, atmospheric painterly space."
+    },
+    {
+      "cardId": 1003010018,
+      "cardNumber": 18,
+      "type": "scene",
+      "slug": "niflheim",
+      "titleZh": "尼福尔海姆",
+      "titleEn": "Niflheimr",
+      "description": "雾、寒泉与冰流构成的原初寒域。",
+      "roleInSeries": "定义创世北侧力量。",
+      "storyIds": ["story-ymir-creation"],
+      "sourceRefs": [
+        {
+          "sourceId": "norse-src-prose-edda-gylfaginning",
+          "locator": "chs. 4–5"
+        }
+      ],
+      "visualThesis": "寒泉与冰雾为核心地标，背景层次简单。",
+      "promptSubject": "primordial Niflheim of cold springs, mist and ice-flow, one clear water-ice landmark, muted values, no aurora wallpaper clichés."
+    },
+    {
+      "cardId": 1003010019,
+      "cardNumber": 19,
+      "type": "scene",
+      "slug": "muspell",
+      "titleZh": "穆斯贝尔",
+      "titleEn": "Múspell",
+      "description": "与寒域相对的火焰和热力边界。",
+      "roleInSeries": "定义创世南侧力量。",
+      "storyIds": ["story-ymir-creation"],
+      "sourceRefs": [
+        {
+          "sourceId": "norse-src-prose-edda-gylfaginning",
+          "locator": "chs. 4–5"
+        }
+      ],
+      "visualThesis": "一个清楚的火热边界大形，不提前出现苏尔特或末日军队。",
+      "promptSubject": "primordial Muspell as a simple vast heat-and-fire boundary, dark ground and broad flame light, no armies, no Surtr, no particle overload."
+    },
+    {
+      "cardId": 1003010020,
+      "cardNumber": 20,
+      "type": "scene",
+      "slug": "yggdrasil",
+      "titleZh": "世界树",
+      "titleEn": "Yggdrasil",
+      "description": "贯穿宇宙层级、连接根域与泉域的世界轴。",
+      "roleInSeries": "建立北欧宇宙结构核心。",
+      "storyIds": ["story-yggdrasil-and-wells"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-grimnismal", "locator": "sts. 31–35" }
+      ],
+      "visualThesis": "树干与主要分叉是唯一一级地标，其余空间低细节。",
+      "promptSubject": "Yggdrasil as a colossal world-axis, one readable trunk and major branching structure, roots descending into mist, no labeled nine-world diagram, simplified atmospheric layers."
+    },
+    {
+      "cardId": 1003010021,
+      "cardNumber": 21,
+      "type": "scene",
+      "slug": "yggdrasil-roots",
+      "titleZh": "世界树之根",
+      "titleEn": "Roots of Yggdrasil",
+      "description": "连接泉域、命运、知识与侵蚀的巨大根系空间。",
+      "roleInSeries": "连接三泉、诺恩与尼德霍格。",
+      "storyIds": ["story-yggdrasil-and-wells", "story-nidhoggr-and-yggdrasil"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-grimnismal", "locator": "sts. 31–35" }
+      ],
+      "visualThesis": "少数巨大根系和一处水域关系清楚，避免满屏纹理。",
+      "promptSubject": "massive roots of Yggdrasil as landscape-scale forms, a single quiet water source, deep mist, broad shapes, no microscopic root-detail everywhere."
+    },
+    {
+      "cardId": 1003010022,
+      "cardNumber": 22,
+      "type": "scene",
+      "slug": "urdarbrunnr",
+      "titleZh": "乌尔德之泉",
+      "titleEn": "Urðarbrunnr",
+      "description": "与世界树和诺恩命运秩序相连的泉域。",
+      "roleInSeries": "承载命运章节。",
+      "storyIds": ["story-norns-at-urdarbrunnr"],
+      "sourceRefs": [{ "sourceId": "norse-src-voluspa", "locator": "st. 20" }],
+      "visualThesis": "泉水、树根与安静空间三个大形即可，诺恩只做远景尺度。",
+      "promptSubject": "Urdarbrunnr beneath Yggdrasil, quiet clear spring and one major root, restrained natural ritual atmosphere, tiny distant figures only if needed."
+    },
+    {
+      "cardId": 1003010023,
+      "cardNumber": 23,
+      "type": "scene",
+      "slug": "mimisbrunnr",
+      "titleZh": "密米尔之井",
+      "titleEn": "Mímisbrunnr",
+      "description": "世界树结构中的知识之井，本套不提前表现奥丁献眼。",
+      "roleInSeries": "预埋M02知识线但不越界。",
+      "storyIds": ["story-yggdrasil-and-wells"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-grimnismal", "locator": "st. 31" }
+      ],
+      "visualThesis": "幽深水面是中心，周围结构简洁、安静。",
+      "promptSubject": "Mimisbrunnr as a deep still well within Yggdrasil's root-world, quiet dark water, minimal stone and root forms, no Odin sacrifice scene."
+    },
+    {
+      "cardId": 1003010024,
+      "cardNumber": 24,
+      "type": "scene",
+      "slug": "hvergelmir",
+      "titleZh": "赫瓦格密尔",
+      "titleEn": "Hvergelmir",
+      "description": "与世界树根和原初水脉源头相连的泉。",
+      "roleInSeries": "完成三泉空间层次。",
+      "storyIds": ["story-yggdrasil-and-wells"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-grimnismal", "locator": "st. 26" }
+      ],
+      "visualThesis": "水源向外发散的结构清楚，其他背景雾化。",
+      "promptSubject": "Hvergelmir as an ancient source spring feeding branching waters beneath vast roots, one clear source point, cold mist, simplified background."
+    },
+    {
+      "cardId": 1003010025,
+      "cardNumber": 25,
+      "type": "scene",
+      "slug": "newborn-midgard",
+      "titleZh": "初生的米德加尔特",
+      "titleEn": "Newborn Midgard",
+      "description": "由尤弥尔之躯塑成、尚未出现成熟文明的新世界。",
+      "roleInSeries": "承接世界塑造到人类诞生。",
+      "storyIds": ["story-odin-creates-world", "story-ask-and-embla"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "visualThesis": "海、陆、山三个大形，禁止村庄、城堡和过度景观细节。",
+      "promptSubject": "newborn Midgard with newly formed sea, land and mountains, raw broad geological shapes, no villages or castles, muted painterly atmosphere."
+    },
+    {
+      "cardId": 1003010026,
+      "cardNumber": 26,
+      "type": "scene",
+      "slug": "celestial-path",
+      "titleZh": "天穹之路",
+      "titleEn": "Celestial Path",
+      "description": "日月获得运行秩序后的天空路径。",
+      "roleInSeries": "把世界推进到时间与周期。",
+      "storyIds": ["story-sun-and-moon-chase"],
+      "sourceRefs": [{ "sourceId": "norse-src-voluspa", "locator": "st. 5" }],
+      "visualThesis": "用光与云层节律表现运行，不画科幻轨道。",
+      "promptSubject": "a mythic celestial path for sun and moon, broad light and cloud rhythm, simple sky architecture, no orbital UI or astrophotography star trails."
+    },
+    {
+      "cardId": 1003010027,
+      "cardNumber": 27,
+      "type": "scene",
+      "slug": "jarnvidr",
+      "titleZh": "铁森林",
+      "titleEn": "Járnviðr",
+      "description": "与追逐日月的狼后代相关的黑暗森林。",
+      "roleInSeries": "连接天体秩序与未来末日伏线。",
+      "storyIds": ["story-sun-and-moon-chase"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-voluspa", "locator": "sts. 40–41" }
+      ],
+      "visualThesis": "少量黑色树干与远处天光即可，不做尖刺金属森林。",
+      "promptSubject": "Jarnvidr as a dark wet northern forest with a few strong black trunks and distant celestial light, restrained danger, no literal metal trees or horror clutter."
+    },
+    {
+      "cardId": 1003010028,
+      "cardNumber": 28,
+      "type": "story",
+      "slug": "mist-enters-gap",
+      "titleZh": "雾冰流入鸿沟",
+      "titleEn": "Cold Mist Enters the Gap",
+      "description": "尼福尔海姆的寒流进入尚未成形的金伦加鸿沟。",
+      "roleInSeries": "连续Story第1段。",
+      "storyIds": ["story-ymir-creation"],
+      "sourceRefs": [
+        {
+          "sourceId": "norse-src-prose-edda-gylfaginning",
+          "locator": "chs. 4–5"
+        }
+      ],
+      "seriesNarrative": {
+        "chapter": 1,
+        "chapterTitle": "鸿沟与寒流",
+        "sequence": 1,
+        "keyMoment": "雾冰流入鸿沟",
+        "narrative": "世界尚未成形时，北方尼福尔海姆的寒气、冰霜与水流向金伦加鸿沟延伸。这里没有城市、诸神王国或固定九界地图，只有逐渐汇聚的原初材料。创世首先表现为冷热、雾与流动建立条件，而不是一位造物者凭空完成世界。",
+        "previousCardId": null,
+        "nextCardId": 1003010029
+      },
+      "visualThesis": "冰流与巨大空无的交界是唯一事件中心。",
+      "promptSubject": "cold mist and ice-flow entering the vast Ginnungagap, one clear directional movement, broad empty space, restrained atmosphere."
+    },
+    {
+      "cardId": 1003010029,
+      "cardNumber": 29,
+      "type": "story",
+      "slug": "embers-cross-boundary",
+      "titleZh": "火星越过边界",
+      "titleEn": "Embers Cross the Boundary",
+      "description": "穆斯贝尔的热力与火星进入寒冷原初空间。",
+      "roleInSeries": "连续Story第2段。",
+      "storyIds": ["story-ymir-creation"],
+      "sourceRefs": [
+        {
+          "sourceId": "norse-src-prose-edda-gylfaginning",
+          "locator": "chs. 4–5"
+        }
+      ],
+      "seriesNarrative": {
+        "chapter": 1,
+        "chapterTitle": "鸿沟与寒流",
+        "sequence": 2,
+        "keyMoment": "火星越过边界",
+        "narrative": "与北方寒流相对，南方穆斯贝尔的热力与火星逼近鸿沟。寒冷与火焰在原初间隙相遇，使霜开始融化；世界的第一步因此是一场物质状态的变化。",
+        "previousCardId": 1003010028,
+        "nextCardId": 1003010030
+      },
+      "visualThesis": "热与冷的接触点明确，避免火山大片。",
+      "promptSubject": "embers and warm air crossing into primordial cold mist, one simple meeting boundary, no volcanic spectacle or particle storm."
+    },
+    {
+      "cardId": 1003010030,
+      "cardNumber": 30,
+      "type": "story",
+      "slug": "ymir-awakens",
+      "titleZh": "尤弥尔苏醒",
+      "titleEn": "Ymir Awakens",
+      "description": "冰霜受热的生成中，尤弥尔作为原初巨人第一次显现。",
+      "roleInSeries": "连续Story第3段。",
+      "storyIds": ["story-ymir-creation"],
+      "sourceRefs": [
+        {
+          "sourceId": "norse-src-prose-edda-gylfaginning",
+          "locator": "chs. 5–6"
+        }
+      ],
+      "seriesNarrative": {
+        "chapter": 1,
+        "chapterTitle": "鸿沟与寒流",
+        "sequence": 3,
+        "keyMoment": "尤弥尔苏醒",
+        "narrative": "冰霜受热后产生的滴水获得生命，尤弥尔作为原初巨人出现。他不是普通巨人角色，而是连接巨人谱系与宇宙材料的起点；北欧创世由此第一次出现可以行动和繁衍的生命主体。",
+        "previousCardId": 1003010029,
+        "nextCardId": 1003010031
+      },
+      "visualThesis": "尤弥尔脸与上身是绝对主体，背景只有融霜和雾。",
+      "promptSubject": "Ymir first awakening from melting frost, face and upper body as the sole focal subject, simple fog and thawing ice background, painterly and restrained."
+    },
+    {
+      "cardId": 1003010031,
+      "cardNumber": 31,
+      "type": "story",
+      "slug": "audhumla-appears",
+      "titleZh": "奥德胡姆拉出现",
+      "titleEn": "Auðumbla Appears",
+      "description": "原初母牛奥德胡姆拉在霜雾中出现并进入生命循环。",
+      "roleInSeries": "连续Story第4段。",
+      "storyIds": ["story-audhumla-and-buri"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 6" }
+      ],
+      "seriesNarrative": {
+        "chapter": 2,
+        "chapterTitle": "原初生命与祖先",
+        "sequence": 4,
+        "keyMoment": "奥德胡姆拉出现",
+        "narrative": "原初世界里同时出现奥德胡姆拉。她从冰霜环境中取食，并以乳汁滋养尤弥尔。巨人的生存不是孤立发生的，牛、冰、盐与乳流共同组成最早的生命循环。",
+        "previousCardId": 1003010030,
+        "nextCardId": 1003010032
+      },
+      "visualThesis": "母牛为主体，尤弥尔仅可远景模糊出现。",
+      "promptSubject": "Audhumla emerging through pale frost mist, clear natural bovine subject, Ymir only a distant soft scale reference if present."
+    },
+    {
+      "cardId": 1003010032,
+      "cardNumber": 32,
+      "type": "story",
+      "slug": "four-milk-streams",
+      "titleZh": "四道乳流",
+      "titleEn": "Four Streams of Milk",
+      "description": "奥德胡姆拉的乳流维持尤弥尔的生命。",
+      "roleInSeries": "连续Story第5段。",
+      "storyIds": ["story-audhumla-and-buri"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 6" }
+      ],
+      "seriesNarrative": {
+        "chapter": 2,
+        "chapterTitle": "原初生命与祖先",
+        "sequence": 5,
+        "keyMoment": "四道乳流",
+        "narrative": "《欺骗古鲁菲》以非常具体的身体图像描述奥德胡姆拉的四道乳流供养尤弥尔。这个片段说明创世并非只有宏大景观，也包含生命如何被维持的细节。",
+        "previousCardId": 1003010031,
+        "nextCardId": 1003010033
+      },
+      "visualThesis": "乳流起点和奥德胡姆拉清楚，环境极简，避免猎奇。",
+      "promptSubject": "Audhumla nourishing Ymir through four milk streams, dignified non-sensational mythic scene, clear cow subject, minimal frost background."
+    },
+    {
+      "cardId": 1003010033,
+      "cardNumber": 33,
+      "type": "story",
+      "slug": "buri-emerges",
+      "titleZh": "冰中显现的布里",
+      "titleEn": "Búri Emerges from Ice",
+      "description": "奥德胡姆拉逐日舔开咸冰，使布里完整显现。",
+      "roleInSeries": "连续Story第6段。",
+      "storyIds": ["story-audhumla-and-buri"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 6" }
+      ],
+      "seriesNarrative": {
+        "chapter": 2,
+        "chapterTitle": "原初生命与祖先",
+        "sequence": 6,
+        "keyMoment": "冰中显现的布里",
+        "narrative": "奥德胡姆拉舔食带盐的冰块，第一日显出头发，第二日显出头，第三日布里完整显现。神族祖先因此不是从天而降，而是逐步从同一片原初物质中出现，并最终连到奥丁、威利与维的谱系。",
+        "previousCardId": 1003010032,
+        "nextCardId": 1003010034
+      },
+      "visualThesis": "布里的脸和上身从冰面显出，奥德胡姆拉头部作为动作来源。",
+      "promptSubject": "Buri emerging from salt ice as Audhumla licks the surface, Buri face and upper torso clear, restrained frost environment, one action only."
+    },
+    {
+      "cardId": 1003010034,
+      "cardNumber": 34,
+      "type": "story",
+      "slug": "brothers-face-ymir",
+      "titleZh": "三兄弟面对尤弥尔",
+      "titleEn": "The Brothers Face Ymir",
+      "description": "奥丁、威利与维面对原初巨人，创世进入主动重组阶段。",
+      "roleInSeries": "连续Story第7段。",
+      "storyIds": ["story-odin-creates-world"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "seriesNarrative": {
+        "chapter": 3,
+        "chapterTitle": "旧世界的终结",
+        "sequence": 7,
+        "keyMoment": "三兄弟面对尤弥尔",
+        "narrative": "随着神族谱系发展，奥丁、威利与维成为改变原初秩序的力量。三兄弟与尤弥尔之间的冲突标志着创世进入第二阶段：新世界将不再只是自然生成，而要通过对原初生命的重新组织建立。",
+        "previousCardId": 1003010033,
+        "nextCardId": 1003010035
+      },
+      "visualThesis": "三兄弟清晰成组，尤弥尔用巨大局部形成尺度，不做混战。",
+      "promptSubject": "Odin, Vili and Ve standing together against the immense partial silhouette of Ymir, clear group hierarchy, no battle clutter, simple primordial setting."
+    },
+    {
+      "cardId": 1003010035,
+      "cardNumber": 35,
+      "type": "story",
+      "slug": "ymir-falls",
+      "titleZh": "尤弥尔倒下",
+      "titleEn": "Ymir Falls",
+      "description": "三兄弟杀死尤弥尔，原初秩序结束。",
+      "roleInSeries": "连续Story第8段。",
+      "storyIds": ["story-odin-creates-world"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "seriesNarrative": {
+        "chapter": 3,
+        "chapterTitle": "旧世界的终结",
+        "sequence": 8,
+        "keyMoment": "尤弥尔倒下",
+        "narrative": "三兄弟杀死尤弥尔。这个事件不是单纯的英雄战斗，而是宇宙结构转换的门槛；在这一散文传统中，新秩序以原初存在的死亡为代价。",
+        "previousCardId": 1003010034,
+        "nextCardId": 1003010036
+      },
+      "visualThesis": "倒下的巨大上身和三兄弟是唯一信息，不强调血腥。",
+      "promptSubject": "Ymir collapsing at world scale while the three brothers remain small but readable, mythic solemnity, no gore spectacle, simplified environment."
+    },
+    {
+      "cardId": 1003010036,
+      "cardNumber": 36,
+      "type": "story",
+      "slug": "earth-from-flesh",
+      "titleZh": "大地由血肉形成",
+      "titleEn": "Earth from Flesh",
+      "description": "尤弥尔之肉被重新塑造成大地。",
+      "roleInSeries": "连续Story第9段。",
+      "storyIds": ["story-odin-creates-world"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "seriesNarrative": {
+        "chapter": 3,
+        "chapterTitle": "旧世界的终结",
+        "sequence": 9,
+        "keyMoment": "大地由血肉形成",
+        "narrative": "尤弥尔死后，他的肉被塑造成大地。身体与地貌之间的转化让新世界拥有可站立、可居住的基础，也体现北欧创世叙事以既有材料重组世界的特点。",
+        "previousCardId": 1003010035,
+        "nextCardId": 1003010037
+      },
+      "visualThesis": "身体材质向土地大形转化，避免猎奇肉体细节。",
+      "promptSubject": "mythic transformation of Ymir's flesh into broad earth and land, symbolic material transition, no gore, simple readable terrain forms."
+    },
+    {
+      "cardId": 1003010037,
+      "cardNumber": 37,
+      "type": "story",
+      "slug": "sea-from-blood",
+      "titleZh": "海洋由血液形成",
+      "titleEn": "Sea from Blood",
+      "description": "尤弥尔之血成为海与湖，包围新生陆地。",
+      "roleInSeries": "连续Story第10段。",
+      "storyIds": ["story-odin-creates-world"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "seriesNarrative": {
+        "chapter": 3,
+        "chapterTitle": "旧世界的终结",
+        "sequence": 10,
+        "keyMoment": "海洋由血液形成",
+        "narrative": "尤弥尔的血成为海与湖，水体围绕新形成的陆地。世界从一具原初身体中分化出不同环境，海陆边界也开始出现。",
+        "previousCardId": 1003010036,
+        "nextCardId": 1003010038
+      },
+      "visualThesis": "海陆交界是主体，颜色神话化处理，不做血海猎奇。",
+      "promptSubject": "mythic transformation of Ymir's blood into the first sea around new land, subdued deep-water color, symbolic not gory, simple sea-land boundary."
+    },
+    {
+      "cardId": 1003010038,
+      "cardNumber": 38,
+      "type": "story",
+      "slug": "mountains-from-bones",
+      "titleZh": "骨化群山",
+      "titleEn": "Mountains from Bones",
+      "description": "尤弥尔的骨与牙齿化为山石。",
+      "roleInSeries": "连续Story第11段。",
+      "storyIds": ["story-odin-creates-world"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "seriesNarrative": {
+        "chapter": 3,
+        "chapterTitle": "旧世界的终结",
+        "sequence": 11,
+        "keyMoment": "骨化群山",
+        "narrative": "尤弥尔的骨与牙齿被转化为山石。大地不再是一整块平面，而获得起伏、岩层和可以区分的空间结构。",
+        "previousCardId": 1003010037,
+        "nextCardId": 1003010039
+      },
+      "visualThesis": "骨骼向山体大形过渡，减少纹理密度。",
+      "promptSubject": "bones and teeth of Ymir transforming symbolically into broad mountain forms, restrained painterly geology, no body-horror detail."
+    },
+    {
+      "cardId": 1003010039,
+      "cardNumber": 39,
+      "type": "story",
+      "slug": "skull-becomes-sky",
+      "titleZh": "头骨撑起天空",
+      "titleEn": "The Skull Becomes Sky",
+      "description": "三兄弟把尤弥尔的头盖骨安置为天穹。",
+      "roleInSeries": "连续Story第12段。",
+      "storyIds": ["story-odin-creates-world"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 8" }
+      ],
+      "seriesNarrative": {
+        "chapter": 3,
+        "chapterTitle": "旧世界的终结",
+        "sequence": 12,
+        "keyMoment": "头骨撑起天空",
+        "narrative": "三兄弟把尤弥尔的头盖骨安置为天空，又把火星安排到天穹中。到这一刻，上下空间被明确区分，新世界从原初物质变成具有天地层次的宇宙。",
+        "previousCardId": 1003010038,
+        "nextCardId": 1003010040
+      },
+      "visualThesis": "三兄弟与巨大弧形天穹关系清楚，背景不堆星云。",
+      "promptSubject": "Odin, Vili and Ve raising the vast skull-vault of Ymir into a new sky, simple monumental arc, minimal sparks, no nebula spectacle."
+    },
+    {
+      "cardId": 1003010040,
+      "cardNumber": 40,
+      "type": "story",
+      "slug": "two-timbers-on-shore",
+      "titleZh": "海岸上的两段木材",
+      "titleEn": "Two Timbers on the Shore",
+      "description": "阿斯克与恩布拉获得生命前，海岸上出现两段木材。",
+      "roleInSeries": "连续Story第13段。",
+      "storyIds": ["story-ask-and-embla"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-voluspa", "locator": "sts. 17–18" }
+      ],
+      "seriesNarrative": {
+        "chapter": 4,
+        "chapterTitle": "人类进入世界",
+        "sequence": 13,
+        "keyMoment": "海岸上的两段木材",
+        "narrative": "在已经形成的世界海岸，三位神发现阿斯克与恩布拉的前身。他们尚无呼吸、意识与完整生命，这让人类起源与树木、海岸和新世界的材料直接相连。",
+        "previousCardId": 1003010039,
+        "nextCardId": 1003010041
+      },
+      "visualThesis": "两段木材与海岸构成安静画面，神只做远处提示。",
+      "promptSubject": "two human-origin timbers lying on a quiet young Midgard shore, simple sea and sky, distant divine figures only if needed, contemplative composition."
+    },
+    {
+      "cardId": 1003010041,
+      "cardNumber": 41,
+      "type": "story",
+      "slug": "first-breath",
+      "titleZh": "第一口生命",
+      "titleEn": "The First Breath",
+      "description": "神祇赋予阿斯克与恩布拉生命和感知。",
+      "roleInSeries": "连续Story第14段。",
+      "storyIds": ["story-ask-and-embla"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-voluspa", "locator": "sts. 17–18" }
+      ],
+      "seriesNarrative": {
+        "chapter": 4,
+        "chapterTitle": "人类进入世界",
+        "sequence": 14,
+        "keyMoment": "第一口生命",
+        "narrative": "神祇赋予阿斯克与恩布拉生命、感知与人的状态。人类由此进入米德加尔特，但并不站在宇宙之外；他们只是新秩序中的一部分，也将受到时间与命运约束。",
+        "previousCardId": 1003010040,
+        "nextCardId": 1003010042
+      },
+      "visualThesis": "阿斯克与恩布拉的脸与第一次呼吸是中心，神祇动作克制。",
+      "promptSubject": "Ask and Embla receiving first life and awareness, their faces and breath as focal point, restrained divine gestures, soft young coast background."
+    },
+    {
+      "cardId": 1003010042,
+      "cardNumber": 42,
+      "type": "story",
+      "slug": "yggdrasil-spans-worlds",
+      "titleZh": "世界树贯穿诸界",
+      "titleEn": "Yggdrasil Spans the Worlds",
+      "description": "世界树成为宇宙持续结构的轴心。",
+      "roleInSeries": "连续Story第15段。",
+      "storyIds": ["story-yggdrasil-and-wells"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-grimnismal", "locator": "sts. 31–35" }
+      ],
+      "seriesNarrative": {
+        "chapter": 5,
+        "chapterTitle": "世界树与命运",
+        "sequence": 15,
+        "keyMoment": "世界树贯穿诸界",
+        "narrative": "世界成形后，世界树把不同宇宙层级联系起来。它不是现代固定九界地图，而是一棵拥有巨大根系、树冠与多处泉域的宇宙轴，让空间第一次拥有持续的结构。",
+        "previousCardId": 1003010041,
+        "nextCardId": 1003010043
+      },
+      "visualThesis": "世界树主干是绝对中心，层级用雾和光简洁分开。",
+      "promptSubject": "Yggdrasil becoming the world-axis, one monumental trunk linking broad atmospheric layers, no labels, no crowded nine-world infographic."
+    },
+    {
+      "cardId": 1003010043,
+      "cardNumber": 43,
+      "type": "story",
+      "slug": "three-roots-three-wells",
+      "titleZh": "三根通向三泉",
+      "titleEn": "Three Roots toward Three Wells",
+      "description": "世界树的根系把不同泉域纳入宇宙结构。",
+      "roleInSeries": "连续Story第16段。",
+      "storyIds": ["story-yggdrasil-and-wells"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-grimnismal", "locator": "sts. 31–35" }
+      ],
+      "seriesNarrative": {
+        "chapter": 5,
+        "chapterTitle": "世界树与命运",
+        "sequence": 16,
+        "keyMoment": "三根通向三泉",
+        "narrative": "世界树的根延伸至不同方向，并与重要泉域相连。命运、知识和原初水源由此被放到同一宇宙结构中，但它们各有不同来源和功能，不应画成三个相同的魔法水池。",
+        "previousCardId": 1003010042,
+        "nextCardId": 1003010044
+      },
+      "visualThesis": "三条主要根向不同空间分化，泉域只作远处差异提示。",
+      "promptSubject": "three major roots of Yggdrasil diverging toward distinct distant water realms, broad readable structure, no identical glowing magic pools."
+    },
+    {
+      "cardId": 1003010044,
+      "cardNumber": 44,
+      "type": "story",
+      "slug": "norns-shape-fate",
+      "titleZh": "诺恩在泉边定命",
+      "titleEn": "The Norns Shape Fate",
+      "description": "三位诺恩在世界树附近把人的生命与命运纳入秩序。",
+      "roleInSeries": "连续Story第17段。",
+      "storyIds": ["story-norns-at-urdarbrunnr"],
+      "sourceRefs": [{ "sourceId": "norse-src-voluspa", "locator": "st. 20" }],
+      "seriesNarrative": {
+        "chapter": 5,
+        "chapterTitle": "世界树与命运",
+        "sequence": 17,
+        "keyMoment": "诺恩在泉边定命",
+        "narrative": "乌尔德、薇尔丹蒂与斯库尔德在世界树附近出现，为人安排生命与命运。世界至此不只有物理空间，也出现了法则、时间与个体命运的秩序。",
+        "previousCardId": 1003010043,
+        "nextCardId": 1003010045
+      },
+      "visualThesis": "三位诺恩的脸与手形成清楚三角关系，泉和树根柔化。",
+      "promptSubject": "Urd, Verdandi and Skuld together beside the spring, distinct faces and gestures, simple triangular grouping, soft root and water background, no identical triplets."
+    },
+    {
+      "cardId": 1003010045,
+      "cardNumber": 45,
+      "type": "story",
+      "slug": "sun-moon-begin-course",
+      "titleZh": "日月开始运行",
+      "titleEn": "Sun and Moon Begin Their Course",
+      "description": "太阳和月亮获得位置与运行节律。",
+      "roleInSeries": "连续Story第18段。",
+      "storyIds": ["story-sun-and-moon-chase"],
+      "sourceRefs": [{ "sourceId": "norse-src-voluspa", "locator": "st. 5" }],
+      "seriesNarrative": {
+        "chapter": 6,
+        "chapterTitle": "天空开始运行",
+        "sequence": 18,
+        "keyMoment": "日月开始运行",
+        "narrative": "太阳和月亮获得各自的运行秩序，天空从静态背景变成有周期的时间系统。日月知道自己的位置与力量，新世界开始拥有可以重复的节律。",
+        "previousCardId": 1003010044,
+        "nextCardId": 1003010046
+      },
+      "visualThesis": "索尔与马尼作为两个清晰主体，天空极简，不做宇宙星云。",
+      "promptSubject": "Sol and Mani beginning their ordered courses across a simple mythic sky, two clear human-celestial subjects, restrained light paths, no cosmic clutter."
+    },
+    {
+      "cardId": 1003010046,
+      "cardNumber": 46,
+      "type": "story",
+      "slug": "pursuit-and-gnawing",
+      "titleZh": "追逐与啃噬",
+      "titleEn": "Pursuit and Gnawing",
+      "description": "日月被狼追逐，世界树根部也持续遭到侵蚀。",
+      "roleInSeries": "连续Story第19段，也是M01终章伏线。",
+      "storyIds": ["story-sun-and-moon-chase", "story-nidhoggr-and-yggdrasil"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-voluspa", "locator": "sts. 40–41" },
+        { "sourceId": "norse-src-grimnismal", "locator": "st. 35" }
+      ],
+      "seriesNarrative": {
+        "chapter": 6,
+        "chapterTitle": "天空开始运行",
+        "sequence": 19,
+        "keyMoment": "追逐与啃噬",
+        "narrative": "秩序建立的同时，毁灭的种子已经存在：天穹有追逐日月的狼，世界树根部也有尼德霍格持续侵蚀。M01因此不以完美创世结束，而以一个稳定却始终承受压力的世界收束，为诸神时代与最终黄昏留下伏线。",
+        "previousCardId": 1003010045,
+        "nextCardId": null
+      },
+      "visualThesis": "优先表现一个统一视觉中心；若天空追逐与根部啃噬无法自然同框，正式出图前拆卡并调整弱场景槽位。",
+      "promptSubject": "a restrained final omen image showing the newborn world's hidden pressure; choose one coherent focal relationship rather than split-screen collage, no visual overload."
+    },
+    {
+      "cardId": 1003010047,
+      "cardNumber": 47,
+      "type": "mythic-object",
+      "slug": "sun-chariot",
+      "titleZh": "太阳之车",
+      "titleEn": "Chariot of the Sun",
+      "description": "索尔驾驭、由阿尔瓦克与阿尔斯维德牵引的太阳运行载具。",
+      "roleInSeries": "M01正式神物之一，连接索尔与天体秩序。",
+      "storyIds": ["story-sun-and-moon-chase"],
+      "objectIds": ["object-norse-sun-chariot"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-prose-edda-gylfaginning", "locator": "ch. 11" }
+      ],
+      "visualThesis": "战车轮廓与太阳关系清楚，背景只有简化天穹，不做游戏战车。",
+      "promptSubject": "the Chariot of the Sun as a mythic celestial vehicle, clear readable chariot and solar relationship, restrained horses and sky, no ornate game equipment or excess VFX."
+    },
+    {
+      "cardId": 1003010048,
+      "cardNumber": 48,
+      "type": "mythic-object",
+      "slug": "svalinn",
+      "titleZh": "斯瓦林之盾",
+      "titleEn": "Svalinn",
+      "description": "位于太阳之前、阻隔其炽热的宇宙功能之盾。",
+      "roleInSeries": "M01第二件正式神物，补充日月秩序的物质机制。",
+      "storyIds": ["story-sun-and-moon-chase"],
+      "objectIds": ["object-norse-svalinn"],
+      "sourceRefs": [
+        { "sourceId": "norse-src-grimnismal", "locator": "st. 38" }
+      ],
+      "visualThesis": "盾是唯一主体，太阳只是柔化背光，不画满屏符文。",
+      "promptSubject": "Svalinn as a simple powerful shield before the sun, shield silhouette dominant, softened solar backlight, restrained material detail, no glowing runes or game UI."
+    },
+    {
+      "cardId": 1003010049,
+      "cardNumber": 49,
+      "type": "ensemble",
+      "slug": "norse-genesis",
+      "titleZh": "北欧创世",
+      "titleEn": "Norse Genesis",
+      "description": "冰火相遇与原初生命的系列开篇横版封面。",
+      "roleInSeries": "代表世界尚未形成。",
+      "storyIds": ["story-ymir-creation"],
+      "sourceRefs": [
+        {
+          "sourceId": "norse-src-prose-edda-gylfaginning",
+          "locator": "chs. 4–8"
+        }
+      ],
+      "visualThesis": "尤弥尔是唯一主要角色，冰火两极只做大面积低细节背景。",
+      "promptSubject": "horizontal series cover, Ymir as the single dominant subject in Ginnungagap, simple cold-vs-warm environmental masses, painterly negative space, no galaxy or debris overload."
+    },
+    {
+      "cardId": 1003010050,
+      "cardNumber": 50,
+      "type": "ensemble",
+      "slug": "yggdrasil-and-fate",
+      "titleZh": "世界树与命运",
+      "titleEn": "Yggdrasil & Fate",
+      "description": "世界成形后的M01终章横版封面。",
+      "roleInSeries": "与49形成未成形/已成形的镜像。",
+      "storyIds": [
+        "story-yggdrasil-and-wells",
+        "story-norns-at-urdarbrunnr",
+        "story-sun-and-moon-chase"
+      ],
+      "sourceRefs": [
+        { "sourceId": "norse-src-grimnismal", "locator": "sts. 31–35" },
+        { "sourceId": "norse-src-voluspa", "locator": "st. 20; st. 5" }
+      ],
+      "visualThesis": "世界树为绝对一级视觉中心，诺恩与日月只做小比例次级层级。",
+      "promptSubject": "horizontal series finale cover, Yggdrasil as the dominant central world-axis, small Norns and sun-moon elements secondary, broad calm background, no character collage."
+    }
   ]
 }
