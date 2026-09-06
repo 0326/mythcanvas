@@ -32,6 +32,8 @@ const object = (
 });
 
 export const norseMythicObjects: readonly MythicObject[] = [
+  object('sun-chariot', '太阳之车', 'Chariot of the Sun', 'sólarvagn', 'vehicle', '《欺骗古鲁菲》第十一章叙述索尔驾驭由阿尔瓦克与阿尔斯维德牵引的太阳之车，使太阳沿天穹运行；视觉设计应强调天体运行功能，而不是现代奇幻战车。', [sourceRef('proseEddaGylfaginning', 'ch. 11')], ['索尔', '阿尔瓦克与阿尔斯维德', '太阳运行']),
+  object('svalinn', '斯瓦林之盾', 'Svalinn', 'Svalinn', 'artifact', '《格里姆尼尔之歌》第三十八节提到斯瓦林位于太阳之前，阻隔其炽热；它是具有宇宙功能的盾，不应被设计成普通战斗装备。', [sourceRef('grimnismal', 'st. 38')], ['太阳前方的盾', '阻隔炽热', '宇宙秩序']),
   object('mjolnir', '妙尔尼尔', 'Mjölnir', 'Mjǫllnir', 'weapon', '索尔的锤，是守护、婚宴伪装与终局战斗中不可替代的关键物件。', [sourceRef('thrymskvida', 'st. 1–32'), sourceRef('proseEddaSkaldskaparmal', 'ch. 35')], ['短柄锤', '索尔的守护职责', '来源范围明确的北欧金属工艺']),
   object('gungnir', '冈格尼尔', 'Gungnir', 'Gungnir', 'weapon', '奥丁的长矛，作为其身份与战争 / 王权意象的一部分，需按不同来源范围表达。', [sourceRef('proseEddaSkaldskaparmal', 'ch. 43')], ['长矛', '奥丁', '誓约与王权']),
   object('draupnir', '德罗普尼尔', 'Draupnir', 'Draupnir', 'jewel', '会增殖的金环，出现在宝物锻造与巴德尔葬礼相关叙事中。', [sourceRef('proseEddaSkaldskaparmal', 'ch. 35'), sourceRef('proseEddaGylfaginning', 'ch. 49')], ['金环', '增殖', '葬礼赠物']),
@@ -60,10 +62,11 @@ const relation = (
 ): ContentRelation => ({ id, mythologyId, from, to, relationType, sourceRefs, traditionScope, confidence: 'high' });
 
 export const norseContentRelations: readonly ContentRelation[] = [
+  relation('norse-object-sun-chariot-sol', { type: 'mythic-object', id: 'object-norse-sun-chariot' }, { type: 'character', id: 'character-sol' }, 'driven-by', [sourceRef('proseEddaGylfaginning', 'ch. 11')], 'Gylfaginning celestial tradition'),
+  relation('norse-object-svalinn-sun-cycle', { type: 'mythic-object', id: 'object-norse-svalinn' }, { type: 'story', id: 'story-sun-and-moon-chase' }, 'protective-object-in', [sourceRef('grimnismal', 'st. 38')], 'Grímnismál celestial tradition'),
   relation('norse-object-mjolnir-thor', { type: 'mythic-object', id: 'object-norse-mjolnir' }, { type: 'character', id: 'character-thor' }, 'wielded-by', [sourceRef('thrymskvida', 'st. 1–32')], 'Þrymskviða tradition'),
   relation('norse-object-hringhorni-baldr', { type: 'mythic-object', id: 'object-norse-hringhorni' }, { type: 'character', id: 'character-baldr' }, 'funerary-vessel-for', [sourceRef('proseEddaGylfaginning', 'ch. 49')], 'Gylfaginning tradition'),
   relation('norse-object-naglfar-ragnarok', { type: 'mythic-object', id: 'object-norse-naglfar' }, { type: 'story', id: 'story-ragnarok' }, 'appears-in', [sourceRef('voluspa', 'st. 50')], 'Völuspá tradition'),
   relation('norse-object-gleipnir-fenrir', { type: 'mythic-object', id: 'object-norse-gleipnir' }, { type: 'character', id: 'character-fenrir' }, 'binds', [sourceRef('proseEddaGylfaginning', 'ch. 34')], 'Gylfaginning binding tradition'),
   relation('norse-object-gram-sigurd', { type: 'mythic-object', id: 'object-norse-gram' }, { type: 'character', id: 'character-sigurd' }, 'wielded-by', [sourceRef('reginsmal', 'selected stanzas')], 'Eddic heroic tradition'),
 ];
-
