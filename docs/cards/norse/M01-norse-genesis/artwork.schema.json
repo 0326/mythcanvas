@@ -1,14 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://mythcanvas.local/schemas/norse/m01/artwork.schema.json",
-  "title": "MythCanvas M01 Planned Card Data",
+  "title": "MythCanvas M01 Per-Card Artwork Data",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schemaVersion","cardId","categoryCode","mythologyCode","seriesCode","seriesLabel","styleCode","styleName","cardNumber","type","slug","titleZh","titleEn","cardDescription","content","seriesNarrative","visual","composition","prompt","specRef","output","qa"
+    "schemaVersion","cardId","categoryCode","mythologyCode","seriesCode","seriesLabel","styleCode","styleName","cardNumber","type","slug","titleZh","titleEn","description","roleInSeries","storyIds","sourceRefs","visualThesis","prompt","output","qa"
   ],
   "properties": {
-    "schemaVersion": {"type":"string","const":"3.1"},
+    "schemaVersion": {"type":"string","const":"4.0"},
     "cardId": {"type":"integer","minimum":1003010001,"maximum":1003019950},
     "categoryCode": {"type":"integer","const":10},
     "mythologyCode": {"type":"integer","const":3},
@@ -21,48 +21,65 @@
     "slug": {"type":"string","minLength":1},
     "titleZh": {"type":"string","minLength":1},
     "titleEn": {"type":"string","minLength":1},
-    "cardDescription": {
-      "type":"object","additionalProperties":false,"required":["short","full","roleInSeries"],
-      "properties":{"short":{"type":"string"},"full":{"type":"string"},"roleInSeries":{"type":"string"}}
-    },
-    "content": {
-      "type":"object","additionalProperties":false,"required":["storyIds","characterIds","worldIds","sceneIds","objectIds","sourceRefs"],
-      "properties": {
-        "storyIds":{"type":"array","items":{"type":"string"}},
-        "characterIds":{"type":"array","items":{"type":"string"}},
-        "worldIds":{"type":"array","items":{"type":"string"}},
-        "sceneIds":{"type":"array","items":{"type":"string"}},
-        "objectIds":{"type":"array","items":{"type":"string"}},
-        "sourceRefs":{"type":"array","items":{"type":"object","required":["sourceId","locator"],"properties":{"sourceId":{"type":"string"},"locator":{"type":"string"}}}}
-      }
+    "description": {"type":"string","minLength":1},
+    "fullDescription": {"type":"string"},
+    "roleInSeries": {"type":"string","minLength":1},
+    "storyIds": {"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "characterIds": {"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "worldIds": {"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "sceneIds": {"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "objectIds": {"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "sourceRefs": {
+      "type":"array","minItems":1,
+      "items":{"type":"object","additionalProperties":false,"required":["sourceId","locator"],"properties":{"sourceId":{"type":"string"},"locator":{"type":"string"},"note":{"type":"string"}}}
     },
     "seriesNarrative": {
       "oneOf":[
         {"type":"null"},
-        {"type":"object","additionalProperties":false,"required":["seriesTitle","seriesSummary","chapter","chapterTitle","sequence","keyMoment","narrative","previousCardId","nextCardId"],
-         "properties":{
-           "seriesTitle":{"type":"string"},"seriesSummary":{"type":"string"},"chapter":{"type":"integer"},"chapterTitle":{"type":"string"},"sequence":{"type":"integer","minimum":1,"maximum":19},"keyMoment":{"type":"string"},"narrative":{"type":"string"},"previousCardId":{"type":["integer","null"]},"nextCardId":{"type":["integer","null"]}
-         }}
+        {"type":"object","additionalProperties":false,"required":["seriesTitle","seriesSummary","chapter","chapterTitle","sequence","keyMoment","narrative","previousCardId","nextCardId"],"properties":{
+          "seriesTitle":{"type":"string"},"seriesSummary":{"type":"string"},"chapter":{"type":"integer"},"chapterTitle":{"type":"string"},"sequence":{"type":"integer","minimum":1,"maximum":19},"keyMoment":{"type":"string"},"narrative":{"type":"string"},"previousCardId":{"type":["integer","null"]},"nextCardId":{"type":["integer","null"]}
+        }}
       ]
     },
-    "visual": {
-      "type":"object","additionalProperties":false,"required":["visualThesis","detailHierarchy","subjectSeparation"],
-      "properties":{"visualThesis":{"type":"string"},"detailHierarchy":{"type":"string"},"subjectSeparation":{"type":"string"}}
-    },
+    "visualThesis": {"type":"string","minLength":1},
     "composition": {
-      "type":"object","additionalProperties":false,"required":["orientation","camera","shot","subjectAnchor","cropSafe"],
+      "type":"object","additionalProperties":true,
       "properties":{
-        "orientation":{"type":"string","enum":["portrait","landscape"]},"camera":{"type":"string"},"shot":{"type":"string"},
-        "subjectAnchor":{"type":"object","required":["x","y"],"properties":{"x":{"type":"number"},"y":{"type":"number"}}},
-        "cropSafe":{"type":"object","required":["sacrificialBottomStart","sideCropTolerance","mustRemainVisible"],"properties":{"sacrificialBottomStart":{"type":"number"},"sideCropTolerance":{"type":"number"},"mustRemainVisible":{"type":"array","items":{"type":"string"}}}}
+        "orientation":{"type":"string","enum":["portrait","landscape"]},
+        "subjectAnchor":{"type":"object"},
+        "cropSafe":{"type":"object"}
       }
     },
     "prompt": {
-      "type":"object","additionalProperties":false,"required":["draft","final"],
-      "properties":{"draft":{"type":"string","minLength":1},"final":{"type":["string","null"]}}
+      "type":"object","additionalProperties":false,"required":["draft","final","negative"],
+      "properties":{
+        "draft":{"type":"string","minLength":1},
+        "final":{"type":["string","null"]},
+        "negative":{"type":"array","items":{"type":"string"}},
+        "notes":{"type":"string"}
+      }
     },
-    "specRef":{"type":"string","const":"../M01_ARTIFACT_SPEC.md"},
-    "output":{"type":"object","additionalProperties":false,"required":["fileName","width","height","format"],"properties":{"fileName":{"type":"string"},"width":{"type":"integer"},"height":{"type":"integer"},"format":{"type":"string"}}},
-    "qa":{"type":"object","additionalProperties":false,"required":["status","reviewNotes"],"properties":{"status":{"type":"string","enum":["planned","prompt-ready","generating","review","approved","rejected","superseded"]},"reviewNotes":{"type":"array","items":{"type":"string"}}}}
+    "references": {
+      "type":"object","additionalProperties":true,
+      "properties":{"cardIds":{"type":"array","items":{"type":"integer"}},"notes":{"type":"string"}}
+    },
+    "generation": {
+      "type":"object","additionalProperties":false,
+      "properties":{
+        "status":{"type":"string","enum":["planned","generated","approved","rejected","superseded"]},
+        "attempt":{"type":"integer","minimum":0},
+        "approvedAt":{"type":["string","null"]},
+        "referenceImageFile":{"type":["string","null"]},
+        "notes":{"type":"string"}
+      }
+    },
+    "output": {
+      "type":"object","additionalProperties":false,"required":["fileName","width","height","format"],
+      "properties":{"fileName":{"type":"string"},"width":{"type":"integer"},"height":{"type":"integer"},"format":{"type":"string","enum":["png","jpg","jpeg","webp"]}}
+    },
+    "qa": {
+      "type":"object","additionalProperties":false,"required":["status","reviewNotes"],
+      "properties":{"status":{"type":"string","enum":["planned","prompt-ready","review","approved","rejected","superseded"]},"reviewNotes":{"type":"array","items":{"type":"string"}}}
+    }
   }
 }
