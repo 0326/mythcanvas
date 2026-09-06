@@ -2,18 +2,19 @@
 
 > 系列：M01《北欧创世：世界树与命运》  
 > 状态：Normative / Phase A  
-> 版本：V1.1  
+> 版本：V2.0  
 > 日期：2026-09-06  
 > 关联：`M01_CARD_PLAN.md`  
+> 全局卡号：`../../CARD_ARTWORK_ID_SPEC.md`  
 > Schema：`artwork.schema.json`
 
 ---
 
 # 0. 目的
 
-M01 当前阶段产出的不是“卡面”，而是未来可以同时用于壁纸、网站和实体卡的 **原始 Artwork 资产**。
+M01 当前阶段产出的不是实体卡面，而是未来可以同时用于壁纸、网站和实体卡的 **原始 Artwork 资产**。
 
-每一个 Artwork ID 必须同时交付：
+每一个 Card ID 必须同时交付：
 
 ```text
 1 张成品图片
@@ -25,123 +26,106 @@ JSON 必须足以回答：
 
 - 这张图为什么存在；
 - 对应哪个内容卡位；
-- 属于哪个神话体系 / 系列 / Style Edition；
-- 对应哪个角色 / 场景 / 故事 / 神物；
+- 属于哪个类别 / 神话体系 / 系列 / Style；
+- 对应哪些角色 / 场景 / 故事 / 神物；
 - 依据哪些 Story / Source；
-- 角色和世界 Canon 是什么；
-- 当时实际使用了什么 Prompt；
+- Character / World Canon 是什么；
+- 实际使用了什么 Prompt；
 - 哪些内容绝对不能生成；
 - 主体放在哪里；
-- 哪些边缘未来允许被卡面裁切或遮挡；
-- 使用了哪些角色 Reference / 已批准 Artwork；
-- 当前是第几版，为什么通过或被淘汰。
+- 哪些边缘允许未来卡面裁切或遮挡；
+- 使用了哪些 Reference；
+- 当前是第几次生成，为什么通过或被淘汰。
 
 > **图片负责视觉结果，JSON 负责可复现、可维护和可重新生成。两者缺一不可。**
 
 ---
 
-# 1. 唯一命名规则
+# 1. M01 10 位数字卡号
 
-统一 Artwork ID：
-
-```text
-MC-NOR-M01-PS-001
-│   │   │   │   └─ Card No.
-│   │   │   └──── Style Code
-│   │   └──────── Series
-│   └──────────── Mythology
-└──────────────── Theme Namespace
-```
-
-字段：
+全局格式：
 
 ```text
-MC    = MythCanvas 卡片主题命名空间
-NOR   = Norse mythology
-M01   = MYTHOS series 01
-PS    = Primordial Saga（两位大写英文字母）
-001   = series content card number
+CC MM SS TT NN
 ```
 
-格式：
+M01 当前代码：
 
 ```text
-MC-{MYTHOLOGY}-{SERIES}-{STYLE}-{CARD_NO}
+Category   00 = 收藏卡
+Mythology  03 = 北欧神话
+Series     01 = M01
+Style      00 = 当前默认风格 / Primordial Saga
+Card No.   01–50
 ```
 
-规则：
-
-- `MYTHOLOGY`：三位大写英文代码；
-- `SERIES`：产品线字母 + 两位数字；
-- `STYLE`：**严格两位 A–Z 大写字母**；
-- `CARD_NO`：三位数字；
-- Style Code 必须登记后使用，全 MythCanvas Style Registry 不得复用同一码表示不同画风；
-- ID 一旦进入 approved / published，不再修改。
-
-## 1.1 Content Card 与 Style Artwork
-
-内容身份不包含 Style：
+因此：
 
 ```text
-contentCardId = MC-NOR-M01-001
+第 01 张：0003010001
+第 02 张：0003010002
+...
+第 50 张：0003010050
 ```
 
-具体视觉资产包含 Style：
+必须作为字符串存储。
+
+## 1.1 Content Key
+
+具体 Style 卡号：
 
 ```text
-artworkId = MC-NOR-M01-PS-001
+cardId = 0003010001
 ```
 
-因此未来同一内容卡可有多个画风：
+跨 Style 稳定的内容身份：
 
 ```text
-MC-NOR-M01-PS-001   Primordial Saga
-MC-NOR-M01-XX-001   Future Style Edition
+contentKey = 00030101
 ```
 
-但二者必须都表示 M01 的第 001 张内容卡，不得因换 Style 改变主题身份。
-
-## 1.2 当前 Style
+结构：
 
 ```text
-styleCode: PS
-styleName: Primordial Saga
-styleNameZh: 原初史诗
+Content Key = Category + Mythology + Series + Card No.
+Card ID     = Category + Mythology + Series + Style + Card No.
 ```
+
+未来第 01 张换 Style `01`：
+
+```text
+contentKey = 00030101
+cardId     = 0003010101
+```
+
+内容仍是同一张卡。
 
 ---
 
 # 2. 双文件产物契约
 
-每个 Artwork ID 使用同名文件：
+每个 Card ID 使用同名文件：
 
 ```text
-MC-NOR-M01-PS-001.png
-MC-NOR-M01-PS-001.json
+0003010001.png
+0003010001.json
 
-MC-NOR-M01-PS-002.png
-MC-NOR-M01-PS-002.json
+0003010002.png
+0003010002.json
 ...
 ```
 
-推荐归档结构：
+推荐归档：
 
 ```text
-artifacts/cards/norse/m01/ps/
-├── MC-NOR-M01-PS-001/
-│   ├── MC-NOR-M01-PS-001.png
-│   └── MC-NOR-M01-PS-001.json
-├── MC-NOR-M01-PS-002/
-│   ├── MC-NOR-M01-PS-002.png
-│   └── MC-NOR-M01-PS-002.json
+artifacts/cards/norse/m01/style-00/
+├── 0003010001/
+│   ├── 0003010001.png
+│   └── 0003010001.json
+├── 0003010002/
+│   ├── 0003010002.png
+│   └── 0003010002.json
 └── ...
-```
-
-未来不同 Style 分开归档：
-
-```text
-artifacts/cards/norse/m01/ps/
-artifacts/cards/norse/m01/{style-code}/
 ```
 
 ## 2.1 完整性 Gate
@@ -152,20 +136,19 @@ artifacts/cards/norse/m01/{style-code}/
 image exists
 JSON exists
 JSON validates against artwork.schema.json
-JSON.artworkId == 文件名
-JSON.contentCardId == 去掉 Style 段后的内容卡 ID
-JSON.styleCode == Artwork ID 中 Style 段
-JSON.cardNumber == Artwork ID 最后一段
+JSON.cardId == 文件名
+JSON.contentKey == category + mythology + series + cardNumber
+JSON.cardId == category + mythology + series + style + cardNumber
 JSON.output.width / height 与实际图片一致
 JSON.prompt.final 非空
 JSON.composition.cropSafe 非空
-JSON.sourceRefs / storyRefs 已完成内容审查
-QA.status == approved
+JSON.content.sourceRefs 已审查
+JSON.qa.status == approved
 ```
 
-只有图片没有 JSON：**不允许进入正式资产库。**
+只有图片没有 JSON：不允许进入正式资产库。
 
-只有 JSON 没有批准图片：状态只能是 `planned` / `generating` / `rejected`。
+只有 JSON 没有批准图片：状态只能是 `planned` / `prompt-ready` / `generating` / `review` / `rejected`。
 
 ---
 
@@ -173,9 +156,8 @@ QA.status == approved
 
 ## 3.1 普通 48 张
 
-Character / Scene / Story / Mythic Object：
-
 ```text
+Character / Scene / Story / Mythic Object
 orientation: portrait
 aspectRatio: 9:16
 minimum: 1620 × 2880 px
@@ -183,9 +165,8 @@ minimum: 1620 × 2880 px
 
 ## 3.2 系列封面 2 张
 
-E01 / E02：
-
 ```text
+E01 / E02
 orientation: landscape
 aspectRatio: 16:9
 minimum: 2880 × 1620 px
@@ -197,9 +178,11 @@ minimum: 2880 × 1620 px
 
 当前不按实卡尺寸设计，但所有 Phase A Artwork 必须预留未来裁切能力。
 
-## 4.1 竖图核心原则
+核心原则：
 
 > **主体上移，关键身份信息在上半部完成；底部和左右边缘承担可牺牲内容。**
+
+## 4.1 竖图区域
 
 ### Critical Identity Zone
 
@@ -208,12 +191,12 @@ X: 20%–80%
 Y: 12%–52%
 ```
 
-必须优先放：
+优先放：
 
 - 角色脸；
 - 核心身份 Symbol；
-- 神器关键结构；
 - Story Action 高潮；
+- 神物关键结构；
 - Scene 第一地标。
 
 ### Primary Subject Zone
@@ -239,7 +222,7 @@ Y: 70%–100%
 - 雾 / 火花 / 碎屑；
 - 非关键环境。
 
-**禁止**把人物脸、关键手部、关键神物、故事核心动作放到底部 30%。
+禁止把脸、关键手部、关键神物、故事核心动作放到底部 30%。
 
 ### Crop-Tolerant Sides
 
@@ -250,43 +233,61 @@ X: 86%–100%
 
 只放可延展 / 可裁元素。
 
-## 4.2 JSON 必须记录裁切信息
+## 4.2 各卡型默认锚点
 
-每张 JSON 的 `composition` 必须明确：
+Character：
 
-```json
-{
-  "subjectAnchor": { "x": 0.50, "y": 0.32 },
-  "criticalIdentityZone": { "xMin": 0.20, "xMax": 0.80, "yMin": 0.12, "yMax": 0.52 },
-  "cropSafe": {
-    "sacrificialBottomStart": 0.70,
-    "sideCropTolerance": 0.14,
-    "mustRemainVisible": ["face", "identity symbol", "primary action"]
-  }
-}
+```text
+脸 Y 22%–34%
+胸肩 / Symbol Y 30%–50%
 ```
 
-值可以按每张具体构图微调，但不得违反上面的总体原则。
+Story：
+
+```text
+主要动作中心 Y 20%–55%
+```
+
+Scene：
+
+```text
+第一地标放中上区域
+底部作为进入场景的前景
+```
+
+Mythic Object：
+
+```text
+核心结构 Y 20%–58%
+```
+
+Ensemble 横版：
+
+```text
+核心群像 / 地标集中中央约 70%
+四边保留延展环境
+```
 
 ---
 
-# 5. JSON 核心字段
+# 5. JSON 结构
 
-每个 JSON 至少包含：
+每张 JSON 至少保存：
 
 ```text
 schemaVersion
-artworkId
-contentCardId
+cardId
+contentKey
+categoryCode
 mythologyCode
-seriesId
+seriesCode
+seriesLabel
 styleCode
 styleName
 cardNumber
 type
 slug
-titleZh
-titleEn
+titleZh / titleEn
 content
 canon
 visual
@@ -298,115 +299,166 @@ generation
 qa
 ```
 
-## 5.1 Prompt 可重放要求
-
-`prompt.final` 必须保存**实际发送给图片模型的完整 Prompt**。
-
-不能只保存：
-
-```text
-Ymir, epic, ice, fire
-```
-
-而应保存：
-
-- subject；
-- scene；
-- pose / action；
-- camera；
-- composition；
-- safe-zone；
-- palette；
-- material；
-- lighting；
-- Style Edition；
-- Canon constraints；
-- avoid / negative；
-- no text / no card UI；
-- output orientation。
-
-如果最终 Prompt 是由多个模板拼接而成，同时保存：
-
-```text
-prompt.templateVersion
-prompt.components
-prompt.final
-```
-
-`final` 是真正可重放的最终真源。
-
----
-
-# 6. Reference 与版本
-
-同一角色后续 Artwork 应引用已批准 Canon 图：
+## 5.1 示例
 
 ```json
-"references": {
-  "artworkIds": ["MC-NOR-M01-PS-004"],
-  "characterCanonIds": ["character-odin"],
-  "notes": "Reuse approved Creator-era Odin identity."
+{
+  "schemaVersion": "2.0",
+  "cardId": "0003010001",
+  "contentKey": "00030101",
+  "categoryCode": "00",
+  "mythologyCode": "03",
+  "seriesCode": "01",
+  "seriesLabel": "M01",
+  "styleCode": "00",
+  "styleName": "Primordial Saga",
+  "cardNumber": "01",
+  "type": "character",
+  "slug": "ymir",
+  "titleZh": "尤弥尔",
+  "titleEn": "Ymir",
+  "content": {
+    "storyIds": ["story-ymir-creation"],
+    "characterIds": ["character-ymir"],
+    "worldIds": ["world-niflheim"],
+    "sceneIds": ["scene-ginnungagap"],
+    "objectIds": [],
+    "sourceRefs": [
+      {
+        "sourceId": "norse-src-prose-edda-gylfaginning",
+        "locator": "chs. 4–8"
+      }
+    ]
+  },
+  "canon": {
+    "identityAnchors": ["原初巨人", "冰与火之间诞生", "创世材料"],
+    "mustKeep": ["巨大世界尺度", "霜岩湿气材质"],
+    "mustAvoid": ["现代游戏 Boss", "重甲", "蓝皮冰巨人模板"]
+  },
+  "visual": {
+    "visualThesis": "冰火交界中诞生、身体本身像未成形世界的原初巨人",
+    "mood": ["primordial", "vast", "cold"],
+    "palette": ["ice blue", "ash gray", "ember orange"],
+    "materials": ["frost", "stone", "mist", "water"]
+  },
+  "composition": {
+    "orientation": "portrait",
+    "camera": "low-angle",
+    "shot": "full-body",
+    "subjectAnchor": { "x": 0.5, "y": 0.32 },
+    "criticalIdentityZone": {
+      "xMin": 0.2,
+      "xMax": 0.8,
+      "yMin": 0.12,
+      "yMax": 0.52
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.14,
+      "mustRemainVisible": ["face", "upper torso", "primordial scale"]
+    }
+  },
+  "prompt": {
+    "templateVersion": "m01-v1",
+    "components": [],
+    "final": "FINAL PROMPT USED FOR GENERATION",
+    "negative": ["typography", "logo", "card frame", "watermark"]
+  },
+  "references": {
+    "cardIds": [],
+    "characterCanonIds": [],
+    "notes": ""
+  },
+  "output": {
+    "fileName": "0003010001.png",
+    "width": 1620,
+    "height": 2880,
+    "format": "png"
+  },
+  "generation": {
+    "model": "",
+    "attempt": 0,
+    "generatedAt": null,
+    "notes": ""
+  },
+  "qa": {
+    "status": "planned",
+    "reviewNotes": []
+  }
 }
 ```
 
-重新出图不创建新的 Content Card No.。
+---
 
-同 Style 内重试使用：
+# 6. Prompt 可重放要求
+
+`prompt.final` 必须保存 **实际发送给图片模型的完整 Prompt**，不能只保存摘要。
+
+必须可独立重放：
 
 ```text
-generation.attempt: 1 / 2 / 3...
+Content facts
++ Character / Scene Canon
++ Style / Art Direction
++ Composition
++ Crop-safe constraints
++ Output orientation
++ Avoid / negative constraints
 ```
 
-只有正式改变 Style Edition 时才变化 Style Code。
+如果重画只修改 Prompt：
+
+- `cardId` 不变；
+- `generation.attempt + 1`；
+- 更新 `prompt.final`；
+- 在 `generation.notes` 记录修改原因。
 
 ---
 
-# 7. QA 与状态
+# 7. Reference 规则
 
-建议状态：
+Story / Ensemble 出图如果使用已批准角色图作为参考，JSON 必须记录其 10 位 Card ID：
 
-```text
-planned
-prompt-ready
-generating
-review
-approved
-rejected
-superseded
+```json
+{
+  "references": {
+    "cardIds": ["0003010004", "0003010005"],
+    "characterCanonIds": ["character-odin", "character-vili"],
+    "notes": "lock creator-era faces and costume silhouettes"
+  }
+}
 ```
 
-approved 必须满足：
-
-- 内容正确；
-- Style Code 与画风一致；
-- 主体安全区正确；
-- 下方被遮挡 30% 后仍能理解主视觉；
-- 左右裁切约 14% 不损失身份；
-- 无文字 / Logo / 卡框；
-- Character identity consistency 通过；
-- 图片与 JSON 文件名完全一致；
-- JSON 能重放实际 Prompt。
+引用的是逻辑资产 ID，不依赖临时图片文件路径。
 
 ---
 
-# 8. 当前 M01 编号范围
+# 8. QA Gate
 
-当前首发 Style：`PS`。
+## Naming
 
-```text
-MC-NOR-M01-PS-001
-...
-MC-NOR-M01-PS-050
-```
+- `cardId` 必须为 10 位数字字符串；
+- M01 当前范围为 `0003010001–0003010050`；
+- 文件名与 `cardId` 一致；
+- `contentKey` 与 cardId 去掉 Style 段后的业务身份一致。
 
-其中：
+## Content
 
-```text
-001–016 Character
-017–027 Scene
-028–046 Story / Key Moment
-047–048 Mythic Object
-049–050 Hero / Ensemble
-```
+- Source / Story / Entity 引用存在；
+- 不越界到 M02–M04；
+- disputed material 有 source scope。
 
-内容卡号 `001–050` 永久稳定；后续 Style Edition 只替换 `STYLE` 段。
+## Visual
+
+- 主体上移；
+- 底部 30% 可牺牲；
+- 边缘裁切不损伤身份；
+- Character Canon 一致；
+- 无乱码、Logo、卡框、UI。
+
+## Replayability
+
+- Prompt 完整；
+- Reference 完整；
+- Generation attempt 可追踪；
+- rejected / superseded 有原因记录。
