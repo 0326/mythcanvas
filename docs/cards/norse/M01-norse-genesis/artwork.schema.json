@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mythcanvas.local/schemas/norse/m01/artwork.schema.json",
+  "title": "MythCanvas M01 Artwork Artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artworkId",
+    "seriesId",
+    "type",
+    "slug",
+    "titleZh",
+    "titleEn",
+    "content",
+    "canon",
+    "visual",
+    "composition",
+    "prompt",
+    "references",
+    "output",
+    "generation",
+    "qa"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0" },
+    "artworkId": { "type": "string", "pattern": "^MC-NOR-M01-[0-9]{3}$" },
+    "seriesId": { "type": "string", "const": "M01" },
+    "type": {
+      "type": "string",
+      "enum": ["character", "scene", "story", "mythic-object", "ensemble"]
+    },
+    "slug": { "type": "string", "minLength": 1 },
+    "titleZh": { "type": "string", "minLength": 1 },
+    "titleEn": { "type": "string", "minLength": 1 },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storyIds", "characterIds", "worldIds", "sceneIds", "objectIds", "sourceRefs"],
+      "properties": {
+        "storyIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "characterIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "worldIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "sceneIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "objectIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sourceId", "locator"],
+            "properties": {
+              "sourceId": { "type": "string", "minLength": 1 },
+              "locator": { "type": "string", "minLength": 1 },
+              "note": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "canon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identityAnchors", "mustKeep", "mustAvoid"],
+      "properties": {
+        "identityAnchors": { "type": "array", "items": { "type": "string" } },
+        "mustKeep": { "type": "array", "items": { "type": "string" } },
+        "mustAvoid": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "visual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["visualThesis", "mood", "palette", "materials"],
+      "properties": {
+        "visualThesis": { "type": "string", "minLength": 1 },
+        "mood": { "type": "array", "items": { "type": "string" } },
+        "palette": { "type": "array", "items": { "type": "string" } },
+        "materials": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orientation",
+        "aspectRatio",
+        "shot",
+        "camera",
+        "primarySubject",
+        "subjectAnchor",
+        "cropSafe"
+      ],
+      "properties": {
+        "orientation": { "type": "string", "enum": ["portrait", "landscape"] },
+        "aspectRatio": { "type": "string", "enum": ["9:16", "16:9"] },
+        "shot": { "type": "string", "minLength": 1 },
+        "camera": { "type": "string", "minLength": 1 },
+        "primarySubject": { "type": "string", "minLength": 1 },
+        "subjectAnchor": { "$ref": "#/$defs/point" },
+        "faceAnchor": { "anyOf": [{ "$ref": "#/$defs/point" }, { "type": "null" }] },
+        "actionAnchor": { "anyOf": [{ "$ref": "#/$defs/point" }, { "type": "null" }] },
+        "cropSafe": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "criticalIdentityZone",
+            "preferredSubjectZone",
+            "bottomFlexStartsAt",
+            "edgeFlex",
+            "notes"
+          ],
+          "properties": {
+            "criticalIdentityZone": { "$ref": "#/$defs/zone" },
+            "preferredSubjectZone": { "$ref": "#/$defs/zone" },
+            "bottomFlexStartsAt": { "type": "number", "minimum": 0, "maximum": 1 },
+            "edgeFlex": { "type": "number", "minimum": 0, "maximum": 0.3 },
+            "notes": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "prompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["brief", "final", "avoid"],
+      "properties": {
+        "brief": { "type": "string", "minLength": 1 },
+        "final": { "type": "string", "minLength": 1 },
+        "avoid": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["referenceArtworkIds", "referenceImagePaths", "styleReferenceIds", "notes"],
+      "properties": {
+        "referenceArtworkIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "referenceImagePaths": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "styleReferenceIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "notes": { "type": "string" }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["imagePath", "format", "width", "height", "orientation"],
+      "properties": {
+        "imagePath": { "type": "string", "minLength": 1 },
+        "format": { "type": "string", "enum": ["png", "jpg", "jpeg", "webp"] },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "orientation": { "type": "string", "enum": ["portrait", "landscape"] }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "version", "model", "generatedAt", "seed", "changeNote"],
+      "properties": {
+        "status": { "type": "string", "enum": ["planned", "generating", "rejected", "approved"] },
+        "version": { "type": "integer", "minimum": 1 },
+        "model": { "type": ["string", "null"] },
+        "generatedAt": { "type": ["string", "null"], "format": "date-time" },
+        "seed": { "type": ["string", "integer", "null"] },
+        "changeNote": { "type": "string" }
+      }
+    },
+    "qa": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "checks", "notes"],
+      "properties": {
+        "status": { "type": "string", "enum": ["pending", "rejected", "approved"] },
+        "checks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourceAccurate",
+            "identityConsistent",
+            "anatomyValid",
+            "cropSafe",
+            "noText",
+            "noFranchiseContamination"
+          ],
+          "properties": {
+            "sourceAccurate": { "type": "boolean" },
+            "identityConsistent": { "type": "boolean" },
+            "anatomyValid": { "type": "boolean" },
+            "cropSafe": { "type": "boolean" },
+            "noText": { "type": "boolean" },
+            "noFranchiseContamination": { "type": "boolean" }
+          }
+        },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "$defs": {
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "zone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["xMin", "xMax", "yMin", "yMax"],
+      "properties": {
+        "xMin": { "type": "number", "minimum": 0, "maximum": 1 },
+        "xMax": { "type": "number", "minimum": 0, "maximum": 1 },
+        "yMin": { "type": "number", "minimum": 0, "maximum": 1 },
+        "yMax": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "type": { "const": "ensemble" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "composition": {
+            "properties": {
+              "orientation": { "const": "landscape" },
+              "aspectRatio": { "const": "16:9" }
+            }
+          },
+          "output": {
+            "properties": {
+              "width": { "minimum": 2880 },
+              "height": { "minimum": 1620 },
+              "orientation": { "const": "landscape" }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "composition": {
+            "properties": {
+              "orientation": { "const": "portrait" },
+              "aspectRatio": { "const": "9:16" }
+            }
+          },
+          "output": {
+            "properties": {
+              "width": { "minimum": 1620 },
+              "height": { "minimum": 2880 },
+              "orientation": { "const": "portrait" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
