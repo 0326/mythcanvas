@@ -1,1 +1,39 @@
-{"schemaVersion":"4.0","cardId":1003010003,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":3,"type":"character","slug":"buri","titleZh":"布里","titleEn":"Búri","description":"由奥德胡姆拉舔开的咸冰中逐日显现的神族祖先。","roleInSeries":"把原初世界连接到后来的神族谱系。","storyIds":["story-audhumla-and-buri"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 6"}],"seriesNarrative":null,"visualThesis":"人物从冰层中显现，脸与上身清晰，服装和装饰极简。","composition":{"orientation":"portrait","subjectAnchor":{"x":0.5,"y":0.32},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.14,"mustRemainVisible":["face","upper torso","salt-frost ice"]}},"prompt":{"draft":"Buri emerging gradually from salt-frosted ice, face and upper torso becoming visible, ancient restrained Nordic material language, no crown or throne.","final":null,"negative":["typography","logo","card frame","watermark","crown","throne","glossy game-CG"],"notes":"确认出图后写入完整可重放 prompt.final。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":null,"notes":""},"output":{"fileName":"1003010003.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":[]}}
+{
+  "schemaVersion":"4.0",
+  "cardId":1003010003,
+  "categoryCode":10,
+  "mythologyCode":3,
+  "seriesCode":1,
+  "seriesLabel":"M01",
+  "styleCode":0,
+  "styleName":"Primordial Saga",
+  "cardNumber":3,
+  "type":"character",
+  "slug":"buri",
+  "titleZh":"布里",
+  "titleEn":"Búri",
+  "description":"由奥德胡姆拉舔开的咸冰中逐日显现的神族祖先。",
+  "fullDescription":"布里是北欧创世谱系中最早出现的神族祖先。《欺骗古鲁菲》描述奥德胡姆拉舔食带盐的冰块：第一日显出头发，第二日显出头，第三日一个完整的人形显现，这就是布里。因而布里的核心视觉身份不应是成熟神王、战士或王座上的统治者，而应是‘从原初冰中被逐步揭示的祖先’。画面要突出冰中显现这一独特诞生方式，并保持创世早期尚未形成成熟世界与文明的环境状态。",
+  "roleInSeries":"把奥德胡姆拉的原初生命线连接到后续神族谱系，为奥丁、威利与维的出现建立祖先起点。",
+  "storyIds":["story-audhumla-and-buri"],
+  "characterIds":["character-buri"],
+  "sceneIds":["scene-ginnungagap"],
+  "sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 6","note":"奥德胡姆拉舔食咸冰，布里逐日从冰中显现。"}],
+  "seriesNarrative":null,
+  "visualThesis":"布里应像一位从原初咸冰中苏醒的祖先，而不是普通北欧战士。主体由冰体内部逐渐显现，脸、长发、胡须、胸肩和手臂形成清晰人形，但腰部以下仍可与盐冰、霜和寒雾相连。气质庄重、古老、安静，有神族祖先的神话重量；背景保持未成形世界的冰霜混沌，只以极少量远处暖光暗示穆斯贝尔方向。",
+  "composition":{
+    "orientation":"portrait",
+    "subjectAnchor":{"x":0.5,"y":0.3},
+    "cropSafe":{"sacrificialBottomStart":0.72,"sideCropTolerance":0.12,"mustRemainVisible":["Búri face","hair and head silhouette","upper torso","ice-emergence boundary","salt-frost context"]}
+  },
+  "prompt":{
+    "draft":"Búri emerging from primordial salt-rimed ice as the first divine ancestor, solemn and mythic, before the world and civilization are fully formed.",
+    "final":null,
+    "negative":["typography","logo","watermark","card frame","crown","throne","royal palace","heavy armor","generic Viking warrior","mature landscape","forest","river","city","ordinary sky","Auðumbla in frame","random glowing runes","excessive particles","decorative galaxy wallpaper","glossy game-CG","hyper-detailed background"],
+    "notes":"待生成时使用完整 Prompt：强调‘从咸冰中显现的神族祖先’，不是成熟神王；主体头脸与胸肩置于上半安全区；背景克制、世界尚未形成。"
+  },
+  "references":{"cardIds":[1003010001,1003010002],"notes":"仅继承 M01 已确认的原初冰火世界观、克制画风和主体优先原则，不复制尤弥尔或奥德胡姆拉构图。"},
+  "generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":"1003010003.png","notes":"尚未正式生成；刚才会话中出现的未确认草图不计入正式资产与 attempt。"},
+  "output":{"fileName":"1003010003.png","width":1620,"height":2880,"format":"png"},
+  "qa":{"status":"planned","reviewNotes":["必须第一眼读成冰中显现的祖先","不能是成熟神王或普通维京战士","脸和头部远离边缘，满足后续裁卡安全区","背景保持创世早期未成形状态","细节集中在人物，背景明显降级","不出现奥德胡姆拉抢主体"]}
+}
