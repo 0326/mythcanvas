@@ -2,7 +2,7 @@
 
 > 系列：M01《北欧创世：世界树与命运》  
 > 状态：Normative / Phase A  
-> 版本：V2.0  
+> 版本：V2.1  
 > 日期：2026-09-06  
 > 关联：`M01_CARD_PLAN.md`  
 > 全局卡号：`../../CARD_ARTWORK_ID_SPEC.md`  
@@ -25,8 +25,8 @@ M01 当前阶段产出的不是实体卡面，而是未来可以同时用于壁�
 JSON 必须足以回答：
 
 - 这张图为什么存在；
-- 对应哪个内容卡位；
-- 属于哪个类别 / 神话体系 / 系列 / Style；
+- 对应哪个卡位；
+- 属于哪个 Category / Mythology / Series / Style；
 - 对应哪些角色 / 场景 / 故事 / 神物；
 - 依据哪些 Story / Source；
 - Character / World Canon 是什么；
@@ -41,7 +41,7 @@ JSON 必须足以回答：
 
 ---
 
-# 1. M01 10 位数字卡号
+# 1. M01 10 位数字 Card ID
 
 全局格式：
 
@@ -52,7 +52,7 @@ CC MM SS TT NN
 M01 当前代码：
 
 ```text
-Category   00 = 收藏卡
+Category   10 = 收藏卡
 Mythology  03 = 北欧神话
 Series     01 = M01
 Style      00 = 当前默认风格 / Primordial Saga
@@ -62,43 +62,36 @@ Card No.   01–50
 因此：
 
 ```text
-第 01 张：0003010001
-第 02 张：0003010002
+第 01 张：1003010001
+第 02 张：1003010002
 ...
-第 50 张：0003010050
+第 50 张：1003010050
 ```
 
-必须作为字符串存储。
-
-## 1.1 Content Key
-
-具体 Style 卡号：
+完整 Card ID 直接按数字存储：
 
 ```text
-cardId = 0003010001
+DB: BIGINT
+JSON: integer
+JS/TS: number
 ```
 
-跨 Style 稳定的内容身份：
+不再维护独立 `contentKey`。
+
+同一内容卡跨 Style 是否相同，直接比较：
 
 ```text
-contentKey = 00030101
+categoryCode + mythologyCode + seriesCode + cardNumber
 ```
 
-结构：
+例如：
 
 ```text
-Content Key = Category + Mythology + Series + Card No.
-Card ID     = Category + Mythology + Series + Style + Card No.
+1003010001  Style 00
+1003010101  Style 01
 ```
 
-未来第 01 张换 Style `01`：
-
-```text
-contentKey = 00030101
-cardId     = 0003010101
-```
-
-内容仍是同一张卡。
+二者都是 M01 第 01 张，只是 Style 不同。
 
 ---
 
@@ -107,11 +100,11 @@ cardId     = 0003010101
 每个 Card ID 使用同名文件：
 
 ```text
-0003010001.png
-0003010001.json
+1003010001.png
+1003010001.json
 
-0003010002.png
-0003010002.json
+1003010002.png
+1003010002.json
 ...
 ```
 
@@ -119,12 +112,12 @@ cardId     = 0003010101
 
 ```text
 artifacts/cards/norse/m01/style-00/
-├── 0003010001/
-│   ├── 0003010001.png
-│   └── 0003010001.json
-├── 0003010002/
-│   ├── 0003010002.png
-│   └── 0003010002.json
+├── 1003010001/
+│   ├── 1003010001.png
+│   └── 1003010001.json
+├── 1003010002/
+│   ├── 1003010002.png
+│   └── 1003010002.json
 └── ...
 ```
 
@@ -136,9 +129,8 @@ artifacts/cards/norse/m01/style-00/
 image exists
 JSON exists
 JSON validates against artwork.schema.json
-JSON.cardId == 文件名
-JSON.contentKey == category + mythology + series + cardNumber
-JSON.cardId == category + mythology + series + style + cardNumber
+JSON.cardId == 文件名数字部分
+JSON.cardId == pad2(category) + pad2(mythology) + pad2(series) + pad2(style) + pad2(cardNumber)
 JSON.output.width / height 与实际图片一致
 JSON.prompt.final 非空
 JSON.composition.cropSafe 非空
@@ -277,7 +269,6 @@ Ensemble 横版：
 ```text
 schemaVersion
 cardId
-contentKey
 categoryCode
 mythologyCode
 seriesCode
@@ -303,16 +294,15 @@ qa
 
 ```json
 {
-  "schemaVersion": "2.0",
-  "cardId": "0003010001",
-  "contentKey": "00030101",
-  "categoryCode": "00",
-  "mythologyCode": "03",
-  "seriesCode": "01",
+  "schemaVersion": "2.1",
+  "cardId": 1003010001,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
   "seriesLabel": "M01",
-  "styleCode": "00",
+  "styleCode": 0,
   "styleName": "Primordial Saga",
-  "cardNumber": "01",
+  "cardNumber": 1,
   "type": "character",
   "slug": "ymir",
   "titleZh": "尤弥尔",
@@ -370,7 +360,7 @@ qa
     "notes": ""
   },
   "output": {
-    "fileName": "0003010001.png",
+    "fileName": "1003010001.png",
     "width": 1620,
     "height": 2880,
     "format": "png"
@@ -422,7 +412,7 @@ Story / Ensemble 出图如果使用已批准角色图作为参考，JSON 必须�
 ```json
 {
   "references": {
-    "cardIds": ["0003010004", "0003010005"],
+    "cardIds": [1003010004, 1003010005],
     "characterCanonIds": ["character-odin", "character-vili"],
     "notes": "lock creator-era faces and costume silhouettes"
   }
@@ -437,10 +427,11 @@ Story / Ensemble 出图如果使用已批准角色图作为参考，JSON 必须�
 
 ## Naming
 
-- `cardId` 必须为 10 位数字字符串；
-- M01 当前范围为 `0003010001–0003010050`；
-- 文件名与 `cardId` 一致；
-- `contentKey` 与 cardId 去掉 Style 段后的业务身份一致。
+- `cardId` 必须为 10 位十进制正整数；
+- M01 当前范围为 `1003010001–1003010050`；
+- 文件名数字部分与 `cardId` 一致；
+- 不存在独立 `contentKey` 字段；
+- 同内容跨 Style 由 `categoryCode + mythologyCode + seriesCode + cardNumber` 识别。
 
 ## Content
 
