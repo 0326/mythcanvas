@@ -33,7 +33,7 @@
     "schemaVersion": { "type": "string", "const": "2.0" },
     "cardId": {
       "type": "string",
-      "pattern": "^00030100(?:0[1-9]|[1-4][0-9]|50)$"
+      "pattern": "^000301[0-9]{2}(?:0[1-9]|[1-4][0-9]|50)$"
     },
     "contentKey": {
       "type": "string",
@@ -43,7 +43,7 @@
     "mythologyCode": { "type": "string", "const": "03" },
     "seriesCode": { "type": "string", "const": "01" },
     "seriesLabel": { "type": "string", "const": "M01" },
-    "styleCode": { "type": "string", "const": "00" },
+    "styleCode": { "type": "string", "pattern": "^[0-9]{2}$" },
     "styleName": { "type": "string", "minLength": 1 },
     "cardNumber": {
       "type": "string",
