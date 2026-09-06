@@ -1,212 +1,344 @@
-# MythCanvas Card Artwork 唯一命名规范
+# MythCanvas Card Artwork 10 位数字卡号规范
 
 > 状态：Normative  
-> 版本：V1.0  
+> 版本：V2.0  
 > 日期：2026-09-06
 
 ---
 
 # 1. 目标
 
-每一张 MythCanvas 卡片视觉资产必须拥有一个可从文件名直接识别以下信息的唯一 ID：
+所有 MythCanvas 卡片视觉资产统一使用 **10 位纯数字卡号**，便于：
+
+- 文件查找；
+- 排序；
+- 数据库索引；
+- 批量生成；
+- 跨神话 / 系列 / 风格去重；
+- 后续实体卡、扑克牌、塔罗牌等不同产品统一管理。
+
+统一结构：
 
 ```text
-主题命名空间
-神话体系
-系列 / 第几弹
-壁纸风格
-卡牌内容编号
+CC MM SS TT NN
 ```
 
-统一格式：
+实际存储时不加空格：
 
 ```text
-MC-{MYTHOLOGY}-{SERIES}-{STYLE}-{CARD_NO}
+0003010001
 ```
 
-示例：
+其中每一段固定 **2 位数字**。
 
-```text
-MC-NOR-M01-PS-001
-```
+> 卡号必须作为 **10 位字符串** 存储，不能作为整数存储，否则前导 `00` 会丢失。
+
+推荐数据类型：`CHAR(10)` / `VARCHAR(10)` / JSON string。
 
 ---
 
 # 2. 五段定义
 
+以 M01 第 1 张、当前默认风格为例：
+
 ```text
-MC-NOR-M01-PS-001
-│   │   │   │   └─ CARD_NO
-│   │   │   └──── STYLE
-│   │   └──────── SERIES
-│   └──────────── MYTHOLOGY
-└──────────────── THEME NAMESPACE
+0003010001
+│ │ │ │ └─ 01  Card No. / 卡牌编号
+│ │ │ └─── 00  Style / 壁纸风格
+│ │ └───── 01  Series / 系列、第几弹
+│ └─────── 03  Mythology / 神话体系
+└───────── 00  Category / 卡牌类别
 ```
 
-| 字段 | 示例 | 定义 | 格式 |
-|---|---|---|---|
-| Theme Namespace | `MC` | MythCanvas 卡片主题命名空间 | 固定 `MC` |
-| Mythology | `NOR` | 神话体系 | 3 位大写英文字母 |
-| Series | `M01` | 产品系列 / 第几弹 | 1 位产品线字母 + 2 位数字 |
-| Style | `PS` | Artwork / 壁纸风格 | **2 位大写英文字母** |
-| Card No. | `001` | 系列内内容卡编号 | 3 位数字 |
+| 段 | 位数 | 示例 | 含义 |
+|---|---:|---:|---|
+| Category | 2 | `00` | 卡牌类别：收藏卡 / 扑克牌 / 塔罗牌等 |
+| Mythology | 2 | `03` | 神话体系 |
+| Series | 2 | `01` | 同一类别 + 神话体系下的系列 / 第几弹 |
+| Style | 2 | `00` | 该内容卡的视觉风格 Edition |
+| Card No. | 2 | `01` | 系列内卡牌内容编号 |
 
-完整正则建议：
+完整正则：
 
 ```regex
-^MC-[A-Z]{3}-[A-Z][0-9]{2}-[A-Z]{2}-[0-9]{3}$
+^[0-9]{10}$
+```
+
+解析正则：
+
+```regex
+^([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$
 ```
 
 ---
 
-# 3. 内容卡身份与 Artwork 身份分离
+# 3. 当前已登记代码
 
-同一个内容卡在不同 Style Edition 下仍然是同一张“内容卡”。
+## 3.1 Category Registry
 
-因此定义两个 ID：
-
-## Content Card ID
-
-不带 Style：
-
-```text
-MC-NOR-M01-001
-```
-
-表示：
-
-> 北欧神话 / M01 / 第 001 个固定内容主题。
-
-## Artwork ID
-
-带 Style：
-
-```text
-MC-NOR-M01-PS-001
-```
-
-表示：
-
-> 第 001 个内容主题，在 PS 风格下的具体视觉资产。
-
-未来换画风：
-
-```text
-MC-NOR-M01-PS-001
-MC-NOR-M01-XX-001
-```
-
-二者内容身份必须相同，只允许 Art Direction / Style Edition 不同。
-
----
-
-# 4. Style Code 规则
-
-Style 使用两个英文字母组成的稳定缩写：
-
-```text
-[A-Z]{2}
-```
-
-规则：
-
-1. 必须是两位大写 ASCII 英文字母；
-2. Style Code 描述的是**跨系列可复用的视觉风格**，不是角色、故事或卡型；
-3. 同一个 Style Code 在 MythCanvas 全项目必须始终代表同一种 Art Direction；
-4. Code 一旦进入正式资产，不允许改义或复用；
-5. 新 Style 必须先登记，再批量生成；
-6. 不允许同一画风因为神话体系不同而分配不同 Code；
-7. 不允许用随机两字母临时占位后直接发布。
-
-当前已登记：
-
-| Code | Style | 中文 | 状态 |
+| Code | 类别 | English | 状态 |
 |---|---|---|---|
-| `PS` | Primordial Saga | 原初史诗 | M01 首发 Style |
+| `00` | 收藏卡 | Collectible Card | 已登记 |
 
-其他两字母代码在正式登记前均视为未分配。
+后续扑克牌、塔罗牌等从 `01` 起按 Registry 分配，不允许临时复用。
+
+## 3.2 Mythology Registry
+
+| Code | 神话体系 | English | 状态 |
+|---|---|---|---|
+| `03` | 北欧神话 | Norse Mythology | 已登记 |
+
+其他神话体系必须登记后使用。
+
+## 3.3 Series Registry — 北欧收藏卡
+
+| Code | 逻辑系列 | 名称 | 状态 |
+|---|---|---|---|
+| `01` | M01 | 北欧创世：世界树与命运 | 已登记 |
+
+`M01` 继续作为人类可读的产品系列标签；卡号内部只使用数字 `01`。
+
+后续 M02 / M03 / M04 / H01 / H02 等必须在 Registry 中分配稳定的两位数字 Series Code。Series Code 一旦有正式资产不得改义。
+
+## 3.4 Style Registry
+
+| Code | 风格 | English | 状态 |
+|---|---|---|---|
+| `00` | 当前默认风格 | Default / Canonical Style | 已登记 |
+
+M01 当前默认风格的 Art Direction 名称仍可使用：
+
+> **原初史诗 / Primordial Saga**
+
+但 ID 中只记录风格代码 `00`。
+
+后续其他 Style 使用 `01–99`，必须先登记后使用。
 
 ---
 
-# 5. Series Code 规则
+# 4. M01 示例
 
-Series 保留产品线语义：
-
-```text
-M01
-M02
-M03
-M04
-H01
-H02
-...
-```
-
-当前北欧：
+当前定义：
 
 ```text
-M = MYTHOS / 诸神神话
-H = HEROIC SAGAS / 英雄传奇
+Category   = 00  收藏卡
+Mythology  = 03  北欧
+Series     = 01  M01
+Style      = 00  默认风格 / Primordial Saga
+Card No.   = 01  第 1 张
 ```
 
-Series Code 只表示商品 / 内容系列，不表示 Style。
+最终卡号：
+
+```text
+0003010001
+```
+
+第 2 张：
+
+```text
+0003010002
+```
+
+第 50 张：
+
+```text
+0003010050
+```
+
+同一内容卡未来换 Style `01`：
+
+```text
+0003010101
+```
+
+这仍然是 M01 的第 01 张内容卡，只是视觉风格不同。
+
+---
+
+# 5. 内容身份与具体 Artwork 身份
+
+最终 **10 位 Card ID** 是具体风格 Artwork 的全局唯一卡号：
+
+```text
+0003010001
+```
+
+为了识别“不同 Style 下其实是同一个内容卡”，内部额外定义 **8 位 Content Key**：
+
+```text
+CC MM SS NN
+```
+
+即跳过 Style：
+
+```text
+00030101
+```
+
+对于第 01 张 Ymir：
+
+```text
+Content Key     00030101
+Style 00 Card   0003010001
+Style 01 Card   0003010101
+```
 
 因此：
 
-```text
-M01 + PS
-```
-
-和：
-
-```text
-M01 + Future Style
-```
-
-仍属于同一个 M01 内容系列。
+- `contentKey` 跨 Style 稳定；
+- `cardId` / `artworkId` 包含 Style，全球唯一；
+- 换 Style 不改变 Card No.；
+- 重画 / Prompt Version 不改变 10 位卡号。
 
 ---
 
-# 6. Mythology Code
+# 6. 各段分配规则
 
-统一采用三位大写英文代码。
-
-已使用 / 推荐：
+## Category
 
 ```text
-NOR = Norse
+00–99
 ```
 
-其他神话体系应在真正开始卡片规划时登记，避免不同团队自行产生重复代码。
+由全局 Category Registry 管理。
 
----
-
-# 7. Card No. 规则
-
-Card No. 是一个 Series 内稳定的内容身份：
+## Mythology
 
 ```text
-001–999
+00–99
 ```
 
-要求：
+由全局 Mythology Registry 管理；同一个数字不得对应两个神话体系。
 
-- 固定三位，不足补 0；
+## Series
+
+```text
+00–99
+```
+
+Series Code 在 `Category + Mythology` 范围内唯一。人类可读标签（如 `M01`、`H01`）保留在 metadata，不进入 10 位数字卡号。
+
+## Style
+
+```text
+00–99
+```
+
+`00` 保留给当前默认 / Canonical Style。其他 Style 必须登记。
+
+## Card No.
+
+```text
+01–99
+```
+
+原则上每套控制在 50 张以内，因此两位足够。
+
+规则：
+
+- `01` 起编号；
 - 不因 Style 改变；
 - 不因重新出图改变；
 - 不因 Prompt Version 改变；
 - approved 后原则上不重排；
-- 被淘汰的正式编号需要保留迁移记录，不静默换成另一个内容。
+- 被废弃的正式编号保留迁移记录，不静默换给其他内容。
 
-生成尝试次数和图像版本放在 JSON metadata 中，不进入 Artwork ID。
+`00` 不分配给实际卡牌内容，保留作为系统 / 系列级特殊槽位的未来扩展空间。
 
-例如同一张卡第 4 次重画仍然是：
+---
+
+# 7. 文件命名
+
+图片和 JSON 直接使用 10 位卡号：
 
 ```text
-MC-NOR-M01-PS-001
+0003010001.png
+0003010001.json
 ```
 
-JSON：
+推荐目录仍使用可读名称，文件名使用数字 ID：
+
+```text
+artifacts/cards/norse/m01/style-00/
+└── 0003010001/
+    ├── 0003010001.png
+    └── 0003010001.json
+```
+
+目录名不参与唯一性判断，**唯一身份只认 10 位卡号**。
+
+---
+
+# 8. JSON 建议字段
+
+```json
+{
+  "cardId": "0003010001",
+  "contentKey": "00030101",
+  "categoryCode": "00",
+  "mythologyCode": "03",
+  "seriesCode": "01",
+  "seriesLabel": "M01",
+  "styleCode": "00",
+  "styleName": "Primordial Saga",
+  "cardNumber": "01"
+}
+```
+
+所有 code 字段必须是字符串，不得写成数字：
+
+```json
+"categoryCode": "00"
+```
+
+而不是：
+
+```json
+"categoryCode": 0
+```
+
+---
+
+# 9. 唯一性 Gate
+
+正式资产必须满足：
+
+```text
+cardId 长度 == 10
+cardId 仅包含 0–9
+cardId 全局唯一
+文件名 == JSON.cardId
+JSON.contentKey == category + mythology + series + cardNumber
+JSON.cardId == category + mythology + series + style + cardNumber
+JSON.categoryCode == cardId[0:2]
+JSON.mythologyCode == cardId[2:4]
+JSON.seriesCode == cardId[4:6]
+JSON.styleCode == cardId[6:8]
+JSON.cardNumber == cardId[8:10]
+```
+
+M01 当前合法范围：
+
+```text
+0003010001
+...
+0003010050
+```
+
+---
+
+# 10. 版本与重画
+
+生成尝试次数、Prompt Version、模型版本不进入卡号。
+
+同一张卡第 4 次重画仍然是：
+
+```text
+0003010001
+```
+
+JSON 记录：
 
 ```json
 {
@@ -216,71 +348,4 @@ JSON：
 }
 ```
 
----
-
-# 8. 文件命名
-
-图片与描述 JSON 必须同名：
-
-```text
-MC-NOR-M01-PS-001.png
-MC-NOR-M01-PS-001.json
-```
-
-推荐目录：
-
-```text
-artifacts/cards/{mythology}/{series}/{style}/
-```
-
-例：
-
-```text
-artifacts/cards/norse/m01/ps/
-└── MC-NOR-M01-PS-001/
-    ├── MC-NOR-M01-PS-001.png
-    └── MC-NOR-M01-PS-001.json
-```
-
----
-
-# 9. 唯一性 Gate
-
-正式资产库必须满足：
-
-```text
-Artwork ID 全局唯一
-Content Card ID + Style Code 唯一
-文件名 == JSON.artworkId
-JSON.contentCardId 与 Artwork ID 去除 Style 后一致
-JSON.cardNumber 与最后三位一致
-JSON.styleCode 与 STYLE 段一致
-JSON.seriesId 与 SERIES 段一致
-JSON.mythologyCode 与 MYTHOLOGY 段一致
-```
-
-任何不符合命名协议的图片 / JSON 不进入 approved 资产库。
-
----
-
-# 10. M01 示例
-
-当前 M01：
-
-```text
-Theme       MC
-Mythology   NOR
-Series      M01
-Style       PS
-Card No.    001–050
-```
-
-所以完整范围：
-
-```text
-MC-NOR-M01-PS-001
-...
-MC-NOR-M01-PS-050
-```
-
-其中 `001–050` 是内容卡位；未来出现其他 Style Edition 时，只替换 `PS` 段。
+只有 Category / Mythology / Series / Style / Card No. 任一业务身份真正发生变化，才产生新的 10 位卡号。
