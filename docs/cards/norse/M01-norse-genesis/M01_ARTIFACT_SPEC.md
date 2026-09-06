@@ -2,269 +2,147 @@
 
 > 系列：M01《北欧创世：世界树与命运》  
 > 状态：Normative / Phase A  
-> 版本：V2.1  
-> 日期：2026-09-06  
+> 版本：V3.0  
+> 日期：2026-09-07  
 > 关联：`M01_CARD_PLAN.md`  
 > 全局卡号：`../../CARD_ARTWORK_ID_SPEC.md`  
 > Schema：`artwork.schema.json`
 
 ---
 
-# 0. 目的
+# 0. 每张卡的标准产物
 
-M01 当前阶段产出的不是实体卡面，而是未来可以同时用于壁纸、网站和实体卡的 **原始 Artwork 资产**。
-
-每一个 Card ID 必须同时交付：
-
-```text
-1 张成品图片
-+
-1 个同名 JSON 描述文件
-```
-
-JSON 必须足以回答：
-
-- 这张图为什么存在；
-- 对应哪个卡位；
-- 属于哪个 Category / Mythology / Series / Style；
-- 对应哪些角色 / 场景 / 故事 / 神物；
-- 依据哪些 Story / Source；
-- Character / World Canon 是什么；
-- 实际使用了什么 Prompt；
-- 哪些内容绝对不能生成；
-- 主体放在哪里；
-- 哪些边缘允许未来卡面裁切或遮挡；
-- 使用了哪些 Reference；
-- 当前是第几次生成，为什么通过或被淘汰。
-
-> **图片负责视觉结果，JSON 负责可复现、可维护和可重新生成。两者缺一不可。**
-
----
-
-# 1. M01 10 位数字 Card ID
-
-全局格式：
-
-```text
-CC MM SS TT NN
-```
-
-M01 当前代码：
-
-```text
-Category   10 = 收藏卡
-Mythology  03 = 北欧神话
-Series     01 = M01
-Style      00 = 当前默认风格 / Primordial Saga
-Card No.   01–50
-```
-
-因此：
-
-```text
-第 01 张：1003010001
-第 02 张：1003010002
-...
-第 50 张：1003010050
-```
-
-完整 Card ID 直接按数字存储：
-
-```text
-DB: BIGINT
-JSON: integer
-JS/TS: number
-```
-
-不再维护独立 `contentKey`。
-
-同一内容卡跨 Style 是否相同，直接比较：
-
-```text
-categoryCode + mythologyCode + seriesCode + cardNumber
-```
-
-例如：
-
-```text
-1003010001  Style 00
-1003010101  Style 01
-```
-
-二者都是 M01 第 01 张，只是 Style 不同。
-
----
-
-# 2. 双文件产物契约
-
-每个 Card ID 使用同名文件：
+每个 Card ID 最终必须成对交付：
 
 ```text
 1003010001.png
 1003010001.json
-
-1003010002.png
-1003010002.json
-...
 ```
 
-推荐归档：
+图片只负责纯视觉结果；JSON 保存这张卡的**全部业务数据、内容数据、来源、故事描述、视觉规范、Prompt、Reference、生成版本与 QA**。
 
-```text
-artifacts/cards/norse/m01/style-00/
-├── 1003010001/
-│   ├── 1003010001.png
-│   └── 1003010001.json
-├── 1003010002/
-│   ├── 1003010002.png
-│   └── 1003010002.json
-└── ...
-```
-
-## 2.1 完整性 Gate
-
-一个 Artwork 只有同时满足以下条件才算 `ready`：
-
-```text
-image exists
-JSON exists
-JSON validates against artwork.schema.json
-JSON.cardId == 文件名数字部分
-JSON.cardId == pad2(category) + pad2(mythology) + pad2(series) + pad2(style) + pad2(cardNumber)
-JSON.output.width / height 与实际图片一致
-JSON.prompt.final 非空
-JSON.composition.cropSafe 非空
-JSON.content.sourceRefs 已审查
-JSON.qa.status == approved
-```
-
-只有图片没有 JSON：不允许进入正式资产库。
-
-只有 JSON 没有批准图片：状态只能是 `planned` / `prompt-ready` / `generating` / `review` / `rejected`。
+没有 JSON 的图片不进入正式资产库。
 
 ---
 
-# 3. 当前输出尺寸
-
-## 3.1 普通 48 张
+# 1. M01 Card ID
 
 ```text
-Character / Scene / Story / Mythic Object
-orientation: portrait
-aspectRatio: 9:16
-minimum: 1620 × 2880 px
+Category   10 = 收藏卡
+Mythology  03 = 北欧
+Series     01 = M01
+Style      00 = 当前默认风格
+Card No.   01–50
 ```
 
-## 3.2 系列封面 2 张
+范围：
 
 ```text
-E01 / E02
-orientation: landscape
-aspectRatio: 16:9
-minimum: 2880 × 1620 px
+1003010001–1003010050
+```
+
+`cardId` 与各分段字段在 JSON 中均使用 **number**；不再维护 `contentKey`。
+
+---
+
+# 2. 输出尺寸
+
+普通 48 张：
+
+```text
+portrait 9:16
+minimum 1620 × 2880
+```
+
+系列封面 2 张：
+
+```text
+landscape 16:9
+minimum 2880 × 1620
 ```
 
 ---
 
-# 4. 构图与未来裁卡安全
+# 3. 未来裁卡安全
 
-当前不按实卡尺寸设计，但所有 Phase A Artwork 必须预留未来裁切能力。
-
-核心原则：
-
-> **主体上移，关键身份信息在上半部完成；底部和左右边缘承担可牺牲内容。**
-
-## 4.1 竖图区域
-
-### Critical Identity Zone
+所有竖图遵循：
 
 ```text
-X: 20%–80%
-Y: 12%–52%
+Critical Identity Zone
+X 20%–80%
+Y 12%–52%
+
+Primary Subject Zone
+Y 10%–66%
+
+Sacrificial Bottom Zone
+Y 70%–100%
+
+Side Crop Tolerance
+左右各 14%
 ```
 
-优先放：
+角色脸、身份符号、Story 核心动作、神物关键结构、Scene 第一地标必须在中上部成立。
 
-- 角色脸；
-- 核心身份 Symbol；
-- Story Action 高潮；
-- 神物关键结构；
-- Scene 第一地标。
-
-### Primary Subject Zone
-
-```text
-Y: 10%–66%
-```
-
-### Sacrificial Bottom Zone
-
-```text
-Y: 70%–100%
-```
-
-允许放：
-
-- 地面；
-- 腿部下段；
-- 衣摆；
-- 水面；
-- 根系末端；
-- 前景石块；
-- 雾 / 火花 / 碎屑；
-- 非关键环境。
-
-禁止把脸、关键手部、关键神物、故事核心动作放到底部 30%。
-
-### Crop-Tolerant Sides
-
-```text
-X: 0%–14%
-X: 86%–100%
-```
-
-只放可延展 / 可裁元素。
-
-## 4.2 各卡型默认锚点
-
-Character：
-
-```text
-脸 Y 22%–34%
-胸肩 / Symbol Y 30%–50%
-```
-
-Story：
-
-```text
-主要动作中心 Y 20%–55%
-```
-
-Scene：
-
-```text
-第一地标放中上区域
-底部作为进入场景的前景
-```
-
-Mythic Object：
-
-```text
-核心结构 Y 20%–58%
-```
-
-Ensemble 横版：
-
-```text
-核心群像 / 地标集中中央约 70%
-四边保留延展环境
-```
+底部 30% 即使被裁切或被未来卡牌信息区遮挡，也不能破坏理解。
 
 ---
 
-# 5. JSON 结构
+# 4. 去 AI 味 Art Direction
 
-每张 JSON 至少保存：
+M01 默认风格不是“越精致越好”，而是：
+
+> **主体明确、背景克制、绘画感强、局部有细节、整体有留白与层次。**
+
+## 4.1 Detail Hierarchy
+
+每张图必须只有一个主要视觉中心：
+
+```text
+一级细节：脸 / 手 / 核心神物 / Story Action
+二级细节：主体服装、近身材质、必要环境
+三级细节：背景，只保留大形、空气透视和少量地标
+```
+
+禁止所有区域同等锐利、同等复杂。
+
+## 4.2 Subject / Background Separation
+
+必须至少通过两项形成主体与背景区分：
+
+- 明度差；
+- 色温差；
+- 边缘清晰度差；
+- 景深；
+- 雾化 / 空气透视；
+- 局部光线。
+
+主体应明显比背景更清晰、更有对比度。
+
+## 4.3 禁止常见 AI 堆砌
+
+```text
+no hyper-detailed everything
+no excessive particles
+no endless floating debris
+no random glowing runes
+no galaxy / nebula unless source-relevant
+no crystal-covered-everything
+no glossy game-CG finish
+no excessive volumetric light
+no blue-orange blockbuster grading by default
+no ornamental micro-detail on every surface
+```
+
+一张图最多允许 **1 个主要环境奇观 + 1 个次级环境元素**。
+
+例如 Ymir：主体是 Ymir；环境只需要“冰火交界 + 原初雾”，不再叠银河、浮石、极光、无数冰晶、火星、雷电。
+
+---
+
+# 5. JSON 必须保存的卡片数据
+
+每张 JSON 至少包含：
 
 ```text
 schemaVersion
@@ -278,8 +156,11 @@ styleName
 cardNumber
 type
 slug
-titleZh / titleEn
+titleZh
+titleEn
+cardDescription
 content
+seriesNarrative（Story 卡必填，其他类型可 null）
 canon
 visual
 composition
@@ -290,166 +171,124 @@ generation
 qa
 ```
 
-## 5.1 示例
+## cardDescription
 
-```json
-{
-  "schemaVersion": "2.1",
-  "cardId": 1003010001,
-  "categoryCode": 10,
-  "mythologyCode": 3,
-  "seriesCode": 1,
-  "seriesLabel": "M01",
-  "styleCode": 0,
-  "styleName": "Primordial Saga",
-  "cardNumber": 1,
-  "type": "character",
-  "slug": "ymir",
-  "titleZh": "尤弥尔",
-  "titleEn": "Ymir",
-  "content": {
-    "storyIds": ["story-ymir-creation"],
-    "characterIds": ["character-ymir"],
-    "worldIds": ["world-niflheim"],
-    "sceneIds": ["scene-ginnungagap"],
-    "objectIds": [],
-    "sourceRefs": [
-      {
-        "sourceId": "norse-src-prose-edda-gylfaginning",
-        "locator": "chs. 4–8"
-      }
-    ]
-  },
-  "canon": {
-    "identityAnchors": ["原初巨人", "冰与火之间诞生", "创世材料"],
-    "mustKeep": ["巨大世界尺度", "霜岩湿气材质"],
-    "mustAvoid": ["现代游戏 Boss", "重甲", "蓝皮冰巨人模板"]
-  },
-  "visual": {
-    "visualThesis": "冰火交界中诞生、身体本身像未成形世界的原初巨人",
-    "mood": ["primordial", "vast", "cold"],
-    "palette": ["ice blue", "ash gray", "ember orange"],
-    "materials": ["frost", "stone", "mist", "water"]
-  },
-  "composition": {
-    "orientation": "portrait",
-    "camera": "low-angle",
-    "shot": "full-body",
-    "subjectAnchor": { "x": 0.5, "y": 0.32 },
-    "criticalIdentityZone": {
-      "xMin": 0.2,
-      "xMax": 0.8,
-      "yMin": 0.12,
-      "yMax": 0.52
-    },
-    "cropSafe": {
-      "sacrificialBottomStart": 0.7,
-      "sideCropTolerance": 0.14,
-      "mustRemainVisible": ["face", "upper torso", "primordial scale"]
-    }
-  },
-  "prompt": {
-    "templateVersion": "m01-v1",
-    "components": [],
-    "final": "FINAL PROMPT USED FOR GENERATION",
-    "negative": ["typography", "logo", "card frame", "watermark"]
-  },
-  "references": {
-    "cardIds": [],
-    "characterCanonIds": [],
-    "notes": ""
-  },
-  "output": {
-    "fileName": "1003010001.png",
-    "width": 1620,
-    "height": 2880,
-    "format": "png"
-  },
-  "generation": {
-    "model": "",
-    "attempt": 0,
-    "generatedAt": null,
-    "notes": ""
-  },
-  "qa": {
-    "status": "planned",
-    "reviewNotes": []
-  }
-}
-```
-
----
-
-# 6. Prompt 可重放要求
-
-`prompt.final` 必须保存 **实际发送给图片模型的完整 Prompt**，不能只保存摘要。
-
-必须可独立重放：
+卡片自身的数据说明，不显示在 Artwork 图片中：
 
 ```text
-Content facts
-+ Character / Scene Canon
-+ Style / Art Direction
-+ Composition
-+ Crop-safe constraints
-+ Output orientation
-+ Avoid / negative constraints
+short: 一句话识别
+full: 完整内容介绍
+roleInSeries: 为什么这张卡属于 M01
 ```
-
-如果重画只修改 Prompt：
-
-- `cardId` 不变；
-- `generation.attempt + 1`；
-- 更新 `prompt.final`；
-- 在 `generation.notes` 记录修改原因。
 
 ---
 
-# 7. Reference 规则
+# 6. Story 卡必须形成完整可读故事
 
-Story / Ensemble 出图如果使用已批准角色图作为参考，JSON 必须记录其 10 位 Card ID：
+19 张 Story 卡不仅是 Key Moment 图，还承担 M01 的**连续故事阅读层**。
+
+每张 Story JSON 必须有：
 
 ```json
-{
-  "references": {
-    "cardIds": [1003010004, 1003010005],
-    "characterCanonIds": ["character-odin", "character-vili"],
-    "notes": "lock creator-era faces and costume silhouettes"
-  }
+"seriesNarrative": {
+  "seriesTitle": "北欧创世：世界树与命运",
+  "seriesSummary": "M01 从金伦加鸿沟的冰火相遇讲起，经过原初生命、神族祖先、尤弥尔之躯化为世界、人类诞生、世界树与命运秩序，最后以日月运行和毁灭伏线收束。",
+  "chapter": 1,
+  "chapterTitle": "冰与火之前",
+  "sequence": 1,
+  "keyMoment": "雾冰流入鸿沟",
+  "narrative": "本卡对应的完整故事段落。",
+  "previousCardId": null,
+  "nextCardId": 1003010029
 }
 ```
 
-引用的是逻辑资产 ID，不依赖临时图片文件路径。
+要求：
+
+1. `seriesSummary` 让单张 Story JSON 也知道整套在讲什么；
+2. `narrative` 不是图片提示词，而是面向读者的故事正文；
+3. 19 段按 `sequence` 连接后，可以从头读懂 M01；
+4. Key Moment 只是这一段故事的视觉抓手，不等于全部文本；
+5. 来源差异必须留在 `content.sourceRefs` / `cardDescription.full` 中，不虚构补齐古代文本沉默。
+
+Story Narrative 不画到卡图上，后续可以用于：
+
+- 网站卡片详情；
+- 收藏册；
+- 实体卡背；
+- 系列电子说明书；
+- 多语言内容；
+- AI 重新生成时理解剧情上下文。
 
 ---
 
-# 8. QA Gate
+# 7. Prompt 可重放
 
-## Naming
+`prompt.final` 保存**实际发送给图片模型的完整 Prompt**。
 
-- `cardId` 必须为 10 位十进制正整数；
-- M01 当前范围为 `1003010001–1003010050`；
-- 文件名数字部分与 `cardId` 一致；
-- 不存在独立 `contentKey` 字段；
-- 同内容跨 Style 由 `categoryCode + mythologyCode + seriesCode + cardNumber` 识别。
+生成前可以处于 `planned` 状态并保存 `prompt.draft`；一旦生成，必须把实际 Prompt 写入 `prompt.final`。
+
+Prompt 必须覆盖：
+
+```text
+事实与 Story Context
++ Canon
++ 主体
++ 姿态 / 动作
++ Background
++ Art Direction
++ Detail Hierarchy
++ Subject Separation
++ Crop Safe
++ Orientation
++ Avoid
+```
+
+重画时 Card ID 不变，只更新：
+
+```text
+generation.attempt
+prompt.final
+generation.notes
+qa
+```
+
+---
+
+# 8. Reference
+
+Story / Ensemble 使用已批准角色图时，必须记录其 Card ID：
+
+```json
+"references": {
+  "cardIds": [1003010004, 1003010005],
+  "characterCanonIds": ["character-odin", "character-vili"]
+}
+```
+
+---
+
+# 9. QA
+
+## Data
+
+- JSON 与图片同名；
+- cardId 可按 10 位规则解析；
+- 所有卡片业务数据都存在 JSON；
+- Story 19 张 narrative 顺序完整，无断链。
 
 ## Content
 
 - Source / Story / Entity 引用存在；
 - 不越界到 M02–M04；
-- disputed material 有 source scope。
+- disputed material 标明来源范围；
+- Mythic Object 必须对应正式 `objects.ts` 实体。
 
 ## Visual
 
-- 主体上移；
+- 第一眼先看到主体，而不是背景；
+- 背景复杂度明显低于主体；
+- 不出现“全画面每厘米都很精致”的 AI 堆料；
+- 保留自然的大形和绘画边缘；
 - 底部 30% 可牺牲；
-- 边缘裁切不损伤身份；
-- Character Canon 一致；
-- 无乱码、Logo、卡框、UI。
-
-## Replayability
-
-- Prompt 完整；
-- Reference 完整；
-- Generation attempt 可追踪；
-- rejected / superseded 有原因记录。
+- 无文字、Logo、卡框或乱码。
