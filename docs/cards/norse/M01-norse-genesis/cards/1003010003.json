@@ -1,61 +1,12 @@
 {
-  "schemaVersion":"4.0",
-  "cardId":1003010003,
-  "categoryCode":10,
-  "mythologyCode":3,
-  "seriesCode":1,
-  "seriesLabel":"M01",
-  "styleCode":0,
-  "styleName":"Primordial Saga",
-  "cardNumber":3,
-  "type":"character",
-  "slug":"buri",
-  "titleZh":"布里",
-  "titleEn":"Búri",
-  "cardDescription":{
-    "short":"从咸冰中显现的神族祖先",
-    "full":"布里并不是原初巨人，而是被奥德胡姆拉从咸冰中逐渐舔出的第一位神族祖先。他的意义不在于蛮荒压迫感，而在于‘神族起源’的庄严显现。",
-    "roleInSeries":"建立神族谱系的起点，连接原初生命供养关系与后续奥丁系神族的来源。"
-  },
-  "content":{
-    "storyIds":["story-audhumla-and-buri"],
-    "characterIds":["character-buri"],
-    "worldIds":["world-niflheim"],
-    "sceneIds":["scene-niflheim-edge","scene-ginnungagap"],
-    "objectIds":[],
-    "sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 6","note":"奥德胡姆拉舔食咸冰，布里逐日显现。"}]
-  },
-  "seriesNarrative":null,
-  "canon":{
-    "identityAnchors":["布里","神族祖先","从咸冰中显现","proto-divine ancestor"],
-    "mustKeep":["从咸冰中显现的状态","不是成熟神王","不是尤弥尔式巨人","庄重、安静、神圣、古老","主体位于安全区"],
-    "mustAvoid":["尤弥尔式巨物人体","冰霜巨人外观","长胡子蛮荒巨人形象","大面积火焰对冲特效","成熟大地、山川、森林、河流、城市、建筑","王座、宫殿、重甲、武器","奥德胡姆拉出现在画面中","头部贴边"]
-  },
-  "visual":{
-    "visualThesis":"布里应被表现为一位从带盐霜的原初寒冰中逐渐显现的祖先形象：身体并非完整站立在世界中，而像是从冰体深处被揭示出来。重点是面部、胸肩与显现边缘的神圣苏醒感，而不是体量压迫。视觉上应更接近‘神族起点的显现’而不是‘世界级原初巨人’。",
-    "mood":["solemn","sacred","primordial","restrained","ancestral"],
-    "palette":["冰白","灰蓝","盐霜银","极弱暖金反光"],
-    "materials":["盐冰","霜","寒雾","冰裂纹","石化般肌理"],
-    "detailHierarchy":"面部、眼神、胸肩和从冰中显现的边缘最高细节；冰层和躯干中等细节；背景只保留大形寒雾和冰体关系，绝不做满屏精致细节。",
-    "subjectSeparation":"主体通过更清晰的边缘、更高局部对比和更可读的人形轮廓，从模糊克制的寒雾冰层背景中分离出来。"
-  },
-  "composition":{
-    "orientation":"portrait",
-    "camera":"slightly low angle",
-    "shot":"half body emerging figure",
-    "subjectAnchor":{"x":0.5,"y":0.3},
-    "criticalIdentityZone":{"xMin":0.25,"xMax":0.75,"yMin":0.12,"yMax":0.52},
-    "cropSafe":{"sacrificialBottomStart":0.72,"sideCropTolerance":0.12,"mustRemainVisible":["布里面部","头部轮廓","胸肩显现区域","盐冰显现语境"]}
-  },
-  "prompt":{
-    "templateVersion":"m01-v4",
-    "draft":"Create a vertical 9:16 mythological wallpaper of Búri, the primordial ancestor in Norse creation. He must be the single dominant subject. IMPORTANT: do not depict him like Ymir. Búri is not a colossal frost giant and not a world-scale primordial brute. He is the first divine ancestor revealed from salt-rimed primeval ice. Show him as a solemn proto-divine humanlike figure emerging from massive pale salt-ice and frost, as if his upper body is gradually being uncovered from within the frozen substance itself. Focus on a half-body or chest-up emergence rather than a full giant standing figure. He should feel ancient, sacred, calm, and foundational. Do not include Auðumbla in the image. Do not show a throne, armor, weapons, palace, or mature civilization. IMPORTANT MYTHOLOGICAL STATE: the world is still not fully formed, so do not show mature mountains, rivers, forests, cities, architecture, farmland, or ordinary sky. The environment should remain a restrained primordial field of salt-ice, frost, cold mist, and only a very faint distant warm glow from the opposing fire-realm. Avoid dramatic left-right fire-versus-ice symmetry and avoid visual effects overload. Keep Búri's head, face, shoulders, and upper torso safely centered in the upper-middle area, clearly away from the edges for future crop safety. Make him visually distinct from Ymir through a more refined ancestral presence, quieter composition, less brute force, less monstrous anatomy, less giant scale, and the key motif of emergence from salt-ice. Use painterly mythic illustration, matte surfaces, broad readable shapes, restrained detail, natural imperfect edges, strong subject-background separation, and a clear hierarchy of focus. Highest detail on face and emergence edge; background soft and simple. No typography, no logo, no watermark, no card frame, no random glowing runes, no glossy game-CG finish, no hyper-detailed-everything, and no franchise-specific design.",
-    "final":null,
-    "negative":["typography","logo","watermark","card frame","Ymir-like giant","frost giant brute","huge full-body titan pose","monster anatomy","heavy beard barbarian look","throne","armor","weapon","palace","city","forest","river","mature mountains","ordinary blue sky","dramatic fire-ice split symmetry","glossy game-CG","hyper-detailed everything","Auðumbla in frame","head cropped by edge"],
-    "notes":"本次重写重点：彻底避免布里长得像尤弥尔。布里要像从咸冰中苏醒的祖先，不是第二个原初巨人。"
-  },
-  "references":{"cardIds":[1003010001,1003010002],"characterCanonIds":[],"notes":"仅参考系列气质，不继承尤弥尔的人体规模与构图方式。"},
-  "output":{"fileName":"1003010003.png","width":1620,"height":2880,"format":"png"},
-  "generation":{"status":"planned","model":"gpt-image","attempt":0,"previousRejectedAttempts":1,"generatedAt":null,"referenceImageFile":"1003010003.png","notes":"上一版因视觉上过于接近尤弥尔被 reject。本版为重写后的正式规划稿。"},
-  "qa":{"status":"planned","reviewNotes":["不能再像尤弥尔","必须体现从咸冰中显现","主体要上移并保留裁切安全区","不出现奥德胡姆拉","背景克制，不做冰火对称大特效","整体神话感要来自显现状态与祖先气质，而不是体量压迫"]}
+  "schemaVersion":"4.0","cardId":1003010003,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":3,"type":"character","slug":"buri","titleZh":"布里","titleEn":"Búri",
+  "description":"从奥德胡姆拉舔开的咸冰中逐日显现的第一位神族祖先。",
+  "fullDescription":"布里是北欧创世谱系中最早出现的神族祖先。《欺骗古鲁菲》第6章描述奥德胡姆拉舔食带盐的冰块：第一日显出头发，第二日显出头，第三日完整的人形显现出来，这就是布里。文本只明确他容貌俊美、身材伟岸且强壮，并未把他描述成霜巨人、神王、战士或老人。因此本卡的核心不是蛮荒巨物感，而是‘俊美伟岸的神族祖先从咸冰中被逐步揭示’。",
+  "roleInSeries":"建立神族谱系的起点，并把奥德胡姆拉的原初生命线连接到后续神族。","storyIds":["story-audhumla-and-buri"],"characterIds":["character-buri"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 6","note":"奥德胡姆拉舔食咸冰，布里逐日显现；文本强调其俊美、伟岸、强壮。"}],"seriesNarrative":null,
+  "visualThesis":"俊美、伟岸、强壮但不是巨人化的第一神族祖先，从乳白色咸冰中显现。人物已经清晰露出头、脸、肩胸与部分上身，下半身仍与冰体相连；神话感来自独特的诞生方式与祖先气质，而不是霜巨人皮肤、巨人尺度或冰火大特效。",
+  "canon":{"sourceBoundFacts":["从奥德胡姆拉舔食的咸冰中逐日显现","男性人形祖先","文本评价为俊美、伟岸、强壮"],"interpretationNotes":["发色、年龄、胡须、服饰均非来源明确事实；当前版采用浅色长发、壮年俊美外形属于艺术设计","‘神族祖先’气质通过构图与姿态表达，不等于来源存在王冠、王座或神装"],"worldState":"世界仍处于创世早期；不得出现成熟文明、宫殿、森林城市等后世环境。","identityAnchors":["俊美伟岸的人形祖先","从咸冰中显现","正常神祇肌肤而非霜巨人石化皮肤"],"mustKeep":["头脸与肩胸位于安全区","冰中显现是第一识别点","克制、庄重、安静"],"mustAvoid":["尤弥尔式世界级巨物","霜巨人/冰石皮肤","老人长须模板","王座、王冠、重甲、武器","冰火左右对称大特效","奥德胡姆拉入画"],"differentiation":{"fromCardIds":[1003010001,1003010002],"instructions":["相对尤弥尔：缩回正常神祇尺度、俊美人形、无蛮荒巨物感","相对奥德胡姆拉：保持人形祖先与冰中显现，不复用巨兽神圣感"]}},
+  "visual":{"mood":["solemn","sacred","ancestral","restrained"],"palette":["冰白","灰蓝","盐霜银","极弱暖金"],"materials":["盐冰","寒雾","自然皮肤","霜"],"detailHierarchy":"面部、发丝、肩胸与冰中显现边缘最高细节；冰体中等；背景低细节。","subjectSeparation":"人物肌肤与面部边缘应明显从冰体和寒雾中分离。"},
+  "composition":{"orientation":"portrait","camera":"slightly low angle","shot":"half-body emerging figure","subjectAnchor":{"x":0.5,"y":0.3},"criticalIdentityZone":{"xMin":0.25,"xMax":0.75,"yMin":0.12,"yMax":0.52},"cropSafe":{"sacrificialBottomStart":0.72,"sideCropTolerance":0.12,"mustRemainVisible":["Búri face","complete head silhouette","shoulders and chest","salt-ice emergence boundary"]}},
+  "prompt":{"draft":"Búri as a fair-featured, tall and strong first divine ancestor emerging from salt-rimed primordial ice; not a frost giant, not a king, not Ymir-like.","final":"Create a vertical 9:16 mythological wallpaper of Búri, the first divine ancestor in Norse creation. Depict him as a fair-featured, tall, strong, handsome adult male humanlike ancestor being revealed from massive pale salt-rimed primordial ice. The defining visual is emergence: his hair, face, shoulders and chest are already uncovered and alive, while the lower body still visually merges into the ice. He must NOT resemble Ymir: no world-scale titan proportions, no frost-giant brute anatomy, no stone-like giant skin, no huge hands reaching at the viewer, no savage old-man beard. Use normal but powerful divine-human proportions, calm ancestral dignity, clean facial structure, natural skin, and restrained pale hair. The world is still in an early creation state, so avoid mature civilization, palaces, cities, forests or ordinary pastoral scenery. The background should be mostly quiet salt-ice, frost and cold mist, with only a faint distant warm reflection; do not use a dramatic symmetric fire-versus-ice spectacle. Keep his entire head and shoulders safely centered with generous margins from all edges for future crop safety. Highest detail on face, hair and ice-emergence boundary; background simple and soft. Painterly mythic illustration, matte surfaces, broad readable shapes, restrained detail, natural imperfect edges, clear subject-background separation. No typography, logo, watermark, card frame, throne, crown, armor, weapon, random glowing runes, glossy game-CG finish or hyper-detailed-everything.","negative":["Ymir-like giant","frost giant","world-scale titan","old barbarian beard","stone giant skin","throne","crown","armor","weapon","Auðumbla in frame","fire-ice split spectacle","typography","logo","watermark","card frame","glossy game-CG","hyper-detailed background"],"notes":"用户已选择两张效果图中的第一张作为正式视觉方向。后续重画必须保持俊美伟岸的人形祖先 + 咸冰显现，不回退到尤弥尔式霜巨人模板。"},
+  "references":{"cardIds":[1003010001,1003010002],"notes":"只继承M01画风与世界阶段，不继承尤弥尔的巨物体量与外貌模板。"},"generation":{"status":"approved","attempt":1,"approvedAt":"2026-09-08","referenceImageFile":"1003010003.png","notes":"用户在两张重做效果图中选择第一张作为正式方向；更早的尤弥尔相似版本判定 rejected。"},"output":{"fileName":"1003010003.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"approved","reviewNotes":["已与尤弥尔明显区分","核心是咸冰显现而非巨物压迫","人物头肩处于裁切安全区","背景克制","俊美伟岸的人形祖先符合来源允许范围"]},"preGenerationChecks":["确认不是尤弥尔式霜巨人","确认来源明确事实与艺术设定已分离","确认头脸安全区","确认未加入王座、重甲、文明背景","确认prompt.final与本次实际生成提示词一致"]
 }
