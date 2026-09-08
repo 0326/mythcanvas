@@ -55,7 +55,7 @@ export const mythologies: Mythology[] = [
       materials: ['巨石', '冰晶', '铁'],
       atmosphere: ['苍茫', '寒冷', '史诗'],
     },
-    heroImage: { src: '/art/norse-asgard.jpg', alt: '阿斯加德:极光之下的世界树与巨石堡垒', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/norse/worlds/norse-asgard-final-v1.webp', alt: '阿斯加德:极光之下的世界树与巨石堡垒', width: 2560, height: 1440 },
   },
   {
     id: 'myth-japanese',
@@ -126,7 +126,7 @@ const baseWorlds: World[] = [
       anchors: ['世界巨树', '彩虹桥', '北境宫殿', '极光天空'],
       signatureMaterials: ['巨石', '铁', '冰晶'],
     },
-    heroImage: { src: '/art/norse-asgard.jpg', alt: '阿斯加德:巨石、金属与彩虹桥连接的北境神域', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/norse/worlds/norse-asgard-final-v1.webp', alt: '阿斯加德:巨石、金属与彩虹桥连接的北境神域', width: 2560, height: 1440 },
   },
   {
     id: 'world-takamagahara',
@@ -431,7 +431,7 @@ export const artworks: Artwork[] = [
     worldId: 'world-asgard',
     styleId: 'cinematic',
     moodIds: ['epic', 'cold'],
-    image: { src: '/art/art-asgard-aurora.jpg', alt: '极光下的阿斯加德:雪崖上的金色灯火殿堂', width: 720, height: 1280 },
+    image: { src: '/media/content/norse/worlds/norse-asgard-mobile-final-v1.webp', alt: '极光下的阿斯加德:雪崖上的金色灯火殿堂', width: 1440, height: 2560 },
     license: legacyOriginalLicense,
     reviewStatus: 'approved',
   },
@@ -504,7 +504,7 @@ const baseScenes: Scene[] = [
     nameEn: 'Roots of the World Tree',
     summary: '巨树根系贯穿九界，极光在北境夜空流动。',
     canonicalDesign: { anchors: ['世界树', '根系', '极光', '符文'] },
-    heroImage: { src: '/art/norse-asgard.jpg', alt: '极光之下的世界树与巨石堡垒', width: 1280, height: 720 },
+    heroImage: { src: '/media/content/norse/worlds/norse-asgard-final-v1.webp', alt: '极光之下的世界树与巨石堡垒', width: 2560, height: 1440 },
   },
   {
     id: 'scene-bamboo-moon',

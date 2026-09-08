@@ -11,6 +11,7 @@ interface Props {
   image?: string;
   siteName?: string;
   localizedIndexable?: boolean;
+  indexable?: boolean;
 }
 
 const {
@@ -19,6 +20,7 @@ const {
   image = '/media/content/mythology-civilizations-banner.webp',
   siteName = SITE_TITLE,
   localizedIndexable = false,
+  indexable = true,
 } = Astro.props;
 const locale = Astro.locals.locale ?? DEFAULT_LOCALE;
 const localeConfig = getLocaleConfig(locale);
@@ -26,6 +28,7 @@ const externalURL = new URL(Astro.url);
 externalURL.pathname = Astro.locals.externalPathname ?? Astro.originPathname ?? Astro.url.pathname;
 const { canonicalURL, robots } = getPageSeoPolicy(externalURL, Astro.site, {
   allowLocalizedIndex: localizedIndexable,
+  allowIndex: indexable,
 });
 const defaultLocaleURL = new URL(localizedPath(DEFAULT_LOCALE, Astro.locals.basePathname ?? Astro.url.pathname), Astro.site);
 const englishURL = new URL(localizedPath('en', Astro.locals.basePathname ?? Astro.url.pathname), Astro.site);

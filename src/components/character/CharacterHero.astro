@@ -1,5 +1,5 @@
 ---
-import type { Character, CharacterRelation, ImageAsset, Mythology } from '../../lib/content/types';
+import type { Character, CharacterRelation, ContentConcept, ImageAsset, Mythology } from '../../lib/content/types';
 import { ArrowLeft, ArrowRight, RotateCcw } from '@lucide/astro';
 import { cloudflareImageUrl, shouldUseCloudflareImageTransformations } from '../../lib/media/cloudflare-images';
 import { getRelationLabel } from '../../lib/content/relation-semantics';
@@ -11,16 +11,19 @@ interface Props {
   createHref: string;
   relations?: readonly CharacterRelation[];
   characters?: readonly Character[];
+  relationConcepts?: readonly ContentConcept[];
   interpretationId?: string;
 }
 
-const { character, mythology, heroImage, createHref, relations = [], characters = [], interpretationId = '' } = Astro.props;
+const { character, mythology, heroImage, createHref, relations = [], characters = [], relationConcepts = [], interpretationId = '' } = Astro.props;
 const characterById = new Map(characters.map((item) => [item.id, item]));
+const conceptById = new Map(relationConcepts.map((item) => [item.id, item]));
 const textualRelations = relations.flatMap((relation) => {
   const outgoing = relation.fromCharacterId === character.id;
   const counterpartId = outgoing ? relation.toCharacterId ?? relation.toConceptId : relation.fromCharacterId;
   const counterpart = characterById.get(counterpartId ?? '');
-  return counterpart ? [{ relation, counterpart, label: getRelationLabel(relation.relationType, outgoing ? 'from' : 'to') }] : [];
+  const concept = conceptById.get(counterpartId ?? '');
+  return counterpart || concept ? [{ relation, counterpart, concept, label: getRelationLabel(relation.relationType, outgoing ? 'from' : 'to') }] : [];
 });
 const useImageTransformations = shouldUseCloudflareImageTransformations(Astro.url, Astro.site);
 const heroImageSrc = cloudflareImageUrl(
@@ -104,10 +107,11 @@ const heroImageSrc = cloudflareImageUrl(
       <details>
         <summary id="character-relations-fallback-title">文字关系 · {character.name}的神谱</summary>
         <div class="fallback-relation-list">
-          {textualRelations.map(({ relation, counterpart, label }) => (
+          {textualRelations.map(({ relation, counterpart, concept, label }) => (
             <article class="fallback-relation-item">
               <span>{label}</span>
-              <a href={`/character/${counterpart.slug}/`}>{counterpart.name}</a>
+              {counterpart ? <a href={`/character/${counterpart.slug}/`}>{counterpart.name}</a> : <strong class="fallback-concept">{concept?.name}</strong>}
+              {concept?.summary && <p class="fallback-concept-summary">{concept.summary}</p>}
               <small>{relation.traditionScope ?? '跨传统稳定关系'} · {relation.sourceRefs.map((ref) => `${ref.title}${ref.locator ? ` · ${ref.locator}` : ''}`).join('；')}</small>
             </article>
           ))}
@@ -283,6 +287,27 @@ const heroImageSrc = cloudflareImageUrl(
     height: 100%;
     outline: none;
   }
+  .character-graph-stage[data-webgl-context-lost='true'] :global(canvas) {
+    opacity: 0.18;
+  }
+  .character-graph-stage[data-webgl-context-lost='true']::after {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: min(30rem, calc(100% - 2rem));
+    padding: 0.8rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--border-strong) 76%, transparent);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    background: color-mix(in srgb, var(--surface) 86%, transparent);
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(12px);
+    content: '图形关系暂时中断，文字关系仍可阅读。';
+    font-size: 0.82rem;
+    line-height: 1.6;
+    pointer-events: none;
+    text-align: center;
+    transform: translate(-50%, -50%);
+  }
   .character-graph-toolbar,
   .character-graph-meta {
     position: relative;
@@ -424,7 +449,9 @@ const heroImageSrc = cloudflareImageUrl(
   .fallback-relation-list { display: grid; gap: .55rem; margin-top: .75rem; }
   .fallback-relation-item { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: .25rem .8rem; padding: .7rem .8rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
   .fallback-relation-item > span { color: var(--accent-strong); font-size: .72rem; font-weight: 700; }
-  .fallback-relation-item a { color: var(--text-primary); font-weight: 700; }
+  .fallback-relation-item a,
+  .fallback-relation-item .fallback-concept { color: var(--text-primary); font-weight: 700; }
+  .fallback-relation-item .fallback-concept-summary { grid-column: 2; margin: 0; color: var(--text-secondary); font-size: .72rem; line-height: 1.5; }
   .fallback-relation-item small { grid-column: 2; color: var(--text-muted); font-size: .68rem; line-height: 1.5; }
 
   @media (max-width: 1240px) {
@@ -478,12 +505,76 @@ const heroImageSrc = cloudflareImageUrl(
     let selectedScope = '';
     let requestVersion = 0;
     let activeDepth = 1;
+    let disposed = false;
     let resizeObserver: ResizeObserver | undefined;
     let visibilityObserver: IntersectionObserver | undefined;
     let themeObserver: MutationObserver | undefined;
     let abortController: AbortController | undefined;
     const endpointId = (endpoint: any) => typeof endpoint === 'object' && endpoint ? endpoint.id : endpoint;
     const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const loopbackHost = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+    const diagnosticsEnabled = loopbackHost && new URLSearchParams(window.location.search).get('graphDiagnostics') === '1';
+    // Diagnostic-only failure injection for local browser acceptance. It is
+    // deliberately limited to loopback hosts so production URLs cannot expose
+    // a user-facing failure switch.
+    const simulateWebGLFailure = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+      && new URLSearchParams(window.location.search).get('graphFailure') === 'webgl';
+    const simulateWebGLUnavailable = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+      && new URLSearchParams(window.location.search).get('graphFailure') === 'webgl-unavailable';
+    let activeListenerCount = 0;
+    let activeGraphCount = 0;
+    let peakGraphCount = 0;
+    let openCount = 0;
+    let lastRendererMemory: { geometries: number; textures: number } | null = null;
+    let webglAvailable: boolean | null = null;
+    let webglVersion: string | null = null;
+    let webglMaxTextureSize: number | null = null;
+    let webglContextLost = false;
+    let webglContextLostCount = 0;
+    let webglContextRestoredCount = 0;
+    const graphListenerDisposers: Array<() => void> = [];
+    const listenerDisposers: Array<() => void> = [];
+    const readRendererMemory = (renderer: any) => {
+      const memory = renderer?.info?.memory;
+      if (!memory) return null;
+      return { geometries: Number(memory.geometries ?? 0), textures: Number(memory.textures ?? 0) };
+    };
+    const publishDiagnostics = (event: string) => {
+      if (!diagnosticsEnabled) return;
+      hero.dataset.graphDiagnostics = JSON.stringify({
+        event,
+        openCount,
+        activeGraphCount,
+        peakGraphCount,
+        activeListenerCount,
+        canvasCount: stage.querySelectorAll('canvas').length,
+        lastRendererMemory,
+        webglAvailable,
+        webglVersion,
+        webglMaxTextureSize,
+        webglContextLost,
+        webglContextLostCount,
+        webglContextRestoredCount,
+      });
+    };
+    const listen = (target: EventTarget, type: string, handler: any, options?: boolean | AddEventListenerOptions) => {
+      target.addEventListener(type, handler, options);
+      activeListenerCount += 1;
+      let active = true;
+      const dispose = () => {
+        if (!active) return;
+        active = false;
+        target.removeEventListener(type, handler, options);
+        activeListenerCount = Math.max(0, activeListenerCount - 1);
+      };
+      listenerDisposers.push(dispose);
+      publishDiagnostics('listener-added');
+      return dispose;
+    };
+
+    const clearGraphListeners = () => {
+      graphListenerDisposers.splice(0).forEach((dispose) => dispose());
+    };
 
     const setStatus = (message = '') => { status.textContent = message; };
     const themeColor = (token: string, fallback: string) => getComputedStyle(document.documentElement).getPropertyValue(token).trim() || fallback;
@@ -558,6 +649,34 @@ const heroImageSrc = cloudflareImageUrl(
       return group;
     };
 
+    // Probe before loading the graph engine. A device with WebGL disabled
+    // should receive the SSR/text relationship fallback without paying the
+    // cost of importing or partially constructing the 3D renderer.
+    const probeWebGL = () => {
+      if (simulateWebGLUnavailable) {
+        webglAvailable = false;
+        webglVersion = null;
+        webglMaxTextureSize = null;
+        publishDiagnostics('webgl-unavailable');
+        return false;
+      }
+      try {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('webgl2')
+          || canvas.getContext('webgl')
+          || canvas.getContext('experimental-webgl');
+        webglAvailable = Boolean(context);
+        webglVersion = context ? String(context.getParameter(context.VERSION) || '') : null;
+        webglMaxTextureSize = context ? Number(context.getParameter(context.MAX_TEXTURE_SIZE) || 0) : null;
+      } catch {
+        webglAvailable = false;
+        webglVersion = null;
+        webglMaxTextureSize = null;
+      }
+      publishDiagnostics(webglAvailable ? 'webgl-available' : 'webgl-unavailable');
+      return webglAvailable;
+    };
+
     const focusNode = (nodeId: string) => {
       const node = activeData?.nodes.find((item: any) => item.id === nodeId);
       if (!node || !graph) return;
@@ -589,9 +708,54 @@ const heroImageSrc = cloudflareImageUrl(
     const disposeGraph = () => {
       resizeObserver?.disconnect();
       resizeObserver = undefined;
+      clearGraphListeners();
+      const scene = graph?.scene?.();
+      const renderer = graph?.renderer?.();
+      lastRendererMemory = readRendererMemory(renderer);
+      scene?.traverse?.((object: any) => {
+        object.geometry?.dispose?.();
+        const materials = Array.isArray(object.material) ? object.material : object.material ? [object.material] : [];
+        materials.forEach((material: any) => {
+          ['map', 'alphaMap', 'aoMap', 'bumpMap', 'displacementMap', 'emissiveMap', 'metalnessMap', 'normalMap', 'roughnessMap'].forEach((key) => material[key]?.dispose?.());
+          material.dispose?.();
+        });
+      });
       graph?._destructor?.();
+      renderer?.dispose?.();
       graph = undefined;
       stage.replaceChildren();
+      stage.dataset.webglContextLost = 'false';
+      webglContextLost = false;
+      activeGraphCount = 0;
+      publishDiagnostics('graph-disposed');
+    };
+
+    const bindWebGLContextEvents = () => {
+      const canvas = graph?.renderer?.()?.domElement as HTMLCanvasElement | undefined;
+      if (!canvas) return;
+      graphListenerDisposers.push(listen(canvas, 'webglcontextlost', (event: Event) => {
+        event.preventDefault();
+        webglContextLost = true;
+        webglContextLostCount += 1;
+        stage.dataset.webglContextLost = 'true';
+        graph?.pauseAnimation?.();
+        detail.replaceChildren();
+        const fallback = document.createElement('p');
+        fallback.textContent = '图形上下文已中断；下方文字关系仍可阅读，正在等待设备恢复。';
+        detail.append(fallback);
+        setStatus('图形上下文已中断，正在等待设备恢复。');
+        publishDiagnostics('webgl-context-lost');
+      }));
+      graphListenerDisposers.push(listen(canvas, 'webglcontextrestored', () => {
+        webglContextLost = false;
+        webglContextRestoredCount += 1;
+        stage.dataset.webglContextLost = 'false';
+        publishDiagnostics('webgl-context-restored');
+        if (disposed || !hero.classList.contains('is-graph-open') || !activeData) return;
+        setStatus('图形上下文已恢复，正在重新加载神谱…');
+        disposeGraph();
+        loadGraph(selectedScope, activeDepth);
+      }));
     };
 
     const renderScopes = () => {
@@ -623,14 +787,22 @@ const heroImageSrc = cloudflareImageUrl(
     };
 
     const drawGraph = async () => {
+      if (!probeWebGL()) throw new Error('WebGL unavailable');
       const [{ default: ForceGraph3D }, three] = await Promise.all([import('3d-force-graph'), import('three')]);
+      if (disposed || !hero.classList.contains('is-graph-open')) return;
       THREE = three;
       disposeGraph();
       const graphData = {
         nodes: activeData.nodes.map((node: any) => ({ ...node })),
         links: activeData.links.map((link: any) => ({ ...link })),
       };
-      graph = ForceGraph3D()(stage)
+      graph = ForceGraph3D()(stage);
+      activeGraphCount = 1;
+      peakGraphCount = Math.max(peakGraphCount, activeGraphCount);
+      publishDiagnostics('graph-created');
+      bindWebGLContextEvents();
+      if (simulateWebGLFailure) throw new Error('Simulated WebGL initialization failure');
+      graph
         .backgroundColor('rgba(0,0,0,0)')
         .showNavInfo(false)
         .graphData(graphData)
@@ -671,12 +843,16 @@ const heroImageSrc = cloudflareImageUrl(
       });
       resizeObserver.observe(stage);
       window.setTimeout(() => {
-        graph?.zoomToFit(reducedMotion() ? 0 : 500, 95, (node: any) => node.id === activeData.focusId || activeData.links.some((link: any) => endpointId(link.source) === node.id || endpointId(link.target) === node.id));
+        if (!graph || disposed) return;
+        graph.zoomToFit(reducedMotion() ? 0 : 500, 95, (node: any) => node.id === activeData.focusId || activeData.links.some((link: any) => endpointId(link.source) === node.id || endpointId(link.target) === node.id));
         focusNode(activeData.focusId);
+        lastRendererMemory = readRendererMemory(graph.renderer?.());
+        publishDiagnostics('graph-ready');
       }, 80);
     };
 
     const loadGraph = async (scope = selectedScope, depth = activeDepth) => {
+      if (disposed) return;
       const version = ++requestVersion;
       selectedScope = scope;
       activeDepth = depth;
@@ -701,21 +877,32 @@ const heroImageSrc = cloudflareImageUrl(
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') return;
         if (version !== requestVersion) return;
+        // Fetch and WebGL initialization failures can happen after a partial
+        // graph instance has already been attached. Always tear that instance
+        // down before exposing the SSR text fallback so a retry starts clean.
+        disposeGraph();
         detail.replaceChildren();
         const fallback = document.createElement('p');
-        fallback.textContent = '神谱暂时无法载入；下方文字关系仍可阅读。';
+        fallback.textContent = webglAvailable === false
+          ? '当前设备未启用 WebGL；下方文字关系仍可阅读。'
+          : '神谱暂时无法载入；下方文字关系仍可阅读。';
         detail.append(fallback);
         setStatus('神谱暂时无法载入，请稍后重试。');
       }
     };
 
     const openGraph = () => {
+      if (disposed) return;
+      openCount += 1;
       hero.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
       hero.classList.add('is-graph-open');
       layer.hidden = false;
       layer.inert = false;
       if (intro) intro.inert = true;
       openButton.setAttribute('aria-expanded', 'true');
+      window.requestAnimationFrame(() => {
+        if (!disposed && hero.classList.contains('is-graph-open')) backButton.focus();
+      });
       loadGraph();
     };
     const closeGraph = () => {
@@ -735,24 +922,41 @@ const heroImageSrc = cloudflareImageUrl(
       openButton.focus();
     };
 
-    openButton.addEventListener('click', openGraph);
-    backButton.addEventListener('click', closeGraph);
-    resetButton.addEventListener('click', () => focusNode(activeData?.focusId));
-    document.addEventListener('keydown', (event) => {
+    const onReset = () => focusNode(activeData?.focusId);
+    const onKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && hero.classList.contains('is-graph-open')) closeGraph();
-    });
-    document.addEventListener('visibilitychange', () => {
+    };
+    const onVisibilityChange = () => {
       if (!graph) return;
       if (document.hidden) graph.pauseAnimation?.(); else graph.resumeAnimation?.();
-    });
+    };
+    const onThemeChange = () => {
+      if (graph && activeData && !disposed) drawGraph().catch(() => setStatus('神谱主题刷新失败。'));
+    };
+    listen(openButton, 'click', openGraph);
+    listen(backButton, 'click', closeGraph);
+    listen(resetButton, 'click', onReset);
+    listen(document, 'keydown', onKeydown);
+    listen(document, 'visibilitychange', onVisibilityChange);
     visibilityObserver = new IntersectionObserver(([entry]) => {
       if (!graph) return;
       if (!entry.isIntersecting) graph.pauseAnimation?.(); else if (!document.hidden) graph.resumeAnimation?.();
     }, { threshold: 0.05 });
     visibilityObserver.observe(hero);
-    themeObserver = new MutationObserver(() => {
-      if (graph && activeData) drawGraph().catch(() => setStatus('神谱主题刷新失败。'));
-    });
+    themeObserver = new MutationObserver(onThemeChange);
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
+    const cleanup = () => {
+      if (disposed) return;
+      disposed = true;
+      requestVersion += 1;
+      abortController?.abort();
+      visibilityObserver?.disconnect();
+      themeObserver?.disconnect();
+      listenerDisposers.splice(0).forEach((dispose) => dispose());
+      disposeGraph();
+      publishDiagnostics('hero-cleanup');
+    };
+    listen(document, 'astro:before-swap', cleanup, { once: true });
+    publishDiagnostics('ready');
   });
 </script>

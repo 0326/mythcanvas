@@ -29,7 +29,7 @@ describe('MythStory editorial content', () => {
     expect(greekStories).toHaveLength(35);
     expect(greekStories.every((story) => story.requiredCharacterIds && story.requiredSourceIds)).toBe(true);
     const norseStories = mythStories.filter((story) => story.mythologyId === 'myth-norse');
-    expect(norseStories).toHaveLength(73);
+    expect(norseStories).toHaveLength(74);
     expect(norseStories.every((story) => story.requiredCharacterIds && story.requiredWorldIds && story.requiredSceneIds && story.requiredSourceIds)).toBe(true);
     expect(japaneseStories.length).toBeGreaterThanOrEqual(29);
   });

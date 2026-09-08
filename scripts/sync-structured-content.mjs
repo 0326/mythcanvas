@@ -97,6 +97,16 @@ function loadTsModule(relativePath, optional = false) {
 
 function buildSqlForBundle({ characters, worlds, scenes, relations, contentRelations = [], objects = [], taxonomy, stories, mythology, concepts = [], claims = [], names = [], interpretations = [], sources = [] }) {
   const statements = ['PRAGMA foreign_keys = ON;'];
+  const managedCharacterIds = characters.map((item) => item.id);
+  const managedRelationIds = relations.map((item) => item.id);
+  if (managedCharacterIds.length > 0) {
+    const characterScope = managedCharacterIds.map(q).join(',');
+    const keepRelations = managedRelationIds.length > 0 ? ` AND id NOT IN (${managedRelationIds.map(q).join(',')})` : '';
+    // Structured content is the canonical source. Remove relations that were
+    // previously mirrored for this Character scope but no longer exist in the
+    // current package, so D1 cannot retain graph facts deleted from static data.
+    statements.push(`DELETE FROM character_relations WHERE (from_character_id IN (${characterScope}) OR to_character_id IN (${characterScope}))${keepRelations};`);
+  }
   statements.push(`UPDATE mythologies SET hero_src=${q(mythology.heroImage.src)}, hero_alt=${q(mythology.heroImage.alt)}, hero_width=${mythology.heroImage.width}, hero_height=${mythology.heroImage.height}, home_hero_light_src=${nullable(mythology.homeHero?.lightSrc)}, home_hero_dark_src=${nullable(mythology.homeHero?.darkSrc)}, home_hero_focal_x=${mythology.homeHero?.focalPoint?.x ?? 0.5}, home_hero_focal_y=${mythology.homeHero?.focalPoint?.y ?? 0.5}, updated_at=CURRENT_TIMESTAMP WHERE id=${q(mythology.id)};`);
 
   for (const item of worlds) statements.push(`INSERT INTO worlds (id, mythology_id, slug, name, name_en, summary, canonical_design_json, hero_src, hero_alt, hero_width, hero_height, publish_status) VALUES (${q(item.id)}, ${q(item.mythologyId)}, ${q(item.slug)}, ${q(item.name)}, ${q(item.nameEn)}, ${q(item.summary)}, ${json(item.canonicalDesign)}, ${q(item.heroImage.src)}, ${q(item.heroImage.alt)}, ${item.heroImage.width}, ${item.heroImage.height}, 'published') ON CONFLICT(id) DO UPDATE SET mythology_id=excluded.mythology_id, slug=excluded.slug, name=excluded.name, name_en=excluded.name_en, summary=excluded.summary, canonical_design_json=excluded.canonical_design_json, hero_src=excluded.hero_src, hero_alt=excluded.hero_alt, hero_width=excluded.hero_width, hero_height=excluded.hero_height, publish_status='published', updated_at=CURRENT_TIMESTAMP;`);
@@ -145,8 +155,26 @@ function buildSqlForBundle({ characters, worlds, scenes, relations, contentRelat
   for (const name of names) for (const item of name.sourceRefs ?? []) collectSource(item);
   for (const interpretation of interpretations) for (const item of interpretation.sourceRefs ?? []) collectSource(item);
   for (const claim of claims) for (const item of claim.sourceRefs ?? []) collectSource(item);
+  const allClaims = [...claims, ...stories.flatMap((story) => story.claims ?? [])];
+  const managedSourceIds = [...sourceById.keys()];
+  const managedClaimIds = [...new Set(allClaims.map((claim) => claim.id))];
+  // Content sources and claims are a canonical mirror for this mythology.
+  // Remove their old join rows first, then stale claims and sources, so a
+  // repeat import cannot leave deleted evidence visible in D1. The scope is
+  // limited to the current mythology and never touches user-owned tables.
+  statements.push(`DELETE FROM content_claim_sources WHERE claim_id IN (SELECT id FROM content_claims WHERE mythology_id=${q(mythology.id)});`);
+  if (managedClaimIds.length > 0) {
+    statements.push(`DELETE FROM content_claims WHERE mythology_id=${q(mythology.id)} AND id NOT IN (${managedClaimIds.map(q).join(',')});`);
+  } else {
+    statements.push(`DELETE FROM content_claims WHERE mythology_id=${q(mythology.id)};`);
+  }
+  if (managedSourceIds.length > 0) {
+    statements.push(`DELETE FROM content_sources WHERE mythology_id=${q(mythology.id)} AND id NOT IN (${managedSourceIds.map(q).join(',')}) AND NOT EXISTS (SELECT 1 FROM content_claim_sources AS refs WHERE refs.source_id=content_sources.id);`);
+  } else {
+    statements.push(`DELETE FROM content_sources WHERE mythology_id=${q(mythology.id)} AND NOT EXISTS (SELECT 1 FROM content_claim_sources AS refs WHERE refs.source_id=content_sources.id);`);
+  }
   for (const [id, item] of sourceById) statements.push(`INSERT INTO content_sources (id, mythology_id, title, author, source_type, tradition, period, language, edition, url, license_note, source_family, evidence_roles_json, manuscript_context, region, status) VALUES (${q(id)}, ${q(mythology.id)}, ${q(item.title)}, ${nullable(item.author)}, ${q(item.type ?? item.sourceType)}, ${nullable(item.tradition)}, ${nullable(item.period)}, ${nullable(item.language)}, ${nullable(item.edition ?? item.translation)}, ${nullable(item.url)}, ${q(item.licenseNote ?? '')}, ${nullable(item.sourceFamily)}, ${json(item.evidenceRoles ?? [])}, ${nullable(item.manuscriptContext)}, ${nullable(item.region)}, 'active') ON CONFLICT(id) DO UPDATE SET mythology_id=excluded.mythology_id, title=excluded.title, author=excluded.author, source_type=excluded.source_type, tradition=excluded.tradition, period=excluded.period, language=excluded.language, edition=excluded.edition, url=excluded.url, license_note=excluded.license_note, source_family=excluded.source_family, evidence_roles_json=excluded.evidence_roles_json, manuscript_context=excluded.manuscript_context, region=excluded.region, status='active', updated_at=CURRENT_TIMESTAMP;`);
-  for (const claim of [...claims, ...stories.flatMap((story) => story.claims ?? [])]) {
+  for (const claim of allClaims) {
     statements.push(`INSERT INTO content_claims (id, mythology_id, subject_type, subject_id, claim_type, summary, claim_status, tradition_scope, publish_status) VALUES (${q(claim.id)}, ${q(mythology.id)}, ${q(claim.subjectType)}, ${q(claim.subjectId)}, ${q(claim.claimType)}, ${q(claim.summary)}, ${q(claim.status)}, ${q(claim.traditionScope ?? '')}, 'published') ON CONFLICT(id) DO UPDATE SET mythology_id=excluded.mythology_id, summary=excluded.summary, claim_status=excluded.claim_status, tradition_scope=excluded.tradition_scope, publish_status='published', updated_at=CURRENT_TIMESTAMP;`);
     for (const ref of claim.sourceRefs) if (ref.sourceId) statements.push(`INSERT OR IGNORE INTO content_claim_sources (claim_id, source_id, locator, note) VALUES (${q(claim.id)}, ${q(ref.sourceId)}, ${q(ref.locator ?? ref.section ?? '全文')}, ${q(ref.note ?? '')});`);
   }

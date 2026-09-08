@@ -1,8 +1,9 @@
-import type { ContentSource } from '../../lib/content/types';
+import type { ContentSource, ReviewActorType } from '../../lib/content/types';
 import { norseStoryManifest, type NorsePriority } from './story-manifest';
 import { norseSources } from './sources';
 
 export type NorseCoverageStatus = 'covered' | 'partial' | 'context-only' | 'excluded-with-reason' | 'unreviewed';
+export type NorseCoverageReviewKind = 'scope-mapped' | 'human-audited';
 
 export type NorseSourceCoverage = {
   sourceId: string;
@@ -11,6 +12,9 @@ export type NorseSourceCoverage = {
   storyManifestIds: readonly string[];
   supportingClaimIds: readonly string[];
   exclusionReason?: string;
+  /** Scope mapping is not a claim that every mapped Story has passed editorial review. */
+  reviewKind: NorseCoverageReviewKind;
+  reviewerType: ReviewActorType;
   reviewer: string;
   reviewedAt: string;
   note: string;
@@ -51,9 +55,10 @@ export const norseSourceCoverage: readonly NorseSourceCoverage[] = norseSources.
     storyManifestIds: manifestIds,
     supportingClaimIds: [],
     exclusionReason: contextReason ? undefined : manifestIds.length > 0 ? undefined : 'Registered for source completeness; no standalone Story is planned in the frozen Phase-2 scope.',
+    reviewKind: 'scope-mapped',
+    reviewerType: 'automated',
     reviewer: 'mythcanvas-editorial-baseline',
     reviewedAt: '2026-09-06',
     note: contextReason ?? 'Mapped to the Phase-2 Story Manifest; detailed Story prose and entity closure occur in later phases.',
   };
 });
-

@@ -1,0 +1,346 @@
+{
+  "generatedAt": "2026-09-06T23:37:07.391Z",
+  "mode": "full",
+  "target": "local",
+  "database": "mythcanvas-db",
+  "mythologyId": "myth-norse",
+  "appliedMigrations": [
+    {
+      "id": 1,
+      "name": "0001_initial.sql",
+      "appliedAt": "2026-08-23 06:52:53"
+    },
+    {
+      "id": 2,
+      "name": "0002_seed_core.sql",
+      "appliedAt": "2026-08-23 06:52:54"
+    },
+    {
+      "id": 3,
+      "name": "0003_artworks_scenes.sql",
+      "appliedAt": "2026-08-23 06:52:54"
+    },
+    {
+      "id": 4,
+      "name": "0004_r2_content.sql",
+      "appliedAt": "2026-08-23 06:52:54"
+    },
+    {
+      "id": 5,
+      "name": "0005_user_features.sql",
+      "appliedAt": "2026-08-23 06:52:54"
+    },
+    {
+      "id": 6,
+      "name": "0006_review_workflow.sql",
+      "appliedAt": "2026-08-23 06:52:54"
+    },
+    {
+      "id": 7,
+      "name": "0007_user_data.sql",
+      "appliedAt": "2026-08-23 06:52:54"
+    },
+    {
+      "id": 8,
+      "name": "0008_analytics.sql",
+      "appliedAt": "2026-08-23 06:52:54"
+    },
+    {
+      "id": 9,
+      "name": "0009_character_style_generation.sql",
+      "appliedAt": "2026-08-23 14:03:43"
+    },
+    {
+      "id": 10,
+      "name": "0010_character_variants_seed.sql",
+      "appliedAt": "2026-08-23 14:03:43"
+    },
+    {
+      "id": 11,
+      "name": "0011_accounts.sql",
+      "appliedAt": "2026-08-23 14:25:28"
+    },
+    {
+      "id": 12,
+      "name": "0012_auth_password.sql",
+      "appliedAt": "2026-08-23 17:16:37"
+    },
+    {
+      "id": 13,
+      "name": "0013_worlds.sql",
+      "appliedAt": "2026-08-23 17:48:13"
+    },
+    {
+      "id": 14,
+      "name": "0014_world_semantics.sql",
+      "appliedAt": "2026-08-23 18:08:32"
+    },
+    {
+      "id": 15,
+      "name": "0015_world_id_normalization.sql",
+      "appliedAt": "2026-08-23 18:20:38"
+    },
+    {
+      "id": 16,
+      "name": "0016_home_mythology_selector.sql",
+      "appliedAt": "2026-08-25 17:48:22"
+    },
+    {
+      "id": 17,
+      "name": "0017_home_hero_focal_point.sql",
+      "appliedAt": "2026-08-25 17:48:22"
+    },
+    {
+      "id": 18,
+      "name": "0018_home_hero_assets.sql",
+      "appliedAt": "2026-08-25 17:48:22"
+    },
+    {
+      "id": 19,
+      "name": "0019_popular_mythology_characters.sql",
+      "appliedAt": "2026-08-25 18:30:47"
+    },
+    {
+      "id": 20,
+      "name": "0020_character_interpretations.sql",
+      "appliedAt": "2026-08-25 18:30:47"
+    },
+    {
+      "id": 21,
+      "name": "0021_erlang_shen_interpretations_seed.sql",
+      "appliedAt": "2026-08-26 16:22:03"
+    },
+    {
+      "id": 22,
+      "name": "0020_greek_character_canonical_designs.sql",
+      "appliedAt": "2026-08-26 19:00:28"
+    },
+    {
+      "id": 23,
+      "name": "0021_norse_character_canonical_designs.sql",
+      "appliedAt": "2026-08-26 19:00:28"
+    },
+    {
+      "id": 24,
+      "name": "0022_egyptian_character_canonical_designs.sql",
+      "appliedAt": "2026-08-26 19:00:29"
+    },
+    {
+      "id": 25,
+      "name": "0023_japanese_character_canonical_designs.sql",
+      "appliedAt": "2026-08-26 19:00:29"
+    },
+    {
+      "id": 26,
+      "name": "0024_indian_character_canonical_designs.sql",
+      "appliedAt": "2026-08-26 19:00:29"
+    },
+    {
+      "id": 27,
+      "name": "0025_celtic_character_canonical_designs.sql",
+      "appliedAt": "2026-08-26 19:00:29"
+    },
+    {
+      "id": 28,
+      "name": "0026_maya_character_canonical_designs.sql",
+      "appliedAt": "2026-08-26 19:00:29"
+    },
+    {
+      "id": 29,
+      "name": "0027_aztec_character_canonical_designs.sql",
+      "appliedAt": "2026-08-26 19:00:29"
+    },
+    {
+      "id": 30,
+      "name": "0028_mesopotamian_character_canonical_designs.sql",
+      "appliedAt": "2026-08-26 19:00:29"
+    },
+    {
+      "id": 31,
+      "name": "0029_artemis_character_creation.sql",
+      "appliedAt": "2026-08-27 16:38:00"
+    },
+    {
+      "id": 32,
+      "name": "0030_character_click_count.sql",
+      "appliedAt": "2026-08-27 16:38:00"
+    },
+    {
+      "id": 33,
+      "name": "0031_artwork_view_count.sql",
+      "appliedAt": "2026-08-30 13:22:23"
+    },
+    {
+      "id": 34,
+      "name": "0032_greek_content_graph.sql",
+      "appliedAt": "2026-08-30 13:22:23"
+    },
+    {
+      "id": 35,
+      "name": "0033_character_relation_narrative_types.sql",
+      "appliedAt": "2026-08-30 14:13:54"
+    },
+    {
+      "id": 36,
+      "name": "0034_greek_production_asset_paths.sql",
+      "appliedAt": "2026-08-30 19:26:19"
+    },
+    {
+      "id": 37,
+      "name": "0035_public_artwork_provenance_completion.sql",
+      "appliedAt": "2026-08-30 19:36:57"
+    },
+    {
+      "id": 38,
+      "name": "0036_character_relation_narrative_relation_type.sql",
+      "appliedAt": "2026-08-31 20:16:16"
+    },
+    {
+      "id": 39,
+      "name": "0037_i18n_translations.sql",
+      "appliedAt": "2026-09-05 16:09:13"
+    },
+    {
+      "id": 40,
+      "name": "0038_english_core_content.sql",
+      "appliedAt": "2026-09-05 16:09:13"
+    },
+    {
+      "id": 41,
+      "name": "0039_structured_content_objects_and_sources.sql",
+      "appliedAt": "2026-09-06 00:26:53"
+    },
+    {
+      "id": 42,
+      "name": "0040_taxonomy_semantic_kind.sql",
+      "appliedAt": "2026-09-06 00:33:48"
+    },
+    {
+      "id": 43,
+      "name": "0041_character_relation_pursues_type.sql",
+      "appliedAt": "2026-09-06 06:55:15"
+    }
+  ],
+  "pendingMigrations": [],
+  "schema": {
+    "requiredTables": {
+      "mythic_objects": true,
+      "content_relations": true
+    },
+    "requiredColumns": {
+      "content_sources": {
+        "exists": true,
+        "missing": []
+      },
+      "taxonomy_terms": {
+        "exists": true,
+        "missing": []
+      }
+    },
+    "hasPursuesRelationType": true
+  },
+  "counts": {
+    "remote": {
+      "characters": 92,
+      "worlds": 8,
+      "scenes": 15,
+      "mythicObjects": 18,
+      "contentRelations": 7,
+      "sources": 45,
+      "concepts": 0,
+      "characterNames": 7,
+      "characterInterpretations": 4,
+      "contentClaims": 84,
+      "characterRelations": 58
+    },
+    "expected": {
+      "characters": 92,
+      "worlds": 8,
+      "scenes": 15,
+      "mythicObjects": 18,
+      "contentRelations": 7,
+      "sources": 45,
+      "concepts": 0,
+      "characterNames": 7,
+      "characterInterpretations": 4,
+      "contentClaims": 84,
+      "characterRelations": 58
+    }
+  },
+  "idDiffs": {
+    "characters": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "worlds": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "scenes": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "mythicObjects": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "contentRelations": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "sources": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "concepts": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "characterNames": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "characterInterpretations": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "contentClaims": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    },
+    "characterRelations": {
+      "missing": [],
+      "extra": [],
+      "missingCount": 0,
+      "extraCount": 0
+    }
+  },
+  "relationEndpointIssues": {
+    "characterRelations": [],
+    "contentRelations": []
+  },
+  "schemaIssues": [],
+  "countIssues": [],
+  "issues": [],
+  "ready": true
+}

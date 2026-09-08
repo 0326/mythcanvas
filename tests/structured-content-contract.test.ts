@@ -29,4 +29,41 @@ describe('structured mythology content contract', () => {
       }
     }
   });
+
+  it('requires a tradition scope for contested claims', () => {
+    const bundle = listStructuredMythologyBundles().find((item) => item.mythologyId === 'myth-norse')!;
+    const mythology = mythologies.find((item) => item.id === bundle.mythologyId)!;
+    const story = bundle.stories[0];
+    const invalidBundle = {
+      ...bundle,
+      claims: [{
+        id: 'claim-missing-tradition-scope',
+        subjectType: 'story' as const,
+        subjectId: story.id,
+        claimType: 'interpretation' as const,
+        summary: 'A contested claim without a declared tradition scope.',
+        status: 'contested' as const,
+        sourceRefs: story.claims?.[0]?.sourceRefs ?? [],
+      }],
+    };
+
+    expect(validateStructuredContent({ bundle: invalidBundle, mythology, illustrations: storyIllustrations })).toEqual(expect.arrayContaining([
+      expect.objectContaining({ field: 'claim.traditionScope', message: expect.stringContaining('contested') }),
+    ]));
+  });
+
+  it('rejects multiple primary names in one Character/Interpretation scope', () => {
+    const bundle = listStructuredMythologyBundles().find((item) => item.mythologyId === 'myth-norse')!;
+    const mythology = mythologies.find((item) => item.id === bundle.mythologyId)!;
+    const firstName = bundle.names?.[0];
+    expect(firstName).toBeDefined();
+    const invalidBundle = {
+      ...bundle,
+      names: [...(bundle.names ?? []), { ...firstName!, id: 'duplicate-primary-name', name: '重复主名' }],
+    };
+
+    expect(validateStructuredContent({ bundle: invalidBundle, mythology, illustrations: storyIllustrations })).toEqual(expect.arrayContaining([
+      expect.objectContaining({ field: 'characterName.primaryScope', message: expect.stringContaining('primary name') }),
+    ]));
+  });
 });

@@ -101,12 +101,24 @@ export function validateStructuredContent({ bundle, mythology, illustrations = s
     if (!item.sourceRefs.length || item.sourceRefs.some((ref) => !hasLocator(ref))) issues.push({ category: 'entity', field: 'characterName.source', message: `${item.id} needs a source locator or section.` });
   });
   for (const id of duplicateValues(names.map((item) => item.id))) issues.push({ category: 'entity', field: 'characterName.id', message: `Duplicate CharacterName id: ${id}` });
+  const primaryNameByScope = new Map<string, string>();
+  names.forEach((item: CharacterName) => {
+    if (!item.isPrimaryForScope) return;
+    const scopeKey = `${item.characterId}|${item.interpretationId ?? ''}`;
+    const previousId = primaryNameByScope.get(scopeKey);
+    if (previousId) {
+      issues.push({ category: 'entity', field: 'characterName.primaryScope', message: `${item.id} and ${previousId} both claim the primary name for Character/Interpretation scope ${scopeKey}.` });
+    } else {
+      primaryNameByScope.set(scopeKey, item.id);
+    }
+  });
   interpretations.forEach((item: CharacterInterpretation) => {
     if (!characterIds.has(item.characterId) || !item.sourceRefs.length || !item.identityAnchors.length) issues.push({ category: 'entity', field: 'interpretation.production', message: `${item.id} is missing Character, source or identity anchors.` });
     if (item.sourceRefs.some((ref) => !hasLocator(ref))) issues.push({ category: 'entity', field: 'interpretation.source', message: `${item.id} needs a source locator or section.` });
   });
   claims.forEach((claim: ContentClaim) => {
     if (!claim.id || !claim.summary || !claim.sourceRefs.length || claim.sourceRefs.some((ref) => !hasLocator(ref))) issues.push({ category: 'entity', field: 'claim.source', message: `${claim.id} needs a summary and located source.` });
+    if (claim.status === 'contested' && !claim.traditionScope?.trim()) issues.push({ category: 'entity', field: 'claim.traditionScope', message: `${claim.id} is contested and must declare a tradition scope.` });
     if (!claimSubjectExists(claim, { characterIds, conceptIds, worldIds, sceneIds, objectIds, storyIds, relationIds: new Set(relations.map((item) => item.id)) })) issues.push({ category: 'entity', field: 'claim.subject', message: `${claim.id} references an unknown ${claim.subjectType} subject ${claim.subjectId}.` });
   });
   worlds.forEach((item: World) => {

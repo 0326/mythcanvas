@@ -17,7 +17,7 @@ jobs:
   deploy:
     name: Build and deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -35,11 +35,15 @@ jobs:
       - name: Validate build
         run: npm run check
 
+      - name: Validate Norse completion gate
+        run: npm run content:certify:norse
+
       - name: Validate Cloudflare credentials
         shell: bash
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          MYTHCANVAS_PRODUCTION_URL: ${{ secrets.MYTHCANVAS_PRODUCTION_URL }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "::error::Missing repository secret CLOUDFLARE_API_TOKEN"
@@ -49,6 +53,16 @@ jobs:
             echo "::error::Missing repository secret CLOUDFLARE_ACCOUNT_ID"
             exit 1
           fi
+          if [ -z "$MYTHCANVAS_PRODUCTION_URL" ]; then
+            echo "::error::Missing repository secret MYTHCANVAS_PRODUCTION_URL"
+            exit 1
+          fi
+
+      - name: Audit production D1 schema before writes
+        run: npm run content:remote:audit -- --schema-only --write reports/norse-remote-d1-preflight.json
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Apply production D1 migrations
         run: npx wrangler d1 migrations apply mythcanvas-db --remote
@@ -58,6 +72,12 @@ jobs:
 
       - name: Synchronize structured mythology content
         run: npm run content:import -- --all --apply --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Audit synchronized Norse D1 mirror
+        run: npm run content:remote:audit -- --strict --write reports/norse-remote-d1-audit.json
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -73,3 +93,21 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Smoke production public surface
+        run: npm run content:smoke:norse -- --base-url "$MYTHCANVAS_PRODUCTION_URL" --expect-indexable --write reports/norse-production-smoke.json
+        env:
+          MYTHCANVAS_PRODUCTION_URL: ${{ secrets.MYTHCANVAS_PRODUCTION_URL }}
+
+      - name: Upload closeout evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: norse-phase-9-evidence
+          if-no-files-found: warn
+          path: |
+            reports/norse-remote-d1-preflight.json
+            reports/norse-remote-d1-audit.json
+            reports/norse-production-smoke.json
+            reports/norse-collection-discovery.json
+            docs/NORSE_COMPLETION_SNAPSHOT.md

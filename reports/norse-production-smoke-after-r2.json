@@ -1,0 +1,172 @@
+{
+  "generatedAt": "2026-09-07T16:44:05.299Z",
+  "target": "https://mythcanvas.space/",
+  "status": "failed",
+  "timeoutMs": 20000,
+  "expectIndexable": false,
+  "expectedStoryRobots": "noindex,follow",
+  "checks": [
+    {
+      "name": "character page",
+      "url": "https://mythcanvas.space/character/odin/",
+      "method": "GET",
+      "status": 200,
+      "ok": true,
+      "elapsedMs": 1666,
+      "contentType": "text/html",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "error": null
+    },
+    {
+      "name": "Norse mythology page",
+      "url": "https://mythcanvas.space/mythology/norse/",
+      "method": "GET",
+      "status": 200,
+      "ok": true,
+      "elapsedMs": 625,
+      "contentType": "text/html",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "error": null
+    },
+    {
+      "name": "representative Story page",
+      "url": "https://mythcanvas.space/mythology/norse/ymir-creation/",
+      "method": "GET",
+      "status": 200,
+      "ok": false,
+      "elapsedMs": 135,
+      "contentType": "text/html",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "error": "response does not contain \"name=\\\"robots\\\" content=\\\"noindex,follow\\\"\""
+    },
+    {
+      "name": "World page",
+      "url": "https://mythcanvas.space/world/asgard/",
+      "method": "GET",
+      "status": 200,
+      "ok": true,
+      "elapsedMs": 524,
+      "contentType": "text/html",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "error": null
+    },
+    {
+      "name": "Graph API default scope",
+      "url": "https://mythcanvas.space/api/character-graph?character=odin",
+      "method": "GET",
+      "status": 200,
+      "ok": false,
+      "elapsedMs": 273,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "public, max-age=300",
+      "error": "default Odin graph must require scope selection when multiple traditions are present"
+    },
+    {
+      "name": "Graph API specified scope",
+      "url": "https://mythcanvas.space/api/character-graph?character=odin&scope=Eddic%20and%20Prose%20Edda%20tradition&depth=1&limit=80",
+      "method": "GET",
+      "status": 200,
+      "ok": true,
+      "elapsedMs": 125,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "public, max-age=300",
+      "error": null
+    },
+    {
+      "name": "Graph API unknown character",
+      "url": "https://mythcanvas.space/api/character-graph?character=not-a-norse-character",
+      "method": "GET",
+      "status": 404,
+      "ok": true,
+      "elapsedMs": 120,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "public, max-age=300",
+      "error": null
+    },
+    {
+      "name": "entity sitemap",
+      "url": "https://mythcanvas.space/sitemap-pages.xml?part=entities",
+      "method": "GET",
+      "status": 200,
+      "ok": false,
+      "elapsedMs": 135,
+      "contentType": "application/xml; charset=utf-8",
+      "cacheControl": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
+      "error": "response unexpectedly contains \"/mythology/norse/ymir-creation/\""
+    },
+    {
+      "name": "R2 desktop canonical asset",
+      "url": "https://mythcanvas.space/media/characters/odin/canonical/desktop-wallpaper/canonical_pc_01.png",
+      "method": "HEAD",
+      "status": 200,
+      "ok": true,
+      "elapsedMs": 619,
+      "contentType": "image/png",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "error": null
+    },
+    {
+      "name": "R2 mobile canonical asset",
+      "url": "https://mythcanvas.space/media/characters/odin/canonical/mobile-wallpaper/canonical_m_01.png",
+      "method": "HEAD",
+      "ok": false,
+      "elapsedMs": 10503,
+      "error": "fetch failed"
+    },
+    {
+      "name": "Norse World desktop WebP asset",
+      "url": "https://mythcanvas.space/media/content/norse/worlds/norse-asgard-final-v1.webp",
+      "method": "HEAD",
+      "status": 200,
+      "ok": true,
+      "elapsedMs": 4247,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "error": null
+    },
+    {
+      "name": "Norse World mobile WebP asset",
+      "url": "https://mythcanvas.space/media/content/norse/worlds/norse-asgard-mobile-final-v1.webp",
+      "method": "HEAD",
+      "status": 200,
+      "ok": true,
+      "elapsedMs": 526,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "error": null
+    },
+    {
+      "name": "Norse Story WebP asset",
+      "url": "https://mythcanvas.space/media/content/norse/stories/norse-story-ymir-creation-v1.webp",
+      "method": "HEAD",
+      "status": 200,
+      "ok": true,
+      "elapsedMs": 9433,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "error": null
+    }
+  ],
+  "failures": [
+    {
+      "name": "representative Story page",
+      "url": "https://mythcanvas.space/mythology/norse/ymir-creation/",
+      "error": "response does not contain \"name=\\\"robots\\\" content=\\\"noindex,follow\\\"\""
+    },
+    {
+      "name": "Graph API default scope",
+      "url": "https://mythcanvas.space/api/character-graph?character=odin",
+      "error": "default Odin graph must require scope selection when multiple traditions are present"
+    },
+    {
+      "name": "entity sitemap",
+      "url": "https://mythcanvas.space/sitemap-pages.xml?part=entities",
+      "error": "response unexpectedly contains \"/mythology/norse/ymir-creation/\""
+    },
+    {
+      "name": "R2 mobile canonical asset",
+      "url": "https://mythcanvas.space/media/characters/odin/canonical/mobile-wallpaper/canonical_m_01.png",
+      "error": "fetch failed"
+    }
+  ]
+}

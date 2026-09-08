@@ -55,6 +55,12 @@ Collection / 收藏卡
 5. **Variation is first-class**：北欧神话没有一套跨时代、跨地区完全固定的唯一 Canon；冲突版本要标范围，不强行调和。
 6. **Volume ≠ Story Cycle ≠ Collection**：网站阅读卷、故事脉络和未来商品系列是三种不同对象。
 
+## 0.1 当前执行态覆盖说明
+
+本文前半部分保留了 V1 / V2 基线与问题复盘，用来解释为什么需要本计划；其中出现的“36 篇”“12 个 Scene”等数字是历史基线，不是当前完成度。当前执行数字必须以 `npm run content:coverage:norse` 生成的 Snapshot 为准：当前为 45 个来源、74 个 Story Manifest 单元、74 个静态 Story、8 个 World、15 个 Scene、18 个 MythicObject，依赖闭包缺口为 0。
+
+当前并不等于最终完成：74 篇 Story 仍待具名人工来源审校，8 组 World 双端视觉和 74 个 Story key-moment 仍待视觉批准，Collection Discovery 仍保持 blocked。机器侧完成与人工批准必须分开记录。
+
 ---
 
 # 1. V1 Review：上一版方案的主要不足
@@ -73,15 +79,15 @@ V1 仍以：
 
 作为现状。
 
-当前 `src/content/norse/` 已经形成结构化内容包，实际至少已有：
+历史复盘时 `src/content/norse/` 已经形成结构化内容包，当前实际数量以自动 Snapshot 为准：
 
 ```text
-32 Characters
+92 Characters
 8 Worlds
-12 Scenes
-36 MythStories
-6 Story Volumes
-36 条左右已建关系断言
+15 Scenes
+18 MythicObjects
+74 MythStories
+58 CharacterRelations + 5 ContentRelations
 ```
 
 因此 V1 中大量“待建设能力”实际上已经完成，继续照旧方案执行会重复建设。
@@ -400,7 +406,7 @@ Völsung Hall
 
 随着 Story 补全，Scene 数量会自然明显增长。
 
-## 2.4 MythStory：36 篇
+## 2.4 MythStory：数量以 Coverage Snapshot 为准
 
 当前阅读层有 6 个 Volume：
 
@@ -791,6 +797,8 @@ src/content/norse/source-coverage.ts
   storyIds: ['story-thryms-stolen-hammer'],
   supportingClaimIds: [],
   exclusionReason: undefined,
+  reviewKind: 'scope-mapped',
+  reviewerType: 'automated',
   reviewer: 'editor-id',
   reviewedAt: 'YYYY-MM-DD',
   note: 'Thor cycle core narrative'
@@ -824,13 +832,15 @@ P0 / P1 / P2 是研究优先级，不是来源价值高低。
 
 | 状态 | 定义 | 是否 resolved |
 |---|---|---:|
-| `covered` | 已映射到至少一篇通过 source review 的 Story 或 Claim | 是 |
+| `covered` | 已完成范围判断，并映射到 Story Manifest、Story 或 Claim；不等于对应 Story 已通过人工 source review | 是 |
 | `partial` | 只覆盖了来源的一部分；必须记录剩余范围和后续任务 | 仅 P1/P2 可暂时是 |
 | `context-only` | 仅用于身份、关系、视觉或接受史，不应拆成 Story | 是 |
 | `excluded-with-reason` | 明确不进入当前 Norse 边界并写明理由 | 是 |
 | `unreviewed` | 尚未完成判断 | 否 |
 
 P0 的最终状态只能是 `covered`、`context-only` 或 `excluded-with-reason`；`partial` 不能伪装成 P0 已完成。
+
+`reviewKind: 'scope-mapped'` 表示 Phase 2 的来源范围登记；只有对应 Story 的 `editorialReview.reviewerType: 'human'`、批准日期和无未决问题，才算 Phase 3～6 的人工来源审校。
 
 ## 7.3 初始 P0 Coverage 包
 
@@ -2048,12 +2058,13 @@ draft | published
 - `expectedDependencies` 与正式 Story 关联闭合；
 - 中文名、Old Norse 名、英文名和 alias 符合命名规范；
 - 暴力、性、胁迫、乱伦等内容按来源与产品年龄定位克制表述，不猎奇化；
-- 通过至少一次非作者内容审校。
+- 通过至少一次非作者内容审校，并在 `sourceDecisionNotes` 中记录审校结论；空白或只有空格的备注不算通过。
 
 达到 `visual-ready` 还需：
 
 - hero / key moment 插画槽位定义完成；
 - 图像 provenance 完整；
+- 每条 `approved` 视觉资产都必须在 `reviewNotes` 中记录检查过的身份、来源边界、构图或原创性结论；
 - Character / World / Scene / MythicObject 的 Canonical Design 能支撑出图；
 - 视觉不依赖现代商业改编；
 - 桌面与移动关键图是独立构图需求，不以裁切替代。
@@ -2065,6 +2076,7 @@ draft | published
 ```ts
 type EditorialReview = {
   status: 'needs-review' | 'approved' | 'changes-requested';
+  reviewerType: 'human' | 'ai' | 'automated';
   reviewer: string;
   reviewedAt: string;
   sourceDecisionNotes: readonly string[];
@@ -2213,6 +2225,8 @@ npm run content:validate 通过
 
 目标：回答“要补什么”，暂不批量写文章或出图。
 
+本计划把“来源完成”拆成两个不能互换的状态：`scope-mapped / machine-ready` 只表示来源、版本、授权和定位已登记，且机器校验通过；`human-audited / source-reviewed` 才表示具名人工按来源阅读并批准。Coverage Matrix 的 100% 不能替代 Story 级人工审校，报告中的“机器来源登记与已知问题完整性”也不能被当作发布许可。
+
 新增：
 
 ```text
@@ -2242,11 +2256,13 @@ Unreviewed P0 manifest item = 0
 每个现有 Story 都有迁移决策
 ```
 
+当前执行态：45 / 45 个 Coverage Row 已完成 `scope-mapped`，74 / 74 个 Story 已达到机器预审条件；P0 Story 的人工 `source-reviewed` 仍为 0 / 56，具体以 `docs/NORSE_REVIEW_HANDOFF.md` 和认证命令为准。
+
 预计：8～12 个研究 / 编辑工作包，是本计划最关键的冻结点。
 
 ---
 
-## Phase 3：现有 36 篇改造
+## Phase 3：现有在线 Story 改造（数量以 Coverage Snapshot 为准）
 
 目标：先把已经在线的内容从原型条目升级为可信文章，避免一边新增、一边保留旧错误与模板正文。
 
@@ -2265,7 +2281,7 @@ Unreviewed P0 manifest item = 0
 验收：
 
 ```text
-现有 36 篇：迁移决策执行率 = 100%
+现有在线 Story：迁移决策执行率 = 100%
 保留发布的 Story：source-reviewed = 100%
 保留发布的 Story：template body = 0
 readingMinutes 与正文量明显不符 = 0
@@ -2346,6 +2362,7 @@ heroic-legend 分类正确
 审计：
 
 - source metadata / locator / edition；
+- CharacterName / CharacterInterpretation / ContentClaim 的端点、来源定位与 tradition scope；
 - manuscript / region / tradition scope；
 - Snorri-only reconstruction；
 - Eddic / skaldic / saga 平行版本；
@@ -2356,7 +2373,7 @@ heroic-legend 分类正确
 - 敏感内容与编辑语气；
 - Story 间重复和断层。
 
-执行记录：每次 `npm run content:coverage:norse` 都会生成 `docs/NORSE_EDITORIAL_REVIEW_QUEUE.md`。它按实际已发布 Story 列出 source locator、P0/P1 优先级、编辑状态与人工审校状态；该队列是 Phase 3、4、5 的逐篇人工审校输入，也是 Phase 6 对“非作者审校覆盖”的可追溯证据，不能由脚本自动清零。
+执行记录：每次 `npm run content:coverage:norse` 都会生成 `docs/NORSE_EDITORIAL_REVIEW_QUEUE.md`。它按实际已发布 Story 列出 source locator、P0/P1 优先级、编辑状态与人工审校状态；`docs/NORSE_REVIEW_HANDOFF.md` 另有独立的 Phase 6 identity audit queue，列出 CharacterName、CharacterInterpretation 和 ContentClaim 的实体端点、来源与争议范围。上述队列是 Phase 3、4、5 的逐篇人工审校输入，也是 Phase 6 对“非作者审校覆盖”的可追溯证据，不能由脚本自动清零。
 
 验收：
 
@@ -2367,6 +2384,8 @@ Orphan required references = 0
 Duplicate canonical identity = 0
 Known P0 issue = 0
 ```
+
+北欧包的身份审计落在 `src/content/norse/identities.ts`，而不是继续把别名、异文和产品解释埋在 Story 正文中。当前基线包含 7 条名称记录、4 条来源解释层和 10 条 ContentClaim；其中争议项必须有 `traditionScope`，名称可挂到 Interpretation，但不能因此生成重复 Character。报告会检查这些记录是否引用已注册实体和可定位 Source。
 
 预计：4～6 个交叉审计工作包。
 
@@ -2391,6 +2410,8 @@ Mythological Facts
 - PC / mobile 独立构图；
 - provenance 与 identity/style/output QA。
 
+本轮 World 视觉草稿已补齐最终 OutputSpec 的交付尺寸：桌面 `2560×1440`、移动 `1440×2560`。原始 `1672×941` / `941×1672` 图仍保留为 `sourceAssetPath`，最终文件只作为可追溯的 `resize-only` delivery derivative；报告同时将原稿、交付图和 Story 插图的 SHA-256 纳入 Snapshot 指纹，并执行缺失、PNG/尺寸、可疑小文件（<100KB）和重复内容组预检，再写入视觉审查队列，确保人工决定绑定到具体文件版本。这解决文件级完整性与证据锁定契约，不替代人工的清晰度、构图、安全区、身份和原创性 QA。Story key-moment 当前属于编辑型宽幅插图，不自动宣称为壁纸 OutputSpec，也不把 World 图当作其视觉证据。正式 Smoke 默认验证未审校 Story 为 `noindex,follow`；最终认证后使用 `--expect-indexable` 验证其切换为 `index,follow`。
+
 Story 正文可以先于全部插画进入 `source-reviewed`，但不能在缺少所需视觉锚点时进入 `visual-ready`。
 
 验收：所有未来可能进入 Series / Collection 的核心对象均为 `visual-ready`。
@@ -2410,6 +2431,7 @@ Story 正文可以先于全部插画进入 `source-reviewed`，但不能在缺�
 - Story detail route、canonical、OG、sitemap 正常；
 - 核心内容 SSR，不依赖 D1 或客户端 fetch；
 - draft / researching 内容不进入 sitemap；
+- 未完成具名人工来源审校的 Story 即使保留读者路由，也必须输出 `noindex,follow`；只有同一份真人审批证据通过后才允许进入 sitemap / index；
 - 旧 slug 301 到新 canonical URL；
 - 中英文名称与 alias 可搜索；完整英文长文不作为本轮默认 DoD。
 
@@ -2443,7 +2465,19 @@ Collection discovery input
 
 这份 snapshot 是启动 Collection Discovery 的唯一入口；“页面看起来很多”或“Story 数到 80”都不能替代它。
 
-实施约束：`npm run content:coverage:norse` 会生成 `docs/NORSE_COMPLETION_SNAPSHOT.md` 作为持续更新的证据草稿，汇总来源、依赖、编辑和双端视觉状态。它在所有 P0 Gate 为绿且人工审校/视觉/产品批准已留痕前，必须显示为 `in-progress`；不得用自动化脚本改写为完成认证。
+实施约束：`npm run content:coverage:norse` 会生成 `docs/NORSE_COMPLETION_SNAPSHOT.md` 作为持续更新的证据草稿，汇总来源、依赖、编辑和双端视觉状态。它在所有 P0 Gate 为绿、人工审校/视觉/产品批准及独立 Snapshot approval 已留痕前，必须显示为 `in-progress`；不得用自动化脚本改写为完成认证。
+
+### 9.1 Snapshot 锁定与签核顺序
+
+Snapshot version 是证据包的内容指纹，不是手工填写的版本号。身份审计与产品签字会被纳入指纹；因此不能先签字、再把旧版本当作最终版本提交。实际执行采用两轮锁定：
+
+1. 先完成 P0 来源审校、视觉 QA、Phase 6 身份审计和 P2 `deferred / excluded` 决策；运行 `npm run content:coverage:norse`，记下输出的当前 `snapshotVersion`。
+2. 将这个版本写入 `src/content/norse/collection-signoff.ts` 的 identity audit 与 product sign-off 记录；不要修改 Snapshot 文档来伪造状态。
+3. 再运行 `npm run content:coverage:norse`。如果版本变化，以新版本为准，重新核对并更新 identity audit / product sign-off；重复本步骤直到版本稳定。
+4. 只有版本稳定后，产品负责人和独立 Snapshot reviewer 才能分别签核；Snapshot reviewer 不得与产品签字人相同。两条记录都必须写入同一个最终 `snapshotVersion`，`reviewerType` 必须为 `human`，并保留日期、决定说明和空的未决项。
+5. 运行 `npm run content:certify:norse`。命令成功且 `reports/norse-collection-discovery.json` 为 `ready-for-discovery` 后，才允许进入 Collection Discovery；任何内容或审批证据再变化都必须回到第 1 步。
+
+这套流程允许审批记录改变指纹，但不允许旧审批记录“继承”到新 Snapshot。认证命令是唯一完成判定，不以 Markdown 中的手工文字为准。
 
 ---
 
@@ -2499,6 +2533,7 @@ Collection discovery input
 - Tier S / A 核心对象拥有稳定 Canonical Design；
 - material culture 与 mythology fact 分离；
 - PC / mobile 仍保持独立 composition 原则。
+- 任何 `approved` 视觉资产都必须带 `reviewerType: human`、具名 reviewer 与有效 reviewedAt；Story 进入 `visual-ready` 前必须绑定该批准记录。
 
 ## Delivery
 
@@ -2507,7 +2542,10 @@ Collection discovery input
 - draft / researching 内容进入 sitemap = 0；
 - 已变更 slug 均有永久重定向；
 - `npm run content:coverage:norse`、`npm run content:validate`、`npm run check` 通过；
-- Completion Snapshot 已生成并人工批准。
+- Completion Snapshot 已生成并人工批准，且批准记录绑定当前 Snapshot version；内容或审批证据变化后必须重新批准。
+- Collection Discovery gate 不仅检查枚举状态，还检查来源审校、World 双端视觉和 Story key-moment 的人工证据字段。
+- Phase 6 的 CharacterName / CharacterInterpretation / ContentClaim 审计必须有独立真人批准记录，并绑定当前 Snapshot version；不能只生成审计队列。
+- `collectionDisposition: deferred/excluded` 的 P2 Story 不进入候选 Discovery 的完整性计算，但必须保留在 exclusions；不得用暂缓项掩盖 P0 缺口。
 
 ## 21.1 完成度计算
 
@@ -2535,7 +2573,7 @@ Phase 0～2 主要改内容内核、校验和编辑流程，用户侧功能变�
 
 Phase 3～8 会逐步产生可见变化：
 
-- 北欧神话页从 36 个短条目升级为可连续阅读的完整图文体系；
+- 北欧神话页从原型短条目升级为可连续阅读的完整图文体系；
 - Story、Character、World、Scene 和 MythicObject 的互链更完整；
 - Heroic tradition 与诸神主线分层展示；
 - 来源冲突不再被压成单一“正史”；
@@ -2590,9 +2628,24 @@ Collection 必须是内容体系的结果，而不是前置约束。
 
 ---
 
-# 23. 当前执行优先级
+# 23. 当前执行优先级（2026-09-07 执行态）
 
-下一阶段只做 Phase 0～2，不直接批量增加 40 个角色，也不开始卡牌：
+Phase 0～8 的机器侧交付已经落地；当前不再重复补数据或批量生成图片，进入“人工 Gate 收口”阶段。当前基线、差异和批次入口以以下自动产物为准：
+
+- `docs/NORSE_COMPLETION_SNAPSHOT.md`：整体 Gate 快照；
+- `docs/NORSE_EDITORIAL_REVIEW_QUEUE.md`：逐篇来源审校队列；
+- `docs/NORSE_REVIEW_HANDOFF.md`：按 Cycle 拆分的人工交接单；
+- `docs/NORSE_VISUAL_REVIEW_QUEUE.md`：World 双端视觉 QA；
+- `docs/NORSE_STORY_VISUAL_REVIEW_QUEUE.md`：Story key-moment 视觉 QA；
+- `docs/NORSE_COLLECTION_HANDOFF.md`：Collection Discovery 的阻塞状态。
+- `docs/NORSE_REMOTE_D1_AUDIT.md`：远端 D1 只读 schema / 数据镜像审计；
+- `docs/NORSE_PHASE_CLOSEOUT_RUNBOOK.md`：剩余内容/产品与工程/环境 Gate 的逐步执行单；
+- `scripts/smoke-norse-production.mjs`：指定正式域名后执行只读页面、Graph API、sitemap 与 R2 HEAD smoke；
+- `src/content/norse/collection-signoff.ts`：Phase 6 identity audit、产品负责人签字与 Completion Snapshot 独立批准记录的唯一回写位置；三者的审批证据必须绑定报告生成的 `snapshotVersion`，默认必须保持 `pending`。
+
+最终认证命令为 `npm run content:certify:norse`；普通 `npm run content:coverage:norse` 只生成证据快照，不代表所有人工 Gate 已通过。认证命令失败时必须按输出逐项处理，不能以报告文件中的文字状态代替。
+
+当前执行顺序：
 
 ```text
 P0-1 修复现有北欧事实错误并保留 URL 兼容
@@ -2608,9 +2661,22 @@ P0-5 填满 P0 Source Coverage Matrix
 P0-6 冻结 9 条 Story Cycle 的唯一 Story Manifest
     ↓
 P0-7 生成 Semantic Dependency Gap List
+    ↓
+P0-8 按 `NORSE_REVIEW_HANDOFF.md` 完成具名来源审校
+    ↓
+P0-9 完成 World / Story 视觉 QA 与产品签字
+    ↓
+P0-10 生成 Completion Snapshot，完成独立人工批准，确认 Collection Discovery 是否解锁
 ```
 
-Phase 2 的最终交付必须能直接回答：
+P0-10 的可执行顺序固定为：
+
+```text
+完成内容与视觉决定 → 生成 Snapshot A → 写入身份/产品记录 → 生成 Snapshot B
+→ 如 B ≠ A 则按 B 重绑并重跑 → 最终版本稳定 → 独立 Snapshot approval → certify
+```
+
+当前人工 Gate 收口必须能直接回答：
 
 ```text
 保留、合并、拆分、重写、下线哪些现有 Story
@@ -2621,15 +2687,11 @@ Phase 2 的最终交付必须能直接回答：
 哪些 P1/P2 明确延期
 ```
 
-得到这份经审校的 Gap List 以后，才进入 Phase 3～5：
+为降低人工审校的领取成本，`docs/NORSE_REVIEW_HANDOFF.md` 会把 Story 来源审校拆成每包最多 4 篇的唯一工作包：同一 Story 即使属于多个 Cycle，也只在一个工作包中分配一次；跨 Cycle 关系仍保留在 Cycle 级表和 Manifest 中。工作包的 `可领取` 只代表机器预审通过，不代表人工批准。
 
-```text
-改造现有 Story
-→ 新增 Story
-→ 按 Story 补 Character / World / Scene / MythicObject / Relation
-```
+得到这份经审校的 Gap List 以后，才允许解锁 Collection Discovery。Phase 3～8 的内容、依赖、视觉和网站机器侧工作已完成；若人工审校发现事实或依赖缺口，再以修订 PR 回补，不把新的批量扩写当作当前默认任务。
 
-暂不进入：
+仍暂不进入：
 
 ```text
 Collection
@@ -2641,17 +2703,44 @@ Card Manifest
 供应链
 ```
 
-## 23.1 第一批可直接建立的任务
+## 23.1 机器侧已完成工作包与当前剩余动作
 
-| 顺序 | 工作包 | 主要文件 | 验收 |
+| 顺序 | 工作包 | 主要文件 | 当前结果 |
 |---:|---|---|---|
-| 1 | P0 事实热修 | `catalog.ts`、`stories.ts`、redirect 配置、测试 | P0-1～P0-4 归零，其余进入阻塞任务 |
-| 2 | Completion 基础类型 | `types.ts`、registry、validation、architecture | 旧内容兼容，新模型可表达 |
-| 3 | Norse Source Registry | `sources.ts` | 不再使用四个宽泛 source constants |
-| 4 | Coverage + Story Manifest | `source-coverage.ts`、`story-manifest.ts` | P0 行无空白，expected dependency 经审校 |
-| 5 | Coverage Reporter | script、package script、tests | 能区分 inventory / ready，CI 可失败 |
+| 1 | P0 事实热修 | `catalog.ts`、`stories.ts`、redirect 配置、测试 | 已完成；P0 已知问题已进入 resolved / scoped 记录 |
+| 2 | Completion 基础类型 | `types.ts`、registry、validation、architecture | 已完成；支持 editorial / visual / provenance gate |
+| 3 | Norse Source Registry | `sources.ts` | 已完成；45 个来源已注册并映射 |
+| 4 | Coverage + Story Manifest | `source-coverage.ts`、`story-manifest.ts` | 已完成；74 个 Story 单元、依赖闭包无缺口 |
+| 5 | Coverage Reporter | `scripts/report-norse-content-coverage.mjs`、测试 | 已完成；可区分 inventory / machine-ready / human-approved |
+| 6 | World 双端视觉草稿 | `assets.ts`、`public/art/` | 已完成 8 / 8 组；当前仍待人工批准 |
+| 7 | Story key-moment 槽位 | `story-illustrations.ts`、`stories.ts`、`public/art/` | 已归属 74 / 74；当前仍待人工批准 |
+| 8 | Tier S/A Character 视觉发布覆盖 | `published-artworks.ts`、`visual-tiers.ts`、Norse content test | 机器侧已覆盖 Tier S 12 / 12 双端、Tier A 16 / 16 画像；本地 R2 代表性 HEAD smoke 已通过；不替代人工视觉批准与生产全量对照 |
+| 9 | 人工交接包 | `NORSE_REVIEW_HANDOFF.md`、`NORSE_PHASE_CLOSEOUT_RUNBOOK.md`、身份审计队列、审校队列、`collection-signoff.ts` | 已生成；等待具名审校、产品签字与独立 Snapshot approval |
+| 10 | Local D1 与本地 HTTP smoke | `migration:check`、`content:import --all --apply --local`、D1 对照查询、local HTTP smoke、Worker preview smoke | 已完成；Norse 92 Character / 58 Relation / 8 World / 15 Scene / 18 Object / 7 Name / 4 Interpretation / 45 Source 与静态包对齐，角色/Story/World/Graph API/概念关系页均返回 200；Worker preview 下同样验证角色/Story/World/Graph API 200，并验证 Odin scope selection 与指定传统 14 节点 / 13 关系；`content:remote:audit` 已加入远端执行前置检查，remote / production 仍待执行 |
+| 11 | Local browser 核心矩阵 | `NORSE_CHARACTER_DETAIL_GRAPH_INTEGRATION_PLAN.md`、`CharacterHero.astro` | 已完成；Desktop Light/Dark 的 Odin、Loki、Tyr、Fenrir 与 Mobile 的 Thor、Freyja 均完成图谱打开/范围切换/重置/关闭/重开核心路径，移动端无横向溢出；API 失败降级、loopback-only WebGL/graph-init failure injection、Canvas open/close ×10、监听器与 renderer resource profile、移动端 browser back 已验证；GPU telemetry 与真实硬件 WebGL 差异仍待验收 |
+| 12 | Production smoke 执行器 | `scripts/smoke-norse-production.mjs`、`NORSE_PHASE_CLOSEOUT_RUNBOOK.md` | 已完成只读执行器；必须传入已确认的正式 URL，覆盖角色/神话/Story/World 页面、Graph 默认与指定 scope、无效角色、sitemap、Tier S R2 desktop/mobile HEAD；本地 Worker 预览 10 / 10 通过，正式环境仍待 migration/import/deploy 后执行 |
 
-前五个工作包完成后再拆 Cycle 内容包，避免多人同时基于错误模型补数据。
+部署保护：`.github/workflows/deploy-cloudflare.yml` 已将 `content:certify:norse`、schema-only preflight、remote strict mirror audit 和正式 smoke 串成不可跳过的顺序，并要求显式配置 `MYTHCANVAS_PRODUCTION_URL`；未通过认证或 D1 对照时不会进入正式部署。该 workflow 变更本身不代表远端已执行，仍需在认证恢复、人工 Gate 完成和维护窗口内运行。
+
+当前剩余动作分为两条并行轨道：
+
+1. **内容与产品 Gate**：按交接单完成 Story 来源审校、Phase 6 身份/事实审计、World / Story 视觉 QA、P2 排除项决策、product sign-off 和独立 Completion Snapshot approval。
+2. **工程与环境 Gate**：已完成 loopback-only WebGL/graph-init failure injection、Desktop Light/Dark + Mobile 浏览器核心矩阵、listener 生命周期与 renderer resource profile；远端只读审计已完成但发现仅应用至 0038、0039–0041 pending 且 Norse 镜像过旧。仍需完成 GPU telemetry、真实硬件 WebGL 差异、远端迁移/structured import、remote D1 对照、production deploy 与 production smoke。
+
+本轮已完成的 API 失败降级、Canvas open/close ×10 资源回收与移动端无横向溢出，仅证明可复现的本地 smoke 子集，不能替代上述完整 Gate。任何内容或实现修订都应从具体 reviewer 决定与 evidence 出发。
+
+环境备注：2026-09-07 的成功只读审计确认远端 `d1_migrations` 已应用至 `0038_english_core_content.sql`，`0039_structured_content_objects_and_sources.sql`、`0040_taxonomy_semantic_kind.sql`、`0041_character_relation_pursues_type.sql` 仍 pending；远端 Norse 镜像为 32 Character / 4 Source / 0 Concept / 12 Scene，和当前静态包不一致，且缺少 `mythic_objects`、`content_relations` 等 schema。随后 Wrangler 会话出现 `9109 Invalid access token` / D1 `10000 Authentication error`，因此当前首先需要重新认证并重跑只读审计。详见 `docs/NORSE_REMOTE_D1_AUDIT.md`。在完成远端备份/回滚确认、migration、structured import 和只读对照前，不执行 production deploy；此前记录的 7403 已不再是当前阻塞原因。
+
+### Phase 状态矩阵
+
+| Phase | 当前状态 | 证据 | 未完成项 |
+|---|---|---|---|
+| 0～2 | 机器侧完成 | `NORSE_STORY_MAP.md`、Coverage Report、Source Preflight | 人工来源审校不由自动化替代 |
+| 3～5 | 内容与依赖闭环完成 | 74 / 74 Story、required dependency gap = 0 | P0 具名来源审校 0 / 56 |
+| 6 | 自动审计完成 | 45 sources、0 issue、关系/来源/身份层校验通过；7 names / 4 interpretations / 10 claims | 争议项需人工确认 |
+| 7 | 视觉机器交付完成 | Tier S/A Character 覆盖 28 / 28；World 8 / 8、Story key-moment 74 / 74；World 已符合最终 OutputSpec 尺寸；本地 R2 代表性 HEAD smoke 通过 | World 批准 0 / 8、Story 批准 0 / 74；最终派生图仍需人工清晰度/构图 QA，生产 R2-D1 全量对照待远端重新认证、migration 与 import |
+| 8 | 工程交付验证完成 | sitemap gate、无 JS 静态路径、`npm run check`、`content:coverage:norse`、Local browser 核心矩阵、loopback-only failure injection、listener/renderer resource profile、`wrangler check startup` | GPU telemetry、真实硬件 WebGL 差异与正式上线仍依赖后续 Gate |
+| 9 | 进行中 | Snapshot、Collection Handoff、Review Handoff、Remote D1 Audit 已生成；Tier S/A 静态视觉覆盖、Local D1 镜像、本地 HTTP smoke、Worker preview smoke、Local browser 核心矩阵、loopback-only failure injection 与 listener/renderer resource profile 已完成 | P0 来源、身份审计、World/Story 视觉人工批准、产品签字、独立 Snapshot approval、GPU telemetry、真实硬件 WebGL 差异、remote migration/import、production 烟测尚未完成；远端上次成功只读审计时 schema 停留在 0038 且 Norse 镜像过旧，当前 Wrangler 需重新认证 |
 
 ## 23.2 PR 规则
 

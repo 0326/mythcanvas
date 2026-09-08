@@ -37,6 +37,18 @@ Server bindings/config used by generation code:
 
 Never expose provider secrets to browser code.
 
+### Phase 9 deployment prerequisites
+
+The production workflow also requires these GitHub Actions Secrets:
+
+```text
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
+MYTHCANVAS_PRODUCTION_URL
+```
+
+`MYTHCANVAS_PRODUCTION_URL` must be the explicitly confirmed production Worker or custom-domain URL. The workflow runs `content:certify:norse` before any remote D1 write, then performs a schema preflight, migration/import, strict remote mirror audit, deployment and post-deploy smoke. It intentionally fails while the Norse human review/product gates are pending; do not bypass that step by replacing it with a text-only report.
+
 ---
 
 ## 2. D1

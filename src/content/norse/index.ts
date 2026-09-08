@@ -10,3 +10,5 @@ export * from './variant-notes';
 export * from './assets';
 export * from './visual-tiers';
 export * from './collection-handoff';
+export * from './collection-signoff';
+export * from './identities';

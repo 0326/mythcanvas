@@ -41,4 +41,9 @@ describe('page SEO policy', () => {
     expect(getPageSeoPolicy(new URL('/login/', site), site).robots).toBe('noindex,follow');
     expect(getPageSeoPolicy(new URL('/search/?q=athena', site), site).robots).toBe('noindex,follow');
   });
+
+  it('allows content loaders to keep unapproved pages out of the index', () => {
+    expect(getPageSeoPolicy(new URL('/mythology/norse/ymir-creation/', site), site, { allowIndex: false }).robots).toBe('noindex,follow');
+    expect(getPageSeoPolicy(new URL('/mythology/norse/ymir-creation/', site), site, { allowIndex: true }).robots).toBe('index,follow');
+  });
 });

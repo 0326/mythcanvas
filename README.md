@@ -174,6 +174,20 @@ npm run deploy
 
 Node.js >= 22。
 
+### Norse Phase 9 release gate
+
+北欧神话补全的正式发布由 `.github/workflows/deploy-cloudflare.yml` 保护。Workflow 会依次执行 Norse completion certification、D1 schema preflight、remote structured import、严格镜像对照、Worker 部署和正式 HTTP smoke；任一步失败都会停止后续流程。
+
+GitHub Actions 必须配置以下 Secrets：
+
+```text
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
+MYTHCANVAS_PRODUCTION_URL   # 已确认的正式 Worker / 自定义域名
+```
+
+当前人工来源审校、视觉批准、身份审计和产品签字尚未完成时，`content:certify:norse` 会有意阻止正式部署；本地验证使用 `npm run preview:local` 和 `npm run content:smoke:norse -- --base-url http://127.0.0.1:<port>`。
+
 ## Development Priorities
 
 已完成：

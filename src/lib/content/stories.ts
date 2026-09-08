@@ -40,6 +40,21 @@ export const getStoryForMythology = (mythologyId: string, slug: string): MythSto
 export const getStoryRedirectForMythology = (mythologyId: string, slug: string): MythStory | undefined =>
   mythStories.find((story) => story.mythologyId === mythologyId && story.legacySlugs?.includes(slug) && story.publishStatus === 'published');
 
+const isIsoDate = (value: string | undefined): boolean =>
+  Boolean(value && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00.000Z`)));
+
+/** Search-engine publication requires the same dated human decision as the collection handoff. */
+export const isStoryEditoriallyIndexable = (story: MythStory): boolean => {
+  const review = story.editorialReview;
+  return ['source-reviewed', 'visual-ready'].includes(story.editorialStatus ?? '')
+    && review?.status === 'approved'
+    && review.reviewerType === 'human'
+    && Boolean(review.reviewer?.trim())
+    && isIsoDate(review.reviewedAt)
+    && Boolean(review.sourceDecisionNotes?.some((note) => note.trim()))
+    && review.unresolvedIssueIds.length === 0;
+};
+
 export const getPublicStoryPaths = (): { mythologyId: string; slug: string }[] =>
   mythStories
     .filter((story) => story.publishStatus === 'published')
@@ -55,7 +70,7 @@ export const getPublicStoryPaths = (): { mythologyId: string; slug: string }[] =
 export const getIndexableStoryPaths = (): { mythologyId: string; slug: string }[] =>
   mythStories
     .filter((story) => story.publishStatus === 'published')
-    .filter((story) => ['source-reviewed', 'visual-ready'].includes(story.editorialStatus ?? ''))
+    .filter(isStoryEditoriallyIndexable)
     .filter((story) => shouldUseMythStoryDetailRoutes(getStoriesForMythology(story.mythologyId).length))
     .map((story) => ({ mythologyId: story.mythologyId, slug: story.slug }));
 

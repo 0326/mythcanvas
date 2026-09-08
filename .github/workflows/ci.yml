@@ -28,6 +28,9 @@ jobs:
       - name: Validate structured mythology content
         run: npm run content:validate
 
+      - name: Generate Norse content coverage and readiness report
+        run: npm run content:coverage:norse
+
       - name: Audit public artwork provenance
         run: npm run provenance:audit -- --strict
 
@@ -36,3 +39,14 @@ jobs:
 
       - name: Build, typecheck and Worker dry run
         run: npm run check
+
+      - name: Profile Worker startup
+        run: npx wrangler check startup
+
+      - name: Upload Worker startup profile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker-startup-profile
+          if-no-files-found: warn
+          path: worker-startup.cpuprofile

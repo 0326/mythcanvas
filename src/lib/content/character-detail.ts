@@ -1,4 +1,5 @@
 import {
+  getContentConceptsByIds,
   getArtworksForCharacter,
   getCharacterBySlug,
   getCharacterInterpretations,
@@ -18,10 +19,11 @@ import {
   getPublicCharacterRelations,
   getPublicCharacterVariants,
   getPublicCharacters,
+  getPublicContentConceptsByIds,
   getPublicMythologyById,
   getPublicWorlds,
 } from './public-catalog';
-import type { Character, CharacterRelation, CharacterInterpretation, CharacterName, CharacterVariant, Artwork, MythStory, Mythology, World } from './types';
+import type { Character, CharacterRelation, CharacterInterpretation, CharacterName, CharacterVariant, Artwork, ContentConcept, MythStory, Mythology, World } from './types';
 
 export type CharacterDetailViewModel = {
   character: Character;
@@ -33,6 +35,7 @@ export type CharacterDetailViewModel = {
   stories: MythStory[];
   directRelations: CharacterRelation[];
   relationCharacters: Character[];
+  relationConcepts: ContentConcept[];
   artworks: Artwork[];
   relatedCharacters: Character[];
 };
@@ -50,6 +53,7 @@ function buildCharacterDetailViewModel(
   allWorlds: World[],
   allCharacters: Character[],
   directRelations: CharacterRelation[],
+  relationConcepts: ContentConcept[],
 ): CharacterDetailViewModel {
   const worldIds = new Set(character.worldIds);
   const worlds = allWorlds.filter((item) => worldIds.has(item.id));
@@ -64,13 +68,15 @@ function buildCharacterDetailViewModel(
     .slice(0, 6);
   const relationCharacters = allCharacters.filter((item) => directIds.has(item.id));
 
-  return { character, mythology, names, interpretations, variants, worlds, stories, directRelations, relationCharacters, artworks, relatedCharacters };
+  return { character, mythology, names, interpretations, variants, worlds, stories, directRelations, relationCharacters, relationConcepts, artworks, relatedCharacters };
 }
 
 /** Public character details are built entirely from the versioned static catalog. */
 export function getStaticCharacterDetailViewModel(slug: string): CharacterDetailViewModel | undefined {
   const character = getPublicCharacterBySlug(slug);
   if (!character) return undefined;
+  const directRelations = getPublicCharacterRelations(character.id);
+  const relationConcepts = getPublicContentConceptsByIds(directRelations.flatMap((relation) => relation.toConceptId ? [relation.toConceptId] : []));
   return buildCharacterDetailViewModel(
     character,
     getPublicMythologyById(character.mythologyId),
@@ -80,7 +86,8 @@ export function getStaticCharacterDetailViewModel(slug: string): CharacterDetail
     getPublicCharacterVariants(character.id),
     getPublicWorlds({ limit: 1000 }),
     getPublicCharacters({ limit: 1000 }),
-    getPublicCharacterRelations(character.id),
+    directRelations,
+    relationConcepts,
   );
 }
 
@@ -101,6 +108,7 @@ export async function getCharacterDetailViewModel(
     getCharacters(db, { limit: 1000 }),
     getCharacterRelations(db, character.id),
   ]);
+  const relationConcepts = await getContentConceptsByIds(db, directRelations.flatMap((relation) => relation.toConceptId ? [relation.toConceptId] : []));
 
-  return buildCharacterDetailViewModel(character, mythology, artworks, names, interpretations, variants, allWorlds, allCharacters, directRelations);
+  return buildCharacterDetailViewModel(character, mythology, artworks, names, interpretations, variants, allWorlds, allCharacters, directRelations, relationConcepts);
 }

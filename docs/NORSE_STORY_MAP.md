@@ -6,10 +6,12 @@
 
 - Source Registry：45
 - Coverage Rows：45
+- Coverage 行审校语义（scope-mapped / human-audited）：45 / 0
 - Unique Story Units：74
 - P0 / P1 / P2：56 / 16 / 2
 - 已完成来源研究的 P0 Story Manifest（研究状态，不代表读者页已审校）：56 / 56
 - 当前已落库静态内容（Character / World / Scene / Object / Story / CharacterRelation / ContentRelation）：92 / 8 / 15 / 18 / 74 / 58 / 7
+- 身份与事实层（CharacterName / CharacterInterpretation / ContentClaim；其中 contested Claim）：7 / 4 / 10；5
 - Manifest 已明确 World + Scene 依赖计划的现有 Story 单元：74 / 74
 - 网站交付路由（public / indexable / legacy redirect）：74 / 0 / 1
 - 当前 Story editorial readiness（public / structured-or-better / source-reviewed-or-visual-ready / researching / prototype / shared-template）：74 / 74 / 0 / 0 / 0 / 0
@@ -18,7 +20,10 @@
 - 正文仍低于 Editorial Gate 的 Story：0
 - readingMinutes 不一致的 Story：0
 - 世界视觉就绪度（独立生成桌面+移动组 / 人工批准组 / 总世界数）：8 / 0 / 8
-- Story key-moment 视觉槽位（已归属 / 已批准 / 总数）：56 / 0 / 74
+- 视觉文件审计（World AI + Story key-moment；缺失 / 尺寸不符 / 可疑小文件 / 重复内容组）：0 / 0 / 0 / 0
+- World 最终 OutputSpec（desktop 2560×1440 / mobile 1440×2560）：通过；原始草稿可追溯性缺失 0
+- 视觉文件内容指纹：108 / 108 个文件已纳入 Snapshot SHA-256 锁定
+- Story key-moment 视觉槽位（已归属 / 已批准 / 总数）：74 / 0 / 74
 - Tier S/A Character Canonical Design（已具备 / 总数）：28 / 28
 - Manifest 已有 Story 但静态内容缺失：0
 - Manifest expectedDependencies 未进入 Story.required*Ids 的闭包缺口：0

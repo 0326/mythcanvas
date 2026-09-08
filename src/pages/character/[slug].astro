@@ -27,7 +27,7 @@ export function getStaticPaths() {
 const { slug } = Astro.params;
 const viewModel = getStaticCharacterDetailViewModel(slug ?? '');
 if (!viewModel) return Astro.redirect('/404');
-const { character, mythology, artworks: relatedArtworks, worlds, names, interpretations, variants, stories, directRelations, relationCharacters } = viewModel;
+const { character, mythology, artworks: relatedArtworks, worlds, names, interpretations, variants, stories, directRelations, relationCharacters, relationConcepts } = viewModel;
 
 const mythologyById = mythology ? new Map([[mythology.id, mythology]]) : new Map();
 
@@ -142,7 +142,7 @@ const artworkCards: ArtworkCard[] = relatedArtworks.map((artwork) => {
     data-selected-interpretation={selectedInterpretationSlug}
     data-selected-device={selectedDevice}
   >
-    <CharacterHero character={character} mythology={mythology} heroImage={heroImage} createHref={buildCreateHref()} relations={directRelations} characters={relationCharacters.concat(character)} interpretationId={selectedInterpretationSlug} />
+    <CharacterHero character={character} mythology={mythology} heroImage={heroImage} createHref={buildCreateHref()} relations={directRelations} characters={relationCharacters.concat(character)} relationConcepts={relationConcepts} interpretationId={selectedInterpretationSlug} />
 
     <section class="wallpapers-section" id="wallpapers" aria-labelledby="wallpapers-title">
       <div class="container-wide">

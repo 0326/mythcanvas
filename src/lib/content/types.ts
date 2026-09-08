@@ -238,9 +238,13 @@ export type EditorialStatus =
   | 'source-reviewed'
   | 'visual-ready';
 
+export type ReviewActorType = 'human' | 'ai' | 'automated';
+
 export type EditorialReview = {
   status: 'needs-review' | 'approved' | 'changes-requested';
   reviewer: string;
+  /** Approval gates must explicitly identify a human decision-maker. */
+  reviewerType: ReviewActorType;
   reviewedAt: string;
   sourceDecisionNotes: readonly string[];
   unresolvedIssueIds: readonly string[];
@@ -272,6 +276,7 @@ export type StoryIllustrationProvenance = {
   /** Asset QA is separate from provenance; draft assets must not satisfy visual-ready. */
   reviewStatus?: 'draft' | 'approved' | 'hidden';
   reviewer?: string;
+  reviewerType?: ReviewActorType;
   reviewedAt?: string;
   reviewNotes?: readonly string[];
 };

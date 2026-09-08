@@ -1,5 +1,10 @@
+import type { ReviewActorType } from '../../lib/content/types';
+
 export type NorseAssetProvenance = {
   assetPath: string;
+  /** Optional source image retained when a delivery asset is mechanically resized. */
+  sourceAssetPath?: string;
+  deliveryTransform?: 'resize-only';
   ownerType: 'world';
   ownerId: string;
   sourceType: 'prototype' | 'ai';
@@ -7,20 +12,26 @@ export type NorseAssetProvenance = {
   promptRecipeId: string;
   outputSpecId: 'desktop-wallpaper' | 'mobile-wallpaper';
   reviewStatus: 'draft' | 'approved';
+  reviewer?: string;
+  reviewerType?: ReviewActorType;
+  reviewedAt?: string;
+  reviewNotes?: readonly string[];
   generatedAt: string;
   note?: string;
 };
 
 const owners = ['world-asgard', 'world-midgard', 'world-jotunheim', 'world-hel', 'world-muspell', 'world-niflheim', 'world-vanaheim', 'world-alfheim'];
 const prototypeAssets: readonly NorseAssetProvenance[] = owners.flatMap((ownerId) => [
-  { assetPath: '/art/norse-asgard.jpg', ownerType: 'world' as const, ownerId, sourceType: 'prototype' as const, generator: 'MythCanvas prototype asset registry', promptRecipeId: `norse-${ownerId}-desktop-v0`, outputSpecId: 'desktop-wallpaper' as const, reviewStatus: 'draft' as const, generatedAt: '2026-09-01', note: 'Shared fallback placeholder; not a world-specific visual approval.' },
-  { assetPath: '/art/art-asgard-aurora.jpg', ownerType: 'world' as const, ownerId, sourceType: 'prototype' as const, generator: 'MythCanvas prototype asset registry', promptRecipeId: `norse-${ownerId}-mobile-v0`, outputSpecId: 'mobile-wallpaper' as const, reviewStatus: 'draft' as const, generatedAt: '2026-09-01', note: 'Shared fallback placeholder; not a world-specific visual approval.' },
+  { assetPath: '/source/norse/norse-asgard.jpg', ownerType: 'world' as const, ownerId, sourceType: 'prototype' as const, generator: 'MythCanvas prototype asset registry', promptRecipeId: `norse-${ownerId}-desktop-v0`, outputSpecId: 'desktop-wallpaper' as const, reviewStatus: 'draft' as const, generatedAt: '2026-09-01', note: 'Shared fallback placeholder; not a world-specific visual approval.' },
+  { assetPath: '/source/norse/art-asgard-aurora.jpg', ownerType: 'world' as const, ownerId, sourceType: 'prototype' as const, generator: 'MythCanvas prototype asset registry', promptRecipeId: `norse-${ownerId}-mobile-v0`, outputSpecId: 'mobile-wallpaper' as const, reviewStatus: 'draft' as const, generatedAt: '2026-09-01', note: 'Shared fallback placeholder; not a world-specific visual approval.' },
 ]);
 
 export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
   ...prototypeAssets,
   {
-    assetPath: '/art/norse-asgard-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-asgard-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-asgard-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-asgard',
     sourceType: 'ai' as const,
@@ -31,7 +42,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-06',
   },
   {
-    assetPath: '/art/norse-asgard-mobile-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-asgard-mobile-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-asgard-mobile-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-asgard',
     sourceType: 'ai' as const,
@@ -42,7 +55,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-06',
   },
   {
-    assetPath: '/art/norse-jotunheim-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-jotunheim-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-jotunheim-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-jotunheim',
     sourceType: 'ai' as const,
@@ -53,7 +68,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-06',
   },
   {
-    assetPath: '/art/norse-jotunheim-mobile-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-jotunheim-mobile-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-jotunheim-mobile-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-jotunheim',
     sourceType: 'ai' as const,
@@ -64,7 +81,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-06',
   },
   {
-    assetPath: '/art/norse-midgard-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-midgard-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-midgard-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-midgard',
     sourceType: 'ai' as const,
@@ -75,7 +94,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-06',
   },
   {
-    assetPath: '/art/norse-midgard-mobile-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-midgard-mobile-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-midgard-mobile-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-midgard',
     sourceType: 'ai' as const,
@@ -86,7 +107,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-06',
   },
   {
-    assetPath: '/art/norse-hel-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-hel-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-hel-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-hel',
     sourceType: 'ai' as const,
@@ -97,7 +120,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-06',
   },
   {
-    assetPath: '/art/norse-hel-mobile-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-hel-mobile-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-hel-mobile-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-hel',
     sourceType: 'ai' as const,
@@ -108,7 +133,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-06',
   },
   {
-    assetPath: '/art/norse-muspell-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-muspell-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-muspell-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-muspell',
     sourceType: 'ai' as const,
@@ -119,7 +146,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-07',
   },
   {
-    assetPath: '/art/norse-muspell-mobile-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-muspell-mobile-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-muspell-mobile-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-muspell',
     sourceType: 'ai' as const,
@@ -130,7 +159,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-07',
   },
   {
-    assetPath: '/art/norse-niflheim-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-niflheim-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-niflheim-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-niflheim',
     sourceType: 'ai' as const,
@@ -141,7 +172,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-07',
   },
   {
-    assetPath: '/art/norse-niflheim-mobile-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-niflheim-mobile-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-niflheim-mobile-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-niflheim',
     sourceType: 'ai' as const,
@@ -152,7 +185,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-07',
   },
   {
-    assetPath: '/art/norse-vanaheim-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-vanaheim-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-vanaheim-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-vanaheim',
     sourceType: 'ai' as const,
@@ -163,7 +198,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-07',
   },
   {
-    assetPath: '/art/norse-vanaheim-mobile-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-vanaheim-mobile-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-vanaheim-mobile-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-vanaheim',
     sourceType: 'ai' as const,
@@ -174,7 +211,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-07',
   },
   {
-    assetPath: '/art/norse-alfheim-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-alfheim-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-alfheim-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-alfheim',
     sourceType: 'ai' as const,
@@ -185,7 +224,9 @@ export const norseAssetProvenance: readonly NorseAssetProvenance[] = [
     generatedAt: '2026-09-07',
   },
   {
-    assetPath: '/art/norse-alfheim-mobile-v1.png',
+    assetPath: '/media/content/norse/worlds/norse-alfheim-mobile-final-v1.webp',
+    sourceAssetPath: '/source/norse/norse-alfheim-mobile-v1.png',
+    deliveryTransform: 'resize-only',
     ownerType: 'world' as const,
     ownerId: 'world-alfheim',
     sourceType: 'ai' as const,

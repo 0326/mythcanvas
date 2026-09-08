@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getCharacterDetailViewModel } from '../src/lib/content/character-detail';
+import { getCharacterDetailViewModel, getStaticCharacterDetailViewModel } from '../src/lib/content/character-detail';
 
 describe('Character detail ViewModel', () => {
   it('keeps Norse static fallback aligned with the D1-shaped detail contract', async () => {
@@ -11,5 +11,12 @@ describe('Character detail ViewModel', () => {
     expect(viewModel?.stories.length).toBeGreaterThan(0);
     expect(viewModel?.directRelations.length).toBeGreaterThan(0);
     expect(viewModel?.relationCharacters.map((character) => character.slug)).toEqual(expect.arrayContaining(['thor', 'loki', 'frigg']));
+  });
+
+  it('keeps ContentConcept relation endpoints available to the SSR fallback', () => {
+    const viewModel = getStaticCharacterDetailViewModel('quetzalcoatl');
+
+    expect(viewModel?.directRelations.some((relation) => relation.toConceptId)).toBe(true);
+    expect(viewModel?.relationConcepts.map((concept) => concept.slug)).toContain('five-suns-source-layer');
   });
 });

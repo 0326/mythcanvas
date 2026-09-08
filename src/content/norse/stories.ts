@@ -5,13 +5,6 @@ import { norseStoryManifest } from './story-manifest';
 const mythologyId = 'myth-norse';
 const date = '2026-09-01';
 
-const sources = {
-  prose: storySource('proseEddaGylfaginning', '按相关章节；Phase 3 逐篇精确化'),
-  poetic: storySource('voluspa', '按相关诗篇与诗节；Phase 3 逐篇精确化'),
-  skaldic: storySource('haustlong', '按相关 stanza；Phase 3 逐篇精确化'),
-  volsung: storySource('volsungaSaga', '按相关章节；Phase 3 逐篇精确化'),
-} as const satisfies Record<string, MythStorySource>;
-
 /** Precise source replacements for legacy entries that originally shared a broad placeholder source. */
 const preciseLegacySources: Readonly<Record<string, MythStorySource>> = {
   'aesir-vanir-war': storySource('voluspa', 'st. 21–24'),
@@ -33,6 +26,17 @@ const preciseLegacySources: Readonly<Record<string, MythStorySource>> = {
   'sigurd-and-brynhildr': storySource('volsungaSaga', 'chs. 20–27'),
   'sigurds-death': storySource('sigurdarkvida', 'Sigurðarkviða en skamma sts. 22–24, 29–31; compare Brot af Sigurðarkviðu st. 4'),
 };
+
+/**
+ * Legacy input defaults retained only for readability at the call sites below.
+ * `sourceForStory` always resolves the slug-specific entry before publication.
+ */
+const sources = {
+  prose: preciseLegacySources['thor-in-utgard'],
+  poetic: preciseLegacySources['aesir-vanir-war'],
+  skaldic: preciseLegacySources['thor-and-geirrod'],
+  volsung: preciseLegacySources['sigurd-and-regin'],
+} as const satisfies Record<string, MythStorySource>;
 
 /** Key-moment illustration drafts already generated for the Ragnarök sequence. */
 const norseKeyMomentAssetIds: Readonly<Record<string, string>> = {
@@ -68,6 +72,24 @@ const norseKeyMomentAssetIds: Readonly<Record<string, string>> = {
   'volundr-captive-smith': 'story-illustration-norse-volundr-captive-smith',
   'helgi-hjorvardsson-and-svava': 'story-illustration-norse-helgi-hjorvardsson-and-svava',
   'helgi-and-sigrun': 'story-illustration-norse-helgi-and-sigrun',
+  'aesir-vanir-truce': 'story-illustration-norse-aesir-vanir-truce',
+  'skadi-compensation': 'story-illustration-norse-skadi-compensation',
+  'njordr-and-skadi': 'story-illustration-norse-njordr-and-skadi',
+  'asgard-wall-and-sleipnir': 'story-illustration-norse-asgard-wall-and-sleipnir',
+  'sifs-hair-and-treasures': 'story-illustration-norse-sifs-hair-and-treasures',
+  'helgi-burial-mound': 'story-illustration-norse-helgi-burial-mound',
+  'volundr-escape': 'story-illustration-norse-volundr-escape',
+  'odin-ravens': 'story-illustration-norse-odin-ravens',
+  'odin-seidr': 'story-illustration-norse-odin-seidr',
+  'thor-and-thjalfi-roskva': 'story-illustration-norse-thor-and-thjalfi-roskva',
+  'thor-and-alviss': 'story-illustration-norse-thor-and-alviss',
+  'thor-and-harbard': 'story-illustration-norse-thor-and-harbard',
+  'vali-avenges-baldr': 'story-illustration-norse-vali-avenges-baldr',
+  'tyr-and-garmr': 'story-illustration-norse-tyr-and-garmr',
+  'gudrun-svanhild-hamdir-sorli': 'story-illustration-norse-gudrun-svanhild-hamdir-sorli',
+  'svipdagr-and-mengloth': 'story-illustration-norse-svipdagr-and-mengloth',
+  'rig-and-social-orders': 'story-illustration-norse-rig-and-social-orders',
+  grottasongr: 'story-illustration-norse-grottasongr',
   'lokis-feast': 'story-illustration-norse-lokis-feast',
   'baldrs-dreams': 'story-illustration-norse-baldrs-dreams',
   'baldrs-death': 'story-illustration-norse-baldrs-death',
@@ -139,7 +161,14 @@ type StoryInput = {
   editorialStatus?: MythStory['editorialStatus'];
 };
 
-const sourceForStory = (input: Pick<StoryInput, 'slug' | 'source'>): MythStorySource => preciseLegacySources[input.slug] ?? input.source;
+const impreciseStoryLocatorPattern = /Phase 3|按相关章节|按相关诗篇|按相关 stanza|selected stanzas|locator required/i;
+const sourceForStory = (input: Pick<StoryInput, 'slug' | 'source'>): MythStorySource => {
+  const source = preciseLegacySources[input.slug] ?? input.source;
+  if (!source.locator?.trim() || impreciseStoryLocatorPattern.test(source.locator)) {
+    throw new Error(`Norse Story ${input.slug} must declare a precise source locator`);
+  }
+  return source;
+};
 
 type StorySection = NonNullable<StoryInput['sections']>[number];
 

@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-09-06T23:42:18.989Z",
+  "mode": "schema-only",
+  "target": "remote",
+  "database": "mythcanvas-db",
+  "mythologyId": "myth-norse",
+  "status": "unavailable",
+  "ready": false,
+  "issues": [
+    "remote D1 query failed: ✘ [ERROR] Failed to fetch auth token: 400 Bad Request 🪵 Logs were written to \"/Users/liquanfeng/.wrangler/logs/wrangler-2026-09-06_23-42-17_841.log\" { \"error\": { \"text\": \"In a non-interactive environment, it's necessary to set a CLOUDFLARE_API_TOKEN environment variable for wrangler to work. Please go to https://developers.cloudflare.com/fundamentals/api/get-started/create-token/ for instructions on how to create an api token, and assign its value to CLOUDFLARE_API_TOKEN.\" } } Command failed: npx wrangler d1 execute mythcanvas-db --remote --command SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name --json ✘ [ERROR] Failed to fetch auth token: 400 Bad Request 🪵 Logs were writt"
+  ]
+}

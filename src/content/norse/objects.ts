@@ -41,15 +41,15 @@ export const norseMythicObjects: readonly MythicObject[] = [
   object('gjallarhorn', '加拉尔号角', 'Gjallarhorn', 'Gjallarhorn', 'symbolic-object', '海姆达尔在诸神黄昏中吹响的号角，作为公共警报而非普通乐器。', [sourceRef('voluspa', 'st. 46'), sourceRef('proseEddaGylfaginning', 'ch. 27')], ['号角', '海姆达尔', '末日警报']),
   object('brisingamen', '布里辛嘉曼', 'Brísingamen', 'Brísingamen', 'jewel', '芙蕾雅的项链；叙事细节分散且版本复杂，只以明确来源支撑具体说法。', [sourceRef('hyndluljod', 'st. 47'), sourceRef('proseEddaGylfaginning', 'ch. 35')], ['颈饰', '芙蕾雅', '版本范围']),
   object('skidbladnir', '斯基德布拉德尼尔', 'Skíðblaðnir', 'Skíðblaðnir', 'vehicle', '弗雷的可折叠神船，是宝物锻造与丰饶神身份相关的航行物件。', [sourceRef('proseEddaGylfaginning', 'ch. 43'), sourceRef('proseEddaSkaldskaparmal', 'ch. 35')], ['折叠船', '弗雷', '顺风航行']),
-  object('gram', '格拉墨', 'Gram', 'Gramr', 'weapon', '沃尔松格英雄传统中的剑，连接西格蒙德、西格尔德、雷金与屠龙叙事。', [sourceRef('reginsmal', 'selected stanzas'), sourceRef('volsungaSaga', 'chs. 13–18')], ['剑', '沃尔松格家系', '屠龙']),
-  object('andvaranaut', '安德瓦里之环', 'Andvaranaut', 'Andvaranaut', 'jewel', '被诅咒的金环，是 Ótr、Andvari、Fafnir 与西格尔德故事链的关键。', [sourceRef('reginsmal', 'selected stanzas'), sourceRef('volsungaSaga', 'chs. 14–18')], ['金环', '诅咒宝藏', '英雄悲剧']),
-  object('idunn-apples', '伊登的青春苹果', 'Iðunn’s Apples', 'epli Iðunnar', 'food', '伊登守护的苹果，使诸神的青春、秩序与她被掳走的危机相互关联。', [sourceRef('haustlong', 'selected stanzas'), sourceRef('proseEddaSkaldskaparmal', 'ch. 1')], ['苹果', '伊登', '诸神衰老']),
+  object('gram', '格拉墨', 'Gram', 'Gramr', 'weapon', '沃尔松格英雄传统中的剑，连接西格蒙德、西格尔德、雷金与屠龙叙事。', [sourceRef('reginsmal', 'prose before st. 15'), sourceRef('volsungaSaga', 'chs. 13–18')], ['剑', '沃尔松格家系', '屠龙']),
+  object('andvaranaut', '安德瓦里之环', 'Andvaranaut', 'Andvaranaut', 'jewel', '被诅咒的金环，是 Ótr、Andvari、Fafnir 与西格尔德故事链的关键。', [sourceRef('reginsmal', 'sts. 5–6'), sourceRef('volsungaSaga', 'chs. 14–18')], ['金环', '诅咒宝藏', '英雄悲剧']),
+  object('idunn-apples', '伊登的青春苹果', 'Iðunn’s Apples', 'epli Iðunnar', 'food', '伊登守护的苹果，使诸神的青春、秩序与她被掳走的危机相互关联。', [sourceRef('haustlong', 'sts. 1–13'), sourceRef('proseEddaSkaldskaparmal', 'ch. 1')], ['苹果', '伊登', '诸神衰老']),
   object('mead-of-poetry', '诗歌蜜酒', 'Mead of Poetry', 'skáldskaparmjöðr', 'substance', '由克瓦希尔之血制成的蜜酒，连接语言、知识、盗取与奥丁的伪装。', [sourceRef('proseEddaSkaldskaparmal', 'ch. 1')], ['蜜酒', '克瓦希尔', '诗歌与知识']),
-  object('hringhorni', '赫林霍尔尼葬船', 'Hringhorni', 'Hringhorni', 'vessel', '巴德尔葬礼中的船；必须与诸神黄昏的 Naglfar 明确分开。', [sourceRef('proseEddaGylfaginning', 'ch. 49'), sourceRef('husdrapa', 'selected stanzas')], ['葬船', '巴德尔', '火葬仪式']),
+  object('hringhorni', '赫林霍尔尼葬船', 'Hringhorni', 'Hringhorni', 'vessel', '巴德尔葬礼中的船；必须与诸神黄昏的 Naglfar 明确分开。', [sourceRef('proseEddaGylfaginning', 'ch. 49')], ['葬船', '巴德尔', '火葬仪式']),
   object('naglfar', '纳吉尔法战船', 'Naglfar', 'Naglfar', 'vessel', '诸神黄昏中出现的死亡之船，不能被误用为巴德尔的葬船。', [sourceRef('voluspa', 'st. 50'), sourceRef('proseEddaGylfaginning', 'ch. 51')], ['战船', '诸神黄昏', '末日航行']),
   object('freyrs-sword', '弗雷之剑', 'Freyr’s Sword', 'sverð Freys', 'weapon', '弗雷放弃的剑在其与苏尔特的终局叙事中具有关键代价意义。', [sourceRef('skirnismal', 'st. 8–10'), sourceRef('proseEddaGylfaginning', 'ch. 37')], ['剑', '弗雷', '失去的武器']),
-  object('megingjord', '力量腰带', 'Megingjörð', 'Megingjǫrð', 'artifact', '索尔的力量腰带，属于其装备系统，需避免将其表现成现代超级英雄配件。', [sourceRef('proseEddaGylfaginning', 'ch. 21'), sourceRef('thorsdrapa', 'selected stanzas')], ['腰带', '索尔', '力量']),
-  object('jarngreipr', '铁手套', 'Járngreipr', 'Járngreipr', 'artifact', '索尔使用的铁手套，与锤及力量腰带共同组成来源范围内的装备语境。', [sourceRef('proseEddaGylfaginning', 'ch. 21'), sourceRef('thorsdrapa', 'selected stanzas')], ['铁手套', '索尔', '装备系统']),
+  object('megingjord', '力量腰带', 'Megingjörð', 'Megingjǫrð', 'artifact', '索尔的力量腰带，属于其装备系统，需避免将其表现成现代超级英雄配件。', [sourceRef('proseEddaGylfaginning', 'ch. 21')], ['腰带', '索尔', '力量']),
+  object('jarngreipr', '铁手套', 'Járngreipr', 'Járngreipr', 'artifact', '索尔使用的铁手套，与锤及力量腰带共同组成来源范围内的装备语境。', [sourceRef('proseEddaGylfaginning', 'ch. 21')], ['铁手套', '索尔', '装备系统']),
 ];
 
 const relation = (
@@ -68,5 +68,5 @@ export const norseContentRelations: readonly ContentRelation[] = [
   relation('norse-object-hringhorni-baldr', { type: 'mythic-object', id: 'object-norse-hringhorni' }, { type: 'character', id: 'character-baldr' }, 'funerary-vessel-for', [sourceRef('proseEddaGylfaginning', 'ch. 49')], 'Gylfaginning tradition'),
   relation('norse-object-naglfar-ragnarok', { type: 'mythic-object', id: 'object-norse-naglfar' }, { type: 'story', id: 'story-ragnarok' }, 'appears-in', [sourceRef('voluspa', 'st. 50')], 'Völuspá tradition'),
   relation('norse-object-gleipnir-fenrir', { type: 'mythic-object', id: 'object-norse-gleipnir' }, { type: 'character', id: 'character-fenrir' }, 'binds', [sourceRef('proseEddaGylfaginning', 'ch. 34')], 'Gylfaginning binding tradition'),
-  relation('norse-object-gram-sigurd', { type: 'mythic-object', id: 'object-norse-gram' }, { type: 'character', id: 'character-sigurd' }, 'wielded-by', [sourceRef('reginsmal', 'selected stanzas')], 'Eddic heroic tradition'),
+  relation('norse-object-gram-sigurd', { type: 'mythic-object', id: 'object-norse-gram' }, { type: 'character', id: 'character-sigurd' }, 'wielded-by', [sourceRef('volsungaSaga', 'chs. 13–18')], 'Völsunga saga heroic tradition'),
 ];

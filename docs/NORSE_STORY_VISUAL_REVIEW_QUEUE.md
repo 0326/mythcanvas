@@ -2,7 +2,7 @@
 
 > 本队列对应 Phase 7 的 Story key-moment 插画槽位。World 双端草稿不能替代故事视觉证据；没有明确 hero/key-moment 资产的 Story 不得进入 `visual-ready`。
 
-- 已归属槽位：56 / 74
+- 已归属槽位：74 / 74
 - 已批准槽位：0 / 74
 - Tier S/A Character Canonical Design：28 / 28
 
@@ -10,229 +10,230 @@
 
 - **尤弥尔与世界的诞生** (`ymir-creation`) · attributed
   - characters: character-ymir · worlds: world-jotunheim, world-niflheim · scenes: scene-ginnungagap · objects: none
-  - heroAssetId: story-illustration-norse-ymir-creation · asset review: draft
+  - heroAssetId: story-illustration-norse-ymir-creation · asset review: draft · file: 1672×941 · sha256: 8ffaa7cb529a7b60fd2c9e59be9c453342a2315cb159d8e5c07ee81846a71448 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **奥德胡姆拉与布里的出现** (`audhumla-and-buri`) · attributed
   - characters: character-buri, character-ymir · worlds: world-niflheim · scenes: scene-ginnungagap · objects: none
-  - heroAssetId: story-illustration-norse-audhumla-and-buri · asset review: draft
+  - heroAssetId: story-illustration-norse-audhumla-and-buri · asset review: draft · file: 1672×941 · sha256: c4364d5cf89a9e23d313af142feaf96f2f3ffe2da87949a0587700c115722ea9 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **奥丁兄弟以尤弥尔之躯创造世界** (`odin-creates-world`) · attributed
   - characters: character-odin, character-vili, character-ve, character-ymir · worlds: world-midgard, world-asgard · scenes: scene-ginnungagap · objects: none
-  - heroAssetId: story-illustration-norse-odin-creates-world · asset review: draft
+  - heroAssetId: story-illustration-norse-odin-creates-world · asset review: draft · file: 1672×941 · sha256: 83c9117a461aa57fb851160bdc5122172426d75d7df0c5828fa33455bc654152 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **阿斯克与恩布拉** (`ask-and-embla`) · attributed
   - characters: character-odin, character-honir, character-lodur · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
-  - heroAssetId: story-illustration-norse-ask-and-embla · asset review: draft
+  - heroAssetId: story-illustration-norse-ask-and-embla · asset review: draft · file: 1672×941 · sha256: 61057c973fdd7d0ae8fe929d8704496467c6eb5cc7b3c4264814b6e2ce3bd34b · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **世界树、三口井与诺恩** (`yggdrasil-wells-norns`) · attributed
   - characters: character-odin, character-mimir · worlds: world-asgard, world-niflheim · scenes: scene-world-tree-roots, scene-well-of-mimir · objects: none
-  - heroAssetId: story-illustration-norse-yggdrasil-wells-norns · asset review: draft
+  - heroAssetId: story-illustration-norse-yggdrasil-wells-norns · asset review: draft · file: 1672×941 · sha256: 196a93c37c6c66d69966acfb9654e80da73ac3fd6d3a61c882160c9802b27715 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **诺恩与命运之井** (`norns-at-urdarbrunnr`) · attributed
   - characters: character-urd, character-verdandi, character-skuld · worlds: world-asgard · scenes: scene-world-tree-roots · objects: none
-  - heroAssetId: story-illustration-norse-norns-at-urdarbrunnr · asset review: draft
+  - heroAssetId: story-illustration-norse-norns-at-urdarbrunnr · asset review: draft · file: 1672×941 · sha256: a63e12d73a164224d5699c639a04ecba19b2a1cbff319ad776e16c74264790c0 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **日月运行与追逐者** (`sun-and-moon-chase`) · attributed
   - characters: character-sol, character-mani, character-skoll, character-hati · worlds: world-midgard · scenes: scene-world-tree-roots · objects: none
-  - heroAssetId: story-illustration-norse-sun-and-moon-chase · asset review: draft
+  - heroAssetId: story-illustration-norse-sun-and-moon-chase · asset review: draft · file: 1672×941 · sha256: cf89c48e79a68526c2b17d60d64cb8542119cbff891b5a7083b3b2b48b2d62aa · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **阿萨神族与华纳神族的冲突与和解** (`aesir-vanir-war`) · attributed
   - characters: character-odin, character-freyja, character-freyr, character-njordr, character-gullveig · worlds: world-asgard, world-vanaheim · scenes: scene-asgard-court · objects: none
-  - heroAssetId: story-illustration-norse-aesir-vanir-war · asset review: draft
-- **阿萨与华纳的和约** (`aesir-vanir-truce`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-aesir-vanir-war · asset review: draft · file: 1672×941 · sha256: 0c13460291e55a665c545858dac88ef8a9bbb62361418fb41b2ffa2f31bccd18 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **阿萨与华纳的和约** (`aesir-vanir-truce`) · attributed
   - characters: character-njordr, character-freyr, character-freyja · worlds: world-asgard, world-vanaheim · scenes: scene-asgard-court · objects: none
-  - heroAssetId: pending · asset review: missing
+  - heroAssetId: story-illustration-norse-aesir-vanir-truce · asset review: draft · file: 1672×941 · sha256: 3675cd2658704a15f77bc9640ef33f67f59b14aea4460d259e362bf1587c2a85 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **克瓦希尔与诗歌蜜酒** (`kvasir-and-mead`) · attributed
   - characters: character-kvasir, character-odin · worlds: world-asgard · scenes: scene-asgard-court · objects: object-norse-mead-of-poetry
-  - heroAssetId: story-illustration-norse-kvasir-and-mead · asset review: draft
+  - heroAssetId: story-illustration-norse-kvasir-and-mead · asset review: draft · file: 1672×941 · sha256: 8a0480b87499d56101e14e49e4b373e884c4edd013e2fe41144073fb16e39861 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **奥丁以一只眼换取智慧** (`odin-and-mimir`) · attributed
   - characters: character-odin, character-mimir · worlds: world-asgard · scenes: scene-well-of-mimir · objects: none
-  - heroAssetId: story-illustration-norse-odin-and-mimir · asset review: draft
+  - heroAssetId: story-illustration-norse-odin-and-mimir · asset review: draft · file: 1672×941 · sha256: e11ea08cbce8fbbb9e7f3f9444da0ad1245552ad7240385bb4799794245bf1f8 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **奥丁悬于世界树九夜** (`odin-world-tree`) · attributed
   - characters: character-odin · worlds: world-asgard · scenes: scene-world-tree-roots · objects: none
-  - heroAssetId: story-illustration-norse-odin-world-tree · asset review: draft
+  - heroAssetId: story-illustration-norse-odin-world-tree · asset review: draft · file: 1672×941 · sha256: fc642a1e0f43cfc6d32052255cadda348ad30fca1f7d07a4e518245ab9e9ea76 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **弗雷与葛德** (`freyr-and-gerdr`) · attributed
   - characters: character-freyr, character-gerdr, character-skirnir · worlds: world-vanaheim, world-jotunheim · scenes: scene-jotunheim-border · objects: object-norse-freyrs-sword
-  - heroAssetId: story-illustration-norse-freyr-and-gerdr · asset review: draft
+  - heroAssetId: story-illustration-norse-freyr-and-gerdr · asset review: draft · file: 1672×941 · sha256: 9d67b0c72ba39449a91d2475d5efd173f55d5e60bc4c5cbf4244cae5a5b0e05d · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **伊登被夏基掳走** (`idunn-and-thjazi`) · attributed
   - characters: character-idunn, character-loki, character-thjazi · worlds: world-asgard, world-jotunheim · scenes: scene-asgard-court, scene-jotunheim-border · objects: object-norse-idunn-apples
-  - heroAssetId: story-illustration-norse-idunn-and-thjazi · asset review: draft
+  - heroAssetId: story-illustration-norse-idunn-and-thjazi · asset review: draft · file: 1672×941 · sha256: 40f36b4daab7cb330ed3ba7921726f25dde6484175dd46d264a79f608e5c18be · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **奥丁夺取诗歌蜜酒** (`odin-steals-mead`) · attributed
   - characters: character-odin · worlds: world-asgard, world-jotunheim · scenes: scene-jotunheim-border · objects: object-norse-mead-of-poetry
-  - heroAssetId: story-illustration-norse-odin-steals-mead · asset review: draft
-- **斯卡蒂的赔偿** (`skadi-compensation`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-odin-steals-mead · asset review: draft · file: 1672×941 · sha256: a4cd658ded34bbdd3bfaf3d4e3919043036acd78c88624b7782b2891e00cfe2b · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **斯卡蒂的赔偿** (`skadi-compensation`) · attributed
   - characters: character-skadi, character-njordr · worlds: world-asgard, world-jotunheim · scenes: scene-asgard-court · objects: none
-  - heroAssetId: pending · asset review: missing
-- **尼约德与斯卡蒂的婚姻** (`njordr-and-skadi`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-skadi-compensation · asset review: draft · file: 1672×941 · sha256: 5f60f9c2ba70450dfc654daf8aa0c03c707e4e9b374e3503257e6e7653a93cd5 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **尼约德与斯卡蒂的婚姻** (`njordr-and-skadi`) · attributed
   - characters: character-njordr, character-skadi · worlds: world-asgard, world-jotunheim · scenes: scene-jotunheim-border · objects: none
-  - heroAssetId: pending · asset review: missing
-- **阿斯加德城墙与斯莱普尼尔** (`asgard-wall-and-sleipnir`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-njordr-and-skadi · asset review: draft · file: 1672×941 · sha256: 6e01f3aba90650f4933ce90a8dbab2c0cd2f44b716250ef033263aa82b48e7e1 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **阿斯加德城墙与斯莱普尼尔** (`asgard-wall-and-sleipnir`) · attributed
   - characters: character-loki, character-sleipnir · worlds: world-asgard, world-jotunheim · scenes: scene-asgard-court · objects: none
-  - heroAssetId: pending · asset review: missing
-- **西芙的头发与诸神宝物** (`sifs-hair-and-treasures`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-asgard-wall-and-sleipnir · asset review: draft · file: 1672×941 · sha256: 6019f1ef58f3978a9ccfeb3c3acbd459670b1f04a7c23a611ea408546b5ab699 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **西芙的头发与诸神宝物** (`sifs-hair-and-treasures`) · attributed
   - characters: character-sif, character-loki, character-odin, character-freyr, character-thor · worlds: world-asgard · scenes: scene-asgard-court · objects: object-norse-mjolnir, object-norse-skidbladnir, object-norse-draupnir
-  - heroAssetId: pending · asset review: missing
+  - heroAssetId: story-illustration-norse-sifs-hair-and-treasures · asset review: draft · file: 1672×941 · sha256: 41e5adba6a9aa8f8cc2ca22dea83f010ad1546985c1f1231aab6914115b00c4d · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **索尔与赫朗格尼尔** (`thor-and-hrungnir`) · attributed
   - characters: character-thor, character-hrungnir · worlds: world-jotunheim, world-asgard · scenes: scene-jotunheim-border · objects: object-norse-mjolnir
-  - heroAssetId: story-illustration-norse-thor-and-hrungnir · asset review: draft
+  - heroAssetId: story-illustration-norse-thor-and-hrungnir · asset review: draft · file: 1672×941 · sha256: e465be381e923ec9d98c1471acd510b426dd610f07c552ac2df5a29f87969fb2 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **索尔垂钓世界蛇** (`thor-fishes-for-serpent`) · attributed
   - characters: character-thor, character-jormungandr, character-hymir · worlds: world-midgard, world-jotunheim · scenes: scene-midgard-coast · objects: none
-  - heroAssetId: story-illustration-norse-thor-fishes-for-serpent · asset review: draft
+  - heroAssetId: story-illustration-norse-thor-fishes-for-serpent · asset review: draft · file: 1672×941 · sha256: 101486e4d85f6e00a2859409f1e44b8ea20668db7632a3c5b4823cf7373d2d23 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **雷神之锤被盗** (`thryms-stolen-hammer`) · attributed
   - characters: character-thor, character-loki, character-freyja, character-heimdall, character-thrymr · worlds: world-jotunheim, world-asgard · scenes: scene-thryms-hall · objects: object-norse-mjolnir
-  - heroAssetId: story-illustration-norse-thryms-stolen-hammer · asset review: draft
+  - heroAssetId: story-illustration-norse-thryms-stolen-hammer · asset review: draft · file: 1672×941 · sha256: 6cfb1e98d225fba25a6252e1ee27ff197e7cb33ab43b4d98c5fd0d3cf34d8478 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **索尔在乌特加德** (`thor-in-utgard`) · attributed
   - characters: character-thor, character-loki, character-utgarda-loki · worlds: world-jotunheim · scenes: scene-jotunheim-border · objects: none
-  - heroAssetId: story-illustration-norse-thor-in-utgard · asset review: draft
+  - heroAssetId: story-illustration-norse-thor-in-utgard · asset review: draft · file: 1672×941 · sha256: db757511a0d04ddc742f6e63f456dec3978455e872a28be772126649fc632d85 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **索尔与盖尔罗德** (`thor-and-geirrod`) · attributed
   - characters: character-thor, character-loki, character-geirrod, character-gjalp, character-greip · worlds: world-jotunheim · scenes: scene-jotunheim-border · objects: object-norse-megingjord, object-norse-jarngreipr
-  - heroAssetId: story-illustration-norse-thor-and-geirrod · asset review: draft
+  - heroAssetId: story-illustration-norse-thor-and-geirrod · asset review: draft · file: 1672×941 · sha256: 10288aec15f432ac168a253e662fcf26064e5574756b00378c5ebfe6d8a03b5c · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **芬里尔与格莱普尼尔** (`fenrir-and-gleipnir`) · attributed
   - characters: character-fenrir, character-tyr, character-odin · worlds: world-asgard, world-jotunheim · scenes: scene-asgard-court · objects: object-norse-gleipnir
-  - heroAssetId: story-illustration-norse-fenrir-and-gleipnir · asset review: draft
+  - heroAssetId: story-illustration-norse-fenrir-and-gleipnir · asset review: draft · file: 1672×941 · sha256: eccf5ada26030c7d7e5519bdedb1022103421f3fadae8ebf669c1284373ac2bd · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **洛基的宴席争辩** (`lokis-feast`) · attributed
   - characters: character-loki, character-odin, character-thor, character-freyja, character-tyr · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: story-illustration-norse-lokis-feast · asset review: draft
+  - heroAssetId: story-illustration-norse-lokis-feast · asset review: draft · file: 1672×941 · sha256: bae0e6acae98c26e4d9866b3363143acc48646e88e3adef33879d96fec7bad35 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **巴德尔的梦** (`baldrs-dreams`) · attributed
   - characters: character-baldr, character-odin, character-frigg · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: story-illustration-norse-baldrs-dreams · asset review: draft
+  - heroAssetId: story-illustration-norse-baldrs-dreams · asset review: draft · file: 1672×941 · sha256: 19afff32fee9de5272d53d9a84ba46494e63be63005141872633fc155fa75991 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **巴德尔之死** (`baldrs-death`) · attributed
   - characters: character-baldr, character-frigg, character-loki, character-hodr · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: story-illustration-norse-baldrs-death · asset review: draft
+  - heroAssetId: story-illustration-norse-baldrs-death · asset review: draft · file: 1672×941 · sha256: 2907a335640c466bc5c275ade8f50dc6a8a0ade9ed332f2bc3212cce0849ca98 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **巴德尔的葬礼** (`baldrs-funeral`) · attributed
   - characters: character-baldr, character-odin, character-frigg, character-thor, character-nanna · worlds: world-asgard, world-hel · scenes: scene-baldr-funeral-shore · objects: object-norse-hringhorni
-  - heroAssetId: story-illustration-norse-baldrs-funeral · asset review: draft
+  - heroAssetId: story-illustration-norse-baldrs-funeral · asset review: draft · file: 1672×941 · sha256: ffac79b6beac3be0520931a596227210e5c54ce14a75bc1464a8eff6547ef3c2 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **赫尔莫德前往赫尔** (`hermod-rides-to-hel`) · attributed
   - characters: character-hermod, character-baldr, character-hel · worlds: world-asgard, world-hel · scenes: scene-hall-of-hel · objects: none
-  - heroAssetId: story-illustration-norse-hermod-rides-to-hel · asset review: draft
+  - heroAssetId: story-illustration-norse-hermod-rides-to-hel · asset review: draft · file: 1672×941 · sha256: 9590a3b26054487927d489840b62c0910d2f5885412ae421a4fe2fa4ddb2c432 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **洛基被捕与束缚** (`loki-bound`) · attributed
   - characters: character-loki, character-sigyn · worlds: world-asgard · scenes: scene-world-tree-roots · objects: none
-  - heroAssetId: story-illustration-norse-loki-bound · asset review: draft
+  - heroAssetId: story-illustration-norse-loki-bound · asset review: draft · file: 1672×941 · sha256: d93e0562595e585de774376fc7258758e520775e84cf5a2835f4c46318e2f05d · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **芬布尔之冬与束缚崩解** (`fimbulwinter`) · attributed
   - characters: character-fenrir, character-jormungandr, character-loki, character-odin · worlds: world-midgard, world-jotunheim · scenes: scene-fimbulwinter-field · objects: none
-  - heroAssetId: story-illustration-norse-fimbulwinter · asset review: draft
+  - heroAssetId: story-illustration-norse-fimbulwinter · asset review: draft · file: 1672×941 · sha256: f4f29a56cc29f17942ae183d2b9cb7ed6ccb18003172bc442ad64ee57d5db7ef · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **奥丁与芬里尔** (`odin-and-fenrir`) · attributed
   - characters: character-odin, character-fenrir, character-vidarr · worlds: world-midgard, world-asgard · scenes: scene-fimbulwinter-field · objects: none
-  - heroAssetId: story-illustration-norse-odin-and-fenrir · asset review: draft
+  - heroAssetId: story-illustration-norse-odin-and-fenrir · asset review: draft · file: 1672×941 · sha256: 10598a4491de5ccebff3c705ea1aaec4e3ae341a8946b080d25ca697cf31f023 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **索尔与世界蛇的最后一战** (`thor-and-jormungandr-final-battle`) · attributed
   - characters: character-thor, character-jormungandr · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
-  - heroAssetId: story-illustration-norse-thor-jormungandr-final-battle · asset review: draft
+  - heroAssetId: story-illustration-norse-thor-jormungandr-final-battle · asset review: draft · file: 1672×941 · sha256: d4829022fa7e1c9a7dceb0657bd61a88e4f416839b6cb94a455942974d1f19ec · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **弗雷与苏尔特** (`freyr-and-surtr`) · attributed
   - characters: character-freyr, character-surtr · worlds: world-muspell, world-asgard · scenes: scene-muspell-flame-border · objects: object-norse-freyrs-sword
-  - heroAssetId: story-illustration-norse-freyr-and-surtr · asset review: draft
+  - heroAssetId: story-illustration-norse-freyr-and-surtr · asset review: draft · file: 1672×941 · sha256: e30cee944ad51d477a5a2e21b1e0108f75ac113fa43e7fd194f1b188836cb593 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **海姆达尔、洛基与加拉尔号角** (`heimdall-and-loki`) · attributed
   - characters: character-heimdall, character-loki · worlds: world-asgard · scenes: scene-bifrost · objects: object-norse-gjallarhorn
-  - heroAssetId: story-illustration-norse-heimdall-and-loki · asset review: draft
+  - heroAssetId: story-illustration-norse-heimdall-and-loki · asset review: draft · file: 1672×941 · sha256: b20bc8135203cdd558ef1efc9a563d4c8f4f4281dee86cad155b688f2421346c · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **世界毁灭、回归与新生** (`ragnarok`) · attributed
   - characters: character-vidarr, character-baldr, character-hodr · worlds: world-midgard, world-asgard · scenes: scene-renewed-earth · objects: object-norse-naglfar
-  - heroAssetId: story-illustration-norse-ragnarok · asset review: draft
+  - heroAssetId: story-illustration-norse-ragnarok · asset review: draft · file: 1672×941 · sha256: 0b7b29c36b060c1e3804667c38feb39950fb24b7aa9b8f0f646258de7b5d1411 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **沃尔松格与树中神剑** (`volsung-and-sword-tree`) · attributed
   - characters: character-volsung, character-sigmund · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: story-illustration-norse-volsung-and-sword-tree · asset review: draft
+  - heroAssetId: story-illustration-norse-volsung-and-sword-tree · asset review: draft · file: 1672×941 · sha256: 9c27dc9b9b10e6032355d34ba39b3c7648ba2accebeb24583aa9bdb039ea337a · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **西格妮与西格盖尔** (`signy-and-siggeir`) · attributed
   - characters: character-signy, character-siggeir, character-sigmund · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: story-illustration-norse-signy-and-siggeir · asset review: draft
+  - heroAssetId: story-illustration-norse-signy-and-siggeir · asset review: draft · file: 1672×941 · sha256: 010a68ccaf708c020d77c93b67b546715e89760ec9225b36f326b3dc6428dc65 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **西格蒙德与辛菲奥特利** (`sigmund-and-sinfjotli`) · attributed
   - characters: character-sigmund, character-sinfjotli · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: story-illustration-norse-sigmund-and-sinfjotli · asset review: draft
+  - heroAssetId: story-illustration-norse-sigmund-and-sinfjotli · asset review: draft · file: 1672×941 · sha256: 34f72b9c4db219d60d41c31a5f851b70d4ad7d3b9f104f4187e70f85b8cf7012 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **西格尔德与雷金** (`sigurd-and-regin`) · attributed
   - characters: character-sigurd, character-regin · worlds: world-midgard · scenes: scene-volsung-hall · objects: object-norse-gram
-  - heroAssetId: story-illustration-norse-sigurd-and-regin · asset review: draft
+  - heroAssetId: story-illustration-norse-sigurd-and-regin · asset review: draft · file: 1672×941 · sha256: 9dae047f34661fd46b534a577eb0c93ce749335736da5960be2cbb0447d02d4b · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **西格尔德斩杀法夫纳** (`sigurd-kills-fafnir`) · attributed
   - characters: character-sigurd, character-fafnir, character-regin · worlds: world-midgard · scenes: scene-volsung-hall · objects: object-norse-gram, object-norse-andvaranaut
-  - heroAssetId: story-illustration-norse-sigurd-kills-fafnir · asset review: draft
+  - heroAssetId: story-illustration-norse-sigurd-kills-fafnir · asset review: draft · file: 1672×941 · sha256: 488ef3a64cbb357d6018a27e4af05c6b39a91d220189488f988b060973ce84a1 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **西格尔德与布伦希尔德** (`sigurd-and-brynhildr`) · attributed
   - characters: character-sigurd, character-brynhildr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: story-illustration-norse-sigurd-and-brynhildr · asset review: draft
+  - heroAssetId: story-illustration-norse-sigurd-and-brynhildr · asset review: draft · file: 1672×941 · sha256: 58edfe01bc6ef1967b8d013b7ac152f9eee4158b99c03b8fdbafa9ffa239d4f5 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **西格尔德之死** (`sigurds-death`) · attributed
   - characters: character-sigurd, character-brynhildr, character-gudrun, character-gunnar, character-hogni · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: story-illustration-norse-sigurds-death · asset review: draft
+  - heroAssetId: story-illustration-norse-sigurds-death · asset review: draft · file: 1672×941 · sha256: 8600c8225c3b98e7bc2d2b450302efe2a576ae099c3df5d316f1c2d239acb305 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **奥丁与瓦夫苏鲁德尼尔** (`odin-and-vafthrudnir`) · attributed
   - characters: character-odin, character-vafthrudnir · worlds: world-asgard, world-jotunheim · scenes: scene-jotunheim-border · objects: none
-  - heroAssetId: story-illustration-norse-odin-and-vafthrudnir · asset review: draft
+  - heroAssetId: story-illustration-norse-odin-and-vafthrudnir · asset review: draft · file: 1672×941 · sha256: 15fe74ee7ca9ffe4f1498c62481f9917e5dd10458ad2cf9d39509ad1675f73e1 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **索尔与海米尔的大锅** (`thor-and-hymir`) · attributed
   - characters: character-thor, character-hymir · worlds: world-jotunheim · scenes: scene-jotunheim-border · objects: none
-  - heroAssetId: story-illustration-norse-thor-and-hymir · asset review: draft
+  - heroAssetId: story-illustration-norse-thor-and-hymir · asset review: draft · file: 1672×941 · sha256: 0c3389d09eb9683189d31ff9822ccdd3ae7eaeb7c85d2a77bae47227511fa8ad · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **洛基与安格尔伯达** (`loki-and-angrboda`) · attributed
   - characters: character-loki, character-angrboda, character-fenrir, character-jormungandr, character-hel · worlds: world-asgard, world-jotunheim, world-midgard, world-hel · scenes: scene-asgard-court · objects: none
-  - heroAssetId: story-illustration-norse-loki-and-angrboda · asset review: draft
+  - heroAssetId: story-illustration-norse-loki-and-angrboda · asset review: draft · file: 1672×941 · sha256: 5fe30031fb58f208180eef4e66b3fe64025c40505c54f0ddf5bbe38cca165c1b · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **格里姆尼尔的启示** (`grimnir-revealed`) · attributed
   - characters: character-odin · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: story-illustration-norse-grimnir-revealed · asset review: draft
+  - heroAssetId: story-illustration-norse-grimnir-revealed · asset review: draft · file: 1672×941 · sha256: 0a2172ffd9eeba27698261207423cdc4488bb1fe754919cf105e0a2a20eb63b5 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **瓦尔哈拉与女武神** (`valholl-and-valkyries`) · attributed
   - characters: character-odin · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: story-illustration-norse-valholl-and-valkyries · asset review: draft
+  - heroAssetId: story-illustration-norse-valholl-and-valkyries · asset review: draft · file: 1672×941 · sha256: a24d0e8dd62eab23121d10d279870ec5a3cbeeb77d87d7dbe4f8e671386f9b77 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **安德瓦里与被诅咒的黄金** (`andvari-gold`) · attributed
   - characters: character-andvari, character-ottr, character-hreidmar, character-fafnir · worlds: world-midgard · scenes: scene-volsung-hall · objects: object-norse-andvaranaut
-  - heroAssetId: story-illustration-norse-andvari-gold · asset review: draft
+  - heroAssetId: story-illustration-norse-andvari-gold · asset review: draft · file: 1672×941 · sha256: 70fa73a07990baaa2f2e337edacb073a26a4feff247fc418edf668cfb3beb885 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **赫尔吉·洪丁斯巴尼** (`helgi-hundingsbani`) · attributed
   - characters: character-helgi-hundingsbani, character-sigrun, character-sinfjotli · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
-  - heroAssetId: story-illustration-norse-helgi-hundingsbani · asset review: draft
+  - heroAssetId: story-illustration-norse-helgi-hundingsbani · asset review: draft · file: 1672×941 · sha256: 4ccf083072d31ddf8838718b330970a8468e95d9b758c4b8bed6ffbd182d3127 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **沃伦德：被囚的铁匠** (`volundr-captive-smith`) · attributed
   - characters: character-volundr, character-nidudr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: story-illustration-norse-volundr-captive-smith · asset review: draft
+  - heroAssetId: story-illustration-norse-volundr-captive-smith · asset review: draft · file: 1672×941 · sha256: a844bad67157f4e1adbcd1a9c4f411e7dbe34a2e6f192a9510fa8f1dca2568d9 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **索尔与斯克里米尔** (`thor-and-skrymir`) · attributed
   - characters: character-thor, character-loki, character-skrymir · worlds: world-jotunheim · scenes: scene-jotunheim-border · objects: none
-  - heroAssetId: story-illustration-norse-thor-and-skrymir · asset review: draft
+  - heroAssetId: story-illustration-norse-thor-and-skrymir · asset review: draft · file: 1672×941 · sha256: 005c40f04ad099c6d0acba3e83d5aee132f5be5fe0f7cfc8145dd99740d144d5 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **洛基与巴德尔之死** (`loki-and-baldr`) · attributed
   - characters: character-loki, character-baldr, character-hodr, character-frigg · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: story-illustration-norse-loki-and-baldr · asset review: draft
+  - heroAssetId: story-illustration-norse-loki-and-baldr · asset review: draft · file: 1672×941 · sha256: f9bbb6bd8c4c30fd74d68647424671f9c4b6a0312f40825e00644ec79017b45d · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **西格蒙德之死与希奥尔迪斯** (`sigmunds-death-and-hjordis`) · attributed
   - characters: character-sigmund, character-hjordis, character-sigurd · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: story-illustration-norse-sigmunds-death-and-hjordis · asset review: draft
+  - heroAssetId: story-illustration-norse-sigmunds-death-and-hjordis · asset review: draft · file: 1672×941 · sha256: 5033422c54d4ced21a355329d92e292a89656a63afd33e933213fe595f57b1d5 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **洛基在诸神黄昏** (`loki-at-ragnarok`) · attributed
   - characters: character-loki, character-heimdall · worlds: world-asgard, world-midgard · scenes: scene-bifrost · objects: none
-  - heroAssetId: story-illustration-norse-loki-at-ragnarok · asset review: draft
+  - heroAssetId: story-illustration-norse-loki-at-ragnarok · asset review: draft · file: 1672×941 · sha256: a4dffdf20de56f14d6a21b2ac4ecb81b9ee40b71a491807913041480483d801f · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **西格尔德与西格德里法** (`sigurd-and-sigrdrifa`) · attributed
   - characters: character-sigurd, character-brynhildr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: story-illustration-norse-sigurd-and-sigrdrifa · asset review: draft
+  - heroAssetId: story-illustration-norse-sigurd-and-sigrdrifa · asset review: draft · file: 1672×941 · sha256: 86c2790ee3ede75de8f74102db44ac031ed77b51a0c34814d0c5596cbcd1430a · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **古德伦与阿特利** (`gudrun-and-atli`) · attributed
   - characters: character-gudrun, character-atli, character-gunnar, character-hogni · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: story-illustration-norse-gudrun-and-atli · asset review: draft
+  - heroAssetId: story-illustration-norse-gudrun-and-atli · asset review: draft · file: 1672×941 · sha256: 7ee243f3a53a9568438f556e5644af4a49942f745984896d7bebed9f1d439a0c · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **赫尔吉·希奥尔瓦尔松与斯瓦瓦** (`helgi-hjorvardsson-and-svava`) · attributed
   - characters: character-helgi-hjorvardsson, character-svava · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
-  - heroAssetId: story-illustration-norse-helgi-hjorvardsson-and-svava · asset review: draft
+  - heroAssetId: story-illustration-norse-helgi-hjorvardsson-and-svava · asset review: draft · file: 1672×941 · sha256: 20ecdad0b1ceab0737c26f7bcc5e84a26eb11d5ad107cdd2d63fb8def7f58628 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **赫尔吉与西格伦** (`helgi-and-sigrun`) · attributed
   - characters: character-helgi-hundingsbani, character-sigrun · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
-  - heroAssetId: story-illustration-norse-helgi-and-sigrun · asset review: draft
-- **赫尔吉的葬丘与归来** (`helgi-burial-mound`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-helgi-and-sigrun · asset review: draft · file: 1672×941 · sha256: 3d9955420efbdf614eb065dc9b767c3285a267bd656e3e70744384ea29b7692b · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **赫尔吉的葬丘与归来** (`helgi-burial-mound`) · attributed
   - characters: character-helgi-hundingsbani, character-sigrun · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
-  - heroAssetId: pending · asset review: missing
-- **沃伦德的逃离** (`volundr-escape`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-helgi-burial-mound · asset review: draft · file: 1672×941 · sha256: ffab1a89546599ffb89e2490ce8e6dfb29b8002c4a18583f6d7071acd5b03219 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **沃伦德的逃离** (`volundr-escape`) · attributed
   - characters: character-volundr, character-bodvildr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: pending · asset review: missing
+  - heroAssetId: story-illustration-norse-volundr-escape · asset review: draft · file: 1672×941 · sha256: 728743f254dd05b4ed9d90b3aad0c680e6adf3d6f99adf1d1334a8d5334d0bc6 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 - **尼德霍格与世界树** (`nidhoggr-and-world-tree`) · attributed
   - characters: character-nidhoggr · worlds: world-niflheim · scenes: scene-world-tree-roots · objects: none
-  - heroAssetId: story-illustration-norse-nidhoggr-and-world-tree · asset review: draft
-- **胡金与穆宁** (`odin-ravens`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-nidhoggr-and-world-tree · asset review: draft · file: 1672×941 · sha256: 0782fcb2481775c344768114b9dc329ee9e9b86bbaff1a4b26124e1fce5e8be1 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **胡金与穆宁** (`odin-ravens`) · attributed
   - characters: character-odin, character-huginn, character-muninn · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: pending · asset review: missing
-- **奥丁与塞德魔法** (`odin-seidr`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-odin-ravens · asset review: draft · file: 1672×941 · sha256: c01f106cee4b21b636b8748aeaf5bc7be310c41485345e3454e6f91c88686867 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **奥丁与塞德魔法** (`odin-seidr`) · attributed
   - characters: character-odin, character-freyja · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: pending · asset review: missing
-- **索尔、夏尔菲与罗丝克瓦** (`thor-and-thjalfi-roskva`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-odin-seidr · asset review: draft · file: 1672×941 · sha256: 07e39792733723f7832b9a68326ae10367f7f924b7c138facc00762b54dfa208 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **索尔、夏尔菲与罗丝克瓦** (`thor-and-thjalfi-roskva`) · attributed
   - characters: character-thor, character-thjalfi, character-roskva · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
-  - heroAssetId: pending · asset review: missing
-- **索尔与阿尔维斯** (`thor-and-alviss`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-thor-and-thjalfi-roskva · asset review: draft · file: 1672×941 · sha256: c30eb836744d3a83b43e957d2c42b02f27633c439600779639cf9458935d1f8a · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **索尔与阿尔维斯** (`thor-and-alviss`) · attributed
   - characters: character-thor, character-alviss · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: pending · asset review: missing
-- **索尔与哈巴德** (`thor-and-harbard`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-thor-and-alviss · asset review: draft · file: 1672×941 · sha256: abbdd0682f7c4643bb72297cf8e3592756b01786c581fee58c779e6b6a44ee83 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **索尔与哈巴德** (`thor-and-harbard`) · attributed
   - characters: character-thor, character-odin · worlds: world-midgard · scenes: scene-midgard-coast · objects: none
-  - heroAssetId: pending · asset review: missing
-- **瓦利为巴德尔复仇** (`vali-avenges-baldr`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-thor-and-harbard · asset review: draft · file: 1672×941 · sha256: 894ae9a533ee95399fb17070e79823849855365c3d584d7ae1fca5afcf5d1a74 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **瓦利为巴德尔复仇** (`vali-avenges-baldr`) · attributed
   - characters: character-vali, character-hodr · worlds: world-asgard · scenes: scene-asgard-court · objects: none
-  - heroAssetId: pending · asset review: missing
-- **提尔与加姆** (`tyr-and-garmr`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-vali-avenges-baldr · asset review: draft · file: 1672×941 · sha256: 18d8bf3a18b1074dbdd231b31820f87ec47e0f8421cadc2c9faf87302bb59de7 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **提尔与加姆** (`tyr-and-garmr`) · attributed
   - characters: character-tyr, character-garmr · worlds: world-hel · scenes: scene-fimbulwinter-field · objects: none
-  - heroAssetId: pending · asset review: missing
-- **古德伦、斯万希尔德与哈姆迪尔兄弟** (`gudrun-svanhild-hamdir-sorli`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-tyr-and-garmr · asset review: draft · file: 1672×941 · sha256: 6f032b402854b50e337f1151f10f071b171ef4236f00cd9e560f5bd8eb94b5be · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **古德伦、斯万希尔德与哈姆迪尔兄弟** (`gudrun-svanhild-hamdir-sorli`) · attributed
   - characters: character-gudrun, character-svanhildr, character-hamdir, character-sorli · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: pending · asset review: missing
-- **斯维普达格与孟格洛德** (`svipdagr-and-mengloth`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-gudrun-svanhild-hamdir-sorli · asset review: draft · file: 1672×941 · sha256: 8c62e9475a37f83cbc3fb68822d626fee45991b0eef51a8932ce93939cfdc9c9 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **斯维普达格与孟格洛德** (`svipdagr-and-mengloth`) · attributed
   - characters: character-svipdagr, character-groa, character-mengloth · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: pending · asset review: missing
-- **里格与社会秩序** (`rig-and-social-orders`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-svipdagr-and-mengloth · asset review: draft · file: 1672×941 · sha256: a155b570698a966f0497692d9261ee101aa9f2b31ff516f8c44f694630505465 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **里格与社会秩序** (`rig-and-social-orders`) · attributed
   - characters: character-rigr · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: pending · asset review: missing
-- **格罗蒂之歌** (`grottasongr`) · needs-key-moment-asset
+  - heroAssetId: story-illustration-norse-rig-and-social-orders · asset review: draft · file: 1672×941 · sha256: cdaa13e56256f21788b5de01bf905de8362b014b53afb928340937362de758e7 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
+- **格罗蒂之歌** (`grottasongr`) · attributed
   - characters: none · worlds: world-midgard · scenes: scene-volsung-hall · objects: none
-  - heroAssetId: pending · asset review: missing
+  - heroAssetId: story-illustration-norse-grottasongr · asset review: draft · file: 1672×941 · sha256: 69a3f5c8d860fb24fcb1fa48761bac2d7bea02975593eabb55d610f2c321c325 · reviewer type: pending · reviewer: pending · reviewed at: pending · review notes: pending
 
 ## Gate
 
+- Reviewer type: pending
 - Reviewer: pending
 - Decision: pending
 - Note: 资产生成、来源边界、桌面/移动构图和产品文案安全区必须分别审查。

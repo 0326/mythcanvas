@@ -1,0 +1,328 @@
+---
+import type { Character, Mythology, World } from '../../lib/content/types';
+import type { MythStoryVolume } from '../../lib/content/stories';
+import NorseStoryVolume from './NorseStoryVolume.astro';
+
+interface Props {
+  mythology: Mythology;
+  volumes: MythStoryVolume[];
+  characters: Character[];
+  worlds: World[];
+}
+
+const { mythology, volumes, characters, worlds } = Astro.props;
+const volumeNumerals = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
+---
+
+<section class="norse-story-reader" data-norse-volume-reader aria-labelledby="norse-reader-title">
+  <div class="container-wide norse-reader-grid">
+    <aside class="norse-reader-sidebar">
+      <div class="norse-reader-sidebar-inner">
+        <span class="eyebrow">Story Index</span>
+        <h2>神话长卷</h2>
+        <p>按章节进入北欧神话。右侧只展开当前卷，切换时再载入对应故事图像。</p>
+
+        <nav class="norse-volume-nav" aria-label={`${mythology.name}故事章节`}>
+          {volumes.map((volume, volumeIndex) => (
+            <button
+              type="button"
+              class="norse-volume-nav-item"
+              data-volume-target={volume.id}
+              aria-pressed={volumeIndex === 0 ? 'true' : 'false'}
+            >
+              <span class="norse-volume-nav-number">{volumeNumerals[volumeIndex] ?? String(volumeIndex + 1).padStart(2, '0')}</span>
+              <span class="norse-volume-nav-copy">
+                <strong>{volume.title}</strong>
+                <small>{volume.stories.length} 篇故事</small>
+              </span>
+            </button>
+          ))}
+        </nav>
+      </div>
+    </aside>
+
+    <main class="norse-reader-main">
+      <header class="norse-reader-intro">
+        <span class="eyebrow">Illustrated Mythology</span>
+        <h2 id="norse-reader-title">从故事进入 {mythology.name}</h2>
+        <p class="literary-copy">神话不是一条被整理得过分整齐的年表。选择左侧章节，沿着传说、典籍与版本流变进入北欧神话；当前章节之外的插画不会提前加载。</p>
+      </header>
+
+      <div class="norse-volume-stage" data-volume-stage aria-live="polite">
+        {volumes[0] && <NorseStoryVolume mythology={mythology} volume={volumes[0]} volumeIndex={0} characters={characters} worlds={worlds} />}
+      </div>
+
+      {volumes.map((volume, volumeIndex) => (
+        <template data-volume-template={volume.id}>
+          <NorseStoryVolume mythology={mythology} volume={volume} volumeIndex={volumeIndex} characters={characters} worlds={worlds} />
+        </template>
+      ))}
+    </main>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const reader = document.querySelector('[data-norse-volume-reader]');
+    if (!reader) return;
+
+    const stage = reader.querySelector('[data-volume-stage]');
+    const buttons = [...reader.querySelectorAll('[data-volume-target]')];
+    const templates = [...reader.querySelectorAll('[data-volume-template]')];
+    const templateById = new Map(templates.map((template) => [template.dataset.volumeTemplate, template]));
+    const firstId = buttons[0]?.dataset.volumeTarget;
+
+    const activate = (id, shouldScroll = false) => {
+      if (!id || !stage || !templateById.has(id)) return;
+      const template = templateById.get(id);
+      stage.replaceChildren(template.content.cloneNode(true));
+      buttons.forEach((button) => {
+        const active = button.dataset.volumeTarget === id;
+        button.setAttribute('aria-pressed', String(active));
+      });
+      if (window.location.hash !== `#volume-${id}`) {
+        history.replaceState(null, '', `#volume-${id}`);
+      }
+      if (shouldScroll) {
+        stage.querySelector(`[data-volume-panel="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+    };
+
+    buttons.forEach((button, index) => {
+      button.addEventListener('click', () => activate(button.dataset.volumeTarget, true));
+      button.addEventListener('keydown', (event) => {
+        if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const targetIndex = event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? buttons.length - 1
+            : Math.max(0, Math.min(buttons.length - 1, index + (event.key === 'ArrowDown' ? 1 : -1)));
+        buttons[targetIndex]?.focus();
+        activate(buttons[targetIndex]?.dataset.volumeTarget, true);
+      });
+    });
+
+    window.addEventListener('hashchange', () => {
+      const id = window.location.hash.replace(/^#volume-/, '');
+      if (templateById.has(id)) activate(id, true);
+    });
+
+    const initialId = window.location.hash.startsWith('#volume-')
+      ? window.location.hash.slice('#volume-'.length)
+      : firstId;
+    activate(templateById.has(initialId) ? initialId : firstId);
+  })();
+</script>
+
+<style>
+  .norse-story-reader {
+    padding: clamp(5rem, 8vw, 8rem) 0 9rem;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--bg-primary) 92%, transparent), var(--bg-primary) 9rem),
+      var(--page-glow);
+  }
+
+  .norse-reader-grid {
+    display: grid;
+    grid-template-columns: minmax(230px, 250px) minmax(0, 1fr);
+    gap: clamp(3.5rem, 6vw, 6.5rem);
+    align-items: start;
+  }
+
+  .norse-reader-sidebar {
+    min-width: 0;
+  }
+
+  .norse-reader-sidebar-inner {
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+    max-height: calc(100svh - var(--header-height) - 3.5rem);
+    overflow-y: auto;
+    padding: .2rem 1.5rem 1rem 0;
+    border-right: 1px solid var(--border);
+    scrollbar-width: thin;
+  }
+
+  .norse-reader-sidebar h2 {
+    margin: .7rem 0 .8rem;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 520;
+  }
+
+  .norse-reader-sidebar p {
+    margin: 0 0 2rem;
+    color: var(--text-muted);
+    font-family: var(--font-literary);
+    font-size: .86rem;
+    line-height: 1.8;
+  }
+
+  .norse-volume-nav {
+    display: grid;
+    gap: .3rem;
+  }
+
+  .norse-volume-nav-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: .65rem;
+    align-items: start;
+    width: 100%;
+    padding: .75rem .65rem .75rem 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: color var(--transition-fast), background var(--transition-fast), padding-left var(--transition-fast);
+  }
+
+  .norse-volume-nav-item::before {
+    position: absolute;
+    inset: .55rem auto .55rem 0;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+    content: '';
+    opacity: 0;
+    transform: scaleY(.35);
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .norse-volume-nav-item:hover,
+  .norse-volume-nav-item[aria-pressed='true'] {
+    padding-left: .75rem;
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--surface) 60%, transparent);
+  }
+
+  .norse-volume-nav-item[aria-pressed='true']::before {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  .norse-volume-nav-number {
+    padding-top: .1rem;
+    color: var(--accent-strong);
+    font-family: var(--font-display);
+    font-size: .82rem;
+  }
+
+  .norse-volume-nav-copy {
+    display: grid;
+    gap: .2rem;
+    min-width: 0;
+  }
+
+  .norse-volume-nav-copy strong {
+    overflow: hidden;
+    color: inherit;
+    font-family: var(--font-display);
+    font-size: .88rem;
+    font-weight: 560;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .norse-volume-nav-copy small {
+    color: var(--text-muted);
+    font-size: .68rem;
+  }
+
+  .norse-reader-main {
+    min-width: 0;
+  }
+
+  .norse-reader-intro {
+    max-width: 760px;
+    margin-bottom: 4.25rem;
+  }
+
+  .norse-reader-intro h2 {
+    margin: .75rem 0 1.25rem;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(2.7rem, 4.5vw, 4.8rem);
+    font-weight: 520;
+    line-height: 1.08;
+  }
+
+  .norse-reader-intro p {
+    max-width: 680px;
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 1.02rem;
+    line-height: 1.9;
+  }
+
+  @media (max-width: 1180px) {
+    .norse-reader-grid {
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 3.25rem;
+    }
+  }
+
+  @media (max-width: 820px) {
+    .norse-story-reader {
+      padding: 4rem 0 5rem;
+    }
+
+    .norse-reader-grid {
+      display: block;
+    }
+
+    .norse-reader-sidebar {
+      margin-bottom: 3rem;
+    }
+
+    .norse-reader-sidebar-inner {
+      position: static;
+      max-height: none;
+      padding: 0 0 1.5rem;
+      border-right: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .norse-reader-sidebar p {
+      max-width: 34rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .norse-volume-nav {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .35rem;
+    }
+
+    .norse-volume-nav-item {
+      padding: .65rem .5rem;
+    }
+
+    .norse-volume-nav-item:hover,
+    .norse-volume-nav-item[aria-pressed='true'] {
+      padding-left: .75rem;
+    }
+
+    .norse-reader-intro {
+      margin-bottom: 3rem;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .norse-volume-nav {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .norse-volume-nav-item,
+    .norse-volume-nav-item::before {
+      transition: none;
+    }
+  }
+</style>

@@ -2,6 +2,7 @@
 import { ArrowDown, ArrowRight, BookOpenText, Landmark, UserRound } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MythologyStoryReader from '../../components/mythology/MythologyStoryReader.astro';
+import NorseStoryReader from '../../components/mythology/NorseStoryReader.astro';
 import MythologyGenealogy from '../../components/mythology/MythologyGenealogy.astro';
 import {
   getPublicCharactersForMythology,
@@ -152,13 +153,22 @@ const storyCreativeWorks = stories.map((story) => {
   )}
 
   <div id="stories">
-    <MythologyStoryReader
-      mythology={mythology}
-      volumes={volumes}
-      characters={relatedCharacters}
-      worlds={relatedWorlds}
-      storyDetailRoutes={storyDetailRoutes}
-    />
+    {mythology.id === 'myth-norse' ? (
+      <NorseStoryReader
+        mythology={mythology}
+        volumes={volumes}
+        characters={relatedCharacters}
+        worlds={relatedWorlds}
+      />
+    ) : (
+      <MythologyStoryReader
+        mythology={mythology}
+        volumes={volumes}
+        characters={relatedCharacters}
+        worlds={relatedWorlds}
+        storyDetailRoutes={storyDetailRoutes}
+      />
+    )}
   </div>
 
   {mythology.id === 'myth-greek' && (

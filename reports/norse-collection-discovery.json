@@ -1,5 +1,6 @@
 {
   "version": "0.1.0",
+  "snapshotVersion": "norse-completion-snapshot-v2-efbe92674e040b87",
   "status": "blocked-until-completion",
   "mythologyId": "myth-norse",
   "generatedFor": "collection-discovery",
@@ -19,11 +20,25 @@
     "sourceReviewedP0": "pending",
     "visualApprovedWorlds": "pending",
     "visualApprovedStoryKeyMoments": "pending",
-    "productSignoff": "pending"
+    "identityAudit": "pending",
+    "productSignoff": "pending",
+    "snapshotApproval": "pending"
+  },
+  "approvalRecords": {
+    "identityAudit": {
+      "status": "pending"
+    },
+    "productSignoff": {
+      "status": "pending"
+    },
+    "snapshotApproval": {
+      "status": "pending"
+    }
   },
   "exclusions": [
     "不创建 Collection Manifest、Card Manifest、卡数、定价或稀有度。",
-    "P2 独立传统是否纳入 Collection 仍需 Phase 9 人工排除项决定。"
+    "P2 独立传统暂缓纳入 Collection Discovery：里格与社会秩序（rig-and-social-orders）；需完成独立来源与产品适配复核。",
+    "P2 独立传统暂缓纳入 Collection Discovery：格罗蒂之歌（grottasongr）；需完成独立来源与产品适配复核。"
   ],
   "cycles": [
     {
@@ -34,6 +49,7 @@
       "p0StoryCount": 14,
       "p0SourceReviewedStoryCount": 0,
       "missingStoryManifestIds": [],
+      "deferredStoryManifestIds": [],
       "characterIds": [
         "character-baldr",
         "character-fenrir",
@@ -188,7 +204,7 @@
         "approvedWorldCount": 0,
         "sceneCount": 9,
         "objectCount": 5,
-        "storyKeyMomentCount": 14,
+        "storyKeyMomentCount": 16,
         "approvedStoryKeyMomentCount": 0,
         "status": "blocked",
         "reasons": [
@@ -198,7 +214,7 @@
       },
       "naturalCardCapacity": {
         "status": "deferred-until-content-gate",
-        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+        "reason": "先完成 P0 来源审校、Phase 6 身份审计、视觉批准、Completion Snapshot 批准和产品签字；本报告不推导卡数或商品规格。"
       }
     },
     {
@@ -209,6 +225,7 @@
       "p0StoryCount": 7,
       "p0SourceReviewedStoryCount": 0,
       "missingStoryManifestIds": [],
+      "deferredStoryManifestIds": [],
       "characterIds": [
         "character-buri",
         "character-hati",
@@ -339,7 +356,7 @@
       },
       "naturalCardCapacity": {
         "status": "deferred-until-content-gate",
-        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+        "reason": "先完成 P0 来源审校、Phase 6 身份审计、视觉批准、Completion Snapshot 批准和产品签字；本报告不推导卡数或商品规格。"
       }
     },
     {
@@ -350,6 +367,7 @@
       "p0StoryCount": 10,
       "p0SourceReviewedStoryCount": 0,
       "missingStoryManifestIds": [],
+      "deferredStoryManifestIds": [],
       "characterIds": [
         "character-freyja",
         "character-freyr",
@@ -464,7 +482,7 @@
         "approvedWorldCount": 0,
         "sceneCount": 2,
         "objectCount": 6,
-        "storyKeyMomentCount": 5,
+        "storyKeyMomentCount": 10,
         "approvedStoryKeyMomentCount": 0,
         "status": "blocked",
         "reasons": [
@@ -474,7 +492,7 @@
       },
       "naturalCardCapacity": {
         "status": "deferred-until-content-gate",
-        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+        "reason": "先完成 P0 来源审校、Phase 6 身份审计、视觉批准、Completion Snapshot 批准和产品签字；本报告不推导卡数或商品规格。"
       }
     },
     {
@@ -485,6 +503,7 @@
       "p0StoryCount": 0,
       "p0SourceReviewedStoryCount": 0,
       "missingStoryManifestIds": [],
+      "deferredStoryManifestIds": [],
       "characterIds": [
         "character-helgi-hjorvardsson",
         "character-helgi-hundingsbani",
@@ -556,7 +575,7 @@
         "approvedWorldCount": 0,
         "sceneCount": 1,
         "objectCount": 0,
-        "storyKeyMomentCount": 3,
+        "storyKeyMomentCount": 4,
         "approvedStoryKeyMomentCount": 0,
         "status": "blocked",
         "reasons": [
@@ -566,23 +585,26 @@
       },
       "naturalCardCapacity": {
         "status": "deferred-until-content-gate",
-        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+        "reason": "先完成 P0 来源审校、Phase 6 身份审计、视觉批准、Completion Snapshot 批准和产品签字；本报告不推导卡数或商品规格。"
       }
     },
     {
       "cycleId": "independent-eddic",
-      "storyCount": 5,
-      "publishedStoryCount": 5,
+      "storyCount": 3,
+      "publishedStoryCount": 3,
       "sourceReviewedStoryCount": 0,
       "p0StoryCount": 0,
       "p0SourceReviewedStoryCount": 0,
       "missingStoryManifestIds": [],
+      "deferredStoryManifestIds": [
+        "norse-manifest-rig-and-social-orders",
+        "norse-manifest-grottasongr"
+      ],
       "characterIds": [
         "character-bodvildr",
         "character-groa",
         "character-mengloth",
         "character-nidudr",
-        "character-rigr",
         "character-svipdagr",
         "character-volundr"
       ],
@@ -640,7 +662,7 @@
       "narrativeContinuity": {
         "status": "blocked",
         "reasons": [
-          "5 个 Story 尚未完成来源审校"
+          "3 个 Story 尚未完成来源审校"
         ]
       },
       "visualDiversity": {
@@ -648,17 +670,17 @@
         "approvedWorldCount": 0,
         "sceneCount": 1,
         "objectCount": 0,
-        "storyKeyMomentCount": 1,
+        "storyKeyMomentCount": 3,
         "approvedStoryKeyMomentCount": 0,
         "status": "blocked",
         "reasons": [
           "World 双端视觉批准为 0/1",
-          "Story key-moment 批准为 0/5"
+          "Story key-moment 批准为 0/3"
         ]
       },
       "naturalCardCapacity": {
         "status": "deferred-until-content-gate",
-        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+        "reason": "先完成 P0 来源审校、Phase 6 身份审计、视觉批准、Completion Snapshot 批准和产品签字；本报告不推导卡数或商品规格。"
       }
     },
     {
@@ -669,6 +691,7 @@
       "p0StoryCount": 9,
       "p0SourceReviewedStoryCount": 0,
       "missingStoryManifestIds": [],
+      "deferredStoryManifestIds": [],
       "characterIds": [
         "character-angrboda",
         "character-baldr",
@@ -824,7 +847,7 @@
         "approvedWorldCount": 0,
         "sceneCount": 4,
         "objectCount": 5,
-        "storyKeyMomentCount": 7,
+        "storyKeyMomentCount": 9,
         "approvedStoryKeyMomentCount": 0,
         "status": "blocked",
         "reasons": [
@@ -834,7 +857,7 @@
       },
       "naturalCardCapacity": {
         "status": "deferred-until-content-gate",
-        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+        "reason": "先完成 P0 来源审校、Phase 6 身份审计、视觉批准、Completion Snapshot 批准和产品签字；本报告不推导卡数或商品规格。"
       }
     },
     {
@@ -845,6 +868,7 @@
       "p0StoryCount": 7,
       "p0SourceReviewedStoryCount": 0,
       "missingStoryManifestIds": [],
+      "deferredStoryManifestIds": [],
       "characterIds": [
         "character-freyja",
         "character-huginn",
@@ -936,7 +960,7 @@
         "approvedWorldCount": 0,
         "sceneCount": 4,
         "objectCount": 1,
-        "storyKeyMomentCount": 7,
+        "storyKeyMomentCount": 9,
         "approvedStoryKeyMomentCount": 0,
         "status": "blocked",
         "reasons": [
@@ -946,7 +970,7 @@
       },
       "naturalCardCapacity": {
         "status": "deferred-until-content-gate",
-        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+        "reason": "先完成 P0 来源审校、Phase 6 身份审计、视觉批准、Completion Snapshot 批准和产品签字；本报告不推导卡数或商品规格。"
       }
     },
     {
@@ -957,6 +981,7 @@
       "p0StoryCount": 7,
       "p0SourceReviewedStoryCount": 0,
       "missingStoryManifestIds": [],
+      "deferredStoryManifestIds": [],
       "characterIds": [
         "character-alviss",
         "character-freyja",
@@ -1093,7 +1118,7 @@
         "approvedWorldCount": 0,
         "sceneCount": 4,
         "objectCount": 3,
-        "storyKeyMomentCount": 7,
+        "storyKeyMomentCount": 10,
         "approvedStoryKeyMomentCount": 0,
         "status": "blocked",
         "reasons": [
@@ -1103,7 +1128,7 @@
       },
       "naturalCardCapacity": {
         "status": "deferred-until-content-gate",
-        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+        "reason": "先完成 P0 来源审校、Phase 6 身份审计、视觉批准、Completion Snapshot 批准和产品签字；本报告不推导卡数或商品规格。"
       }
     },
     {
@@ -1114,6 +1139,7 @@
       "p0StoryCount": 11,
       "p0SourceReviewedStoryCount": 0,
       "missingStoryManifestIds": [],
+      "deferredStoryManifestIds": [],
       "characterIds": [
         "character-andvari",
         "character-atli",
@@ -1204,7 +1230,7 @@
         "approvedWorldCount": 0,
         "sceneCount": 1,
         "objectCount": 2,
-        "storyKeyMomentCount": 11,
+        "storyKeyMomentCount": 12,
         "approvedStoryKeyMomentCount": 0,
         "status": "blocked",
         "reasons": [
@@ -1214,7 +1240,7 @@
       },
       "naturalCardCapacity": {
         "status": "deferred-until-content-gate",
-        "reason": "先完成 P0 来源审校、视觉批准和产品签字；本报告不推导卡数或商品规格。"
+        "reason": "先完成 P0 来源审校、Phase 6 身份审计、视觉批准、Completion Snapshot 批准和产品签字；本报告不推导卡数或商品规格。"
       }
     }
   ]

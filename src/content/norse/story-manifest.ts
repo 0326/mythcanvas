@@ -4,6 +4,7 @@ import { norseStoryDependencyPlan } from './story-dependency-plan';
 
 export type NorseManifestStatus = 'proposed' | 'researched' | 'structured' | 'source-reviewed' | 'published' | 'excluded';
 export type NorsePriority = 'P0' | 'P1' | 'P2';
+export type NorseCollectionDisposition = 'candidate' | 'deferred' | 'excluded';
 
 export type NorseStoryManifestItem = {
   id: string;
@@ -17,6 +18,8 @@ export type NorseStoryManifestItem = {
   expectedDependencies: Record<Extract<ContentEntityType, 'character' | 'world' | 'scene' | 'mythic-object' | 'concept'>, readonly string[]>;
   existingStoryId?: string;
   migrationDecision?: 'keep' | 'split' | 'merge' | 'rewrite' | 'retitle' | 'unpublish';
+  /** Product-scope disposition only; it never replaces editorial/source review. */
+  collectionDisposition?: NorseCollectionDisposition;
 };
 
 type Seed = {
@@ -31,6 +34,7 @@ type Seed = {
   objects?: readonly string[];
   existingStoryId?: string;
   migrationDecision?: NorseStoryManifestItem['migrationDecision'];
+  collectionDisposition?: NorseCollectionDisposition;
 };
 
 const item = (seed: Seed): NorseStoryManifestItem => {
@@ -53,6 +57,7 @@ const item = (seed: Seed): NorseStoryManifestItem => {
     },
     existingStoryId: seed.existingStoryId,
     migrationDecision: seed.migrationDecision,
+    collectionDisposition: seed.collectionDisposition,
   };
 };
 
@@ -151,8 +156,8 @@ export const norseStoryManifest: readonly NorseStoryManifestItem[] = [
   item({ slug: 'volundr-captive-smith', zh: '沃伦德：被囚的铁匠', en: 'Völundr the Captive Smith', cycle: 'independent-eddic', priority: 'P1', source: 'volundarkvida', locator: 'st. 1–19', characters: ['character-volundr', 'character-nidudr'], existingStoryId: 'story-volundr-captive-smith', migrationDecision: 'keep' }),
   item({ slug: 'volundr-escape', zh: '沃伦德的逃离', en: 'Völundr’s Escape', cycle: 'independent-eddic', priority: 'P1', source: 'volundarkvida', locator: 'st. 20–41', characters: ['character-volundr', 'character-bodvildr'], existingStoryId: 'story-volundr-escape', migrationDecision: 'keep' }),
   item({ slug: 'svipdagr-and-mengloth', zh: '斯维普达格与孟格洛德', en: 'Svipdagr and Menglöð', cycle: 'independent-eddic', priority: 'P1', source: 'svipdagsmal', locator: 'Grógaldr sts. 1–14; Fjölsvinnsmál sts. 1–65; combined reading is provisional', characters: ['character-svipdagr', 'character-groa', 'character-mengloth'], existingStoryId: 'story-svipdagr-and-mengloth', migrationDecision: 'keep' }),
-  item({ slug: 'rig-and-social-orders', zh: '里格与社会秩序', en: 'Rígr and Social Orders', cycle: 'independent-eddic', priority: 'P2', source: 'rigsthula', locator: 'sts. 1–49', characters: ['character-rigr'], existingStoryId: 'story-rig-and-social-orders', migrationDecision: 'keep' }),
-  item({ slug: 'grottasongr', zh: '格罗蒂之歌', en: 'Grottasöngr', cycle: 'independent-eddic', priority: 'P2', source: 'grottasongr', locator: 'sts. 1–24', existingStoryId: 'story-grottasongr', migrationDecision: 'keep' }),
+  item({ slug: 'rig-and-social-orders', zh: '里格与社会秩序', en: 'Rígr and Social Orders', cycle: 'independent-eddic', priority: 'P2', source: 'rigsthula', locator: 'sts. 1–49', characters: ['character-rigr'], existingStoryId: 'story-rig-and-social-orders', migrationDecision: 'keep', collectionDisposition: 'deferred' }),
+  item({ slug: 'grottasongr', zh: '格罗蒂之歌', en: 'Grottasöngr', cycle: 'independent-eddic', priority: 'P2', source: 'grottasongr', locator: 'sts. 1–24', existingStoryId: 'story-grottasongr', migrationDecision: 'keep', collectionDisposition: 'deferred' }),
 ];
 
 export const norseStoryCycles = [

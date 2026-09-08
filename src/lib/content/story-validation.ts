@@ -26,7 +26,8 @@ export type StoryValidationInput = {
 
 const hasText = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
 
-const isIsoDate = (value: string): boolean => {
+const isIsoDate = (value: string | undefined): boolean => {
+  if (!value) return false;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   return !Number.isNaN(Date.parse(`${value}T00:00:00.000Z`));
 };
@@ -114,6 +115,9 @@ export const validateMythStories = ({
     if (!hasText(asset.provenance.sourceType)) {
       issues.push({ field: `illustrations.${asset.id}.provenance`, message: 'Story illustration provenance is required.' });
     }
+    if (asset.provenance.reviewStatus === 'approved' && (asset.provenance.reviewerType !== 'human' || !hasText(asset.provenance.reviewer) || !isIsoDate(asset.provenance.reviewedAt) || !asset.provenance.reviewNotes?.some((note) => hasText(note)))) {
+      issues.push({ field: `illustrations.${asset.id}.provenance`, message: 'Approved Story illustrations need a named human reviewer, valid review date and review notes.' });
+    }
   });
 
   stories.forEach((story) => {
@@ -150,8 +154,8 @@ export const validateMythStories = ({
       if (TEMPLATE_SENTENCES.some((sentence) => story.blocks.some((block) => block.type === 'paragraph' && block.text.includes(sentence)))) {
         issues.push({ ...scope, field: 'blocks', message: 'Source-reviewed Stories cannot retain the shared prototype body.' });
       }
-      if (story.editorialReview?.status !== 'approved' || !hasText(story.editorialReview.reviewer) || !isIsoDate(story.editorialReview.reviewedAt)) {
-        issues.push({ ...scope, field: 'editorialReview', message: 'Source-reviewed Stories need an approved dated editorial review.' });
+      if (story.editorialReview?.status !== 'approved' || story.editorialReview.reviewerType !== 'human' || !hasText(story.editorialReview.reviewer) || !isIsoDate(story.editorialReview.reviewedAt) || !story.editorialReview.sourceDecisionNotes.some((note) => hasText(note))) {
+        issues.push({ ...scope, field: 'editorialReview', message: 'Source-reviewed Stories need an approved dated human editorial review with decision notes.' });
       }
       if (story.editorialReview?.unresolvedIssueIds.length) {
         issues.push({ ...scope, field: 'editorialReview.unresolvedIssueIds', message: 'Source-reviewed Stories cannot retain unresolved editorial issues.' });
@@ -160,8 +164,15 @@ export const validateMythStories = ({
         issues.push({ ...scope, field: 'readingMinutes', message: `readingMinutes (${story.readingMinutes}) does not match editorial prose length (${proseLength}).` });
       }
     }
-    if (story.editorialStatus === 'visual-ready' && !story.heroAssetId) {
-      issues.push({ ...scope, field: 'heroAssetId', message: 'Visual-ready Stories need an attributable key-moment illustration.' });
+    if (story.editorialStatus === 'visual-ready') {
+      if (!story.heroAssetId) {
+        issues.push({ ...scope, field: 'heroAssetId', message: 'Visual-ready Stories need an attributable key-moment illustration.' });
+      } else {
+        const heroAsset = illustrations.find((asset) => asset.id === story.heroAssetId);
+        if (heroAsset?.provenance.reviewStatus !== 'approved' || heroAsset.provenance.reviewerType !== 'human' || !hasText(heroAsset.provenance.reviewer) || !isIsoDate(heroAsset.provenance.reviewedAt) || !heroAsset.provenance.reviewNotes?.some((note) => hasText(note))) {
+          issues.push({ ...scope, field: 'heroAssetId', message: 'Visual-ready Stories need a human-approved key-moment illustration with reviewer, date and review notes.' });
+        }
+      }
     }
 
     story.sources.forEach((item, index) => {

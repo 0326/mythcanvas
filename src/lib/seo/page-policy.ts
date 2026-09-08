@@ -9,6 +9,8 @@ export type PageSeoPolicy = {
 };
 
 export type PageSeoOptions = {
+  /** Content pages may opt out of indexing until their editorial gate is green. */
+  allowIndex?: boolean;
   /**
    * Localized pages are noindex by default. A page may opt in only after its
    * data loader has proven that the requested locale has published content.
@@ -48,6 +50,10 @@ export function getPageSeoPolicy(url: URL, site: URL, options: PageSeoOptions = 
 
   const canIndexLocalized = parsed.locale === 'en' && options.allowLocalizedIndex === true;
   if (parsed.locale !== DEFAULT_LOCALE && !canIndexLocalized) {
+    return { canonicalURL, robots: 'noindex,follow' };
+  }
+
+  if (options.allowIndex === false) {
     return { canonicalURL, robots: 'noindex,follow' };
   }
 

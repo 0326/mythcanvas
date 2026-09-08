@@ -7913,10 +7913,10 @@ export const publishedArtworks: readonly Artwork[] = [
       "cold"
     ],
     "image": {
-      "src": "/media/content/art-asgard-aurora.jpg",
+      "src": "/media/content/norse/worlds/norse-asgard-mobile-final-v1.webp",
       "alt": "极光下的阿斯加德:雪崖上的金色灯火殿堂",
-      "width": 720,
-      "height": 1280
+      "width": 1440,
+      "height": 2560
     },
     "license": {
       "sourceType": "original",

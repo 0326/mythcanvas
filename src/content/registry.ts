@@ -25,6 +25,7 @@ import { norseSources } from './norse/sources';
 import { norseStorySeries } from './norse/series';
 import { norseAssetProvenance } from './norse/assets';
 import { norseVisualTiers } from './norse/visual-tiers';
+import { norseClaims, norseInterpretations, norseNames } from './norse/identities';
 import { mayaCharacters, mayaConcepts, mayaRelations, mayaScenes, mayaTaxonomy, mayaWorlds } from './maya/catalog';
 import { mayaStories } from './maya/stories';
 import { mayaAssetProvenance } from './maya/assets';
@@ -106,6 +107,9 @@ const bundles: readonly StructuredMythologyBundle[] = [
     series: norseStorySeries,
     assetProvenance: norseAssetProvenance,
     visualTiers: norseVisualTiers,
+    claims: norseClaims,
+    names: norseNames,
+    interpretations: norseInterpretations,
     sources: norseSources,
   },
   {

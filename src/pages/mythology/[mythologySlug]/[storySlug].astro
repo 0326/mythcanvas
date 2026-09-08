@@ -8,7 +8,7 @@ import {
   getPublicMythicObjectById,
   getPublicWorldsForMythology,
 } from '../../../lib/content/public-catalog';
-import { getPublicStoryPaths, getPublicStoryRedirectPaths, getStoriesForMythology, getStoryForMythology, getStoryRedirectForMythology } from '../../../lib/content/stories';
+import { getPublicStoryPaths, getPublicStoryRedirectPaths, getStoriesForMythology, getStoryForMythology, getStoryRedirectForMythology, isStoryEditoriallyIndexable } from '../../../lib/content/stories';
 import { getStoryIllustrationById } from '../../../data/story-illustrations';
 
 export const prerender = true;
@@ -48,6 +48,7 @@ const relatedObjects = (story.objectIds ?? []).map((id) => getPublicMythicObject
   title={`${story.title} · ${mythology.name}`}
   description={story.summary}
   image={storyHeroImage.src}
+  indexable={isStoryEditoriallyIndexable(story)}
 >
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={JSON.stringify({
@@ -115,7 +116,14 @@ const relatedObjects = (story.objectIds ?? []).map((id) => getPublicMythicObject
 
       <details class="story-sources">
         <summary>来源与版本说明</summary>
-        <ul>{story.sources.map((source) => <li><strong>{source.title}</strong>{source.locator && <span> · {source.locator}</span>}{source.note && <p>{source.note}</p>}</li>)}</ul>
+        <ul>{story.sources.map((source) => (
+          <li>
+            <strong>{source.title}</strong>
+            {source.locator && <span> · {source.locator}</span>}
+            {source.url && <a class="story-source-link" href={source.url} target="_blank" rel="noreferrer">打开来源</a>}
+            {source.note && <p>{source.note}</p>}
+          </li>
+        ))}</ul>
         {story.sourceNotes.map((note) => <p>{note}</p>)}
       </details>
 
@@ -169,6 +177,8 @@ const relatedObjects = (story.objectIds ?? []).map((id) => getPublicMythicObject
   .story-object small, .story-object strong { display: block; } .story-object small { color: var(--text-muted); font-size: .68rem; } .story-object p { margin: .45rem 0 0; color: var(--text-secondary); font-size: .8rem; line-height: 1.55; }
   .story-link-grid small, .story-link-grid strong { display: block; } .story-link-grid small { color: var(--text-muted); font-size: .68rem; }
   .story-sources summary { cursor: pointer; color: var(--text-primary); font-weight: 700; } .story-sources li, .story-sources p { color: var(--text-secondary); line-height: 1.7; }
+  .story-source-link { margin-left: .6rem; color: var(--accent-strong); font-size: .82rem; text-decoration: underline; text-underline-offset: .18em; }
+  .story-source-link:hover { color: var(--text-primary); }
   .story-sequence { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
   .story-sequence a { display: flex; min-width: 0; align-items: center; gap: .75rem; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface); transition: border-color var(--transition-fast), transform var(--transition-fast); }
   .story-sequence a:last-child { justify-content: flex-end; text-align: right; }

@@ -4,112 +4,112 @@ import { sourceRef, type NorseSourceKey } from './sources';
 const mythologyId = 'myth-norse';
 const date = '2026-09-01';
 const asgardImage = {
-  src: '/art/norse-asgard.jpg',
+  src: '/media/content/norse/worlds/norse-asgard-final-v1.webp',
   alt: '世界树、巨石与极光构成的北欧神域意象',
-  width: 1280,
-  height: 720,
+  width: 2560,
+  height: 1440,
 };
 const asgardMobile = {
-  src: '/art/art-asgard-aurora.jpg',
+  src: '/media/content/norse/worlds/norse-asgard-mobile-final-v1.webp',
   alt: '竖幅世界树、巨石与极光构成的北欧神域意象',
-  width: 720,
-  height: 1280,
+  width: 1440,
+  height: 2560,
 };
 const asgardDesktopV1 = {
-  src: '/art/norse-asgard-v1.png',
+  src: '/media/content/norse/worlds/norse-asgard-final-v1.webp',
   alt: '极光下坐落在峭壁与峡湾之间的阿斯加德，世界树与远处彩虹桥构成北欧神域景象',
-  width: 1672,
-  height: 941,
+  width: 2560,
+  height: 1440,
 };
 const asgardMobileV1 = {
-  src: '/art/norse-asgard-mobile-v1.png',
+  src: '/media/content/norse/worlds/norse-asgard-mobile-final-v1.webp',
   alt: '竖幅极光下的阿斯加德：世界树、峭壁神域与远处彩虹桥由下至上展开',
-  width: 941,
-  height: 1672,
+  width: 1440,
+  height: 2560,
 };
 const jotunheimDesktopV1 = {
-  src: '/art/norse-jotunheim-v1.png',
+  src: '/media/content/norse/worlds/norse-jotunheim-final-v1.webp',
   alt: '风暴云与雾气笼罩的约顿海姆玄武岩峡谷，粗粝山道通向巨石拱门和边境小屋',
-  width: 1672,
-  height: 941,
+  width: 2560,
+  height: 1440,
 };
 const jotunheimMobileV1 = {
-  src: '/art/norse-jotunheim-mobile-v1.png',
+  src: '/media/content/norse/worlds/norse-jotunheim-mobile-final-v1.webp',
   alt: '竖幅约顿海姆峡谷：风暴天空、石桥、深谷与荒野道路形成巨人边境的纵深',
-  width: 941,
-  height: 1672,
+  width: 1440,
+  height: 2560,
 };
 const midgardDesktopV1 = {
-  src: '/art/norse-midgard-v1.png',
+  src: '/media/content/norse/worlds/norse-midgard-final-v1.webp',
   alt: '暴风云下米德加尔特的环形海岸聚落，远海隐约可见环世巨蛇般的波浪弧线',
-  width: 1672,
-  height: 941,
+  width: 2560,
+  height: 1440,
 };
 const midgardMobileV1 = {
-  src: '/art/norse-midgard-mobile-v1.png',
+  src: '/media/content/norse/worlds/norse-midgard-mobile-final-v1.webp',
   alt: '竖幅米德加尔特海岸：山坡上的环形人类聚落、暴风海面与远处蛇形波浪',
-  width: 941,
-  height: 1672,
+  width: 1440,
+  height: 2560,
 };
 const helDesktopV1 = {
-  src: '/art/norse-hel-v1.png',
+  src: '/media/content/norse/worlds/norse-hel-final-v1.webp',
   alt: '冷雾中的赫尔世界洞厅：静默立石、暗河与低矮石桥通向远处的天光裂口',
-  width: 1672,
-  height: 941,
+  width: 2560,
+  height: 1440,
 };
 const helMobileV1 = {
-  src: '/art/norse-hel-mobile-v1.png',
+  src: '/media/content/norse/worlds/norse-hel-mobile-final-v1.webp',
   alt: '竖幅赫尔世界：石阶穿过冷雾、立石与暗河，通向洞穴深处的微光',
-  width: 941,
-  height: 1672,
+  width: 1440,
+  height: 2560,
 };
 const muspellDesktopV1 = {
-  src: '/art/norse-muspell-v1.png',
+  src: '/media/content/norse/worlds/norse-muspell-final-v1.webp',
   alt: '黑色玄武岩裂隙与熔岩构成的穆斯贝尔海姆火焰边界，远处的火焰之剑立于末日天光中',
-  width: 1672,
-  height: 941,
+  width: 2560,
+  height: 1440,
 };
 const muspellMobileV1 = {
-  src: '/art/norse-muspell-mobile-v1.png',
+  src: '/media/content/norse/worlds/norse-muspell-mobile-final-v1.webp',
   alt: '竖幅穆斯贝尔海姆火焰边界：黑色玄武岩裂隙、熔岩与远处火焰之剑向上延伸',
-  width: 941,
-  height: 1672,
+  width: 1440,
+  height: 2560,
 };
 const niflheimDesktopV1 = {
-  src: '/art/norse-niflheim-v1.png',
+  src: '/media/content/norse/worlds/norse-niflheim-final-v1.webp',
   alt: '银蓝雾气笼罩的尼福尔海姆冰河与冰川峡谷，冷寂的原初雾界向远处消失',
-  width: 1672,
-  height: 941,
+  width: 2560,
+  height: 1440,
 };
 const niflheimMobileV1 = {
-  src: '/art/norse-niflheim-mobile-v1.png',
+  src: '/media/content/norse/worlds/norse-niflheim-mobile-final-v1.webp',
   alt: '竖幅尼福尔海姆：暗色冰河从前景穿过狭窄冰谷，银蓝雾气向高处汇聚',
-  width: 941,
-  height: 1672,
+  width: 1440,
+  height: 2560,
 };
 const vanaheimDesktopV1 = {
-  src: '/art/norse-vanaheim-v1.png',
+  src: '/media/content/norse/worlds/norse-vanaheim-final-v1.webp',
   alt: '河口草地、湿润木材与海风中的石台构成华纳海姆的丰饶边界',
-  width: 1672,
-  height: 941,
+  width: 2560,
+  height: 1440,
 };
 const vanaheimMobileV1 = {
-  src: '/art/norse-vanaheim-mobile-v1.png',
+  src: '/media/content/norse/worlds/norse-vanaheim-mobile-final-v1.webp',
   alt: '竖幅华纳海姆：前景丰饶草地与湿润木材通向河口石台和灰蓝海面',
-  width: 941,
-  height: 1672,
+  width: 1440,
+  height: 2560,
 };
 const alfheimDesktopV1 = {
-  src: '/art/norse-alfheim-v1.png',
+  src: '/media/content/norse/worlds/norse-alfheim-final-v1.webp',
   alt: '浅色桦木林与微光水面构成亚尔夫海姆的清晨林地，远处隐约可见浅色木石居所',
-  width: 1672,
-  height: 941,
+  width: 2560,
+  height: 1440,
 };
 const alfheimMobileV1 = {
-  src: '/art/norse-alfheim-mobile-v1.png',
+  src: '/media/content/norse/worlds/norse-alfheim-mobile-final-v1.webp',
   alt: '竖幅亚尔夫海姆：浅色林木与微光水面向上延伸，远处是隐约的木石居所',
-  width: 941,
-  height: 1672,
+  width: 1440,
+  height: 2560,
 };
 
 const edda = (locator: string, note?: string): SourceRef => sourceRef('proseEddaGylfaginning', locator, note);
@@ -138,7 +138,11 @@ type CharacterSeed = readonly [
   string?,
 ];
 
-const character = ([slug, name, nameEn, role, symbols, characterType, worlds, tags, sourceKey, sourceLocator]: CharacterSeed): Character => ({
+const character = ([slug, name, nameEn, role, symbols, characterType, worlds, tags, sourceKey, sourceLocator]: CharacterSeed): Character => {
+  if (sourceKey && !sourceLocator?.trim()) {
+    throw new Error(`Norse Character ${slug} must declare a precise source locator when sourceKey is provided`);
+  }
+  return {
   id: `character-${slug}`,
   mythologyId,
   worldIds: worlds,
@@ -151,7 +155,7 @@ const character = ([slug, name, nameEn, role, symbols, characterType, worlds, ta
   characterType,
   traditionTags: tags,
   sourcePeriods: ['《诗体埃达》与《散文埃达》的中世纪记录传统'],
-  sourceRefs: [sourceKey ? sourceRef(sourceKey, sourceLocator ?? 'editorial locator pending') : edda('Gylfaginning 1–54')],
+  sourceRefs: [sourceKey ? sourceRef(sourceKey, sourceLocator!) : edda('Gylfaginning 1–54')],
   canonicality: 'primary',
   canonicalDesign: {
     anchors: [...symbols.slice(0, 3), `${name}的${role}身份`],
@@ -165,7 +169,8 @@ const character = ([slug, name, nameEn, role, symbols, characterType, worlds, ta
     avoid: ['现代超级英雄制服', '特定影视或游戏角色的武器、盔甲、发型与轮廓'],
     canonicalPrompt: `Depict ${nameEn} as an original MythCanvas Norse mythology figure. Preserve ${symbols.slice(0, 3).join(', ')} and the role of ${role}. Use grounded Nordic textile, iron, bronze, stone and weather; avoid modern franchise-specific designs.`,
   },
-});
+  };
+};
 
 const seeds: readonly CharacterSeed[] = [
   ['odin', '奥丁', 'Odin', '众神之王、智慧与战争之神', ['冈格尼尔', '独眼', '乌鸦'], 'deity', ['world-asgard'], ['aesir', 'wisdom', 'ragnarok']],
@@ -220,9 +225,9 @@ const seeds: readonly CharacterSeed[] = [
   ['hymir', '海米尔', 'Hymir', '与索尔的大锅和垂钓故事相关的巨人', ['巨锅', '鲸钩', '寒海'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'hymiskvida', 'sts. 1–39'],
   ['skrymir', '斯克里米尔', 'Skrýmir', '在索尔赴乌特加德途中相遇的巨人', ['行囊', '森林', '幻象前奏'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'proseEddaGylfaginning', 'ch. 45'],
   ['utgarda-loki', '乌特加达-洛基', 'Útgarða-Loki', '以幻象试炼索尔一行的巨人统治者', ['巨人大厅', '幻象', '挑战'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'proseEddaGylfaginning', 'chs. 46–47'],
-  ['geirrod', '盖尔罗德', 'Geirröðr', '索尔远征故事中的巨人对手', ['铁柱', '火焰', '巨人厅堂'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'thorsdrapa', 'selected stanzas'],
-  ['gjalp', '加尔普', 'Gjálp', '盖尔罗德故事中与索尔冲突的巨人女子', ['急流', '山谷', '巨人亲族'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'thorsdrapa', 'selected stanzas'],
-  ['greip', '格雷普', 'Greip', '盖尔罗德故事中与索尔冲突的巨人女子', ['巨力', '山石', '巨人亲族'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'thorsdrapa', 'selected stanzas'],
+  ['geirrod', '盖尔罗德', 'Geirröðr', '索尔远征故事中的巨人对手', ['铁柱', '火焰', '巨人厅堂'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'proseEddaSkaldskaparmal', 'ch. 18'],
+  ['gjalp', '加尔普', 'Gjálp', '盖尔罗德故事中与索尔冲突的巨人女子', ['急流', '山谷', '巨人亲族'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'proseEddaSkaldskaparmal', 'ch. 18'],
+  ['greip', '格雷普', 'Greip', '盖尔罗德故事中与索尔冲突的巨人女子', ['巨力', '山石', '巨人亲族'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'thor-cycle'], 'proseEddaSkaldskaparmal', 'ch. 18'],
   ['angrboda', '安格尔伯达', 'Angrboða', '洛基子女谱系中被称为女巨人的人物', ['铁森林', '巨狼', '蛇'], 'mythic-being', ['world-jotunheim'], ['jotunn', 'loki-family'], 'proseEddaGylfaginning', 'ch. 34'],
   ['garmr', '加姆', 'Garmr', '与诸神黄昏和海尔入口相关的犬形存在', ['犬形守卫', '赫尔入口', '末日'], 'creature', ['world-hel'], ['chthonic', 'ragnarok'], 'proseEddaGylfaginning', 'ch. 51'],
   ['volsung', '沃尔松格', 'Völsung', '沃尔松格英雄家系的祖先人物', ['剑树', '长屋', '家系'], 'hero', ['world-midgard'], ['volsung', 'hero'], 'volsungaSaga', 'chs. 2–3'],
@@ -252,7 +257,7 @@ const seeds: readonly CharacterSeed[] = [
   ['svipdagr', '斯维普达格', 'Svipdagr', '寻访孟格洛德的英雄人物', ['旅杖', '门槛', '寻访'], 'hero', ['world-midgard'], ['independent-eddic', 'hero'], 'svipdagsmal', 'Grógaldr and Fjölsvinnsmál'],
   ['groa', '格罗阿', 'Gróa', '斯维普达格故事中给予咒歌保护的母亲', ['咒歌', '坟丘', '母亲'], 'mythic-being', ['world-midgard'], ['independent-eddic', 'wisdom'], 'svipdagsmal', 'Grógaldr'],
   ['mengloth', '孟格洛德', 'Menglöð', '斯维普达格寻访故事中的人物', ['高座', '门槛', '疗愈'], 'mythic-being', ['world-midgard'], ['independent-eddic', 'wisdom'], 'svipdagsmal', 'Fjölsvinnsmál'],
-  ['rigr', '里格', 'Rígr', '与社会等级叙事相关的神秘行旅者', ['旅杖', '家屋', '社会秩序'], 'mythic-being', ['world-midgard'], ['independent-eddic'], 'rigsthula', 'selected stanzas'],
+  ['rigr', '里格', 'Rígr', '与社会等级叙事相关的神秘行旅者', ['旅杖', '家屋', '社会秩序'], 'mythic-being', ['world-midgard'], ['independent-eddic'], 'rigsthula', 'sts. 1–49'],
   ['alviss', '阿尔维斯', 'Alvíss', '与索尔进行知识竞赛的侏儒', ['问答', '石化黎明', '婚约'], 'mythic-being', ['world-asgard'], ['thor-cycle', 'wisdom'], 'alvissmal', 'sts. 1–35'],
   ['huginn', '胡金', 'Huginn', '奥丁的渡鸦之一', ['渡鸦', '思维', '远行'], 'creature', ['world-asgard'], ['odin-cycle', 'wisdom'], 'grimnismal', 'st. 20'],
   ['muninn', '穆宁', 'Muninn', '奥丁的渡鸦之一', ['渡鸦', '记忆', '远行'], 'creature', ['world-asgard'], ['odin-cycle', 'wisdom'], 'grimnismal', 'st. 20'],
@@ -382,9 +387,9 @@ export const norseRelations: readonly CharacterRelation[] = [
   relation('norse-encounters-thor-hymir', 'character-thor', 'character-hymir', 'encounters', poetic('Hymiskviða', '1–39'), 'Hymiskviða cauldron-and-fishing tradition'),
   relation('norse-encounters-thor-skrymir', 'character-thor', 'character-skrymir', 'encounters', edda('Gylfaginning 45'), 'Prose Edda Utgarðr journey tradition'),
   relation('norse-encounters-thor-utgarda-loki', 'character-thor', 'character-utgarda-loki', 'encounters', edda('Gylfaginning 46–47'), 'Prose Edda Utgarðr trial tradition'),
-  relation('norse-enemy-thor-geirrod', 'character-thor', 'character-geirrod', 'enemy', sourceRef('thorsdrapa', 'selected stanzas'), 'Þórsdrápa Geirröðr tradition'),
-  relation('norse-narrative-gjalp-geirrod', 'character-gjalp', 'character-geirrod', 'narrative', sourceRef('thorsdrapa', 'selected stanzas'), 'Þórsdrápa Geirröðr tradition', false),
-  relation('norse-narrative-greip-geirrod', 'character-greip', 'character-geirrod', 'narrative', sourceRef('thorsdrapa', 'selected stanzas'), 'Þórsdrápa Geirröðr tradition', false),
+  relation('norse-enemy-thor-geirrod', 'character-thor', 'character-geirrod', 'enemy', sourceRef('proseEddaSkaldskaparmal', 'ch. 18'), 'Skáldskaparmál Geirröðr tradition'),
+  relation('norse-narrative-gjalp-geirrod', 'character-gjalp', 'character-geirrod', 'narrative', sourceRef('proseEddaSkaldskaparmal', 'ch. 18'), 'Skáldskaparmál Geirröðr tradition', false),
+  relation('norse-narrative-greip-geirrod', 'character-greip', 'character-geirrod', 'narrative', sourceRef('proseEddaSkaldskaparmal', 'ch. 18'), 'Skáldskaparmál Geirröðr tradition', false),
   relation('norse-consort-loki-angrboda', 'character-loki', 'character-angrboda', 'consort', edda('Gylfaginning 34'), 'Prose Edda Loki-family tradition'),
   relation('norse-encounters-thor-alviss', 'character-thor', 'character-alviss', 'encounters', sourceRef('alvissmal', 'sts. 1–35'), 'Alvíssmál knowledge-contest tradition'),
   relation('norse-companion-odin-huginn', 'character-odin', 'character-huginn', 'companion', sourceRef('grimnismal', 'st. 20'), 'Grímnismál raven tradition'),
