@@ -1,0 +1,512 @@
+---
+import { ArrowUpRight, LockKeyhole } from '@lucide/astro';
+import { formatCardNumber, getCardTypeLabel } from '../../lib/cards/catalog';
+import type { CardType, MythicCard } from '../../lib/cards/types';
+
+interface Props {
+  card: MythicCard;
+  locale?: 'zh-Hans' | 'en';
+  hrefBase?: string;
+  interactive?: boolean;
+}
+
+const { card, locale = 'zh-Hans', hrefBase = '/cards/norse/m01-norse-genesis/', interactive = true } = Astro.props;
+const isEnglish = locale === 'en';
+const title = isEnglish ? card.titleEn : card.titleZh;
+const description = card.display.short;
+const identity = isEnglish && card.type === 'character' ? card.titleEn : card.display.identity;
+const typeLabel = getCardTypeLabel(card.type, locale);
+const statusLabel = card.hasArtwork
+  ? (isEnglish ? 'Artwork ready' : '已出图')
+  : (isEnglish ? 'In production' : '制作中');
+const detailHref = `${hrefBase}${card.cardId}/`;
+const cardLabel = isEnglish
+  ? `${title}, ${typeLabel}, ${statusLabel}`
+  : `${title}，${typeLabel}，${statusLabel}`;
+const foilByType: Record<CardType, string> = {
+  character: 'gold',
+  scene: 'aurora',
+  story: 'prism',
+  'mythic-object': 'metal',
+  ensemble: 'cosmos',
+};
+const foil = foilByType[card.type];
+---
+
+<article
+  class:list={['mythic-card', `card-type-${card.type}`, { 'is-planned': !card.hasArtwork }]}
+  data-card-tilt
+  data-card-status={card.hasArtwork ? 'ready' : 'planned'}
+  data-card-effect={foil}
+  data-card-id={card.cardId}
+>
+  <a class="card-stage" href={interactive ? detailHref : undefined} aria-label={cardLabel}>
+    <div class="card-tilt-layer">
+      <div class="card-face">
+        <div class="card-art" aria-hidden="true">
+          {card.imageUrl ? (
+            <img
+              src={card.imageUrl}
+              alt=""
+              width={card.output.width}
+              height={card.output.height}
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div class="planned-art">
+              <span>{String(card.cardNumber).padStart(2, '0')}</span>
+              <span>{isEnglish ? 'Artwork in progress' : '制作中'}</span>
+            </div>
+          )}
+        </div>
+
+        <div class="card-atmosphere" aria-hidden="true"></div>
+        <div class="card-holo" aria-hidden="true"></div>
+        <div class="card-glare" aria-hidden="true"></div>
+        <div class="card-frame" aria-hidden="true">
+          <span class="frame-corner frame-corner--tl"></span>
+          <span class="frame-corner frame-corner--tr"></span>
+          <span class="frame-corner frame-corner--bl"></span>
+          <span class="frame-corner frame-corner--br"></span>
+        </div>
+
+        <div class="card-content">
+          <div class="card-header">
+            <div class="card-header-copy">
+              <span class="card-series">M01 · {String(card.cardNumber).padStart(2, '0')}</span>
+              <h3>{title}</h3>
+            </div>
+            <span class="card-type">{typeLabel}</span>
+          </div>
+
+          <div class="card-info">
+            <div class="card-info-heading">
+              <p class="card-identity">{identity}</p>
+              <p class="card-subtitle">{isEnglish ? card.titleZh : card.titleEn}</p>
+            </div>
+            <p class="card-description">{description}</p>
+            <div class="card-footer-line">
+              <span>{card.hasArtwork ? formatCardNumber(card.cardNumber) : statusLabel}</span>
+              <span class="card-id">{card.cardId}</span>
+              {card.hasArtwork ? <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" /> : <LockKeyhole size={13} strokeWidth={1.8} aria-hidden="true" />}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </a>
+</article>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-card-tilt]').forEach((card) => {
+    const stage = card.querySelector<HTMLElement>('.card-stage');
+    if (!stage) return;
+
+    const reset = () => {
+      card.style.setProperty('--card-rotate-x', '0deg');
+      card.style.setProperty('--card-rotate-y', '0deg');
+      card.style.setProperty('--card-pointer-x', '50%');
+      card.style.setProperty('--card-pointer-y', '50%');
+      card.classList.remove('is-hovered');
+    };
+
+    const move = (event: PointerEvent) => {
+      if (reduceMotion.matches || event.pointerType !== 'mouse') return;
+      const rect = stage.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      const rotateY = (x - 50) * 0.07;
+      const rotateX = (50 - y) * 0.055;
+      card.style.setProperty('--card-rotate-x', `${rotateX.toFixed(2)}deg`);
+      card.style.setProperty('--card-rotate-y', `${rotateY.toFixed(2)}deg`);
+      card.style.setProperty('--card-pointer-x', `${x.toFixed(2)}%`);
+      card.style.setProperty('--card-pointer-y', `${y.toFixed(2)}%`);
+      card.classList.add('is-hovered');
+    };
+
+    stage.addEventListener('pointermove', move);
+    stage.addEventListener('pointerleave', reset);
+    stage.addEventListener('focusout', (event) => {
+      if (!stage.contains(event.relatedTarget as Node | null)) reset();
+    });
+    stage.addEventListener('focusin', () => card.classList.add('is-focused'));
+    stage.addEventListener('focusout', () => card.classList.remove('is-focused'));
+  });
+</script>
+
+<style>
+  .mythic-card {
+    --card-rotate-x: 0deg;
+    --card-rotate-y: 0deg;
+    --card-pointer-x: 50%;
+    --card-pointer-y: 50%;
+    --card-accent: #d8bd78;
+    --card-accent-soft: #f0dc9b;
+    --card-foil: linear-gradient(115deg, transparent 18%, rgba(255, 231, 151, .22) 40%, rgba(255, 255, 255, .1) 50%, transparent 75%);
+    min-width: 0;
+  }
+
+  .mythic-card[data-card-effect='aurora'] {
+    --card-accent: #93d9e1;
+    --card-accent-soft: #d1f1ee;
+    --card-foil: linear-gradient(115deg, transparent 18%, rgba(98, 229, 219, .2) 35%, rgba(163, 137, 255, .22) 50%, rgba(255, 230, 148, .18) 66%, transparent 82%);
+  }
+
+  .mythic-card[data-card-effect='prism'] {
+    --card-accent: #c6a7ef;
+    --card-accent-soft: #eee1ff;
+    --card-foil: linear-gradient(115deg, transparent 15%, rgba(94, 217, 255, .16) 30%, rgba(246, 167, 255, .25) 45%, rgba(255, 229, 157, .2) 58%, rgba(116, 228, 205, .16) 72%, transparent 88%);
+  }
+
+  .mythic-card[data-card-effect='metal'] {
+    --card-accent: #abbcc0;
+    --card-accent-soft: #e4eeee;
+    --card-foil: repeating-linear-gradient(105deg, transparent 0 12%, rgba(236, 248, 247, .1) 13% 15%, transparent 16% 27%);
+  }
+
+  .mythic-card[data-card-effect='cosmos'] {
+    --card-accent: #9fbae8;
+    --card-accent-soft: #e1e5ff;
+    --card-foil: radial-gradient(circle at 22% 28%, rgba(255, 255, 255, .34) 0 1px, transparent 2px), radial-gradient(circle at 78% 64%, rgba(231, 207, 255, .28) 0 1px, transparent 2px), linear-gradient(115deg, transparent 20%, rgba(102, 170, 255, .18) 45%, rgba(205, 144, 255, .2) 58%, transparent 82%);
+  }
+
+  .card-stage {
+    display: block;
+    perspective: 1100px;
+    color: inherit;
+  }
+
+  .card-tilt-layer {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 5 / 7;
+    padding: .4rem;
+    border: 1px solid color-mix(in srgb, var(--card-accent) 78%, transparent);
+    border-radius: 14px;
+    background: linear-gradient(145deg, #30414a, #0c151d 34%, #080d13 100%);
+    box-shadow: 0 22px 46px color-mix(in srgb, var(--card-ink) 44%, transparent), 0 0 0 1px color-mix(in srgb, var(--card-accent) 22%, transparent);
+    transform: rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) translateY(0) scale(1);
+    transform-style: preserve-3d;
+    transition: transform 420ms cubic-bezier(.2,.7,.2,1), box-shadow 420ms ease;
+    will-change: transform;
+  }
+
+  .mythic-card:hover .card-tilt-layer,
+  .mythic-card.is-focused .card-tilt-layer {
+    box-shadow: 0 32px 68px color-mix(in srgb, var(--card-ink) 62%, transparent), 0 0 0 1px color-mix(in srgb, var(--card-accent) 80%, transparent), 0 0 38px color-mix(in srgb, var(--card-accent) 18%, transparent);
+    transform: rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) translateY(-5px) scale(1.012);
+  }
+
+  .card-face {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--card-accent) 36%, transparent);
+    border-radius: 10px;
+    background: var(--card-ink);
+    isolation: isolate;
+  }
+
+  .card-face::before {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    content: '';
+    pointer-events: none;
+    opacity: .14;
+    background: repeating-linear-gradient(115deg, transparent 0 12px, rgba(255,255,255,.045) 13px, transparent 14px 28px);
+    mix-blend-mode: screen;
+  }
+
+  .card-art {
+    position: absolute;
+    z-index: 0;
+    top: 17%;
+    right: 5.5%;
+    bottom: 29%;
+    left: 5.5%;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--card-accent) 72%, var(--card-snow));
+    border-radius: 7px;
+    background: #0b151e;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 5px 12px rgba(0,0,0,.22);
+  }
+
+  .card-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    filter: saturate(.88) contrast(1.06);
+    transition: transform 700ms cubic-bezier(.2,.7,.2,1), filter 420ms ease;
+  }
+
+  .mythic-card:hover .card-art img,
+  .mythic-card.is-focused .card-art img {
+    transform: scale(1.04);
+    filter: saturate(1.03) contrast(1.09);
+  }
+
+  .planned-art {
+    display: grid;
+    height: 100%;
+    place-content: center;
+    gap: .42rem;
+    padding: 1rem;
+    color: color-mix(in srgb, var(--card-snow) 64%, transparent);
+    text-align: center;
+    background:
+      radial-gradient(circle at 28% 16%, color-mix(in srgb, var(--card-ice) 24%, transparent), transparent 26%),
+      radial-gradient(circle at 78% 76%, color-mix(in srgb, var(--card-ember) 22%, transparent), transparent 30%),
+      linear-gradient(145deg, #172b38, #080e15 68%);
+  }
+
+  .planned-art span:first-child {
+    color: var(--card-snow);
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: 1;
+    opacity: .2;
+  }
+
+  .planned-art span:last-child {
+    font-size: .61rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+  }
+
+  .card-atmosphere {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(3, 11, 17, .06) 12%, rgba(3, 8, 12, .04) 58%, rgba(3, 7, 11, .74) 100%);
+  }
+
+  .card-holo,
+  .card-glare,
+  .card-frame,
+  .card-content {
+    position: absolute;
+    inset: 0;
+  }
+
+  .card-holo {
+    z-index: 3;
+    opacity: 0;
+    background: var(--card-foil);
+    background-position: var(--card-pointer-x) var(--card-pointer-y);
+    background-size: 230% 230%;
+    mix-blend-mode: screen;
+    transition: opacity 300ms ease;
+    pointer-events: none;
+  }
+
+  .mythic-card:hover .card-holo,
+  .mythic-card.is-hovered .card-holo,
+  .mythic-card.is-focused .card-holo {
+    opacity: .76;
+  }
+
+  .card-glare {
+    z-index: 6;
+    opacity: 0;
+    background: radial-gradient(circle at var(--card-pointer-x) var(--card-pointer-y), rgba(255, 255, 255, .55), transparent 19%);
+    mix-blend-mode: soft-light;
+    transition: opacity 300ms ease;
+    pointer-events: none;
+  }
+
+  .mythic-card:hover .card-glare,
+  .mythic-card.is-hovered .card-glare,
+  .mythic-card.is-focused .card-glare {
+    opacity: .8;
+  }
+
+  .card-frame {
+    inset: 2.4%;
+    z-index: 7;
+    border: 1px solid color-mix(in srgb, var(--card-accent) 68%, var(--card-snow));
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--card-accent) 38%, transparent);
+    pointer-events: none;
+  }
+
+  .frame-corner {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: var(--card-accent-soft);
+    border-style: solid;
+  }
+
+  .frame-corner--tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .frame-corner--tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+  .frame-corner--bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+  .frame-corner--br { right: -1px; bottom: -1px; border-width: 0 2px 2px 0; }
+
+  .card-content {
+    z-index: 8;
+    display: flex;
+    flex-direction: column;
+    padding: 4.8% 4.8% 4.5%;
+    color: var(--card-snow);
+    pointer-events: none;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    min-height: 2.8rem;
+    padding: .38rem .45rem .42rem;
+    border: 1px solid color-mix(in srgb, var(--card-accent) 66%, transparent);
+    border-radius: 6px;
+    background: linear-gradient(100deg, rgba(7, 18, 25, .9), rgba(18, 30, 36, .7));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 4px 12px rgba(0,0,0,.12);
+    backdrop-filter: blur(8px);
+  }
+
+  .card-header-copy {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .card-series {
+    display: block;
+    overflow: hidden;
+    color: color-mix(in srgb, var(--card-snow) 68%, var(--card-accent));
+    font-size: .5rem;
+    font-weight: 760;
+    letter-spacing: .12em;
+    line-height: 1;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .card-header h3 {
+    overflow: hidden;
+    margin: .24rem 0 0;
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: clamp(.88rem, 1.85vw, 1.2rem);
+    font-weight: 650;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-type {
+    flex: 0 0 auto;
+    padding: .35rem .46rem;
+    border: 1px solid color-mix(in srgb, var(--card-accent-soft) 76%, transparent);
+    border-radius: 999px;
+    color: var(--card-accent-soft);
+    background: color-mix(in srgb, var(--card-accent) 14%, rgba(3, 10, 15, .72));
+    font-size: .5rem;
+    font-weight: 760;
+    letter-spacing: .06em;
+    white-space: nowrap;
+  }
+
+  .card-info {
+    display: grid;
+    gap: .36rem;
+    margin-top: auto;
+    padding: .62rem .65rem .54rem;
+    border: 1px solid color-mix(in srgb, var(--card-accent) 72%, transparent);
+    border-radius: 7px;
+    background: linear-gradient(145deg, rgba(7, 22, 29, .88), rgba(5, 12, 17, .96));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 8px 16px rgba(0,0,0,.18);
+    backdrop-filter: blur(8px);
+  }
+
+  .card-info-heading {
+    display: grid;
+    gap: .13rem;
+    min-width: 0;
+  }
+
+  .card-identity,
+  .card-subtitle,
+  .card-description {
+    margin: 0;
+  }
+
+  .card-identity {
+    overflow: hidden;
+    color: var(--card-accent-soft);
+    font-size: .65rem;
+    font-weight: 740;
+    line-height: 1.24;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-subtitle {
+    overflow: hidden;
+    color: color-mix(in srgb, var(--card-snow) 62%, transparent);
+    font-size: .49rem;
+    letter-spacing: .1em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .card-description {
+    display: -webkit-box;
+    overflow: hidden;
+    color: color-mix(in srgb, var(--card-snow) 78%, transparent);
+    font-size: .58rem;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .card-footer-line {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding-top: .34rem;
+    border-top: 1px solid color-mix(in srgb, var(--card-snow) 18%, transparent);
+    color: color-mix(in srgb, var(--card-snow) 68%, var(--card-accent));
+    font-size: .5rem;
+    font-weight: 760;
+    letter-spacing: .08em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .card-id {
+    margin-inline-start: auto;
+    color: color-mix(in srgb, var(--card-snow) 42%, transparent);
+    font-size: .43rem;
+    letter-spacing: .05em;
+  }
+
+  .card-footer-line svg {
+    flex: 0 0 auto;
+    color: var(--card-accent-soft);
+  }
+
+  @media (max-width: 640px) {
+    .card-content { padding: 4.8% 4.5% 4.2%; }
+    .card-info { padding: .55rem .58rem .5rem; }
+    .card-description { font-size: .55rem; }
+    .card-header h3 { font-size: clamp(.78rem, 3.5vw, 1rem); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-tilt-layer,
+    .card-art img,
+    .card-holo,
+    .card-glare { transition: none; }
+    .mythic-card:hover .card-tilt-layer,
+    .mythic-card.is-focused .card-tilt-layer { transform: none; }
+  }
+</style>

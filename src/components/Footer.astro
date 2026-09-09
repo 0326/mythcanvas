@@ -31,6 +31,7 @@ const footerBrandName = locale === DEFAULT_LOCALE ? `${messages.brand.name} Myth
       {isEnglish ? (
         <>
           <a href={localizedPath(locale, '/mythology/')}>{messages.nav.mythology}</a>
+          <a href={localizedPath(locale, '/cards/')}>{messages.nav.cards}</a>
           <a href={localizedPath(locale, '/character/')}>{messages.nav.characters}</a>
           <a href={localizedPath(locale, '/world/')}>{messages.nav.worlds}</a>
           <a href={localizedPath(DEFAULT_LOCALE, '/')}>Chinese edition</a>
@@ -39,6 +40,7 @@ const footerBrandName = locale === DEFAULT_LOCALE ? `${messages.brand.name} Myth
         <>
           <a href={localizedPath(locale, '/explore/')}>{messages.nav.explore}</a>
           <a href={localizedPath(locale, '/mythology/')}>{messages.nav.mythology}</a>
+          <a href={localizedPath(locale, '/cards/')}>{messages.nav.cards}</a>
           <a href={localizedPath(locale, '/world/')}>{messages.nav.worlds}</a>
           <a href={localizedPath(locale, '/character/')}>{messages.nav.characters}</a>
           <a href={localizedPath(locale, '/create/')}>{messages.nav.create}</a>

@@ -69,7 +69,7 @@ export function localizedPath(locale: Locale, pathname: string) {
   return `${prefix}${basePathname}`;
 }
 
-const ENGLISH_CORE_ROUTE = /^\/(?:character|world|mythology)(?:\/[^/]+)?\/?$/;
+const ENGLISH_CORE_ROUTE = /^\/(?:character|world|mythology|cards)(?:\/[^/]+){0,3}\/?$/;
 
 export function isEnglishCorePath(pathname: string) {
   const basePathname = stripLocalePrefix(ensureLeadingSlash(pathname));

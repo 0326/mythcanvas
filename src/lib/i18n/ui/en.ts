@@ -11,6 +11,7 @@ const messages = {
     characters: 'Deities',
     worlds: 'Realms',
     mythology: 'Mythology',
+    cards: 'Cards',
     create: 'AI Create',
     my: 'My Universe',
   },

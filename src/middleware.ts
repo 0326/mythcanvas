@@ -43,6 +43,7 @@ const LOCALIZABLE_ROUTE_ROOTS = new Set([
   'terms',
   'copyright',
   'my',
+  'cards',
 ]);
 
 function isLocalizablePagePath(pathname: string) {

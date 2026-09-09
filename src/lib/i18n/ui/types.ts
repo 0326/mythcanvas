@@ -9,6 +9,7 @@ export type UiMessages = {
     characters: string;
     worlds: string;
     mythology: string;
+    cards: string;
     create: string;
     my: string;
   };

@@ -11,6 +11,7 @@ const messages = {
     characters: 'Deidades',
     worlds: 'Reinos',
     mythology: 'Mitología',
+    cards: 'Cartas',
     create: 'Crear con IA',
     my: 'Mi Universo',
   },

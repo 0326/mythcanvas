@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import CardSeriesPage from '../../../../components/cards/CardSeriesPage.astro';
+import { norseM01Series } from '../../../../lib/cards/catalog';
+import { validateCardSeries } from '../../../../lib/cards/validation';
+
+export const prerender = true;
+
+const issues = validateCardSeries(norseM01Series);
+if (issues.length) console.warn(`Card catalog warnings: ${issues.map((issue) => issue.message).join('; ')}`);
+---
+
+<BaseLayout
+  title={norseM01Series.name}
+  description={norseM01Series.summary}
+>
+  <CardSeriesPage series={norseM01Series} />
+</BaseLayout>

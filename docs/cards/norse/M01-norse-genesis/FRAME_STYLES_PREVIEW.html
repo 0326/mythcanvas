@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>M01 Card Frame Study V2</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, "Hiragino Sans GB", sans-serif; color: #f6f1e8; background: #061018; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 54px 44px 72px; background: radial-gradient(circle at 50% -10%, rgba(94,132,151,.25), transparent 35%), radial-gradient(circle at 8% 88%, rgba(167,121,53,.13), transparent 30%), #061018; }
+    header { width: min(1500px, 100%); margin: 0 auto 42px; text-align: center; }
+    h1 { margin: 0; font-size: 25px; font-weight: 650; letter-spacing: .24em; }
+    header p { margin: 12px 0 0; color: #93a9b1; font-size: 13px; letter-spacing: .13em; }
+    .board { display: grid; grid-template-columns: repeat(3, minmax(280px, 410px)); justify-content: center; align-items: start; gap: clamp(28px, 4vw, 64px); width: min(1500px, 100%); margin: auto; }
+    .study { min-width: 0; text-align: center; }
+    .card-stage { perspective: 1200px; }
+    .card { --rx: 0deg; --ry: 0deg; --px: 50%; --py: 50%; position: relative; overflow: hidden; width: 100%; aspect-ratio: 63 / 88; border-radius: 24px; background: #111923; box-shadow: 0 30px 70px rgba(0,0,0,.52), 0 0 0 1px rgba(255,255,255,.08); isolation: isolate; transform: rotateX(var(--rx)) rotateY(var(--ry)); transform-style: preserve-3d; transition: transform 260ms ease, box-shadow 260ms ease; }
+    .card-stage:hover .card { box-shadow: 0 44px 90px rgba(0,0,0,.64), 0 0 36px rgba(137,207,225,.12); }
+    .art, .edge-vignette, .frame, .foil, .content { position: absolute; inset: 0; }
+    .art { width: 100%; height: 100%; object-fit: cover; object-position: center 38%; filter: contrast(1.045) saturate(.97); }
+    .edge-vignette { background: linear-gradient(to bottom, rgba(3,7,9,.14), transparent 12%, transparent 88%, rgba(2,5,7,.20) 100%), linear-gradient(90deg, rgba(1,4,6,.13), transparent 9%, transparent 91%, rgba(1,4,6,.13)); pointer-events: none; }
+    .frame { inset: 12px; border-radius: 17px; pointer-events: none; }
+    .frame::before, .frame::after { position: absolute; content: ""; pointer-events: none; }
+    .frame::before { inset: 0; border-radius: inherit; }
+    .frame::after { inset: 12px; border-radius: 12px; }
+    .corner { position: absolute; z-index: 3; width: 74px; height: 74px; color: var(--metal-bright); }
+    .corner::before, .corner::after { position: absolute; content: ""; background: currentColor; box-shadow: 0 0 8px color-mix(in srgb, currentColor 35%, transparent); }
+    .corner::before { width: 66px; height: 3px; }
+    .corner::after { width: 3px; height: 66px; }
+    .corner.tl { top: 17px; left: 17px; }
+    .corner.tr { top: 17px; right: 17px; transform: rotate(90deg); }
+    .corner.br { right: 17px; bottom: 17px; transform: rotate(180deg); }
+    .corner.bl { bottom: 17px; left: 17px; transform: rotate(270deg); }
+    .corner i { position: absolute; top: 9px; left: 9px; width: 17px; height: 17px; border: 2px solid currentColor; transform: rotate(45deg); }
+    .crest { position: absolute; top: 13px; left: 50%; z-index: 5; width: 88px; height: 27px; transform: translateX(-50%); color: var(--metal-bright); }
+    .crest::before { position: absolute; inset: 3px 12px; border: 2px solid currentColor; background: rgba(8,11,13,.45); content: ""; clip-path: polygon(0 50%,16% 0,50% 38%,84% 0,100% 50%,84% 100%,50% 62%,16% 100%); }
+    .crest::after { position: absolute; top: 7px; left: 38px; width: 12px; height: 12px; border: 2px solid currentColor; content: ""; transform: rotate(45deg); }
+    .content { z-index: 4; display: flex; flex-direction: column; pointer-events: none; }
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 7.7% 8.5% 0; color: #fbf0d1; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-shadow: 0 2px 8px #000; }
+    .type { display: inline-flex; align-items: center; gap: 6px; }
+    .type::before { width: 7px; height: 7px; border: 1px solid currentColor; content: ""; transform: rotate(45deg); }
+    .plaque { position: absolute; right: 7.3%; bottom: 5.2%; left: 7.3%; padding: 8px 18px 10px; color: #fff; text-align: center; text-shadow: 0 2px 10px #000; }
+    .plaque::before { position: absolute; inset: 0; z-index: -1; border: 1px solid var(--metal); background: linear-gradient(105deg, #080b0d, #151719 50%, #080b0d); box-shadow: inset 0 1px rgba(255,255,255,.10), inset 0 -8px 18px rgba(0,0,0,.32), 0 8px 20px rgba(0,0,0,.24); content: ""; clip-path: polygon(6% 0,94% 0,100% 20%,96% 100%,4% 100%,0 20%); }
+    .name { margin: 0; font-family: "Songti SC", STSong, Georgia, serif; font-size: clamp(25px, 2.4vw, 32px); font-weight: 750; line-height: .98; }
+    .name-en { margin: 3px 0 0; color: var(--metal-bright); font-size: 8px; letter-spacing: .22em; }
+    .identity { margin: 5px 0 0; color: var(--metal-bright); font-family: "Songti SC", STSong, serif; font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+    .description { margin: 3px auto 0; max-width: 34em; color: rgba(255,255,255,.84); font-size: 8px; line-height: 1.35; }
+    .number { position: absolute; bottom: 2.15%; left: 50%; z-index: 6; color: #f7e9bf; font-size: 9px; letter-spacing: .16em; text-shadow: 0 2px 8px #000; transform: translateX(-50%); }
+    .foil { z-index: 2; opacity: 0; mix-blend-mode: screen; transition: opacity 220ms ease; pointer-events: none; }
+    .card-stage:hover .foil { opacity: 1; }
+
+    .gilded { --metal: #b88635; --metal-bright: #f4d87b; }
+    .gilded .art { object-position: center top; }
+    .gilded .edge-vignette { background: linear-gradient(to bottom, rgba(3,7,9,.04), transparent 16%, transparent 79%, rgba(2,3,4,.17) 100%); }
+    .gilded .frame,
+    .gilded .corner,
+    .gilded .crest { display: none; }
+    .ornamental-frame { position: absolute; inset: 0; z-index: 3; display: block; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .gilded .type::before { display: none; }
+    .gilded .topline { margin: 8.4% 12% 0; color: #f8f2e5; font-size: 9px; font-weight: 850; text-shadow: -1px -1px 0 #171006, 1px -1px 0 #171006, -1px 1px 0 #171006, 1px 1px 0 #171006, 0 2px 5px #000; }
+    .gilded .plaque { right: 5.2%; bottom: 4.1%; left: 5.2%; height: 24.5%; padding: 5.8% 7% 1.5%; color: #fff; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,.94); }
+    .gilded .plaque::before,
+    .gilded .plaque::after,
+    .gilded .plaque-vine { display: none; }
+    .gilded .name,
+    .gilded .name-en,
+    .gilded .identity,
+    .gilded .description,
+    .gilded .number { color: #fff; paint-order: stroke fill; -webkit-text-stroke-color: #090806; text-shadow: 0 2px 5px rgba(0,0,0,.94); }
+    .gilded .name { font-size: clamp(29px, 2.6vw, 35px); line-height: .9; letter-spacing: .03em; -webkit-text-stroke-width: 2px; }
+    .gilded .name-en { margin-top: 5px; color: #f4d274; font-size: 7px; font-weight: 900; letter-spacing: .28em; -webkit-text-stroke-width: .7px; }
+    .gilded .identity { display: flex; align-items: center; gap: 9px; margin-top: 7px; color: #f7f0df; font-size: 10px; font-weight: 900; letter-spacing: .07em; white-space: nowrap; -webkit-text-stroke-width: .8px; }
+    .gilded .identity::before,
+    .gilded .identity::after { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #d7ad52); box-shadow: 0 1px #1a0f03; content: ""; }
+    .gilded .identity::after { transform: scaleX(-1); }
+    .gilded .description { margin-top: 6px; max-width: none; color: #fff; font-size: 7.4px; font-weight: 760; line-height: 1.35; -webkit-text-stroke-width: .55px; }
+    .gilded .number { position: static; right: auto; bottom: auto; left: auto; z-index: auto; display: table; margin: 7px auto 0; padding: 3px 15px 2px; border: 1px solid #c99b3f; background: linear-gradient(90deg, #120d07, #30210d 50%, #120d07); color: #f7f1e5; font-family: Georgia, serif; font-size: 7.5px; font-weight: 800; line-height: 1; letter-spacing: .14em; text-shadow: 0 1px 2px #000; transform: none; }
+    .gilded .foil { background: radial-gradient(circle at var(--px) var(--py), rgba(255,228,151,.19), transparent 19%), linear-gradient(112deg, transparent 36%, rgba(255,240,180,.12) 48%, transparent 59%); }
+
+    .fullart { --metal: #c79d3a; --metal-bright: #ffe377; }
+    .fullart .frame { border: 3px solid #f0d54a; box-shadow: 0 0 0 3px rgba(20,16,8,.70), inset 0 0 0 1px rgba(255,245,159,.72); }
+    .fullart .frame::after { border: 1px solid rgba(255,224,74,.84); }
+    .fullart .corner { width: 58px; height: 58px; }
+    .fullart .corner::before { width: 52px; height: 2px; }
+    .fullart .corner::after { width: 2px; height: 52px; }
+    .fullart .crest { top: 16px; }
+    .fullart .plaque { right: 5.7%; bottom: 5.3%; left: 5.7%; padding-inline: 31px; }
+    .fullart .plaque::before { border: 2px solid #e7cf39; border-radius: 25px; background: linear-gradient(100deg, #241604, #3a2709 50%, #241604); clip-path: none; }
+    .fullart .name { font-size: clamp(24px, 2.3vw, 31px); }
+    .fullart .foil { background: linear-gradient(112deg, transparent 35%, rgba(255,241,163,.34) 47%, transparent 58%); background-position: var(--px) var(--py); background-size: 220% 220%; }
+
+    .prismatic { --metal: #77bcd2; --metal-bright: #d6f4ff; }
+    .prismatic .frame { box-shadow: 0 0 0 2px #182730, 0 0 22px rgba(94,205,231,.18); }
+    .prismatic .frame::before { padding: 6px; background: linear-gradient(125deg,#8deaff,#f2d36f 22%,#d999ff 43%,#76dbc6 65%,#8fb4ff 82%,#f0df8f); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+    .prismatic .frame::after { border: 1px solid rgba(182,237,248,.85); box-shadow: inset 0 0 22px rgba(117,212,234,.08); }
+    .prismatic .plaque::before { border-color: #83d6e8; background: linear-gradient(100deg, #06131b, #102632 50%, #06131b); }
+    .prismatic .foil { opacity: .18; background: radial-gradient(circle at var(--px) var(--py), rgba(255,255,255,.55), transparent 17%), repeating-linear-gradient(118deg, transparent 0 56px, rgba(102,226,255,.13) 58px 61px, transparent 63px 112px), linear-gradient(118deg, transparent 30%, rgba(255,224,119,.18) 44%, rgba(191,127,255,.14) 53%, transparent 68%); }
+    .card-stage:hover .prismatic .foil { opacity: .64; }
+
+    .study h2 { margin: 25px 0 0; color: #f0d99d; font-size: 17px; font-weight: 650; letter-spacing: .10em; }
+    .study > p { margin: 8px 0 0; color: #8fa5ad; font-size: 12px; line-height: 1.65; }
+    @media (max-width: 980px) { .board { grid-template-columns: minmax(280px, 410px); } }
+    @media (prefers-reduced-motion: reduce) { .card { transition: none; transform: none !important; } .foil { display: none; } }
+  </style>
+</head>
+<body>
+  <header><h1>MYTHCANVAS · M01 FRAME STUDY V2</h1><p>全画幅卡图 · 实体边框 · 底部铭牌 · 无中段遮罩</p></header>
+  <main class="board">
+    <section class="study">
+      <div class="card-stage">
+        <article class="card gilded">
+          <img class="art" src="cards/1003010001.png" alt="尤弥尔" />
+          <div class="edge-vignette"></div>
+          <div class="foil"></div>
+          <svg class="ornamental-frame" viewBox="0 0 630 880" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="a-gold" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#6b3b0b"/>
+                <stop offset=".13" stop-color="#ffe37a"/>
+                <stop offset=".27" stop-color="#a56a1e"/>
+                <stop offset=".46" stop-color="#efbd45"/>
+                <stop offset=".62" stop-color="#7f4b12"/>
+                <stop offset=".79" stop-color="#ffdc68"/>
+                <stop offset="1" stop-color="#875014"/>
+              </linearGradient>
+              <linearGradient id="a-gold-soft" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ffe786"/>
+                <stop offset=".45" stop-color="#d89f32"/>
+                <stop offset="1" stop-color="#68400f"/>
+              </linearGradient>
+              <radialGradient id="a-stone" cx="50%" cy="0%" r="100%">
+                <stop offset="0" stop-color="#4a3518"/>
+                <stop offset=".24" stop-color="#20180f"/>
+                <stop offset=".72" stop-color="#0d0d0c"/>
+                <stop offset="1" stop-color="#19130c"/>
+              </radialGradient>
+              <pattern id="a-engraving" width="42" height="42" patternUnits="userSpaceOnUse">
+                <path d="M21 5 37 21 21 37 5 21Z" fill="none" stroke="#d2a951" stroke-opacity=".09" stroke-width="1"/>
+                <circle cx="21" cy="21" r="5" fill="none" stroke="#f4d67a" stroke-opacity=".06"/>
+              </pattern>
+              <filter id="a-metal" x="-15%" y="-15%" width="130%" height="130%">
+                <feTurbulence type="fractalNoise" baseFrequency=".48" numOctaves="2" seed="11" result="noise"/>
+                <feComposite in="noise" in2="SourceAlpha" operator="in" result="texture"/>
+                <feColorMatrix in="texture" type="matrix" values="1 0 0 0 .35  0 1 0 0 .24  0 0 1 0 .08  0 0 0 .42 0" result="goldTexture"/>
+                <feBlend in="SourceGraphic" in2="goldTexture" mode="soft-light" result="metal"/>
+                <feDropShadow in="metal" dx="0" dy="3" stdDeviation="3" flood-color="#120900" flood-opacity=".8"/>
+              </filter>
+              <filter id="a-soft-shadow" x="-20%" y="-20%" width="140%" height="150%">
+                <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#000" flood-opacity=".72"/>
+              </filter>
+              <g id="a-corner">
+                <path d="M39 128V75Q39 39 75 39H128" stroke="url(#a-gold-soft)" stroke-width="4"/>
+                <path d="M47 105C51 74 74 50 105 47" stroke="#1a1005" stroke-width="9"/>
+                <path d="M47 105C51 74 74 50 105 47" stroke="url(#a-gold)" stroke-width="3"/>
+                <path d="M44 84C58 75 66 62 69 46C80 60 94 67 112 67C96 76 86 88 84 105C74 92 61 85 44 84Z" fill="#161006" stroke="url(#a-gold-soft)" stroke-width="3"/>
+                <path d="M60 81C68 73 73 65 75 56M78 85C83 75 92 69 102 66" fill="none" stroke="#f7dc7f" stroke-width="2"/>
+                <circle cx="67" cy="67" r="7" fill="#202015" stroke="#f6d977" stroke-width="2"/>
+              </g>
+            </defs>
+
+            <rect x="14" y="14" width="602" height="852" rx="42" fill="none" stroke="#251403" stroke-width="28"/>
+            <rect x="14" y="14" width="602" height="852" rx="42" fill="none" stroke="url(#a-gold)" stroke-width="22" filter="url(#a-metal)"/>
+            <rect x="14" y="14" width="602" height="852" rx="42" fill="none" stroke="#ffeaa0" stroke-opacity=".72" stroke-width="3"/>
+            <rect x="31" y="31" width="568" height="818" rx="26" fill="none" stroke="#171006" stroke-width="9"/>
+            <rect x="31" y="31" width="568" height="818" rx="26" fill="none" stroke="url(#a-gold-soft)" stroke-width="3"/>
+            <rect x="39" y="39" width="552" height="802" rx="21" fill="none" stroke="#f5d273" stroke-opacity=".72" stroke-width="1.5"/>
+
+            <use href="#a-corner"/>
+            <use href="#a-corner" transform="translate(630 0) scale(-1 1)"/>
+
+            <g fill="none" stroke="url(#a-gold-soft)" stroke-linecap="round" filter="url(#a-soft-shadow)">
+              <path d="M244 42H386" stroke-width="3"/>
+              <path d="M315 42V78M298 44 304 76M281 49 294 79M265 57 284 83M351 44 345 76M368 49 355 79M385 57 346 84" stroke-width="3"/>
+              <path d="M291 82 315 58 339 82 315 106Z" fill="#171006" stroke-width="4"/>
+              <path d="M299 82 315 66 331 82 315 98Z" stroke="#f8dc7f" stroke-width="2"/>
+              <circle cx="315" cy="82" r="4" fill="#e7bd5d" stroke="none"/>
+            </g>
+
+            <path d="M49 704C84 674 129 670 181 684C224 696 258 676 287 643C300 628 330 628 343 643C372 676 406 696 449 684C501 670 546 674 581 704L581 830Q581 840 571 840H59Q49 840 49 830Z" fill="#090909" stroke="#1a0f04" stroke-width="13" filter="url(#a-soft-shadow)"/>
+            <path d="M49 704C84 674 129 670 181 684C224 696 258 676 287 643C300 628 330 628 343 643C372 676 406 696 449 684C501 670 546 674 581 704L581 830Q581 840 571 840H59Q49 840 49 830Z" fill="url(#a-stone)" stroke="url(#a-gold)" stroke-width="5"/>
+            <path d="M49 704C84 674 129 670 181 684C224 696 258 676 287 643C300 628 330 628 343 643C372 676 406 696 449 684C501 670 546 674 581 704L581 830Q581 840 571 840H59Q49 840 49 830Z" fill="url(#a-engraving)" stroke="#ffe18a" stroke-opacity=".55" stroke-width="1.5"/>
+
+            <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M53 715C92 679 141 674 205 693M55 732C95 696 145 692 210 706M58 748C101 718 150 713 203 720" stroke="#181006" stroke-width="8"/>
+              <path d="M53 715C92 679 141 674 205 693M55 732C95 696 145 692 210 706M58 748C101 718 150 713 203 720" stroke="url(#a-gold-soft)" stroke-width="3"/>
+              <path d="M577 715C538 679 489 674 425 693M575 732C535 696 485 692 420 706M572 748C529 718 480 713 427 720" stroke="#181006" stroke-width="8"/>
+              <path d="M577 715C538 679 489 674 425 693M575 732C535 696 485 692 420 706M572 748C529 718 480 713 427 720" stroke="url(#a-gold-soft)" stroke-width="3"/>
+            </g>
+
+            <g transform="translate(315 645)" filter="url(#a-soft-shadow)">
+              <path d="M0-29 28 0 0 29-28 0Z" fill="#151006" stroke="#1b0e02" stroke-width="8"/>
+              <path d="M0-29 28 0 0 29-28 0Z" fill="#151006" stroke="url(#a-gold)" stroke-width="4"/>
+              <circle r="12" fill="#23324a" stroke="#e2b755" stroke-width="3"/>
+              <path d="M0 13V-2M0-2-9-12M0-2 9-12M-7-13Q0-23 7-13" fill="none" stroke="#f6d775" stroke-width="3" stroke-linecap="round"/>
+            </g>
+
+            <g fill="none" stroke="url(#a-gold-soft)" stroke-linecap="round">
+              <path d="M56 814C84 832 116 836 158 832M474 832C516 836 548 832 576 814" stroke-width="3"/>
+              <path d="M271 837H359" stroke="#151006" stroke-width="11"/>
+              <path d="M271 837H359" stroke-width="3"/>
+              <path d="M256 837 265 828 274 837 265 846ZM356 837 365 828 374 837 365 846Z" fill="#d8aa4b" stroke="#211405" stroke-width="2"/>
+            </g>
+          </svg>
+          <div class="frame"></div>
+          <span class="corner tl"><i></i></span>
+          <span class="corner tr"><i></i></span>
+          <span class="corner br"><i></i></span>
+          <span class="corner bl"><i></i></span>
+          <span class="crest"></span>
+          <div class="content">
+            <div class="topline"><span>M01 · 01 / 50</span><span class="type">角色</span></div>
+            <div class="plaque">
+              <h3 class="name">尤弥尔</h3>
+              <p class="name-en">YMIR</p>
+              <p class="identity">原初巨人 · 创世材料之源</p>
+              <p class="description">冰火交界中诞生的原初巨人，是巨人谱系与创世材料的起点。</p>
+              <span class="number">1003010001</span>
+            </div>
+          </div>
+        </article>
+      </div>
+      <h2>A · GILDED SAGA</h2>
+      <p>鎏金典藏边框 · 精细矢量铭牌结构<br />适合主卡、角色卡与实体收藏卡</p>
+    </section>
+    <section class="study"><div class="card-stage"><article class="card fullart"><img class="art" src="cards/1003010002.png" alt="奥德胡姆拉" /><div class="edge-vignette"></div><div class="foil"></div><div class="frame"></div><span class="corner tl"><i></i></span><span class="corner tr"><i></i></span><span class="corner br"><i></i></span><span class="corner bl"><i></i></span><span class="crest"></span><div class="content"><div class="topline"><span>M01 · 02 / 50</span><span class="type">角色</span></div><div class="plaque"><h3 class="name">奥德胡姆拉</h3><p class="name-en">AUÐUMBLA</p><p class="identity">原初神牛 · 生命供养者</p><p class="description">原初混沌中出现的巨大神牛，以乳汁滋养尤弥尔。</p></div><span class="number">1003010002</span></div></article></div><h2>B · FULL ART CREST</h2><p>全画幅典藏款 · 最接近附图 2<br />边框更轻，优先保留人物和场景</p></section>
+    <section class="study"><div class="card-stage"><article class="card prismatic"><img class="art" src="cards/1003010003.png" alt="布里" /><div class="edge-vignette"></div><div class="foil"></div><div class="frame"></div><span class="corner tl"><i></i></span><span class="corner tr"><i></i></span><span class="corner br"><i></i></span><span class="corner bl"><i></i></span><span class="crest"></span><div class="content"><div class="topline"><span>M01 · 03 / 50</span><span class="type">角色</span></div><div class="plaque"><h3 class="name">布里</h3><p class="name-en">BÚRI</p><p class="identity">神族祖先 · 从咸冰中显现</p><p class="description">从咸冰中逐日显现，北欧神族谱系由此获得起点。</p></div><span class="number">1003010003</span></div></article></div><h2>C · PRISMATIC RUNE</h2><p>棱彩冰银款 · 特殊版卡框<br />动态光只作用于边框与高光</p></section>
+  </main>
+  <script>
+    document.querySelectorAll('.card-stage').forEach((stage) => { const card = stage.querySelector('.card'); stage.addEventListener('pointermove', (event) => { if (event.pointerType !== 'mouse') return; const rect = stage.getBoundingClientRect(); const x = (event.clientX - rect.left) / rect.width; const y = (event.clientY - rect.top) / rect.height; card.style.setProperty('--ry', `${(x - .5) * 11}deg`); card.style.setProperty('--rx', `${(.5 - y) * 9}deg`); card.style.setProperty('--px', `${x * 100}%`); card.style.setProperty('--py', `${y * 100}%`); }); stage.addEventListener('pointerleave', () => { card.style.setProperty('--ry', '0deg'); card.style.setProperty('--rx', '0deg'); card.style.setProperty('--px', '50%'); card.style.setProperty('--py', '50%'); }); });
+  </script>
+</body>
+</html>

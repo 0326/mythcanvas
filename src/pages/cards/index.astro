@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CardCollectionIndex from '../../components/cards/CardCollectionIndex.astro';
+import { cardSeries } from '../../lib/cards/catalog';
+
+export const prerender = true;
+
+const locale = Astro.locals.locale ?? 'zh-Hans';
+---
+
+<BaseLayout
+  title={locale === 'en' ? 'Mythic Cards' : '神卡'}
+  description={locale === 'en' ? 'Explore MythCanvas mythic card collections, where every card belongs to a larger story world.' : '探索 MythCanvas 神话收藏卡系列，从角色、神域、故事与神物进入完整的神话世界。'}
+>
+  <CardCollectionIndex series={cardSeries} locale={locale === 'en' ? 'en' : 'zh-Hans'} />
+</BaseLayout>

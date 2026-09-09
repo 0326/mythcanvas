@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import CardCollectionIndex from '../../../components/cards/CardCollectionIndex.astro';
+import { cardSeries } from '../../../lib/cards/catalog';
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Mythic Cards"
+  description="Explore MythCanvas mythic card collections, where every card belongs to a larger story world."
+>
+  <CardCollectionIndex series={cardSeries} locale="en" />
+</BaseLayout>

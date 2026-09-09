@@ -11,6 +11,7 @@ const messages = {
     characters: '神々',
     worlds: '神域',
     mythology: '神話',
+    cards: '神話カード',
     create: 'AI創作',
     my: 'マイ宇宙',
   },

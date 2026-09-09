@@ -1,0 +1,240 @@
+---
+import { ArrowLeft, ArrowRight, BookOpen, Search, Sparkles } from '@lucide/astro';
+import MythicCard from './MythicCard.astro';
+import { formatCardNumber, getCardTypeLabel } from '../../lib/cards/catalog';
+import { getApprovedCardCount } from '../../lib/cards/validation';
+import { localizedPath } from '../../lib/i18n/url';
+import type { CardSeries } from '../../lib/cards/types';
+
+interface Props {
+  series: CardSeries;
+  locale?: 'zh-Hans' | 'en';
+}
+
+const { series, locale = 'zh-Hans' } = Astro.props;
+const isEnglish = locale === 'en';
+const basePath = `/cards/${series.mythologySlug}/${series.slug}/`;
+const firstStory = series.cards.find((card) => card.type === 'story');
+const storyCards = series.cards.filter((card) => card.type === 'story').toSorted((a, b) => (a.seriesNarrative?.sequence ?? 0) - (b.seriesNarrative?.sequence ?? 0));
+const readyCount = getApprovedCardCount(series.cards);
+const typeOrder = ['all', 'character', 'scene', 'story', 'mythic-object', 'ensemble'] as const;
+---
+
+<section class="series-hero" aria-labelledby="series-title">
+  <div class="series-hero-backdrop" aria-hidden="true"></div>
+  <div class="container-wide series-hero-inner">
+    <a class="back-link" href={localizedPath(locale, '/cards/')}><ArrowLeft size={16} strokeWidth={1.8} aria-hidden="true" /> {isEnglish ? 'All collections' : '全部套卡'}</a>
+    <div class="series-hero-grid">
+      <div class="series-hero-copy">
+        <span class="eyebrow"><Sparkles size={15} strokeWidth={1.8} aria-hidden="true" /> {isEnglish ? 'Collection M01 · Norse Mythology' : 'M01 · 北欧神话收藏卡'}</span>
+        <h1 id="series-title">{isEnglish ? series.nameEn : series.name}</h1>
+        <p>{isEnglish ? series.summaryEn : series.summary}</p>
+        <div class="series-stats" aria-label={isEnglish ? 'Collection progress' : '系列进度'}>
+          <div>
+            <strong>{readyCount}<span> / {series.cardCount}</span></strong>
+            <small>{isEnglish ? 'artworks ready' : '张已出图'}</small>
+          </div>
+          <div>
+            <strong>{storyCards.length}</strong>
+            <small>{isEnglish ? 'story chapters' : '段连续故事'}</small>
+          </div>
+        </div>
+      </div>
+      <div class="series-hero-art" aria-label={isEnglish ? 'Available card previews' : '已出图卡片预览'}>
+        {series.cards.filter((card) => card.hasArtwork).slice(0, 3).map((card, index) => (
+          <div class="hero-card-preview" style={`--hero-card-index: ${index};`}>
+            {card.imageUrl && <img src={card.imageUrl} alt="" width={card.output.width} height={card.output.height} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />}
+            <span>{formatCardNumber(card.cardNumber, series.cardCount)}</span>
+          </div>
+        ))}
+        <div class="hero-art-note">{isEnglish ? 'A living collection in progress' : '一套正在成形的神话世界'}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="series-browser" aria-labelledby="browser-title">
+  <div class="container-wide">
+    <div class="browser-heading">
+      <div>
+        <span class="eyebrow"><BookOpen size={15} strokeWidth={1.8} aria-hidden="true" /> {isEnglish ? 'Card Atlas' : '卡牌图鉴'}</span>
+        <h2 id="browser-title">{isEnglish ? 'Browse the collection' : '浏览整套卡牌'}</h2>
+      </div>
+      <p>{isEnglish ? 'Read the planned arc first, then discover each artwork as it is completed.' : '先理解完整叙事，再逐张发现正在完成的视觉作品。'}</p>
+    </div>
+
+    <div class="browser-toolbar" data-card-browser>
+      <div class="type-filters" role="group" aria-label={isEnglish ? 'Filter cards by type' : '按卡片类型筛选'}>
+        {typeOrder.map((type) => (
+          <button class:list={{ 'filter-option': true, 'is-active': type === 'all' }} type="button" data-card-filter={type} aria-pressed={type === 'all' ? 'true' : 'false'}>
+            {type === 'all' ? (isEnglish ? 'All' : '全部') : getCardTypeLabel(type, locale)}
+          </button>
+        ))}
+      </div>
+      <label class="card-search">
+        <Search class="search-icon" size={16} strokeWidth={1.8} aria-hidden="true" />
+        <span class="sr-only">{isEnglish ? 'Search cards' : '搜索卡片'}</span>
+        <input type="search" data-card-search placeholder={isEnglish ? 'Search card title' : '搜索卡名'} />
+      </label>
+    </div>
+
+    <p class="browser-result" data-card-result aria-live="polite"></p>
+
+    <div class="card-grid" data-card-grid>
+      {series.cards.map((card) => (
+        <div class="card-grid-item" data-card-item data-card-type={card.type} data-card-title={`${card.titleZh} ${card.titleEn}`.toLowerCase()}>
+          <MythicCard card={card} locale={locale} hrefBase={localizedPath(locale, basePath)} />
+        </div>
+      ))}
+    </div>
+
+    <div class="card-empty" data-card-empty hidden>
+      <p>{isEnglish ? 'No cards match this view.' : '没有符合当前筛选的卡片。'}</p>
+      <button class="btn btn-secondary" type="button" data-card-reset>{isEnglish ? 'Reset filters' : '清除筛选'}</button>
+    </div>
+  </div>
+</section>
+
+<section class="story-track-section section-compact" aria-labelledby="story-track-title">
+  <div class="container-wide">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Story Spine · 故事脉络</span>
+        <h2 id="story-track-title">{isEnglish ? 'The collection has a narrative spine' : '这套卡牌，先讲完一个故事'}</h2>
+      </div>
+      <p>{isEnglish ? 'The 19 Story cards connect the collection from the first frost to the first pursuit.' : '19 张 Story 卡从第一缕寒霜连接到日月的追逐，让收藏不只是角色清单。'}</p>
+    </div>
+    <div class="story-track" aria-label={isEnglish ? 'Story card sequence' : '故事卡牌顺序'}>
+      {storyCards.map((card) => (
+        <a class="story-node" href={`${localizedPath(locale, basePath)}${card.cardId}/`}>
+          <span>{String(card.seriesNarrative?.sequence ?? card.cardNumber).padStart(2, '0')}</span>
+          <strong>{isEnglish ? card.seriesNarrative?.keyMoment : card.seriesNarrative?.keyMoment ?? card.titleZh}</strong>
+        </a>
+      ))}
+    </div>
+    {firstStory && (
+      <a class="story-link" href={`${localizedPath(locale, basePath)}${firstStory.cardId}/`}>
+        {isEnglish ? 'Start with the first story card' : '从第一张故事卡开始'} <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
+      </a>
+    )}
+  </div>
+</section>
+
+<script>
+  const browser = document.querySelector<HTMLElement>('[data-card-browser]');
+  const grid = document.querySelector<HTMLElement>('[data-card-grid]');
+  const result = document.querySelector<HTMLElement>('[data-card-result]');
+  const empty = document.querySelector<HTMLElement>('[data-card-empty]');
+
+  if (browser && grid && result && empty) {
+    const items = Array.from(grid.querySelectorAll<HTMLElement>('[data-card-item]'));
+    const filters = Array.from(browser.querySelectorAll<HTMLButtonElement>('[data-card-filter]'));
+    const search = browser.querySelector<HTMLInputElement>('[data-card-search]');
+    const reset = empty.querySelector<HTMLButtonElement>('[data-card-reset]');
+
+    const apply = () => {
+      const activeType = filters.find((button) => button.getAttribute('aria-pressed') === 'true')?.dataset.cardFilter ?? 'all';
+      const query = search?.value.trim().toLowerCase() ?? '';
+      let visible = 0;
+
+      items.forEach((item) => {
+        const typeMatches = activeType === 'all' || item.dataset.cardType === activeType;
+        const queryMatches = !query || (item.dataset.cardTitle ?? '').includes(query);
+        const show = typeMatches && queryMatches;
+        item.hidden = !show;
+        if (show) visible += 1;
+      });
+
+      result.textContent = `${visible} / ${items.length}`;
+      empty.hidden = visible > 0;
+    };
+
+    filters.forEach((button) => button.addEventListener('click', () => {
+      filters.forEach((candidate) => {
+        const active = candidate === button;
+        candidate.classList.toggle('is-active', active);
+        candidate.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      apply();
+    }));
+    search?.addEventListener('input', apply);
+    reset?.addEventListener('click', () => {
+      filters.forEach((candidate, index) => {
+        const active = index === 0;
+        candidate.classList.toggle('is-active', active);
+        candidate.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      if (search) search.value = '';
+      apply();
+    });
+    apply();
+  }
+</script>
+
+<style>
+  .series-hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--border); background: var(--bg-secondary); isolation: isolate; }
+  .series-hero-backdrop { position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 76% 36%, color-mix(in srgb, #81c9dc 18%, transparent), transparent 26%), radial-gradient(circle at 44% 90%, color-mix(in srgb, #c77f47 13%, transparent), transparent 31%), linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); }
+  .series-hero-inner { padding-block: clamp(2rem, 5vw, 4.5rem) clamp(3rem, 6vw, 6rem); }
+  .back-link { display: inline-flex; align-items: center; gap: .45rem; color: var(--text-muted); font-size: .8rem; }
+  .back-link:hover { color: var(--text-primary); }
+  .series-hero-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(320px, .72fr); align-items: center; gap: clamp(2rem, 7vw, 8rem); margin-top: clamp(3rem, 7vw, 6rem); }
+  .series-hero-copy { max-width: 640px; }
+  .series-hero-copy h1 { margin: 0; font-size: clamp(2.8rem, 6vw, 6.2rem); line-height: .98; letter-spacing: -.055em; text-wrap: balance; }
+  .series-hero-copy > p { max-width: 38rem; margin: var(--space-6) 0 0; color: var(--text-secondary); font-family: var(--font-literary); font-size: clamp(1rem, 1.25vw, 1.14rem); line-height: 1.85; }
+  .series-stats { display: flex; gap: clamp(2rem, 5vw, 4rem); margin-top: var(--space-10); }
+  .series-stats div { display: grid; gap: .3rem; }
+  .series-stats strong { font-family: var(--font-display); font-size: 2rem; font-weight: 620; line-height: 1; }
+  .series-stats strong span { color: var(--text-muted); font-size: 1rem; }
+  .series-stats small { color: var(--text-muted); font-size: .72rem; }
+
+  .series-hero-art { position: relative; min-height: 430px; }
+  .hero-card-preview { position: absolute; top: calc(var(--hero-card-index) * 3%); right: calc(13% + var(--hero-card-index) * 5%); bottom: calc(2% + var(--hero-card-index) * 1%); left: calc(12% + var(--hero-card-index) * 6%); overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 56%, #fff); border-radius: 16px; background: #09141c; box-shadow: 0 30px 65px rgba(0, 0, 0, .3); transform: rotate(calc((var(--hero-card-index) - 1) * 7deg)); }
+  .hero-card-preview img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.84) contrast(1.06); }
+  .hero-card-preview::after { position: absolute; inset: 0; content: ''; background: linear-gradient(to top, rgba(2, 7, 10, .7), transparent 48%); }
+  .hero-card-preview span { position: absolute; right: 8%; bottom: 6%; z-index: 1; color: #fff; font-size: .66rem; letter-spacing: .1em; }
+  .hero-art-note { position: absolute; right: 0; bottom: -1.7rem; left: 12%; color: var(--text-muted); font-size: .72rem; letter-spacing: .08em; }
+
+  .series-browser { padding-block: clamp(3.5rem, 7vw, 6rem); }
+  .browser-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--space-8); margin-bottom: var(--space-8); }
+  .browser-heading h2 { margin: 0; }
+  .browser-heading p { max-width: 31rem; margin: 0; color: var(--text-secondary); font-size: .86rem; line-height: 1.7; }
+  .browser-toolbar { position: sticky; top: var(--header-height); z-index: calc(var(--z-header) - 1); display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-inline: calc((min(var(--container-wide), 100vw - 40px) - 100vw) / 2); padding: .8rem max(20px, calc((100vw - var(--container-wide)) / 2)); border-block: 1px solid var(--border); background: color-mix(in srgb, var(--bg-primary) 90%, transparent); backdrop-filter: blur(14px) saturate(120%); }
+  .type-filters { display: flex; gap: .25rem; overflow-x: auto; scrollbar-width: none; }
+  .type-filters::-webkit-scrollbar { display: none; }
+  .filter-option { min-height: 34px; padding-inline: .75rem; border: 1px solid transparent; border-radius: 6px; color: var(--text-secondary); background: transparent; cursor: pointer; font-size: .76rem; white-space: nowrap; }
+  .filter-option:hover, .filter-option:focus-visible, .filter-option.is-active { border-color: var(--border-strong); color: var(--text-primary); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .card-search { position: relative; display: flex; flex: 0 0 min(250px, 27vw); }
+  .card-search .search-icon { position: absolute; top: 50%; left: .7rem; color: var(--text-muted); transform: translateY(-50%); pointer-events: none; }
+  .card-search input { width: 100%; min-height: 36px; padding: .45rem .65rem .45rem 2rem; border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); background: var(--surface); font-size: .78rem; }
+  .card-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
+  .browser-result { min-height: 1.2rem; margin: var(--space-4) 0 var(--space-4); color: var(--text-muted); font-size: .7rem; text-align: right; }
+  .card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1.25rem, 2.2vw, 2rem); }
+  .card-grid-item[hidden] { display: none; }
+  .card-empty { padding: var(--space-10); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); text-align: center; color: var(--text-secondary); }
+  .card-empty .btn { margin-top: var(--space-4); }
+
+  .story-track-section { border-top: 1px solid var(--border); }
+  .story-track { display: flex; gap: .65rem; overflow-x: auto; padding-block: .35rem 1rem; scrollbar-width: thin; }
+  .story-node { display: grid; min-width: 142px; gap: .5rem; padding: .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); transition: border-color var(--transition-fast), transform var(--transition-fast); }
+  .story-node:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+  .story-node span { color: var(--accent-strong); font-size: .68rem; font-weight: 760; letter-spacing: .08em; }
+  .story-node strong { color: var(--text-primary); font-size: .78rem; line-height: 1.45; }
+  .story-link { display: inline-flex; align-items: center; gap: .45rem; margin-top: var(--space-5); color: var(--accent-strong); font-size: .82rem; font-weight: 700; }
+
+  @media (max-width: 1180px) { .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 900px) {
+    .series-hero-grid { grid-template-columns: 1fr; }
+    .series-hero-art { width: min(470px, 100%); min-height: 390px; margin-inline: auto; }
+    .browser-heading { align-items: start; flex-direction: column; }
+    .browser-toolbar { margin-inline: -20px; padding-inline: 20px; }
+    .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .series-hero-copy h1 { font-size: clamp(2.6rem, 14vw, 4.5rem); }
+    .series-hero-art { min-height: 330px; }
+    .browser-toolbar { align-items: stretch; flex-direction: column; }
+    .card-search { flex-basis: auto; width: 100%; }
+    .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .story-node { transition: none; } }
+</style>
