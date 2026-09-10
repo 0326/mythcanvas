@@ -23,7 +23,6 @@ const previous = hasStory
 const next = hasStory
   ? (card.seriesNarrative?.nextCardId ? getCardById(card.seriesNarrative.nextCardId) : undefined)
   : getCardByNumber(cardNumber + 1);
-const isLandscape = card.orientation === 'landscape';
 ---
 
 <BaseLayout title={card.titleEn} description={card.display.full}>
@@ -31,7 +30,7 @@ const isLandscape = card.orientation === 'landscape';
     <div class="container-wide card-detail-shell">
       <a class="back-link" href={localizedPath('en', '/cards/norse/m01-norse-genesis/')}><ArrowLeft size={16} strokeWidth={1.8} aria-hidden="true" /> Back to M01 collection</a>
 
-      <div class:list={['card-detail-grid', { 'is-landscape': isLandscape }]}>
+      <div class="card-detail-grid">
         <div class="card-detail-stage"><CardShowcase card={card} locale="en" /></div>
         <div class="card-detail-copy">
           <span class="eyebrow"><Sparkles size={15} strokeWidth={1.8} aria-hidden="true" /> M01 · {formatCardNumber(card.cardNumber)}</span>
@@ -65,8 +64,6 @@ const isLandscape = card.orientation === 'landscape';
   .back-link:hover { color: var(--text-primary); }
   .card-detail-grid { display: grid; grid-template-columns: minmax(260px, 390px) minmax(0, 600px); align-items: start; justify-content: center; gap: clamp(3rem, 9vw, 9rem); margin-top: clamp(2.5rem, 6vw, 5.5rem); }
   .card-detail-stage { width: min(100%, 380px); }
-  .card-detail-grid.is-landscape { grid-template-columns: minmax(560px, 720px) minmax(0, 480px); gap: clamp(3rem, 6vw, 7rem); }
-  .card-detail-grid.is-landscape .card-detail-stage { width: min(100%, 720px); }
   .card-detail-copy { padding-top: clamp(.5rem, 2vw, 2.5rem); }
   .card-detail-copy h1 { margin: 0; font-family: var(--font-display); font-size: clamp(3rem, 6vw, 6rem); line-height: .98; letter-spacing: -.055em; }
   .card-detail-en { margin: .7rem 0 0; color: var(--text-muted); font-size: .85rem; letter-spacing: .08em; }

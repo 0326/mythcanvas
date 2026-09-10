@@ -222,11 +222,6 @@ const foil = foilByType[card.type];
     will-change: transform;
   }
 
-  .mythic-card.is-landscape .card-tilt-layer {
-    aspect-ratio: 16 / 9;
-    border-radius: 2.67% / 4.75%;
-  }
-
   .card-tilt-layer::before,
   .card-tilt-layer::after {
     position: absolute;
@@ -234,17 +229,6 @@ const foil = foilByType[card.type];
     box-sizing: border-box;
     content: '';
     pointer-events: none;
-  }
-
-  .mythic-card.is-landscape .card-tilt-layer::before {
-    inset: 1.6cqi;
-    border-width: .24cqi;
-    border-radius: calc(2.67cqi - 1.6cqi);
-  }
-
-  .mythic-card.is-landscape .card-tilt-layer::after {
-    border-width: .82cqi;
-    border-radius: 2.67cqi;
   }
 
   .mythic-card.is-planned .card-tilt-layer::before,
@@ -276,10 +260,6 @@ const foil = foilByType[card.type];
     isolation: isolate;
   }
 
-  .mythic-card.is-landscape .card-face {
-    border-radius: 2.67cqi;
-  }
-
   .card-face::before {
     position: absolute;
     inset: 0;
@@ -309,6 +289,14 @@ const foil = foilByType[card.type];
     object-fit: cover;
     object-position: top center;
     filter: saturate(.88) contrast(1.06);
+  }
+
+  /* Cover cards keep the same vertical physical card template. Their
+   * landscape source artwork stays horizontal and fully visible inside it. */
+  .mythic-card.is-landscape .card-art img:not(.card-back-image) {
+    object-fit: contain;
+    object-position: top center;
+    background: #0b151e;
   }
 
   .card-art img.card-back-image {
@@ -391,15 +379,6 @@ const foil = foilByType[card.type];
     /* backdrop-filter: blur(4.67cqi) saturate(115%); */
   }
 
-  .mythic-card.is-landscape .card-info {
-    right: 4.8%;
-    bottom: 9.5%;
-    left: 4.8%;
-    height: 34%;
-    border-width: .24cqi;
-    border-radius: 1.5cqi;
-  }
-
   .card-info-heading {
     position: absolute;
     top: 11.4%;
@@ -408,11 +387,6 @@ const foil = foilByType[card.type];
     height: 33%;
     min-width: 0;
     text-align: center;
-  }
-
-  .mythic-card.is-landscape .card-info-heading {
-    top: 9%;
-    height: 34%;
   }
 
   .card-identity,
@@ -433,10 +407,6 @@ const foil = foilByType[card.type];
     white-space: nowrap;
   }
 
-  .mythic-card.is-landscape .card-identity {
-    font-size: 3.3cqi;
-  }
-
   .card-subtitle {
     display: block;
     overflow: hidden;
@@ -447,11 +417,6 @@ const foil = foilByType[card.type];
     text-overflow: ellipsis;
     text-transform: uppercase;
     white-space: nowrap;
-  }
-
-  .mythic-card.is-landscape .card-subtitle {
-    margin-top: .35cqi;
-    font-size: 1.8cqi;
   }
 
   .card-description {
@@ -476,11 +441,6 @@ const foil = foilByType[card.type];
     -webkit-line-clamp: unset;
   }
 
-  .mythic-card.is-landscape .card-description {
-    bottom: 8%;
-    font-size: var(--card-description-size, 1.8cqi);
-  }
-
   .card-footer-line {
     position: absolute;
     right: 8.6%;
@@ -503,16 +463,6 @@ const foil = foilByType[card.type];
     color: color-mix(in srgb, var(--card-snow) 74%, var(--card-accent));
     font-size: 2.3cqi;
     letter-spacing: .05em;
-  }
-
-  .mythic-card.is-landscape .card-footer-line {
-    bottom: 3.1%;
-    height: 3.4%;
-  }
-
-  .mythic-card.is-landscape .card-id,
-  .mythic-card.is-landscape .card-brand {
-    font-size: 1.45cqi;
   }
 
   .card-brand {
