@@ -11,6 +11,11 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  min-width: var(--site-min-width);
+}
+
 html {
   background: var(--bg-primary);
   scroll-behavior: smooth;
@@ -23,13 +28,6 @@ body {
   background: var(--page-glow);
   overflow-wrap: break-word;
   transition: background-color var(--transition-base), color var(--transition-base);
-}
-
-@media (min-width: 1080px) {
-  html,
-  body {
-    min-width: var(--site-min-width);
-  }
 }
 
 body::before {

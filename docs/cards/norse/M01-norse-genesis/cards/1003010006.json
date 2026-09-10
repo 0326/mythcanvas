@@ -1,3 +1,175 @@
 {
-  "schemaVersion":"4.0","cardId":1003010006,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":6,"type":"character","slug":"ve","titleZh":"维","titleEn":"Vé","description":"与奥丁、威利共同参与创世的兄弟神之一。","fullDescription":"维的来源同样没有给出稳定独立外观。本卡应避免把后世词源或现代阐释当作确定神职，重点表现三兄弟共同创世中的第三位独立主体。","roleInSeries":"完成创世三兄弟的人物闭环。","storyIds":["story-odin-creates-world"],"characterIds":["character-ve"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8","note":"维与奥丁、威利共同杀死尤弥尔并塑造世界。"}],"seriesNarrative":null,"visualThesis":"相比威利更稳定、收束的创世姿态：清晰独立脸型，双手或身体姿态强调定位、支撑、安排，而不是魔法法阵。","canon":{"sourceBoundFacts":["与奥丁、威利共同参与创世","来源未提供明确独立外观"],"interpretationNotes":["‘神圣空间/秩序’可作为视觉解释，不是来源明确的本场景神职","不凭词源给他添加无来源法器"],"worldState":"世界正在形成；不得提前出现成熟神殿、王城或礼仪体系。","identityAnchors":["独立脸型","稳定造物姿态","正常神祇尺度"],"mustKeep":["姿态更沉稳","服饰简洁","不使用魔法UI"],"mustAvoid":["奥丁换脸","威利换脸","魔法法阵","祭司法杖","王冠","重甲维京人"],"differentiation":{"fromCardIds":[1003010004,1003010005],"instructions":["与奥丁：无王者符号、无独眼","与威利：更稳定垂直构图、更少冲刺感，脸与体型必须不同"]}},"visual":{"mood":["stable","ordering","quiet","restrained"],"palette":["灰白","深蓝灰","少量土褐"],"materials":["石","木","粗织物"],"detailHierarchy":"脸、双手和支撑动作高细节；环境低细节。","subjectSeparation":"使用轮廓与背景雾化分离，不靠发光魔法。"},"composition":{"orientation":"portrait","camera":"eye level","shot":"stable three-quarter","subjectAnchor":{"x":0.5,"y":0.31},"criticalIdentityZone":{"xMin":0.22,"xMax":0.78,"yMin":0.12,"yMax":0.52},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.12,"mustRemainVisible":["face","upper torso","ordering/support gesture"]}},"prompt":{"draft":"Create Vé as the third distinct creator brother, a normal-scale humanlike god with a calm, stabilizing world-making pose. He must not look like Odin or Vili: use a different face, hairstyle, build and posture. Express order through physical placement, support or arrangement of raw world materials, not magic circles or glowing runes. No one-eye trait, throne, crown, staff, battle armor or priest stereotype. Unfinished world background only, simple and low-detail. Painterly, restrained, crop-safe, subject-first.","final":null,"negative":["Odin clone","Vili clone","one eye","throne","crown","magic circle","glowing runes","priest staff","Viking armor","typography","glossy game-CG"],"notes":"差异化优先：三兄弟必须看起来是三位不同的人，而不是同一角色换脸/换色。"},"references":{"cardIds":[1003010004,1003010005],"notes":"生成前必须查看相关已批准角色，继承系列画风但避免复制脸型、体量、姿态和环境模板。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":"1003010006.png","notes":"必须先完成 JSON review，再进入出图；未获用户确认的草图不得自动标记 approved。"},"output":{"fileName":"1003010006.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":["神话事实与艺术解释分离","与相邻角色具有清晰视觉差异","主体位于裁切安全区","背景复杂度低于主体","无无来源的通用北欧幻想元素"]},"preGenerationChecks":["核对 sourceBoundFacts，不根据大众影视印象补事实","核对 worldState，不提前使用后续剧情状态","逐项检查 differentiation，禁止复制已批准角色模板","确认主体头脸/身份符号位于安全区","确认背景低于主体复杂度","JSON 经确认后才生成"]
+  "schemaVersion": "4.0",
+  "cardId": 1003010006,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 6,
+  "type": "character",
+  "slug": "ve",
+  "titleZh": "维",
+  "titleEn": "Vé",
+  "description": "与奥丁、威利共同参与创世的兄弟神之一。",
+  "fullDescription": "维的来源同样没有给出稳定独立外观。本卡应避免把后世词源或现代阐释当作确定神职，重点表现三兄弟共同创世中的第三位独立主体。",
+  "roleInSeries": "完成创世三兄弟的人物闭环。",
+  "storyIds": [
+    "story-odin-creates-world"
+  ],
+  "characterIds": [
+    "character-ve"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-prose-edda-gylfaginning",
+      "locator": "ch. 8",
+      "note": "维与奥丁、威利共同杀死尤弥尔并塑造世界。"
+    }
+  ],
+  "seriesNarrative": null,
+  "visualThesis": "相比威利更稳定、收束的创世姿态：清晰独立脸型，双手或身体姿态强调定位、支撑、安排，而不是魔法法阵。",
+  "canon": {
+    "sourceBoundFacts": [
+      "与奥丁、威利共同参与创世",
+      "来源未提供明确独立外观"
+    ],
+    "interpretationNotes": [
+      "‘神圣空间/秩序’可作为视觉解释，不是来源明确的本场景神职",
+      "不凭词源给他添加无来源法器"
+    ],
+    "worldState": "世界正在形成；不得提前出现成熟神殿、王城或礼仪体系。",
+    "identityAnchors": [
+      "独立脸型",
+      "稳定造物姿态",
+      "正常神祇尺度"
+    ],
+    "mustKeep": [
+      "姿态更沉稳",
+      "服饰简洁",
+      "不使用魔法UI"
+    ],
+    "mustAvoid": [
+      "奥丁换脸",
+      "威利换脸",
+      "魔法法阵",
+      "祭司法杖",
+      "王冠",
+      "重甲维京人"
+    ],
+    "differentiation": {
+      "fromCardIds": [
+        1003010004,
+        1003010005
+      ],
+      "instructions": [
+        "与奥丁：无王者符号、无独眼",
+        "与威利：更稳定垂直构图、更少冲刺感，脸与体型必须不同"
+      ]
+    }
+  },
+  "visual": {
+    "mood": [
+      "stable",
+      "ordering",
+      "quiet",
+      "restrained"
+    ],
+    "palette": [
+      "灰白",
+      "深蓝灰",
+      "少量土褐"
+    ],
+    "materials": [
+      "石",
+      "木",
+      "粗织物"
+    ],
+    "detailHierarchy": "脸、双手和支撑动作高细节；环境低细节。",
+    "subjectSeparation": "使用轮廓与背景雾化分离，不靠发光魔法。"
+  },
+  "composition": {
+    "orientation": "portrait",
+    "camera": "eye level",
+    "shot": "stable three-quarter",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.31
+    },
+    "criticalIdentityZone": {
+      "xMin": 0.22,
+      "xMax": 0.78,
+      "yMin": 0.12,
+      "yMax": 0.52
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.12,
+      "mustRemainVisible": [
+        "face",
+        "upper torso",
+        "ordering/support gesture"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "Create Vé as the third distinct creator brother, a normal-scale humanlike god with a calm, stabilizing world-making pose. He must not look like Odin or Vili: use a different face, hairstyle, build and posture. Express order through physical placement, support or arrangement of raw world materials, not magic circles or glowing runes. No one-eye trait, throne, crown, staff, battle armor or priest stereotype. Unfinished world background only, simple and low-detail. Painterly, restrained, crop-safe, subject-first.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010006, Vé / 维, type character.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: Create Vé as the third distinct creator brother, a normal-scale humanlike god with a calm, stabilizing world-making pose. He must not look like Odin or Vili: use a different face, hairstyle, build and posture. Express order through physical placement, support or arrangement of raw world materials, not magic circles or glowing runes. No one-eye trait, throne, crown, staff, battle armor or priest stereotype. Unfinished world background only, simple and low-detail. Painterly, restrained, crop-safe, subject-first.\n\nVisual thesis: 相比威利更稳定、收束的创世姿态：清晰独立脸型，双手或身体姿态强调定位、支撑、安排，而不是魔法法阵。\n\nIdentity anchors: 独立脸型；稳定造物姿态；正常神祇尺度\n\nMust keep: 姿态更沉稳；服饰简洁；不使用魔法UI\n\nMust avoid: 奥丁换脸；威利换脸；魔法法阵；祭司法杖；王冠；重甲维京人\n\nComposition: camera eye level; shot stable three-quarter; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nColor and material guidance: palette 灰白；深蓝灰；少量土褐; materials 石；木；粗织物; mood stable；ordering；quiet；restrained.\n\nRelated card IDs for narrative continuity only: 1003010004；1003010005. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: Odin clone；Vili clone；one eye；throne；crown；magic circle；glowing runes；priest staff；Viking armor；typography；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "Odin clone",
+      "Vili clone",
+      "one eye",
+      "throne",
+      "crown",
+      "magic circle",
+      "glowing runes",
+      "priest staff",
+      "Viking armor",
+      "typography",
+      "glossy game-CG"
+    ],
+    "notes": "差异化优先：三兄弟必须看起来是三位不同的人，而不是同一角色换脸/换色。"
+  },
+  "references": {
+    "cardIds": [
+      1003010004,
+      1003010005
+    ],
+    "notes": "生成前必须查看相关已批准角色，继承系列画风但避免复制脸型、体量、姿态和环境模板。"
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 1,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010006.png",
+    "notes": "Built-in image generation output reviewed for subject, M01 style family, crop safety, and visible anatomy; resized to the normative 1620x2880 canvas. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010006.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010006.webp",
+    "sha256": "9b63326553ac92ec1b59a0d87e974212fc298127dbc2f85b3e84f52edb2cef8a",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "单张竖版纯 Artwork，无文字、卡框或水印",
+      "角色与相邻 M01 角色保持独立脸型、轮廓或动作",
+      "主体与关键动作位于中上部安全区",
+      "主体对比度高于背景，环境复杂度受控",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  },
+  "preGenerationChecks": [
+    "核对 sourceBoundFacts，不根据大众影视印象补事实",
+    "核对 worldState，不提前使用后续剧情状态",
+    "逐项检查 differentiation，禁止复制已批准角色模板",
+    "确认主体头脸/身份符号位于安全区",
+    "确认背景低于主体复杂度",
+    "JSON 经确认后才生成"
+  ]
 }

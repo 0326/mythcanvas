@@ -1,1 +1,84 @@
-{"schemaVersion":"4.0","cardId":1003010020,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":20,"type":"scene","slug":"yggdrasil","titleZh":"世界树","titleEn":"Yggdrasil","description":"贯穿宇宙层级、连接根域与泉域的世界轴。","roleInSeries":"建立北欧宇宙结构核心。","storyIds":["story-yggdrasil-and-wells"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"sts. 31–35"}],"seriesNarrative":null,"visualThesis":"树干与主要分叉是唯一一级地标，其余空间低细节。","composition":{"orientation":"portrait","subjectAnchor":{"x":0.5,"y":0.36},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.14,"mustRemainVisible":["main trunk","major branches","world-axis scale"]}},"prompt":{"draft":"Yggdrasil as a colossal world-axis, one readable trunk and major branching structure, roots descending into mist, no labeled nine-world diagram, simplified atmospheric layers.","final":null,"negative":["typography","logo","card frame","watermark","nine-world infographic","labels","microscopic detail everywhere","glossy game-CG"],"notes":"确认出图后写入完整可重放 prompt.final。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":null,"notes":""},"output":{"fileName":"1003010020.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":[]}}
+{
+  "schemaVersion": "4.0",
+  "cardId": 1003010020,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 20,
+  "type": "scene",
+  "slug": "yggdrasil",
+  "titleZh": "世界树",
+  "titleEn": "Yggdrasil",
+  "description": "贯穿宇宙层级、连接根域与泉域的世界轴。",
+  "roleInSeries": "建立北欧宇宙结构核心。",
+  "storyIds": [
+    "story-yggdrasil-and-wells"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-grimnismal",
+      "locator": "sts. 31–35"
+    }
+  ],
+  "seriesNarrative": null,
+  "visualThesis": "树干与主要分叉是唯一一级地标，其余空间低细节。",
+  "composition": {
+    "orientation": "portrait",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.36
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.14,
+      "mustRemainVisible": [
+        "main trunk",
+        "major branches",
+        "world-axis scale"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "Yggdrasil as a colossal world-axis, one readable trunk and major branching structure, roots descending into mist, no labeled nine-world diagram, simplified atmospheric layers.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010020, Yggdrasil / 世界树, type scene.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: Yggdrasil as a colossal world-axis, one readable trunk and major branching structure, roots descending into mist, no labeled nine-world diagram, simplified atmospheric layers.\n\nVisual thesis: 树干与主要分叉是唯一一级地标，其余空间低细节。\n\nVisual continuity entities: yggdrasil.\n\nCanonical image references required for identity/landmark matching: 1003010020. These references control recurring face, age, silhouette, palette, material, and landmark geometry; they do not control camera or pose.\n\nSource-bound continuity facts: yggdrasil: A vast ash tree.；yggdrasil: It is evergreen.；yggdrasil: It has three great roots extending in three directions.；yggdrasil: Urðr's well and the Norns are associated with the tree.\n\nMythCanvas locked continuity design: yggdrasil: One colossal twisted central trunk remains unified through the lower two thirds and divides only in the upper third into three principal crown leaders.；yggdrasil: A broad asymmetrical umbrella crown uses small deep desaturated evergreen ash leaflets; foliage never becomes white leaves or blossoms.；yggdrasil: Pale dew, frost, or snow may edge the foliage but may not recolor the crown.；yggdrasil: Three massive buttress roots diverge visibly from the same trunk system.；yggdrasil: Bark is charcoal brown with long vertical silver fissures and restrained moss only on water-facing surfaces.；yggdrasil: No luminous blue veins, floating cities, realm bubbles, or labeled nine-world diagram.\n\nIdentity anchors: 无额外条目\n\nMust keep: 无额外条目\n\nMust avoid: 无额外条目\n\nComposition: camera clear subject-first camera; shot single readable composition; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nSeries-wide visual grammar: keep matte painterly surfaces；broad readable forms；limited focal sharpness；quiet atmospheric negative space；restrained blue-white frost and ember light；subject detail clearly stronger than background detail; avoid glossy game-CG rendering；hyper-detailed-everything；generic Viking cosplay；floating realm platforms；science-fiction orbit graphics；random glowing runes；multiple competing focal centers.\n\nColor and material guidance: palette 无额外条目; materials 无额外条目; mood 无额外条目.\n\nRelated card IDs for narrative continuity only: 无额外条目. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: typography；logo；card frame；watermark；nine-world infographic；labels；microscopic detail everywhere；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "typography",
+      "logo",
+      "card frame",
+      "watermark",
+      "nine-world infographic",
+      "labels",
+      "microscopic detail everywhere",
+      "glossy game-CG"
+    ],
+    "notes": "Continuity-aware replay prompt composed from the per-card brief plus M01_VISUAL_CONTINUITY.json. The accepted candidate used the same listed canonical image references."
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 3,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010020.png",
+    "notes": "Continuity regeneration completed. Canonical reference card IDs: 1003010020. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010020.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010020.webp",
+    "sha256": "295670fa9d5627c2193c246398e14510ac05974667df6ce068b46b5d13ed8db4",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "Canonical Yggdrasil master regenerated after one rejected continuity candidate.",
+      "Verified deep evergreen foliage, one lower trunk, high three-leader crown split, three dominant buttress roots, and charcoal bark with silver fissures.",
+      "Pure artwork only: no typography, logo, card frame, number, watermark, or UI.",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  }
+}

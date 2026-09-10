@@ -1,1 +1,99 @@
-{"schemaVersion":"4.0","cardId":1003010035,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":35,"type":"story","slug":"ymir-falls","titleZh":"尤弥尔倒下","titleEn":"Ymir Falls","description":"三兄弟杀死尤弥尔，原初秩序结束。","fullDescription":"三兄弟杀死尤弥尔。这个事件不是单纯的英雄战斗，而是宇宙结构转换的门槛；在这一散文传统中，新秩序以原初存在的死亡为代价。","roleInSeries":"连续Story第8段。","storyIds":["story-odin-creates-world"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8"}],"seriesNarrative":{"seriesTitle":"北欧创世：世界树与命运","seriesSummary":"从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。","chapter":3,"chapterTitle":"旧世界的终结","sequence":8,"keyMoment":"尤弥尔倒下","narrative":"三兄弟杀死尤弥尔。这个事件不是单纯的英雄战斗，而是宇宙结构转换的门槛；在这一散文传统中，新秩序以原初存在的死亡为代价。","previousCardId":1003010034,"nextCardId":1003010036},"visualThesis":"倒下的巨大上身和三兄弟是唯一信息，不强调血腥。","composition":{"orientation":"portrait","subjectAnchor":{"x":0.5,"y":0.33},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.14,"mustRemainVisible":["Ymir scale","falling body","three brothers"]}},"prompt":{"draft":"Ymir collapsing at world scale while the three brothers remain small but readable, mythic solemnity, no gore spectacle, simplified environment.","final":null,"negative":["typography","logo","card frame","watermark","gore spectacle","battle clutter","glossy game-CG"],"notes":"需引用1003010001锁定Ymir体量；确认出图后写入完整可重放 prompt.final。"},"references":{"cardIds":[1003010001],"notes":"沿用approved Ymir Canon。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":null,"notes":""},"output":{"fileName":"1003010035.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":[]}}
+{
+  "schemaVersion": "4.0",
+  "cardId": 1003010035,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 35,
+  "type": "story",
+  "slug": "ymir-falls",
+  "titleZh": "尤弥尔倒下",
+  "titleEn": "Ymir Falls",
+  "description": "三兄弟杀死尤弥尔，原初秩序结束。",
+  "fullDescription": "三兄弟杀死尤弥尔。这个事件不是单纯的英雄战斗，而是宇宙结构转换的门槛；在这一散文传统中，新秩序以原初存在的死亡为代价。",
+  "roleInSeries": "连续Story第8段。",
+  "storyIds": [
+    "story-odin-creates-world"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-prose-edda-gylfaginning",
+      "locator": "ch. 8"
+    }
+  ],
+  "seriesNarrative": {
+    "seriesTitle": "北欧创世：世界树与命运",
+    "seriesSummary": "从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。",
+    "chapter": 3,
+    "chapterTitle": "旧世界的终结",
+    "sequence": 8,
+    "keyMoment": "尤弥尔倒下",
+    "narrative": "三兄弟杀死尤弥尔。这个事件不是单纯的英雄战斗，而是宇宙结构转换的门槛；在这一散文传统中，新秩序以原初存在的死亡为代价。",
+    "previousCardId": 1003010034,
+    "nextCardId": 1003010036
+  },
+  "visualThesis": "倒下的巨大上身和三兄弟是唯一信息，不强调血腥。",
+  "composition": {
+    "orientation": "portrait",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.33
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.14,
+      "mustRemainVisible": [
+        "Ymir scale",
+        "falling body",
+        "three brothers"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "Ymir collapsing at world scale while the three brothers remain small but readable, mythic solemnity, no gore spectacle, simplified environment.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010035, Ymir Falls / 尤弥尔倒下, type story.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: Ymir collapsing at world scale while the three brothers remain small but readable, mythic solemnity, no gore spectacle, simplified environment.\n\nVisual thesis: 倒下的巨大上身和三兄弟是唯一信息，不强调血腥。\n\nStory chapter: 旧世界的终结. Key moment: 尤弥尔倒下. Narrative context: 三兄弟杀死尤弥尔。这个事件不是单纯的英雄战斗，而是宇宙结构转换的门槛；在这一散文传统中，新秩序以原初存在的死亡为代价。\n\nVisual continuity entities: ymir；odin-creator；vili；ve.\n\nCanonical image references required for identity/landmark matching: 1003010001；1003010004；1003010005；1003010006. These references control recurring face, age, silhouette, palette, material, and landmark geometry; they do not control camera or pose.\n\nSource-bound continuity facts: 无额外条目\n\nMythCanvas locked continuity design: ymir: Colossal pre-world humanoid with dark frost-stone skin, massive brow and nose, deep-set pale eyes, and long frost-white hair and beard.；ymir: Ancient and elemental rather than a normal Viking warrior; no armor, helmet, weapons, or tailored costume.；ymir: Maintain the same facial bone structure, hairline, beard shape, and relative scale in every appearance.；odin-creator: Mature dual-eyed creator with dark brown braided hair and beard, charcoal fur cloak, and calm commanding posture.；odin-creator: No missing eye, ravens, Gungnir-like spear, throne, Valhalla imagery, or rune-mastery attributes in this early timeline.；vili: Youthful athletic adult with wheat-blond shoulder-length hair, clean face or minimal stubble, light slate wrap, and active forward motion.；ve: Compact steady adult with dark hair tied back in a short topknot, restrained beard or clean jaw, dark gray cloak, and grounded ritual posture.\n\nIdentity anchors: 无额外条目\n\nMust keep: 无额外条目\n\nMust avoid: 无额外条目\n\nComposition: camera clear subject-first camera; shot single readable composition; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nSeries-wide visual grammar: keep matte painterly surfaces；broad readable forms；limited focal sharpness；quiet atmospheric negative space；restrained blue-white frost and ember light；subject detail clearly stronger than background detail; avoid glossy game-CG rendering；hyper-detailed-everything；generic Viking cosplay；floating realm platforms；science-fiction orbit graphics；random glowing runes；multiple competing focal centers.\n\nColor and material guidance: palette 无额外条目; materials 无额外条目; mood 无额外条目.\n\nRelated card IDs for narrative continuity only: 1003010001. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: typography；logo；card frame；watermark；gore spectacle；battle clutter；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "typography",
+      "logo",
+      "card frame",
+      "watermark",
+      "gore spectacle",
+      "battle clutter",
+      "glossy game-CG"
+    ],
+    "notes": "Continuity-aware replay prompt composed from the per-card brief plus M01_VISUAL_CONTINUITY.json. The accepted candidate used the same listed canonical image references."
+  },
+  "references": {
+    "cardIds": [
+      1003010001
+    ],
+    "notes": "沿用approved Ymir Canon。"
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 2,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010035.png",
+    "notes": "Continuity regeneration completed. Canonical reference card IDs: 1003010001, 1003010004, 1003010005, 1003010006. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010035.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010035.webp",
+    "sha256": "f71b94023c412ccea49214b3b7bf9f63e189a8709d614936e0b4aab7db604c32",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "Ymir and the three brothers now preserve the same scale, hair-color split and costume palette as their character cards.",
+      "Pure artwork only: no typography, logo, card frame, number, watermark, or UI.",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  }
+}

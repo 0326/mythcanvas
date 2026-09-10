@@ -1,12 +1,186 @@
 {
-  "schemaVersion":"4.0","cardId":1003010004,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":4,"type":"character","slug":"odin-creator","titleZh":"奥丁·创世者","titleEn":"Odin · Creator",
-  "description":"与威利、维共同参与尤弥尔之死和世界塑造的创世阶段奥丁。",
-  "fullDescription":"本卡只表现奥丁在创世阶段的身份。此时的核心是与兄弟共同把尤弥尔的身体材料组织成世界，而不是后期的诸神之王、符文求知者或瓦尔哈拉统治者。尤其要避免把M02之后的王权、战具与求知经历提前塞入M01。",
-  "roleInSeries":"建立奥丁最早期的视觉阶段，并为M02的成熟奥丁保留成长空间。","storyIds":["story-odin-creates-world"],"characterIds":["character-odin"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"ch. 8","note":"奥丁与兄弟杀死尤弥尔并以其身体塑造世界。"}],"seriesNarrative":null,
-  "visualThesis":"行动中的年轻/壮年创世神，不是王座上的独眼神王。以简洁人形、协作造物动作和未完成世界材料体现身份。",
-  "canon":{"sourceBoundFacts":["奥丁与威利、维共同参与尤弥尔之死与世界塑造","本卡对应创世阶段而非后期王权阶段"],"interpretationNotes":["来源没有给出本场景的具体服饰、发色或年龄，均属艺术设计","奥丁献眼属于后续求知叙事；若严格按故事阶段，本卡不应强制使用后期独眼状态"],"worldState":"尤弥尔已死亡，世界正在被塑造；可以出现尚未稳定的天穹、海陆材料，但不应出现成熟阿斯加德王权或后世文明。","identityAnchors":["人形创世神","主动参与世界塑造","不使用后期完整王权视觉"],"mustKeep":["体格强健但不是巨人","双眼优先，避免时间线前置","朴素功能性服饰","明显造物动作"],"mustAvoid":["后期独眼神王模板","王座","Gungnir","乌鸦伴随","瓦尔哈拉","符文悬挂","漫威/游戏奥丁"],"differentiation":{"fromCardIds":[1003010001,1003010003,1003010005,1003010006],"instructions":["相对尤弥尔：正常神祇尺度，不做原初巨物","相对布里：是行动中的下一代神祇，不是冰中显现祖先","相对威利/维：不得共用同一张脸、发型和姿态"]}},
-  "visual":{"mood":["purposeful","young-divine","restrained","world-making"],"palette":["岩灰","海蓝","骨白","少量旧金"],"materials":["粗织物","石","骨","海雾"],"detailHierarchy":"脸、手与造物动作最高细节；服装中等；未完成世界背景低细节。","subjectSeparation":"通过暖肤色/清晰边缘和较软的世界材料背景分离主体。"},
-  "composition":{"orientation":"portrait","camera":"slightly low angle","shot":"three-quarter active figure","subjectAnchor":{"x":0.5,"y":0.31},"criticalIdentityZone":{"xMin":0.22,"xMax":0.78,"yMin":0.12,"yMax":0.52},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.12,"mustRemainVisible":["face","both eyes","upper torso","world-making gesture"]}},
-  "prompt":{"draft":"Create Odin in the creator era as a normal-scale powerful humanlike god working with the raw materials of the newly forming world. Do not use the later one-eyed king template, throne, spear, ravens, Valhalla or royal regalia. Keep two eyes visible unless a later deliberate edition choice explicitly overrides chronology. Use simple functional early-divine clothing and a purposeful world-making gesture. Background may suggest unstable newly forming sea, stone and sky materials but must remain secondary. Distinguish him clearly from Ymir, Búri, Vili and Vé. Keep head and hands safely inside crop margins. Painterly, restrained, subject-first, no game-CG excess.","final":null,"negative":["one-eyed later Odin template","throne","Gungnir","ravens","Valhalla","royal armor","Ymir-scale giant","Vili clone","Vé clone","typography","logo","glossy game-CG"],"notes":"强制做阶段区分：M01是创世时期奥丁；不要为了大众认知提前套用后期独眼神王全部符号。"},
-  "references":{"cardIds":[1003010001,1003010003,1003010005,1003010006],"notes":"生成前必须查看相关已批准角色，继承系列画风但避免复制脸型、体量、姿态和环境模板。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":"1003010004.png","notes":"必须先完成 JSON review，再进入出图；未获用户确认的草图不得自动标记 approved。"},"output":{"fileName":"1003010004.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":["神话事实与艺术解释分离","与相邻角色具有清晰视觉差异","主体位于裁切安全区","背景复杂度低于主体","无无来源的通用北欧幻想元素"]},"preGenerationChecks":["核对 sourceBoundFacts，不根据大众影视印象补事实","核对 worldState，不提前使用后续剧情状态","逐项检查 differentiation，禁止复制已批准角色模板","确认主体头脸/身份符号位于安全区","确认背景低于主体复杂度","JSON 经确认后才生成"]
+  "schemaVersion": "4.0",
+  "cardId": 1003010004,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 4,
+  "type": "character",
+  "slug": "odin-creator",
+  "titleZh": "奥丁·创世者",
+  "titleEn": "Odin · Creator",
+  "description": "与威利、维共同参与尤弥尔之死和世界塑造的创世阶段奥丁。",
+  "fullDescription": "本卡只表现奥丁在创世阶段的身份。此时的核心是与兄弟共同把尤弥尔的身体材料组织成世界，而不是后期的诸神之王、符文求知者或瓦尔哈拉统治者。尤其要避免把M02之后的王权、战具与求知经历提前塞入M01。",
+  "roleInSeries": "建立奥丁最早期的视觉阶段，并为M02的成熟奥丁保留成长空间。",
+  "storyIds": [
+    "story-odin-creates-world"
+  ],
+  "characterIds": [
+    "character-odin"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-prose-edda-gylfaginning",
+      "locator": "ch. 8",
+      "note": "奥丁与兄弟杀死尤弥尔并以其身体塑造世界。"
+    }
+  ],
+  "seriesNarrative": null,
+  "visualThesis": "行动中的年轻/壮年创世神，不是王座上的独眼神王。以简洁人形、协作造物动作和未完成世界材料体现身份。",
+  "canon": {
+    "sourceBoundFacts": [
+      "奥丁与威利、维共同参与尤弥尔之死与世界塑造",
+      "本卡对应创世阶段而非后期王权阶段"
+    ],
+    "interpretationNotes": [
+      "来源没有给出本场景的具体服饰、发色或年龄，均属艺术设计",
+      "奥丁献眼属于后续求知叙事；若严格按故事阶段，本卡不应强制使用后期独眼状态"
+    ],
+    "worldState": "尤弥尔已死亡，世界正在被塑造；可以出现尚未稳定的天穹、海陆材料，但不应出现成熟阿斯加德王权或后世文明。",
+    "identityAnchors": [
+      "人形创世神",
+      "主动参与世界塑造",
+      "不使用后期完整王权视觉"
+    ],
+    "mustKeep": [
+      "体格强健但不是巨人",
+      "双眼优先，避免时间线前置",
+      "朴素功能性服饰",
+      "明显造物动作"
+    ],
+    "mustAvoid": [
+      "后期独眼神王模板",
+      "王座",
+      "Gungnir",
+      "乌鸦伴随",
+      "瓦尔哈拉",
+      "符文悬挂",
+      "漫威/游戏奥丁"
+    ],
+    "differentiation": {
+      "fromCardIds": [
+        1003010001,
+        1003010003,
+        1003010005,
+        1003010006
+      ],
+      "instructions": [
+        "相对尤弥尔：正常神祇尺度，不做原初巨物",
+        "相对布里：是行动中的下一代神祇，不是冰中显现祖先",
+        "相对威利/维：不得共用同一张脸、发型和姿态"
+      ]
+    }
+  },
+  "visual": {
+    "mood": [
+      "purposeful",
+      "young-divine",
+      "restrained",
+      "world-making"
+    ],
+    "palette": [
+      "岩灰",
+      "海蓝",
+      "骨白",
+      "少量旧金"
+    ],
+    "materials": [
+      "粗织物",
+      "石",
+      "骨",
+      "海雾"
+    ],
+    "detailHierarchy": "脸、手与造物动作最高细节；服装中等；未完成世界背景低细节。",
+    "subjectSeparation": "通过暖肤色/清晰边缘和较软的世界材料背景分离主体。"
+  },
+  "composition": {
+    "orientation": "portrait",
+    "camera": "slightly low angle",
+    "shot": "three-quarter active figure",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.31
+    },
+    "criticalIdentityZone": {
+      "xMin": 0.22,
+      "xMax": 0.78,
+      "yMin": 0.12,
+      "yMax": 0.52
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.12,
+      "mustRemainVisible": [
+        "face",
+        "both eyes",
+        "upper torso",
+        "world-making gesture"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "Create Odin in the creator era as a normal-scale powerful humanlike god working with the raw materials of the newly forming world. Do not use the later one-eyed king template, throne, spear, ravens, Valhalla or royal regalia. Keep two eyes visible unless a later deliberate edition choice explicitly overrides chronology. Use simple functional early-divine clothing and a purposeful world-making gesture. Background may suggest unstable newly forming sea, stone and sky materials but must remain secondary. Distinguish him clearly from Ymir, Búri, Vili and Vé. Keep head and hands safely inside crop margins. Painterly, restrained, subject-first, no game-CG excess.",
+    "final": "Create ONE standalone vertical 9:16 pure artwork for card 1003010004, Odin · Creator. This is an original MythCanvas interpretation of the mythological character, not a copy of any modern franchise design. No typography, no title, no logo, no card frame, no number, no watermark, no pseudo-runes, and no UI. Depict Odin in the early creation phase, before becoming the later one-eyed king. Present him as an adult, intelligent, severe but not elderly, with a clearly distinct face and silhouette from Ymir, Búri, Vili, and Vé. He has long dark ash-brown hair with a restrained braid, a compact powerful creator's build rather than a giant body, focused visionary eyes, and a deliberate hand gesture that suggests shaping raw matter. His costume is an early mythic Nordic creator garment: layered dark wool, pale hide, muted bronze fasteners, and a small carved creation tool used as a working instrument, not a king's spear. Do not show the later eye-loss, ravens, throne, Valhalla, or Gungnir. Place him at the newly forming boundary between frost and flame in Ginnungagap, with raw mist, dark stone fragments, and first unstable ground forms. The world is still being shaped; do not show mature Asgard, city, palace, established road, or finished nine-world map. Keep one broad cold-to-warm creation seam behind him. Use a three-quarter standing pose, body about 55 percent of image height, face and both hands in the upper-middle crop-safe area, readable hand gesture and tool, Odin slightly off-center, no crowd or other named characters. Match the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white and ember-orange light, atmospheric depth, limited focal sharpness, restrained brush detail, and a sharper more contrasted character than background. Solemn purposeful mood; charcoal, weathered brown, muted bronze, frost blue-white, restrained ember orange. Fill one vertical composition, compose for future card crop safety, and keep face, hands, tool, and upper torso readable. Target portrait 9:16, at least 1620x2880 pixels. Avoid later one-eyed Odin, eyepatch, ravens, throne, Valhalla, Gungnir, wizard stereotype, Viking cosplay, modern armor, fantasy crown, generic superhero stance, oversized weapon, extra limbs, malformed hands, unreadable grip, duplicate person, crowded pantheon, mature city or palace, galaxy wallpaper, floating debris overload, excessive glowing runes, excessive particles, text, frame, logo, watermark, collage, split layout, contact sheet, and panel.",
+    "negative": [
+      "one-eyed later Odin template",
+      "throne",
+      "Gungnir",
+      "ravens",
+      "Valhalla",
+      "royal armor",
+      "Ymir-scale giant",
+      "Vili clone",
+      "Vé clone",
+      "typography",
+      "logo",
+      "glossy game-CG"
+    ],
+    "notes": "强制做阶段区分：M01是创世时期奥丁；不要为了大众认知提前套用后期独眼神王全部符号。"
+  },
+  "references": {
+    "cardIds": [
+      1003010001,
+      1003010003,
+      1003010005,
+      1003010006
+    ],
+    "notes": "生成前必须查看相关已批准角色，继承系列画风但避免复制脸型、体量、姿态和环境模板。"
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 1,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010004.png",
+    "notes": "Built-in image generation output reviewed for subject, M01 style family, crop safety, and visible hand/tool anatomy; resized to the normative 1620x2880 canvas. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010004.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010004.webp",
+    "sha256": "06bdcfedd44de66579dbc5ee2b0ac770bcbbfae3b85ff003803cc5d98f568181",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "单张竖版纯 Artwork，无文字、卡框或水印",
+      "与 Ymir/Búri 保持人形尺度、脸型和动作差异",
+      "脸、双手、工具位于中上部安全区",
+      "主体对比度高于冰火背景",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  },
+  "preGenerationChecks": [
+    "核对 sourceBoundFacts，不根据大众影视印象补事实",
+    "核对 worldState，不提前使用后续剧情状态",
+    "逐项检查 differentiation，禁止复制已批准角色模板",
+    "确认主体头脸/身份符号位于安全区",
+    "确认背景低于主体复杂度",
+    "JSON 经确认后才生成"
+  ]
 }

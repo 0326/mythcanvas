@@ -1,3 +1,177 @@
 {
-  "schemaVersion":"4.0","cardId":1003010016,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":16,"type":"character","slug":"nidhoggr","titleZh":"尼德霍格","titleEn":"Níðhöggr","description":"在世界树根部啃噬、持续侵蚀宇宙秩序的存在。","fullDescription":"《格里姆尼尔之歌》第35节将Níðhöggr与世界树根部的啃噬联系起来。来源并未要求采用现代西方有翼喷火巨龙模板，因此本卡应优先表现长形、蛇龙/古龙式的根部侵蚀者，身体大部分隐入根系与暗处，核心是‘咬住世界树根’这一动作。","roleInSeries":"以根部侵蚀结束M01对稳定世界秩序的幻想。","storyIds":["story-nidhoggr-and-yggdrasil"],"characterIds":["character-nidhoggr"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"st. 35","note":"Níðhöggr在世界树根部啃噬。"}],"seriesNarrative":null,"visualThesis":"根系深处的长形蛇龙/古龙式生物，头部和咬住根系的动作清晰，身体隐入阴影和根网；不做喷火飞龙Boss。","canon":{"sourceBoundFacts":["与世界树根部啃噬相关"],"interpretationNotes":["具体翅膀、角、甲片等现代龙类特征不应视为来源事实","可采用wyrm/serpentine draconic轮廓以避免现代西方龙定型"],"worldState":"世界树秩序已经建立，但根部从一开始就受到侵蚀。","identityAnchors":["蛇龙/古龙式轮廓","咬住Yggdrasil根","身体隐入根系","地下/根部空间"],"mustKeep":["头部和咬合动作安全可见","根系是第二视觉主体","不喷火"],"mustAvoid":["有翼喷火巨龙","装甲Boss","宝石龙","站立西方龙","大面积火焰","普通恐龙"],"differentiation":{"fromCardIds":[1003010014,1003010015],"instructions":["与Sköll/Hati：不是狼类追逐构图，而是根部伏击/啃噬","不复用天穹背景，空间必须是世界树根部深层"]}},"visual":{"mood":["ominous","root-bound","ancient","restrained"],"palette":["深木褐","苔黑绿","骨灰","冷湿蓝"],"materials":["树根","湿土","鳞/皮","暗水"],"detailHierarchy":"眼、口、牙和咬合根系最高细节；身体和背景逐渐隐入暗处。","subjectSeparation":"用头部局部亮度与根系交界突出动作，远处全降细节。"},"composition":{"orientation":"portrait","camera":"low eye level","shot":"close three-quarter bite action","subjectAnchor":{"x":0.5,"y":0.31},"criticalIdentityZone":{"xMin":0.22,"xMax":0.78,"yMin":0.12,"yMax":0.52},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.12,"mustRemainVisible":["head","jaw","bite point","Yggdrasil root"]}},"prompt":{"draft":"Create Níðhöggr at the roots of Yggdrasil as an ancient serpentine draconic/wyrm-like being actively gnawing a massive world-tree root. The head, jaws and bite point must be the clear focal action; most of the long body should recede into shadow, roots and damp darkness. Do not use a modern Western winged fire-breathing dragon template, armor plating, game-boss pose or spectacle flames. The mythology comes from the root-gnawing relationship, not extra fantasy decoration. Keep head and bite safely within the upper-middle crop-safe region. Root-depth environment, restrained painterly detail, background darker and softer than the subject.","final":null,"negative":["winged dragon","fire breathing","armored dragon","game boss","gem-covered dragon","dinosaur","open sky","wolf-like pose","typography","glossy game-CG"],"notes":"形态不确定处必须保持来源克制：优先wyrm/serpentine，而不是把现代西方龙造型当作硬Canon。"},"references":{"cardIds":[1003010014,1003010015],"notes":"生成前必须查看相关已批准角色，继承系列画风但避免复制脸型、体量、姿态和环境模板。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":"1003010016.png","notes":"必须先完成 JSON review，再进入出图；未获用户确认的草图不得自动标记 approved。"},"output":{"fileName":"1003010016.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":["神话事实与艺术解释分离","与相邻角色具有清晰视觉差异","主体位于裁切安全区","背景复杂度低于主体","无无来源的通用北欧幻想元素"]},"preGenerationChecks":["核对 sourceBoundFacts，不根据大众影视印象补事实","核对 worldState，不提前使用后续剧情状态","逐项检查 differentiation，禁止复制已批准角色模板","确认主体头脸/身份符号位于安全区","确认背景低于主体复杂度","JSON 经确认后才生成"]
+  "schemaVersion": "4.0",
+  "cardId": 1003010016,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 16,
+  "type": "character",
+  "slug": "nidhoggr",
+  "titleZh": "尼德霍格",
+  "titleEn": "Níðhöggr",
+  "description": "在世界树根部啃噬、持续侵蚀宇宙秩序的存在。",
+  "fullDescription": "《格里姆尼尔之歌》第35节将Níðhöggr与世界树根部的啃噬联系起来。来源并未要求采用现代西方有翼喷火巨龙模板，因此本卡应优先表现长形、蛇龙/古龙式的根部侵蚀者，身体大部分隐入根系与暗处，核心是‘咬住世界树根’这一动作。",
+  "roleInSeries": "以根部侵蚀结束M01对稳定世界秩序的幻想。",
+  "storyIds": [
+    "story-nidhoggr-and-yggdrasil"
+  ],
+  "characterIds": [
+    "character-nidhoggr"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-grimnismal",
+      "locator": "st. 35",
+      "note": "Níðhöggr在世界树根部啃噬。"
+    }
+  ],
+  "seriesNarrative": null,
+  "visualThesis": "根系深处的长形蛇龙/古龙式生物，头部和咬住根系的动作清晰，身体隐入阴影和根网；不做喷火飞龙Boss。",
+  "canon": {
+    "sourceBoundFacts": [
+      "与世界树根部啃噬相关"
+    ],
+    "interpretationNotes": [
+      "具体翅膀、角、甲片等现代龙类特征不应视为来源事实",
+      "可采用wyrm/serpentine draconic轮廓以避免现代西方龙定型"
+    ],
+    "worldState": "世界树秩序已经建立，但根部从一开始就受到侵蚀。",
+    "identityAnchors": [
+      "蛇龙/古龙式轮廓",
+      "咬住Yggdrasil根",
+      "身体隐入根系",
+      "地下/根部空间"
+    ],
+    "mustKeep": [
+      "头部和咬合动作安全可见",
+      "根系是第二视觉主体",
+      "不喷火"
+    ],
+    "mustAvoid": [
+      "有翼喷火巨龙",
+      "装甲Boss",
+      "宝石龙",
+      "站立西方龙",
+      "大面积火焰",
+      "普通恐龙"
+    ],
+    "differentiation": {
+      "fromCardIds": [
+        1003010014,
+        1003010015
+      ],
+      "instructions": [
+        "与Sköll/Hati：不是狼类追逐构图，而是根部伏击/啃噬",
+        "不复用天穹背景，空间必须是世界树根部深层"
+      ]
+    }
+  },
+  "visual": {
+    "mood": [
+      "ominous",
+      "root-bound",
+      "ancient",
+      "restrained"
+    ],
+    "palette": [
+      "深木褐",
+      "苔黑绿",
+      "骨灰",
+      "冷湿蓝"
+    ],
+    "materials": [
+      "树根",
+      "湿土",
+      "鳞/皮",
+      "暗水"
+    ],
+    "detailHierarchy": "眼、口、牙和咬合根系最高细节；身体和背景逐渐隐入暗处。",
+    "subjectSeparation": "用头部局部亮度与根系交界突出动作，远处全降细节。"
+  },
+  "composition": {
+    "orientation": "portrait",
+    "camera": "low eye level",
+    "shot": "close three-quarter bite action",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.31
+    },
+    "criticalIdentityZone": {
+      "xMin": 0.22,
+      "xMax": 0.78,
+      "yMin": 0.12,
+      "yMax": 0.52
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.12,
+      "mustRemainVisible": [
+        "head",
+        "jaw",
+        "bite point",
+        "Yggdrasil root"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "Create Níðhöggr at the roots of Yggdrasil as an ancient serpentine draconic/wyrm-like being actively gnawing a massive world-tree root. The head, jaws and bite point must be the clear focal action; most of the long body should recede into shadow, roots and damp darkness. Do not use a modern Western winged fire-breathing dragon template, armor plating, game-boss pose or spectacle flames. The mythology comes from the root-gnawing relationship, not extra fantasy decoration. Keep head and bite safely within the upper-middle crop-safe region. Root-depth environment, restrained painterly detail, background darker and softer than the subject.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010016, Níðhöggr / 尼德霍格, type character.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: Create Níðhöggr at the roots of Yggdrasil as an ancient serpentine draconic/wyrm-like being actively gnawing a massive world-tree root. The head, jaws and bite point must be the clear focal action; most of the long body should recede into shadow, roots and damp darkness. Do not use a modern Western winged fire-breathing dragon template, armor plating, game-boss pose or spectacle flames. The mythology comes from the root-gnawing relationship, not extra fantasy decoration. Keep head and bite safely within the upper-middle crop-safe region. Root-depth environment, restrained painterly detail, background darker and softer than the subject.\n\nVisual thesis: 根系深处的长形蛇龙/古龙式生物，头部和咬住根系的动作清晰，身体隐入阴影和根网；不做喷火飞龙Boss。\n\nIdentity anchors: 蛇龙/古龙式轮廓；咬住Yggdrasil根；身体隐入根系；地下/根部空间\n\nMust keep: 头部和咬合动作安全可见；根系是第二视觉主体；不喷火\n\nMust avoid: 有翼喷火巨龙；装甲Boss；宝石龙；站立西方龙；大面积火焰；普通恐龙\n\nComposition: camera low eye level; shot close three-quarter bite action; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nColor and material guidance: palette 深木褐；苔黑绿；骨灰；冷湿蓝; materials 树根；湿土；鳞/皮；暗水; mood ominous；root-bound；ancient；restrained.\n\nRelated card IDs for narrative continuity only: 1003010014；1003010015. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: winged dragon；fire breathing；armored dragon；game boss；gem-covered dragon；dinosaur；open sky；wolf-like pose；typography；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "winged dragon",
+      "fire breathing",
+      "armored dragon",
+      "game boss",
+      "gem-covered dragon",
+      "dinosaur",
+      "open sky",
+      "wolf-like pose",
+      "typography",
+      "glossy game-CG"
+    ],
+    "notes": "形态不确定处必须保持来源克制：优先wyrm/serpentine，而不是把现代西方龙造型当作硬Canon。"
+  },
+  "references": {
+    "cardIds": [
+      1003010014,
+      1003010015
+    ],
+    "notes": "生成前必须查看相关已批准角色，继承系列画风但避免复制脸型、体量、姿态和环境模板。"
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 1,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010016.png",
+    "notes": "Built-in image generation output reviewed for mythic identity, M01 style family, crop safety, and visible anatomy/creature structure; resized to the normative 1620x2880 canvas. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010016.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010016.webp",
+    "sha256": "db6356c1c97672ea5ef65f1fb996baf70d0b1ed9fe1aa6f51115b39784d5740d",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "单张竖版纯 Artwork，无文字、卡框或水印",
+      "追逐者/根部巨兽的神话关系和主体动作清晰",
+      "头脸、狼头或咬合动作位于中上部安全区",
+      "主体对比度高于天空/根系背景，环境复杂度受控",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  },
+  "preGenerationChecks": [
+    "核对 sourceBoundFacts，不根据大众影视印象补事实",
+    "核对 worldState，不提前使用后续剧情状态",
+    "逐项检查 differentiation，禁止复制已批准角色模板",
+    "确认主体头脸/身份符号位于安全区",
+    "确认背景低于主体复杂度",
+    "JSON 经确认后才生成"
+  ]
 }

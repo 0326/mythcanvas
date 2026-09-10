@@ -1,1 +1,100 @@
-{"schemaVersion":"4.0","cardId":1003010030,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":30,"type":"story","slug":"ymir-awakens","titleZh":"尤弥尔苏醒","titleEn":"Ymir Awakens","description":"冰霜受热的生成中，尤弥尔作为原初巨人第一次显现。","fullDescription":"冰霜受热后产生的滴水获得生命，尤弥尔作为原初巨人出现。他不是普通巨人角色，而是连接巨人谱系与宇宙材料的起点；北欧创世由此第一次出现可以行动和繁衍的生命主体。","roleInSeries":"连续Story第3段。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 5–6"}],"seriesNarrative":{"seriesTitle":"北欧创世：世界树与命运","seriesSummary":"从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。","chapter":1,"chapterTitle":"鸿沟与寒流","sequence":3,"keyMoment":"尤弥尔苏醒","narrative":"冰霜受热后产生的滴水获得生命，尤弥尔作为原初巨人出现。他不是普通巨人角色，而是连接巨人谱系与宇宙材料的起点；北欧创世由此第一次出现可以行动和繁衍的生命主体。","previousCardId":1003010029,"nextCardId":1003010031},"visualThesis":"尤弥尔脸与上身是绝对主体，背景只有融霜和雾。","composition":{"orientation":"portrait","subjectAnchor":{"x":0.5,"y":0.3},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.14,"mustRemainVisible":["Ymir face","upper torso","thawing frost"]}},"prompt":{"draft":"Ymir first awakening from melting frost, face and upper body as the sole focal subject, simple fog and thawing ice background, painterly and restrained.","final":null,"negative":["typography","logo","card frame","watermark","formed landscape","mountains","game boss","glossy game-CG"],"notes":"Story 版需引用已批准 1003010001 的 Ymir Canon；确认出图后写入完整可重放 prompt.final。"},"references":{"cardIds":[1003010001],"notes":"锁定Ymir脸型、体量和创世前冰火混沌Canon。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":null,"notes":""},"output":{"fileName":"1003010030.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":[]}}
+{
+  "schemaVersion": "4.0",
+  "cardId": 1003010030,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 30,
+  "type": "story",
+  "slug": "ymir-awakens",
+  "titleZh": "尤弥尔苏醒",
+  "titleEn": "Ymir Awakens",
+  "description": "冰霜受热的生成中，尤弥尔作为原初巨人第一次显现。",
+  "fullDescription": "冰霜受热后产生的滴水获得生命，尤弥尔作为原初巨人出现。他不是普通巨人角色，而是连接巨人谱系与宇宙材料的起点；北欧创世由此第一次出现可以行动和繁衍的生命主体。",
+  "roleInSeries": "连续Story第3段。",
+  "storyIds": [
+    "story-ymir-creation"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-prose-edda-gylfaginning",
+      "locator": "chs. 5–6"
+    }
+  ],
+  "seriesNarrative": {
+    "seriesTitle": "北欧创世：世界树与命运",
+    "seriesSummary": "从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。",
+    "chapter": 1,
+    "chapterTitle": "鸿沟与寒流",
+    "sequence": 3,
+    "keyMoment": "尤弥尔苏醒",
+    "narrative": "冰霜受热后产生的滴水获得生命，尤弥尔作为原初巨人出现。他不是普通巨人角色，而是连接巨人谱系与宇宙材料的起点；北欧创世由此第一次出现可以行动和繁衍的生命主体。",
+    "previousCardId": 1003010029,
+    "nextCardId": 1003010031
+  },
+  "visualThesis": "尤弥尔脸与上身是绝对主体，背景只有融霜和雾。",
+  "composition": {
+    "orientation": "portrait",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.3
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.14,
+      "mustRemainVisible": [
+        "Ymir face",
+        "upper torso",
+        "thawing frost"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "Ymir first awakening from melting frost, face and upper body as the sole focal subject, simple fog and thawing ice background, painterly and restrained.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010030, Ymir Awakens / 尤弥尔苏醒, type story.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: Ymir first awakening from melting frost, face and upper body as the sole focal subject, simple fog and thawing ice background, painterly and restrained.\n\nVisual thesis: 尤弥尔脸与上身是绝对主体，背景只有融霜和雾。\n\nStory chapter: 鸿沟与寒流. Key moment: 尤弥尔苏醒. Narrative context: 冰霜受热后产生的滴水获得生命，尤弥尔作为原初巨人出现。他不是普通巨人角色，而是连接巨人谱系与宇宙材料的起点；北欧创世由此第一次出现可以行动和繁衍的生命主体。\n\nVisual continuity entities: ymir.\n\nCanonical image references required for identity/landmark matching: 1003010001. These references control recurring face, age, silhouette, palette, material, and landmark geometry; they do not control camera or pose.\n\nSource-bound continuity facts: 无额外条目\n\nMythCanvas locked continuity design: ymir: Colossal pre-world humanoid with dark frost-stone skin, massive brow and nose, deep-set pale eyes, and long frost-white hair and beard.；ymir: Ancient and elemental rather than a normal Viking warrior; no armor, helmet, weapons, or tailored costume.；ymir: Maintain the same facial bone structure, hairline, beard shape, and relative scale in every appearance.\n\nIdentity anchors: 无额外条目\n\nMust keep: 无额外条目\n\nMust avoid: 无额外条目\n\nComposition: camera clear subject-first camera; shot single readable composition; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nSeries-wide visual grammar: keep matte painterly surfaces；broad readable forms；limited focal sharpness；quiet atmospheric negative space；restrained blue-white frost and ember light；subject detail clearly stronger than background detail; avoid glossy game-CG rendering；hyper-detailed-everything；generic Viking cosplay；floating realm platforms；science-fiction orbit graphics；random glowing runes；multiple competing focal centers.\n\nColor and material guidance: palette 无额外条目; materials 无额外条目; mood 无额外条目.\n\nRelated card IDs for narrative continuity only: 1003010001. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: typography；logo；card frame；watermark；formed landscape；mountains；game boss；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "typography",
+      "logo",
+      "card frame",
+      "watermark",
+      "formed landscape",
+      "mountains",
+      "game boss",
+      "glossy game-CG"
+    ],
+    "notes": "Continuity-aware replay prompt composed from the per-card brief plus M01_VISUAL_CONTINUITY.json. The accepted candidate used the same listed canonical image references."
+  },
+  "references": {
+    "cardIds": [
+      1003010001
+    ],
+    "notes": "锁定Ymir脸型、体量和创世前冰火混沌Canon。"
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 2,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010030.png",
+    "notes": "Continuity regeneration completed. Canonical reference card IDs: 1003010001. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010030.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010030.webp",
+    "sha256": "04b547e1ef362300f826d11ec532a7fb2024eb9c89e8a0d194f0024f6704d57b",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "Ymir face, frost-stone skin, white hair and beard, and colossal scale were regenerated from the character master.",
+      "Pure artwork only: no typography, logo, card frame, number, watermark, or UI.",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  }
+}

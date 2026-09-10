@@ -1,1 +1,92 @@
-{"schemaVersion":"4.0","cardId":1003010043,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":43,"type":"story","slug":"three-roots-three-wells","titleZh":"三根通向三泉","titleEn":"Three Roots toward Three Wells","description":"世界树的根系把不同泉域纳入宇宙结构。","fullDescription":"世界树的根延伸至不同方向，并与重要泉域相连。命运、知识和原初水源由此被放到同一宇宙结构中，但它们各有不同来源和功能，不应画成三个相同的魔法水池。","roleInSeries":"连续Story第16段。","storyIds":["story-yggdrasil-and-wells"],"sourceRefs":[{"sourceId":"norse-src-grimnismal","locator":"sts. 31–35"}],"seriesNarrative":{"seriesTitle":"北欧创世：世界树与命运","seriesSummary":"从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。","chapter":5,"chapterTitle":"世界树与命运","sequence":16,"keyMoment":"三根通向三泉","narrative":"世界树的根延伸至不同方向，并与重要泉域相连。命运、知识和原初水源由此被放到同一宇宙结构中，但它们各有不同来源和功能，不应画成三个相同的魔法水池。","previousCardId":1003010042,"nextCardId":1003010044},"visualThesis":"三条主要根向不同空间分化，泉域只作远处差异提示。","composition":{"orientation":"portrait","subjectAnchor":{"x":0.5,"y":0.4},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.14,"mustRemainVisible":["three roots","distinct water realms"]}},"prompt":{"draft":"three major roots of Yggdrasil diverging toward distinct distant water realms, broad readable structure, no identical glowing magic pools.","final":null,"negative":["typography","logo","card frame","watermark","identical magic pools","glowing UI","glossy game-CG"],"notes":"确认出图后写入完整可重放 prompt.final。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":null,"notes":""},"output":{"fileName":"1003010043.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":[]}}
+{
+  "schemaVersion": "4.0",
+  "cardId": 1003010043,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 43,
+  "type": "story",
+  "slug": "three-roots-three-wells",
+  "titleZh": "三根通向三泉",
+  "titleEn": "Three Roots toward Three Wells",
+  "description": "世界树的根系把不同泉域纳入宇宙结构。",
+  "fullDescription": "世界树的根延伸至不同方向，并与重要泉域相连。命运、知识和原初水源由此被放到同一宇宙结构中，但它们各有不同来源和功能，不应画成三个相同的魔法水池。",
+  "roleInSeries": "连续Story第16段。",
+  "storyIds": [
+    "story-yggdrasil-and-wells"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-grimnismal",
+      "locator": "sts. 31–35"
+    }
+  ],
+  "seriesNarrative": {
+    "seriesTitle": "北欧创世：世界树与命运",
+    "seriesSummary": "从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。",
+    "chapter": 5,
+    "chapterTitle": "世界树与命运",
+    "sequence": 16,
+    "keyMoment": "三根通向三泉",
+    "narrative": "世界树的根延伸至不同方向，并与重要泉域相连。命运、知识和原初水源由此被放到同一宇宙结构中，但它们各有不同来源和功能，不应画成三个相同的魔法水池。",
+    "previousCardId": 1003010042,
+    "nextCardId": 1003010044
+  },
+  "visualThesis": "三条主要根向不同空间分化，泉域只作远处差异提示。",
+  "composition": {
+    "orientation": "portrait",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.4
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.14,
+      "mustRemainVisible": [
+        "three roots",
+        "distinct water realms"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "three major roots of Yggdrasil diverging toward distinct distant water realms, broad readable structure, no identical glowing magic pools.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010043, Three Roots toward Three Wells / 三根通向三泉, type story.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: three major roots of Yggdrasil diverging toward distinct distant water realms, broad readable structure, no identical glowing magic pools.\n\nVisual thesis: 三条主要根向不同空间分化，泉域只作远处差异提示。\n\nStory chapter: 世界树与命运. Key moment: 三根通向三泉. Narrative context: 世界树的根延伸至不同方向，并与重要泉域相连。命运、知识和原初水源由此被放到同一宇宙结构中，但它们各有不同来源和功能，不应画成三个相同的魔法水池。\n\nVisual continuity entities: yggdrasil.\n\nCanonical image references required for identity/landmark matching: 1003010020. These references control recurring face, age, silhouette, palette, material, and landmark geometry; they do not control camera or pose.\n\nSource-bound continuity facts: yggdrasil: A vast ash tree.；yggdrasil: It is evergreen.；yggdrasil: It has three great roots extending in three directions.；yggdrasil: Urðr's well and the Norns are associated with the tree.\n\nMythCanvas locked continuity design: yggdrasil: One colossal twisted central trunk remains unified through the lower two thirds and divides only in the upper third into three principal crown leaders.；yggdrasil: A broad asymmetrical umbrella crown uses small deep desaturated evergreen ash leaflets; foliage never becomes white leaves or blossoms.；yggdrasil: Pale dew, frost, or snow may edge the foliage but may not recolor the crown.；yggdrasil: Three massive buttress roots diverge visibly from the same trunk system.；yggdrasil: Bark is charcoal brown with long vertical silver fissures and restrained moss only on water-facing surfaces.；yggdrasil: No luminous blue veins, floating cities, realm bubbles, or labeled nine-world diagram.\n\nIdentity anchors: 无额外条目\n\nMust keep: 无额外条目\n\nMust avoid: 无额外条目\n\nComposition: camera clear subject-first camera; shot single readable composition; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nSeries-wide visual grammar: keep matte painterly surfaces；broad readable forms；limited focal sharpness；quiet atmospheric negative space；restrained blue-white frost and ember light；subject detail clearly stronger than background detail; avoid glossy game-CG rendering；hyper-detailed-everything；generic Viking cosplay；floating realm platforms；science-fiction orbit graphics；random glowing runes；multiple competing focal centers.\n\nColor and material guidance: palette 无额外条目; materials 无额外条目; mood 无额外条目.\n\nRelated card IDs for narrative continuity only: 无额外条目. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: typography；logo；card frame；watermark；identical magic pools；glowing UI；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "typography",
+      "logo",
+      "card frame",
+      "watermark",
+      "identical magic pools",
+      "glowing UI",
+      "glossy game-CG"
+    ],
+    "notes": "Continuity-aware replay prompt composed from the per-card brief plus M01_VISUAL_CONTINUITY.json. The accepted candidate used the same listed canonical image references."
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 2,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010043.png",
+    "notes": "Continuity regeneration completed. Canonical reference card IDs: 1003010020. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010043.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010043.webp",
+    "sha256": "921cc91791bb75ab5f758f72c566881574bf4425a2b1e885c07519a75433f4c7",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "Mixed green/white foliage was removed; three roots now diverge from the same canonical trunk toward restrained water cues.",
+      "Pure artwork only: no typography, logo, card frame, number, watermark, or UI.",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  }
+}

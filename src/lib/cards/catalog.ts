@@ -1,14 +1,10 @@
 import type { CardSeries, CardType, MythicCard, RawCardRecord } from './types';
+import { cardAssetUrl } from './assets';
 
 const cardJsonModules = import.meta.glob(
   '../../../docs/cards/norse/M01-norse-genesis/cards/*.json',
   { eager: true, import: 'default' },
 ) as Record<string, RawCardRecord>;
-
-const cardImageModules = import.meta.glob(
-  '../../../docs/cards/norse/M01-norse-genesis/cards/*.{png,jpg,jpeg,webp}',
-  { eager: true, import: 'default', query: '?url' },
-) as Record<string, string>;
 
 const typeLabels: Record<CardType, string> = {
   character: '角色',
@@ -25,17 +21,6 @@ const typeLabelsEn: Record<CardType, string> = {
   'mythic-object': 'Mythic Object',
   ensemble: 'Ensemble',
 };
-
-const cardFileKey = (cardId: number, extension: string) =>
-  `../../../docs/cards/norse/M01-norse-genesis/cards/${cardId}.${extension}`;
-
-function getCardImageUrl(cardId: number) {
-  for (const extension of ['png', 'webp', 'jpg', 'jpeg']) {
-    const image = cardImageModules[cardFileKey(cardId, extension)];
-    if (image) return image;
-  }
-  return undefined;
-}
 
 function deriveIdentity(card: RawCardRecord) {
   const explicitIdentity = (card as RawCardRecord & { display?: { identity?: string } }).display?.identity;
@@ -58,7 +43,9 @@ function normalizeCard(raw: RawCardRecord): MythicCard {
     full: raw.fullDescription ?? legacyDescription,
     roleInSeries: raw.roleInSeries ?? '',
   };
-  const imageUrl = getCardImageUrl(raw.cardId);
+  const imageUrl = raw.generation?.status === 'approved'
+    ? cardAssetUrl(raw.output.assetKey)
+    : undefined;
 
   return {
     ...raw,
@@ -69,6 +56,7 @@ function normalizeCard(raw: RawCardRecord): MythicCard {
     },
     imageUrl,
     hasArtwork: Boolean(imageUrl),
+    orientation: raw.output.width > raw.output.height ? 'landscape' : 'portrait',
     frameProfileId: 'norse-relic',
   };
 }
@@ -90,7 +78,7 @@ export const norseM01Series: CardSeries = {
   summary: '从金伦加鸿沟的冰火相遇开始，沿着尤弥尔、世界树与命运的建立，阅读北欧世界第一次成形的故事。',
   summaryEn: 'From the meeting of frost and flame to Ymir, Yggdrasil, and fate, follow the first formation of the Norse cosmos.',
   cardCount: 50,
-  status: 'in-progress',
+  status: 'published',
   cards: norseM01Cards,
 };
 

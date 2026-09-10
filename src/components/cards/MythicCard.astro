@@ -1,6 +1,5 @@
 ---
-import { ArrowUpRight, LockKeyhole } from '@lucide/astro';
-import { formatCardNumber, getCardTypeLabel } from '../../lib/cards/catalog';
+import { norseM01CardBack } from '../../lib/cards/assets';
 import type { CardType, MythicCard } from '../../lib/cards/types';
 
 interface Props {
@@ -14,15 +13,16 @@ const { card, locale = 'zh-Hans', hrefBase = '/cards/norse/m01-norse-genesis/', 
 const isEnglish = locale === 'en';
 const title = isEnglish ? card.titleEn : card.titleZh;
 const description = card.display.short;
-const identity = isEnglish && card.type === 'character' ? card.titleEn : card.display.identity;
-const typeLabel = getCardTypeLabel(card.type, locale);
-const statusLabel = card.hasArtwork
+const identity = card.display.identity;
+const isLandscape = card.orientation === 'landscape';
+const isCardComplete = Boolean(card.imageUrl && card.generation?.status === 'approved');
+const statusLabel = isCardComplete
   ? (isEnglish ? 'Artwork ready' : '已出图')
   : (isEnglish ? 'In production' : '制作中');
 const detailHref = `${hrefBase}${card.cardId}/`;
 const cardLabel = isEnglish
-  ? `${title}, ${typeLabel}, ${statusLabel}`
-  : `${title}，${typeLabel}，${statusLabel}`;
+  ? `${title}, ${statusLabel}`
+  : `${title}，${statusLabel}`;
 const foilByType: Record<CardType, string> = {
   character: 'gold',
   scene: 'aurora',
@@ -34,9 +34,9 @@ const foil = foilByType[card.type];
 ---
 
 <article
-  class:list={['mythic-card', `card-type-${card.type}`, { 'is-planned': !card.hasArtwork }]}
+  class:list={['mythic-card', `card-type-${card.type}`, { 'is-planned': !isCardComplete, 'is-landscape': isLandscape }]}
   data-card-tilt
-  data-card-status={card.hasArtwork ? 'ready' : 'planned'}
+  data-card-status={isCardComplete ? 'ready' : 'planned'}
   data-card-effect={foil}
   data-card-id={card.cardId}
 >
@@ -44,7 +44,7 @@ const foil = foilByType[card.type];
     <div class="card-tilt-layer">
       <div class="card-face">
         <div class="card-art" aria-hidden="true">
-          {card.imageUrl ? (
+          {isCardComplete && card.imageUrl ? (
             <img
               src={card.imageUrl}
               alt=""
@@ -53,46 +53,28 @@ const foil = foilByType[card.type];
               loading="lazy"
               decoding="async"
             />
-          ) : (
-            <div class="planned-art">
-              <span>{String(card.cardNumber).padStart(2, '0')}</span>
-              <span>{isEnglish ? 'Artwork in progress' : '制作中'}</span>
-            </div>
-          )}
+          ) : <img class="card-back-image" src={norseM01CardBack.src} alt="" width={norseM01CardBack.width} height={norseM01CardBack.height} loading="lazy" decoding="async" />}
         </div>
 
-        <div class="card-atmosphere" aria-hidden="true"></div>
+        {isCardComplete && <div class="card-atmosphere" aria-hidden="true"></div>}
         <div class="card-holo" aria-hidden="true"></div>
         <div class="card-glare" aria-hidden="true"></div>
-        <div class="card-frame" aria-hidden="true">
-          <span class="frame-corner frame-corner--tl"></span>
-          <span class="frame-corner frame-corner--tr"></span>
-          <span class="frame-corner frame-corner--bl"></span>
-          <span class="frame-corner frame-corner--br"></span>
-        </div>
 
-        <div class="card-content">
-          <div class="card-header">
-            <div class="card-header-copy">
-              <span class="card-series">M01 · {String(card.cardNumber).padStart(2, '0')}</span>
-              <h3>{title}</h3>
+        {isCardComplete && (
+          <div class="card-content">
+            <div class="card-info">
+              <div class="card-info-heading">
+                <h3 class="card-identity">{title}</h3>
+                <p class="card-subtitle">{identity}</p>
+              </div>
+              <p class="card-description" data-card-description>{description}</p>
             </div>
-            <span class="card-type">{typeLabel}</span>
-          </div>
-
-          <div class="card-info">
-            <div class="card-info-heading">
-              <p class="card-identity">{identity}</p>
-              <p class="card-subtitle">{isEnglish ? card.titleZh : card.titleEn}</p>
-            </div>
-            <p class="card-description">{description}</p>
             <div class="card-footer-line">
-              <span>{card.hasArtwork ? formatCardNumber(card.cardNumber) : statusLabel}</span>
               <span class="card-id">{card.cardId}</span>
-              {card.hasArtwork ? <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" /> : <LockKeyhole size={13} strokeWidth={1.8} aria-hidden="true" />}
+              <span class="card-brand">@mythcanvas</span>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   </a>
@@ -100,6 +82,41 @@ const foil = foilByType[card.type];
 
 <script>
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const fitCardDescriptions = () => {
+    document.querySelectorAll<HTMLElement>('[data-card-description]').forEach((description) => {
+      const isLandscape = description.closest('.mythic-card')?.classList.contains('is-landscape') ?? false;
+      const maxSize = isLandscape ? 1.8 : 3.1;
+      const minSize = isLandscape ? 1.05 : 1.6;
+      let low = minSize;
+      let high = maxSize;
+
+      description.classList.add('is-measuring');
+
+      const fitsInTwoLines = (size: number) => {
+        description.style.setProperty('--card-description-size', `${size}cqi`);
+        const lineHeight = Number.parseFloat(getComputedStyle(description).lineHeight);
+        return description.scrollHeight <= lineHeight * 2 + 1;
+      };
+
+      if (!fitsInTwoLines(maxSize)) {
+        for (let index = 0; index < 8; index += 1) {
+          const candidate = (low + high) / 2;
+          if (fitsInTwoLines(candidate)) low = candidate;
+          else high = candidate;
+        }
+        description.style.setProperty('--card-description-size', `${low.toFixed(3)}cqi`);
+      }
+
+      description.classList.remove('is-measuring');
+    });
+  };
+
+  if (document.fonts) {
+    void document.fonts.ready.then(fitCardDescriptions);
+  } else {
+    requestAnimationFrame(fitCardDescriptions);
+  }
 
   document.querySelectorAll<HTMLElement>('[data-card-tilt]').forEach((card) => {
     const stage = card.querySelector<HTMLElement>('.card-stage');
@@ -143,8 +160,13 @@ const foil = foilByType[card.type];
     --card-rotate-y: 0deg;
     --card-pointer-x: 50%;
     --card-pointer-y: 50%;
+    --card-ink: #071019;
+    --card-snow: #f3ead4;
+    --card-ice: #91c5d5;
+    --card-ember: #c77f47;
     --card-accent: #d8bd78;
     --card-accent-soft: #f0dc9b;
+    --card-frame: color-mix(in srgb, var(--card-accent-soft) 74%, var(--card-ink));
     --card-foil: linear-gradient(115deg, transparent 18%, rgba(255, 231, 151, .22) 40%, rgba(255, 255, 255, .1) 50%, transparent 75%);
     min-width: 0;
   }
@@ -173,6 +195,12 @@ const foil = foilByType[card.type];
     --card-foil: radial-gradient(circle at 22% 28%, rgba(255, 255, 255, .34) 0 1px, transparent 2px), radial-gradient(circle at 78% 64%, rgba(231, 207, 255, .28) 0 1px, transparent 2px), linear-gradient(115deg, transparent 20%, rgba(102, 170, 255, .18) 45%, rgba(205, 144, 255, .2) 58%, transparent 82%);
   }
 
+  .mythic-card.is-planned {
+    --card-accent: #a8ced8;
+    --card-accent-soft: #e7edf0;
+    --card-foil: linear-gradient(115deg, transparent 18%, rgba(168, 220, 232, .18) 42%, rgba(255, 255, 255, .24) 52%, transparent 78%);
+  }
+
   .card-stage {
     display: block;
     perspective: 1100px;
@@ -183,21 +211,57 @@ const foil = foilByType[card.type];
     position: relative;
     overflow: hidden;
     aspect-ratio: 5 / 7;
-    padding: .4rem;
-    border: 1px solid color-mix(in srgb, var(--card-accent) 78%, transparent);
-    border-radius: 14px;
+    container-type: inline-size;
+    box-sizing: border-box;
+    border-radius: 4.67% / 3.34%;
     background: linear-gradient(145deg, #30414a, #0c151d 34%, #080d13 100%);
-    box-shadow: 0 22px 46px color-mix(in srgb, var(--card-ink) 44%, transparent), 0 0 0 1px color-mix(in srgb, var(--card-accent) 22%, transparent);
-    transform: rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) translateY(0) scale(1);
+    box-shadow: 0 22px 46px color-mix(in srgb, var(--card-ink) 44%, transparent);
+    transform: rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y));
     transform-style: preserve-3d;
-    transition: transform 420ms cubic-bezier(.2,.7,.2,1), box-shadow 420ms ease;
+    transition: transform 420ms cubic-bezier(.2,.7,.2,1);
     will-change: transform;
   }
 
-  .mythic-card:hover .card-tilt-layer,
-  .mythic-card.is-focused .card-tilt-layer {
-    box-shadow: 0 32px 68px color-mix(in srgb, var(--card-ink) 62%, transparent), 0 0 0 1px color-mix(in srgb, var(--card-accent) 80%, transparent), 0 0 38px color-mix(in srgb, var(--card-accent) 18%, transparent);
-    transform: rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) translateY(-5px) scale(1.012);
+  .mythic-card.is-landscape .card-tilt-layer {
+    aspect-ratio: 16 / 9;
+    border-radius: 2.67% / 4.75%;
+  }
+
+  .card-tilt-layer::before,
+  .card-tilt-layer::after {
+    position: absolute;
+    z-index: 12;
+    box-sizing: border-box;
+    content: '';
+    pointer-events: none;
+  }
+
+  .mythic-card.is-landscape .card-tilt-layer::before {
+    inset: 1.6cqi;
+    border-width: .24cqi;
+    border-radius: calc(2.67cqi - 1.6cqi);
+  }
+
+  .mythic-card.is-landscape .card-tilt-layer::after {
+    border-width: .82cqi;
+    border-radius: 2.67cqi;
+  }
+
+  .mythic-card.is-planned .card-tilt-layer::before,
+  .mythic-card.is-planned .card-tilt-layer::after {
+    opacity: 0;
+  }
+
+  .card-tilt-layer::before {
+    inset: 2.4cqi;
+    border: .34cqi solid var(--card-frame);
+    border-radius: calc(4.67cqi - 2.4cqi);
+  }
+
+  .card-tilt-layer::after {
+    inset: 0;
+    border: 1.25cqi solid var(--card-frame);
+    border-radius: 4.67cqi;
   }
 
   .card-face {
@@ -205,10 +269,15 @@ const foil = foilByType[card.type];
     width: 100%;
     height: 100%;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--card-accent) 36%, transparent);
-    border-radius: 10px;
+    container-type: inline-size;
+    box-sizing: border-box;
+    border-radius: 4.67cqi;
     background: var(--card-ink);
     isolation: isolate;
+  }
+
+  .mythic-card.is-landscape .card-face {
+    border-radius: 2.67cqi;
   }
 
   .card-face::before {
@@ -222,61 +291,30 @@ const foil = foilByType[card.type];
     mix-blend-mode: screen;
   }
 
+  .mythic-card.is-planned .card-face::before {
+    opacity: 0;
+  }
+
   .card-art {
     position: absolute;
     z-index: 0;
-    top: 17%;
-    right: 5.5%;
-    bottom: 29%;
-    left: 5.5%;
+    inset: 0;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--card-accent) 72%, var(--card-snow));
-    border-radius: 7px;
     background: #0b151e;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 5px 12px rgba(0,0,0,.22);
   }
 
   .card-art img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center center;
+    object-position: top center;
     filter: saturate(.88) contrast(1.06);
-    transition: transform 700ms cubic-bezier(.2,.7,.2,1), filter 420ms ease;
   }
 
-  .mythic-card:hover .card-art img,
-  .mythic-card.is-focused .card-art img {
-    transform: scale(1.04);
-    filter: saturate(1.03) contrast(1.09);
-  }
-
-  .planned-art {
-    display: grid;
-    height: 100%;
-    place-content: center;
-    gap: .42rem;
-    padding: 1rem;
-    color: color-mix(in srgb, var(--card-snow) 64%, transparent);
-    text-align: center;
-    background:
-      radial-gradient(circle at 28% 16%, color-mix(in srgb, var(--card-ice) 24%, transparent), transparent 26%),
-      radial-gradient(circle at 78% 76%, color-mix(in srgb, var(--card-ember) 22%, transparent), transparent 30%),
-      linear-gradient(145deg, #172b38, #080e15 68%);
-  }
-
-  .planned-art span:first-child {
-    color: var(--card-snow);
-    font-family: var(--font-display);
-    font-size: clamp(2.8rem, 6vw, 5rem);
-    line-height: 1;
-    opacity: .2;
-  }
-
-  .planned-art span:last-child {
-    font-size: .61rem;
-    letter-spacing: .13em;
-    text-transform: uppercase;
+  .card-art img.card-back-image {
+    object-fit: cover;
+    object-position: center;
+    filter: none;
   }
 
   .card-atmosphere {
@@ -284,12 +322,11 @@ const foil = foilByType[card.type];
     inset: 0;
     z-index: 2;
     pointer-events: none;
-    background: linear-gradient(to bottom, rgba(3, 11, 17, .06) 12%, rgba(3, 8, 12, .04) 58%, rgba(3, 7, 11, .74) 100%);
+    background: linear-gradient(to bottom, rgba(3, 11, 17, .42) 0%, rgba(3, 8, 12, .08) 38%, rgba(3, 7, 11, .84) 100%);
   }
 
   .card-holo,
   .card-glare,
-  .card-frame,
   .card-content {
     position: absolute;
     inset: 0;
@@ -327,109 +364,55 @@ const foil = foilByType[card.type];
     opacity: .8;
   }
 
-  .card-frame {
-    inset: 2.4%;
-    z-index: 7;
-    border: 1px solid color-mix(in srgb, var(--card-accent) 68%, var(--card-snow));
-    border-radius: 8px;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--card-accent) 38%, transparent);
-    pointer-events: none;
-  }
-
-  .frame-corner {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border-color: var(--card-accent-soft);
-    border-style: solid;
-  }
-
-  .frame-corner--tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
-  .frame-corner--tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
-  .frame-corner--bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
-  .frame-corner--br { right: -1px; bottom: -1px; border-width: 0 2px 2px 0; }
-
   .card-content {
     z-index: 8;
-    display: flex;
-    flex-direction: column;
-    padding: 4.8% 4.8% 4.5%;
+    padding: 0;
     color: var(--card-snow);
     pointer-events: none;
   }
 
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: .45rem;
-    min-height: 2.8rem;
-    padding: .38rem .45rem .42rem;
-    border: 1px solid color-mix(in srgb, var(--card-accent) 66%, transparent);
-    border-radius: 6px;
-    background: linear-gradient(100deg, rgba(7, 18, 25, .9), rgba(18, 30, 36, .7));
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 4px 12px rgba(0,0,0,.12);
-    backdrop-filter: blur(8px);
-  }
-
-  .card-header-copy {
-    min-width: 0;
-    flex: 1;
-  }
-
-  .card-series {
-    display: block;
-    overflow: hidden;
-    color: color-mix(in srgb, var(--card-snow) 68%, var(--card-accent));
-    font-size: .5rem;
-    font-weight: 760;
-    letter-spacing: .12em;
-    line-height: 1;
-    text-overflow: ellipsis;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .card-header h3 {
-    overflow: hidden;
-    margin: .24rem 0 0;
-    color: #fff;
-    font-family: var(--font-display);
-    font-size: clamp(.88rem, 1.85vw, 1.2rem);
-    font-weight: 650;
-    line-height: 1;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .card-type {
-    flex: 0 0 auto;
-    padding: .35rem .46rem;
-    border: 1px solid color-mix(in srgb, var(--card-accent-soft) 76%, transparent);
-    border-radius: 999px;
-    color: var(--card-accent-soft);
-    background: color-mix(in srgb, var(--card-accent) 14%, rgba(3, 10, 15, .72));
-    font-size: .5rem;
-    font-weight: 760;
-    letter-spacing: .06em;
-    white-space: nowrap;
-  }
-
+  /*
+   * The card face is a fixed collectible-card template. The cqi values below
+   * scale the complete template with the card, but never let its content
+   * determine the position or height of another slot.
+   */
   .card-info {
-    display: grid;
-    gap: .36rem;
-    margin-top: auto;
-    padding: .62rem .65rem .54rem;
-    border: 1px solid color-mix(in srgb, var(--card-accent) 72%, transparent);
-    border-radius: 7px;
-    background: linear-gradient(145deg, rgba(7, 22, 29, .88), rgba(5, 12, 17, .96));
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 8px 16px rgba(0,0,0,.18);
-    backdrop-filter: blur(8px);
+    position: absolute;
+    right: 4.8%;
+    bottom: 6.5%;
+    left: 4.8%;
+    height: 21.5%;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: .34cqi solid var(--card-frame);
+    border-radius: 2.67cqi;
+    background: linear-gradient(145deg, rgba(7, 22, 29, .5), rgba(5, 12, 17, .5));
+    box-shadow: 0 4cqi 8cqi rgba(0,0,0,.2);
+    /* backdrop-filter: blur(4.67cqi) saturate(115%); */
+  }
+
+  .mythic-card.is-landscape .card-info {
+    right: 4.8%;
+    bottom: 9.5%;
+    left: 4.8%;
+    height: 34%;
+    border-width: .24cqi;
+    border-radius: 1.5cqi;
   }
 
   .card-info-heading {
-    display: grid;
-    gap: .13rem;
+    position: absolute;
+    top: 11.4%;
+    right: 4.2%;
+    left: 4.2%;
+    height: 33%;
     min-width: 0;
+    text-align: center;
+  }
+
+  .mythic-card.is-landscape .card-info-heading {
+    top: 9%;
+    height: 34%;
   }
 
   .card-identity,
@@ -439,71 +422,107 @@ const foil = foilByType[card.type];
   }
 
   .card-identity {
+    display: block;
     overflow: hidden;
     color: var(--card-accent-soft);
-    font-size: .65rem;
+    font-family: var(--font-display);
+    font-size: 5.2cqi;
     font-weight: 740;
-    line-height: 1.24;
+    line-height: 1.12;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
+  .mythic-card.is-landscape .card-identity {
+    font-size: 3.3cqi;
+  }
+
   .card-subtitle {
+    display: block;
     overflow: hidden;
+    margin-top: .7cqi;
     color: color-mix(in srgb, var(--card-snow) 62%, transparent);
-    font-size: .49rem;
-    letter-spacing: .1em;
+    font-size: 3.1cqi;
+    letter-spacing: .04em;
     text-overflow: ellipsis;
     text-transform: uppercase;
     white-space: nowrap;
   }
 
+  .mythic-card.is-landscape .card-subtitle {
+    margin-top: .35cqi;
+    font-size: 1.8cqi;
+  }
+
   .card-description {
+    position: absolute;
+    right: 4.2%;
+    bottom: 9%;
+    left: 4.2%;
+    height: 2.8em;
     display: -webkit-box;
     overflow: hidden;
     color: color-mix(in srgb, var(--card-snow) 78%, transparent);
-    font-size: .58rem;
+    font-size: var(--card-description-size, 3.1cqi);
     line-height: 1.4;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
 
+  .card-description.is-measuring {
+    display: block;
+    height: auto;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+  }
+
+  .mythic-card.is-landscape .card-description {
+    bottom: 8%;
+    font-size: var(--card-description-size, 1.8cqi);
+  }
+
   .card-footer-line {
+    position: absolute;
+    right: 8.6%;
+    bottom: 2.5%;
+    left: 8.6%;
+    height: 3.1%;
     display: flex;
     align-items: center;
-    gap: .4rem;
-    padding-top: .34rem;
-    border-top: 1px solid color-mix(in srgb, var(--card-snow) 18%, transparent);
+    gap: 2.13cqi;
     color: color-mix(in srgb, var(--card-snow) 68%, var(--card-accent));
-    font-size: .5rem;
+    font-size: 2.67cqi;
     font-weight: 760;
     letter-spacing: .08em;
     line-height: 1;
     text-transform: uppercase;
   }
 
-  .card-id {
-    margin-inline-start: auto;
-    color: color-mix(in srgb, var(--card-snow) 42%, transparent);
-    font-size: .43rem;
+  .card-id,
+  .card-brand {
+    color: color-mix(in srgb, var(--card-snow) 74%, var(--card-accent));
+    font-size: 2.3cqi;
     letter-spacing: .05em;
   }
 
-  .card-footer-line svg {
-    flex: 0 0 auto;
-    color: var(--card-accent-soft);
+  .mythic-card.is-landscape .card-footer-line {
+    bottom: 3.1%;
+    height: 3.4%;
   }
 
-  @media (max-width: 640px) {
-    .card-content { padding: 4.8% 4.5% 4.2%; }
-    .card-info { padding: .55rem .58rem .5rem; }
-    .card-description { font-size: .55rem; }
-    .card-header h3 { font-size: clamp(.78rem, 3.5vw, 1rem); }
+  .mythic-card.is-landscape .card-id,
+  .mythic-card.is-landscape .card-brand {
+    font-size: 1.45cqi;
+  }
+
+  .card-brand {
+    margin-inline-start: auto;
+    color: color-mix(in srgb, var(--card-snow) 58%, transparent);
+    text-transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .card-tilt-layer,
-    .card-art img,
     .card-holo,
     .card-glare { transition: none; }
     .mythic-card:hover .card-tilt-layer,

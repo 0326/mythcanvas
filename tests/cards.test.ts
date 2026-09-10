@@ -21,9 +21,14 @@ describe('mythic card catalog', () => {
     });
   });
 
-  it('recognizes the three currently available artworks', () => {
-    expect(getApprovedCardCount(norseM01Cards)).toBe(3);
-    expect(norseM01Cards.filter((card) => card.hasArtwork).map((card) => card.cardNumber)).toEqual([1, 2, 3]);
+  it('publishes the complete M01 collection from R2 WebP delivery assets', () => {
+    expect(getApprovedCardCount(norseM01Cards)).toBe(50);
+    expect(norseM01Cards.filter((card) => card.hasArtwork)).toHaveLength(50);
+    expect(norseM01Cards.every((card) => card.generation?.status === 'approved')).toBe(true);
+    expect(norseM01Cards.every((card) => card.output.format === 'webp' && card.imageUrl === `/media/${card.output.assetKey}`)).toBe(true);
+    expect(norseM01Cards.every((card) => /^[a-f0-9]{64}$/.test(card.output.sha256))).toBe(true);
+    expect(norseM01Cards.filter((card) => card.orientation === 'landscape').map((card) => card.cardNumber)).toEqual([49, 50]);
+    expect(norseM01Series.status).toBe('published');
   });
 
   it('validates the card IDs and the 19-card Story chain', () => {

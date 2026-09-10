@@ -1,3 +1,175 @@
 {
-  "schemaVersion":"4.0","cardId":1003010010,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":10,"type":"character","slug":"verdandi","titleZh":"薇尔丹蒂","titleEn":"Verðandi","description":"三位诺恩之一，与乌尔德、斯库尔德共同参与命运秩序。","fullDescription":"来源明确她是三位被点名的诺恩之一，但没有规定现代意义上的‘现在女神’外观。设计上可用正在流动的水纹、线性手势与更开放的姿态表达进行中的状态，但不采用发光时间线。","roleInSeries":"完成命运三人组的中间视觉节奏。","storyIds":["story-norns-at-urdarbrunnr"],"characterIds":["character-verdandi"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 20","note":"点名三位诺恩并描述其命运职能。"}],"seriesNarrative":null,"visualThesis":"更流动、更开放的诺恩形象，以泉水涟漪和连续动作表达生成感。","canon":{"sourceBoundFacts":["三位诺恩之一","参与命运安排"],"interpretationNotes":["Verðandi=现在是常见解释而非本节显式外观事实","线/水纹只是艺术编码"],"worldState":"世界树与泉已建立。","identityAnchors":["流动姿态","泉水涟漪","独立脸型","中等动态"],"mustKeep":["比Urðr更动态","比Skuld更柔和","同组材质不同构图"],"mustAvoid":["复制Urðr脸","复制Skuld脸","发光时间线","魔法激光","科幻UI"],"differentiation":{"fromCardIds":[1003010009,1003010011],"instructions":["脸型、发型和身体姿态必须与Urðr和Skuld明显不同","用真实水纹/手势替代抽象魔法线"]}},"visual":{"mood":["flowing","present-tense","quiet","restrained"],"palette":["青灰","水蓝","骨白","柔绿"],"materials":["泉水","湿石","粗织物","树根"],"detailHierarchy":"脸、手、近身水纹高细节；背景柔化。","subjectSeparation":"流动边缘与静态背景形成分离。"},"composition":{"orientation":"portrait","camera":"eye level","shot":"standing or kneeling flowing three-quarter","subjectAnchor":{"x":0.5,"y":0.31},"criticalIdentityZone":{"xMin":0.22,"xMax":0.78,"yMin":0.12,"yMax":0.52},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.12,"mustRemainVisible":["face","hands","water ripple motif","spring context"]}},"prompt":{"draft":"Create Verðandi as a distinct Norn beside the world-tree spring. Use a flowing, open posture and natural water ripples or continuous hand movement to suggest ongoing becoming, without literal clocks, laser lines or sci-fi time UI. She must have a clearly different face, hairstyle and silhouette from Urðr and Skuld. Keep the visual language natural and restrained, with face and hands in the crop-safe upper-middle area. Background soft, spring/root context secondary.","final":null,"negative":["Urðr clone","Skuld clone","magic laser lines","clock","sci-fi UI","crystal ball","glossy game-CG","typography"],"notes":"用自然连续运动表达差异，不用魔法特效表达抽象概念。"},"references":{"cardIds":[1003010009,1003010011],"notes":"生成前必须查看相关已批准角色，继承系列画风但避免复制脸型、体量、姿态和环境模板。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":"1003010010.png","notes":"必须先完成 JSON review，再进入出图；未获用户确认的草图不得自动标记 approved。"},"output":{"fileName":"1003010010.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":["神话事实与艺术解释分离","与相邻角色具有清晰视觉差异","主体位于裁切安全区","背景复杂度低于主体","无无来源的通用北欧幻想元素"]},"preGenerationChecks":["核对 sourceBoundFacts，不根据大众影视印象补事实","核对 worldState，不提前使用后续剧情状态","逐项检查 differentiation，禁止复制已批准角色模板","确认主体头脸/身份符号位于安全区","确认背景低于主体复杂度","JSON 经确认后才生成"]
+  "schemaVersion": "4.0",
+  "cardId": 1003010010,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 10,
+  "type": "character",
+  "slug": "verdandi",
+  "titleZh": "薇尔丹蒂",
+  "titleEn": "Verðandi",
+  "description": "三位诺恩之一，与乌尔德、斯库尔德共同参与命运秩序。",
+  "fullDescription": "来源明确她是三位被点名的诺恩之一，但没有规定现代意义上的‘现在女神’外观。设计上可用正在流动的水纹、线性手势与更开放的姿态表达进行中的状态，但不采用发光时间线。",
+  "roleInSeries": "完成命运三人组的中间视觉节奏。",
+  "storyIds": [
+    "story-norns-at-urdarbrunnr"
+  ],
+  "characterIds": [
+    "character-verdandi"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-voluspa",
+      "locator": "st. 20",
+      "note": "点名三位诺恩并描述其命运职能。"
+    }
+  ],
+  "seriesNarrative": null,
+  "visualThesis": "更流动、更开放的诺恩形象，以泉水涟漪和连续动作表达生成感。",
+  "canon": {
+    "sourceBoundFacts": [
+      "三位诺恩之一",
+      "参与命运安排"
+    ],
+    "interpretationNotes": [
+      "Verðandi=现在是常见解释而非本节显式外观事实",
+      "线/水纹只是艺术编码"
+    ],
+    "worldState": "世界树与泉已建立。",
+    "identityAnchors": [
+      "流动姿态",
+      "泉水涟漪",
+      "独立脸型",
+      "中等动态"
+    ],
+    "mustKeep": [
+      "比Urðr更动态",
+      "比Skuld更柔和",
+      "同组材质不同构图"
+    ],
+    "mustAvoid": [
+      "复制Urðr脸",
+      "复制Skuld脸",
+      "发光时间线",
+      "魔法激光",
+      "科幻UI"
+    ],
+    "differentiation": {
+      "fromCardIds": [
+        1003010009,
+        1003010011
+      ],
+      "instructions": [
+        "脸型、发型和身体姿态必须与Urðr和Skuld明显不同",
+        "用真实水纹/手势替代抽象魔法线"
+      ]
+    }
+  },
+  "visual": {
+    "mood": [
+      "flowing",
+      "present-tense",
+      "quiet",
+      "restrained"
+    ],
+    "palette": [
+      "青灰",
+      "水蓝",
+      "骨白",
+      "柔绿"
+    ],
+    "materials": [
+      "泉水",
+      "湿石",
+      "粗织物",
+      "树根"
+    ],
+    "detailHierarchy": "脸、手、近身水纹高细节；背景柔化。",
+    "subjectSeparation": "流动边缘与静态背景形成分离。"
+  },
+  "composition": {
+    "orientation": "portrait",
+    "camera": "eye level",
+    "shot": "standing or kneeling flowing three-quarter",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.31
+    },
+    "criticalIdentityZone": {
+      "xMin": 0.22,
+      "xMax": 0.78,
+      "yMin": 0.12,
+      "yMax": 0.52
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.12,
+      "mustRemainVisible": [
+        "face",
+        "hands",
+        "water ripple motif",
+        "spring context"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "Create Verðandi as a distinct Norn beside the world-tree spring. Use a flowing, open posture and natural water ripples or continuous hand movement to suggest ongoing becoming, without literal clocks, laser lines or sci-fi time UI. She must have a clearly different face, hairstyle and silhouette from Urðr and Skuld. Keep the visual language natural and restrained, with face and hands in the crop-safe upper-middle area. Background soft, spring/root context secondary.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010010, Verðandi / 薇尔丹蒂, type character.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: Create Verðandi as a distinct Norn beside the world-tree spring. Use a flowing, open posture and natural water ripples or continuous hand movement to suggest ongoing becoming, without literal clocks, laser lines or sci-fi time UI. She must have a clearly different face, hairstyle and silhouette from Urðr and Skuld. Keep the visual language natural and restrained, with face and hands in the crop-safe upper-middle area. Background soft, spring/root context secondary.\n\nVisual thesis: 更流动、更开放的诺恩形象，以泉水涟漪和连续动作表达生成感。\n\nIdentity anchors: 流动姿态；泉水涟漪；独立脸型；中等动态\n\nMust keep: 比Urðr更动态；比Skuld更柔和；同组材质不同构图\n\nMust avoid: 复制Urðr脸；复制Skuld脸；发光时间线；魔法激光；科幻UI\n\nComposition: camera eye level; shot standing or kneeling flowing three-quarter; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nColor and material guidance: palette 青灰；水蓝；骨白；柔绿; materials 泉水；湿石；粗织物；树根; mood flowing；present-tense；quiet；restrained.\n\nRelated card IDs for narrative continuity only: 1003010009；1003010011. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: Urðr clone；Skuld clone；magic laser lines；clock；sci-fi UI；crystal ball；glossy game-CG；typography; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "Urðr clone",
+      "Skuld clone",
+      "magic laser lines",
+      "clock",
+      "sci-fi UI",
+      "crystal ball",
+      "glossy game-CG",
+      "typography"
+    ],
+    "notes": "用自然连续运动表达差异，不用魔法特效表达抽象概念。"
+  },
+  "references": {
+    "cardIds": [
+      1003010009,
+      1003010011
+    ],
+    "notes": "生成前必须查看相关已批准角色，继承系列画风但避免复制脸型、体量、姿态和环境模板。"
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 1,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010010.png",
+    "notes": "Built-in image generation output reviewed for Norn identity differentiation, M01 style family, crop safety, and visible anatomy; resized to the normative 1620x2880 canvas. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010010.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010010.webp",
+    "sha256": "8552110801f3801b68e00784ba8f976e17ac222019dd4d49e1fee8722d715c0c",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "单张竖版纯 Artwork，无文字、卡框或水印",
+      "三位诺恩共享泉/树根材质体系，但脸型、发型、姿态和动作节奏有区分",
+      "脸、双手和命运交互动作位于中上部安全区",
+      "主体对比度高于泉水/树根背景，环境复杂度受控",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  },
+  "preGenerationChecks": [
+    "核对 sourceBoundFacts，不根据大众影视印象补事实",
+    "核对 worldState，不提前使用后续剧情状态",
+    "逐项检查 differentiation，禁止复制已批准角色模板",
+    "确认主体头脸/身份符号位于安全区",
+    "确认背景低于主体复杂度",
+    "JSON 经确认后才生成"
+  ]
 }

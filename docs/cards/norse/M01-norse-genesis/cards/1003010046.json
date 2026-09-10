@@ -1,1 +1,97 @@
-{"schemaVersion":"4.0","cardId":1003010046,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":46,"type":"story","slug":"pursuit-and-gnawing","titleZh":"追逐与啃噬","titleEn":"Pursuit and Gnawing","description":"日月被狼追逐，世界树根部也持续遭到侵蚀。","fullDescription":"秩序建立的同时，毁灭的种子已经存在：天穹有追逐日月的狼，世界树根部也有尼德霍格持续侵蚀。M01因此不以完美创世结束，而以一个稳定却始终承受压力的世界收束，为诸神时代与最终黄昏留下伏线。","roleInSeries":"连续Story第19段，也是M01终章伏线。","storyIds":["story-sun-and-moon-chase","story-nidhoggr-and-yggdrasil"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"sts. 40–41"},{"sourceId":"norse-src-grimnismal","locator":"st. 35"}],"seriesNarrative":{"seriesTitle":"北欧创世：世界树与命运","seriesSummary":"从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。","chapter":6,"chapterTitle":"天空开始运行","sequence":19,"keyMoment":"追逐与啃噬","narrative":"秩序建立的同时，毁灭的种子已经存在：天穹有追逐日月的狼，世界树根部也有尼德霍格持续侵蚀。M01因此不以完美创世结束，而以一个稳定却始终承受压力的世界收束，为诸神时代与最终黄昏留下伏线。","previousCardId":1003010045,"nextCardId":null},"visualThesis":"优先表现一个统一视觉中心；若天空追逐与根部啃噬无法自然同框，正式出图前拆卡并调整弱场景槽位。","composition":{"orientation":"portrait","subjectAnchor":{"x":0.5,"y":0.36},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.14,"mustRemainVisible":["single omen focal point","threat to cosmic order"]}},"prompt":{"draft":"a restrained final omen image showing the newborn world's hidden pressure; choose one coherent focal relationship rather than split-screen collage, no visual overload.","final":null,"negative":["typography","logo","card frame","watermark","split-screen collage","visual overload","glossy game-CG"],"notes":"正式出图前优先确定单一视觉中心；确认后写入完整可重放 prompt.final。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":null,"notes":""},"output":{"fileName":"1003010046.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":[]}}
+{
+  "schemaVersion": "4.0",
+  "cardId": 1003010046,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 46,
+  "type": "story",
+  "slug": "pursuit-and-gnawing",
+  "titleZh": "追逐与啃噬",
+  "titleEn": "Pursuit and Gnawing",
+  "description": "日月被狼追逐，世界树根部也持续遭到侵蚀。",
+  "fullDescription": "秩序建立的同时，毁灭的种子已经存在：天穹有追逐日月的狼，世界树根部也有尼德霍格持续侵蚀。M01因此不以完美创世结束，而以一个稳定却始终承受压力的世界收束，为诸神时代与最终黄昏留下伏线。",
+  "roleInSeries": "连续Story第19段，也是M01终章伏线。",
+  "storyIds": [
+    "story-sun-and-moon-chase",
+    "story-nidhoggr-and-yggdrasil"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-voluspa",
+      "locator": "sts. 40–41"
+    },
+    {
+      "sourceId": "norse-src-grimnismal",
+      "locator": "st. 35"
+    }
+  ],
+  "seriesNarrative": {
+    "seriesTitle": "北欧创世：世界树与命运",
+    "seriesSummary": "从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。",
+    "chapter": 6,
+    "chapterTitle": "天空开始运行",
+    "sequence": 19,
+    "keyMoment": "追逐与啃噬",
+    "narrative": "秩序建立的同时，毁灭的种子已经存在：天穹有追逐日月的狼，世界树根部也有尼德霍格持续侵蚀。M01因此不以完美创世结束，而以一个稳定却始终承受压力的世界收束，为诸神时代与最终黄昏留下伏线。",
+    "previousCardId": 1003010045,
+    "nextCardId": null
+  },
+  "visualThesis": "优先表现一个统一视觉中心；若天空追逐与根部啃噬无法自然同框，正式出图前拆卡并调整弱场景槽位。",
+  "composition": {
+    "orientation": "portrait",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.36
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.14,
+      "mustRemainVisible": [
+        "single omen focal point",
+        "threat to cosmic order"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "a restrained final omen image showing the newborn world's hidden pressure; choose one coherent focal relationship rather than split-screen collage, no visual overload.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010046, Pursuit and Gnawing / 追逐与啃噬, type story.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: a restrained final omen image showing the newborn world's hidden pressure; choose one coherent focal relationship rather than split-screen collage, no visual overload.\n\nVisual thesis: 优先表现一个统一视觉中心；若天空追逐与根部啃噬无法自然同框，正式出图前拆卡并调整弱场景槽位。\n\nStory chapter: 天空开始运行. Key moment: 追逐与啃噬. Narrative context: 秩序建立的同时，毁灭的种子已经存在：天穹有追逐日月的狼，世界树根部也有尼德霍格持续侵蚀。M01因此不以完美创世结束，而以一个稳定却始终承受压力的世界收束，为诸神时代与最终黄昏留下伏线。\n\nVisual continuity entities: yggdrasil；sol；mani；skoll；hati；nidhoggr.\n\nCanonical image references required for identity/landmark matching: 1003010020；1003010012；1003010013；1003010014；1003010015；1003010016. These references control recurring face, age, silhouette, palette, material, and landmark geometry; they do not control camera or pose.\n\nSource-bound continuity facts: yggdrasil: A vast ash tree.；yggdrasil: It is evergreen.；yggdrasil: It has three great roots extending in three directions.；yggdrasil: Urðr's well and the Norns are associated with the tree.\n\nMythCanvas locked continuity design: yggdrasil: One colossal twisted central trunk remains unified through the lower two thirds and divides only in the upper third into three principal crown leaders.；yggdrasil: A broad asymmetrical umbrella crown uses small deep desaturated evergreen ash leaflets; foliage never becomes white leaves or blossoms.；yggdrasil: Pale dew, frost, or snow may edge the foliage but may not recolor the crown.；yggdrasil: Three massive buttress roots diverge visibly from the same trunk system.；yggdrasil: Bark is charcoal brown with long vertical silver fissures and restrained moss only on water-facing surfaces.；yggdrasil: No luminous blue veins, floating cities, realm bubbles, or labeled nine-world diagram.；sol: Golden-blond active charioteer with the same youthful face, ivory-gold garments, and restrained sun-disc browpiece as card 1003010012.；sol: Never red-haired and never redesigned as a heavily armored fantasy queen.；mani: Silver-haired youthful male with cool gray skin light, charcoal-blue garments, narrow moon ornament, and quiet inward posture.；skoll: Lean ash-gray wolf with long running silhouette and pale amber eyes, always assigned to the sun pursuit.；hati: Heavier charcoal wolf with broad shoulders and cold blue-gray eyes, always assigned to the moon pursuit.；nidhoggr: Long root-clinging dark serpent-dragon with reduced limbs or no visible wings, rough bark-like scales, and a gnawing jaw built for roots.；nidhoggr: Never a winged fire-breathing game dragon.\n\nIdentity anchors: 无额外条目\n\nMust keep: 无额外条目\n\nMust avoid: 无额外条目\n\nComposition: camera clear subject-first camera; shot single readable composition; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nSeries-wide visual grammar: keep matte painterly surfaces；broad readable forms；limited focal sharpness；quiet atmospheric negative space；restrained blue-white frost and ember light；subject detail clearly stronger than background detail; avoid glossy game-CG rendering；hyper-detailed-everything；generic Viking cosplay；floating realm platforms；science-fiction orbit graphics；random glowing runes；multiple competing focal centers.\n\nColor and material guidance: palette 无额外条目; materials 无额外条目; mood 无额外条目.\n\nRelated card IDs for narrative continuity only: 无额外条目. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: typography；logo；card frame；watermark；split-screen collage；visual overload；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "typography",
+      "logo",
+      "card frame",
+      "watermark",
+      "split-screen collage",
+      "visual overload",
+      "glossy game-CG"
+    ],
+    "notes": "Continuity-aware replay prompt composed from the per-card brief plus M01_VISUAL_CONTINUITY.json. The accepted candidate used the same listed canonical image references."
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 2,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010046.png",
+    "notes": "Continuity regeneration completed. Canonical reference card IDs: 1003010014, 1003010015, 1003010016, 1003010020. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010046.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010046.webp",
+    "sha256": "1940e64b3263c7448191fe40fff7a70134f26963ae916f76189f0e42aad03583",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "Sköll now pursues the sun, Hati the moon, and wingless Níðhöggr gnaws the same evergreen Yggdrasil root without fire breath.",
+      "Pure artwork only: no typography, logo, card frame, number, watermark, or UI.",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  }
+}

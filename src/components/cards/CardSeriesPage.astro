@@ -17,6 +17,7 @@ const basePath = `/cards/${series.mythologySlug}/${series.slug}/`;
 const firstStory = series.cards.find((card) => card.type === 'story');
 const storyCards = series.cards.filter((card) => card.type === 'story').toSorted((a, b) => (a.seriesNarrative?.sequence ?? 0) - (b.seriesNarrative?.sequence ?? 0));
 const readyCount = getApprovedCardCount(series.cards);
+const isPublished = series.status === 'published';
 const typeOrder = ['all', 'character', 'scene', 'story', 'mythic-object', 'ensemble'] as const;
 ---
 
@@ -47,7 +48,9 @@ const typeOrder = ['all', 'character', 'scene', 'story', 'mythic-object', 'ensem
             <span>{formatCardNumber(card.cardNumber, series.cardCount)}</span>
           </div>
         ))}
-        <div class="hero-art-note">{isEnglish ? 'A living collection in progress' : '一套正在成形的神话世界'}</div>
+        <div class="hero-art-note">{isPublished
+          ? (isEnglish ? 'The complete M01 collection' : 'M01 完整系列')
+          : (isEnglish ? 'A living collection in progress' : '一套正在成形的神话世界')}</div>
       </div>
     </div>
   </div>
@@ -60,7 +63,9 @@ const typeOrder = ['all', 'character', 'scene', 'story', 'mythic-object', 'ensem
         <span class="eyebrow"><BookOpen size={15} strokeWidth={1.8} aria-hidden="true" /> {isEnglish ? 'Card Atlas' : '卡牌图鉴'}</span>
         <h2 id="browser-title">{isEnglish ? 'Browse the collection' : '浏览整套卡牌'}</h2>
       </div>
-      <p>{isEnglish ? 'Read the planned arc first, then discover each artwork as it is completed.' : '先理解完整叙事，再逐张发现正在完成的视觉作品。'}</p>
+      <p>{isPublished
+        ? (isEnglish ? 'Follow the complete narrative arc, then explore all fifty finished artworks.' : '沿着完整叙事脉络，浏览已经完成的五十张视觉作品。')
+        : (isEnglish ? 'Read the planned arc first, then discover each artwork as it is completed.' : '先理解完整叙事，再逐张发现正在完成的视觉作品。')}</p>
     </div>
 
     <div class="browser-toolbar" data-card-browser>
@@ -82,7 +87,7 @@ const typeOrder = ['all', 'character', 'scene', 'story', 'mythic-object', 'ensem
 
     <div class="card-grid" data-card-grid>
       {series.cards.map((card) => (
-        <div class="card-grid-item" data-card-item data-card-type={card.type} data-card-title={`${card.titleZh} ${card.titleEn}`.toLowerCase()}>
+        <div class="card-grid-item" data-card-item data-card-type={card.type} data-card-orientation={card.orientation} data-card-title={`${card.titleZh} ${card.titleEn}`.toLowerCase()}>
           <MythicCard card={card} locale={locale} hrefBase={localizedPath(locale, basePath)} />
         </div>
       ))}
@@ -209,6 +214,7 @@ const typeOrder = ['all', 'character', 'scene', 'story', 'mythic-object', 'ensem
   .card-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
   .browser-result { min-height: 1.2rem; margin: var(--space-4) 0 var(--space-4); color: var(--text-muted); font-size: .7rem; text-align: right; }
   .card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1.25rem, 2.2vw, 2rem); }
+  .card-grid-item[data-card-orientation='landscape'] { grid-column: span 2; }
   .card-grid-item[hidden] { display: none; }
   .card-empty { padding: var(--space-10); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); text-align: center; color: var(--text-secondary); }
   .card-empty .btn { margin-top: var(--space-4); }
@@ -221,20 +227,5 @@ const typeOrder = ['all', 'character', 'scene', 'story', 'mythic-object', 'ensem
   .story-node strong { color: var(--text-primary); font-size: .78rem; line-height: 1.45; }
   .story-link { display: inline-flex; align-items: center; gap: .45rem; margin-top: var(--space-5); color: var(--accent-strong); font-size: .82rem; font-weight: 700; }
 
-  @media (max-width: 1180px) { .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 900px) {
-    .series-hero-grid { grid-template-columns: 1fr; }
-    .series-hero-art { width: min(470px, 100%); min-height: 390px; margin-inline: auto; }
-    .browser-heading { align-items: start; flex-direction: column; }
-    .browser-toolbar { margin-inline: -20px; padding-inline: 20px; }
-    .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  }
-  @media (max-width: 640px) {
-    .series-hero-copy h1 { font-size: clamp(2.6rem, 14vw, 4.5rem); }
-    .series-hero-art { min-height: 330px; }
-    .browser-toolbar { align-items: stretch; flex-direction: column; }
-    .card-search { flex-basis: auto; width: 100%; }
-    .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-  }
   @media (prefers-reduced-motion: reduce) { .story-node { transition: none; } }
 </style>

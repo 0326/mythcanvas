@@ -1,1 +1,84 @@
-{"schemaVersion":"4.0","cardId":1003010022,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":22,"type":"scene","slug":"urdarbrunnr","titleZh":"乌尔德之泉","titleEn":"Urðarbrunnr","description":"与世界树和诺恩命运秩序相连的泉域。","roleInSeries":"承载命运章节。","storyIds":["story-norns-at-urdarbrunnr"],"sourceRefs":[{"sourceId":"norse-src-voluspa","locator":"st. 20"}],"seriesNarrative":null,"visualThesis":"泉水、树根与安静空间三个大形即可，诺恩只做远景尺度。","composition":{"orientation":"portrait","subjectAnchor":{"x":0.5,"y":0.4},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.14,"mustRemainVisible":["spring","major root","quiet spatial identity"]}},"prompt":{"draft":"Urdarbrunnr beneath Yggdrasil, quiet clear spring and one major root, restrained natural ritual atmosphere, tiny distant figures only if needed.","final":null,"negative":["typography","logo","card frame","watermark","glowing magic pool","crowded ritual props","glossy game-CG"],"notes":"确认出图后写入完整可重放 prompt.final。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":null,"notes":""},"output":{"fileName":"1003010022.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":[]}}
+{
+  "schemaVersion": "4.0",
+  "cardId": 1003010022,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 22,
+  "type": "scene",
+  "slug": "urdarbrunnr",
+  "titleZh": "乌尔德之泉",
+  "titleEn": "Urðarbrunnr",
+  "description": "与世界树和诺恩命运秩序相连的泉域。",
+  "roleInSeries": "承载命运章节。",
+  "storyIds": [
+    "story-norns-at-urdarbrunnr"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-voluspa",
+      "locator": "st. 20"
+    }
+  ],
+  "seriesNarrative": null,
+  "visualThesis": "泉水、树根与安静空间三个大形即可，诺恩只做远景尺度。",
+  "composition": {
+    "orientation": "portrait",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.4
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.14,
+      "mustRemainVisible": [
+        "spring",
+        "major root",
+        "quiet spatial identity"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "Urdarbrunnr beneath Yggdrasil, quiet clear spring and one major root, restrained natural ritual atmosphere, tiny distant figures only if needed.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010022, Urðarbrunnr / 乌尔德之泉, type scene.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: Urdarbrunnr beneath Yggdrasil, quiet clear spring and one major root, restrained natural ritual atmosphere, tiny distant figures only if needed.\n\nVisual thesis: 泉水、树根与安静空间三个大形即可，诺恩只做远景尺度。\n\nIdentity anchors: 无额外条目\n\nMust keep: 无额外条目\n\nMust avoid: 无额外条目\n\nComposition: camera clear subject-first camera; shot single readable composition; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nColor and material guidance: palette 无额外条目; materials 无额外条目; mood 无额外条目.\n\nRelated card IDs for narrative continuity only: 无额外条目. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: typography；logo；card frame；watermark；glowing magic pool；crowded ritual props；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "typography",
+      "logo",
+      "card frame",
+      "watermark",
+      "glowing magic pool",
+      "crowded ritual props",
+      "glossy game-CG"
+    ],
+    "notes": "确认出图后写入完整可重放 prompt.final。"
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 1,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010022.png",
+    "notes": "Built-in image generation output reviewed for scene identity, M01 style family, landmark readability, and crop safety; resized to the normative 1620x2880 canvas. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010022.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010022.webp",
+    "sha256": "986d5552277eaa534ffeedf14d94348449fcd8586c17ebd254a8c91691bb88f7",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "单张竖版纯 Artwork，无文字、卡框或水印",
+      "场景一级地标与水/根/树轴关系清晰",
+      "关键地标位于中上部，底部可作为未来卡框牺牲区",
+      "背景复杂度低于主要场景结构",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  }
+}

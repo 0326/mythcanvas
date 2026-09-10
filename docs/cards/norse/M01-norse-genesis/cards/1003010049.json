@@ -1,1 +1,88 @@
-{"schemaVersion":"4.0","cardId":1003010049,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":49,"type":"ensemble","slug":"norse-genesis","titleZh":"北欧创世","titleEn":"Norse Genesis","description":"冰火相遇与原初生命的系列开篇横版封面。","roleInSeries":"代表世界尚未形成。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–8"}],"seriesNarrative":null,"visualThesis":"尤弥尔是唯一主要角色，冰火两极只做大面积低细节背景。","composition":{"orientation":"landscape","subjectAnchor":{"x":0.5,"y":0.45},"cropSafe":{"sacrificialBottomStart":0.9,"sideCropTolerance":0.12,"mustRemainVisible":["Ymir","ice-fire primordial contrast"]}},"prompt":{"draft":"horizontal series cover, Ymir as the single dominant subject in Ginnungagap, simple cold-vs-warm environmental masses, painterly negative space, no galaxy or debris overload.","final":null,"negative":["typography","logo","card frame","watermark","formed world landscape","galaxy wallpaper","debris overload","glossy game-CG"],"notes":"必须引用1003010001锁定Ymir生前Canon；确认出图后写入完整可重放 prompt.final。"},"references":{"cardIds":[1003010001],"notes":"Ymir必须维持创世前、冰火混沌、世界级巨物体量。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":null,"notes":""},"output":{"fileName":"1003010049.png","width":2880,"height":1620,"format":"png"},"qa":{"status":"planned","reviewNotes":[]}}
+{
+  "schemaVersion": "4.0",
+  "cardId": 1003010049,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 49,
+  "type": "ensemble",
+  "slug": "norse-genesis",
+  "titleZh": "北欧创世",
+  "titleEn": "Norse Genesis",
+  "description": "冰火相遇与原初生命的系列开篇横版封面。",
+  "roleInSeries": "代表世界尚未形成。",
+  "storyIds": [
+    "story-ymir-creation"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-prose-edda-gylfaginning",
+      "locator": "chs. 4–8"
+    }
+  ],
+  "seriesNarrative": null,
+  "visualThesis": "尤弥尔是唯一主要角色，冰火两极只做大面积低细节背景。",
+  "composition": {
+    "orientation": "landscape",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.45
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.9,
+      "sideCropTolerance": 0.12,
+      "mustRemainVisible": [
+        "Ymir",
+        "ice-fire primordial contrast"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "horizontal series cover, Ymir as the single dominant subject in Ginnungagap, simple cold-vs-warm environmental masses, painterly negative space, no galaxy or debris overload.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone landscape 16:9 pure artwork for card 1003010049, Norse Genesis / 北欧创世, type ensemble.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: horizontal series cover, Ymir as the single dominant subject in Ginnungagap, simple cold-vs-warm environmental masses, painterly negative space, no galaxy or debris overload.\n\nVisual thesis: 尤弥尔是唯一主要角色，冰火两极只做大面积低细节背景。\n\nVisual continuity entities: ymir；audumbla；buri.\n\nCanonical image references required for identity/landmark matching: 1003010001；1003010002；1003010003. These references control recurring face, age, silhouette, palette, material, and landmark geometry; they do not control camera or pose.\n\nSource-bound continuity facts: audumbla: Primeval cow whose milk feeds Ymir.；audumbla: She reveals Búri by licking salty rime.；buri: Revealed from salty rime over three days by Auðumbla's licking.；buri: Described as fair in appearance, great, and mighty.\n\nMythCanvas locked continuity design: ymir: Colossal pre-world humanoid with dark frost-stone skin, massive brow and nose, deep-set pale eyes, and long frost-white hair and beard.；ymir: Ancient and elemental rather than a normal Viking warrior; no armor, helmet, weapons, or tailored costume.；ymir: Maintain the same facial bone structure, hairline, beard shape, and relative scale in every appearance.；audumbla: Colossal shaggy pale primeval cow, visibly larger and more ancient than ordinary cattle.；audumbla: Use the same wide sweeping horn silhouette, heavy forehead, dark nose, long winter coat, and monumental shoulder mass.；audumbla: Never substitute a smooth modern dairy cow or reduce her to ordinary livestock scale.；audumbla: Four milk streams must read as four clean mythic rivulets without anatomical grotesqueness.；buri: Handsome, powerful early-god adult in his apparent thirties, not an elderly patriarch.；buri: Pale wheat-blond shoulder-length hair, short neat beard, strong straight nose, clear gray-blue eyes, broad shoulders, and natural warm human skin.；buri: Simple frost-wet pale drapery only; no crown, armor, runes, weapon, or giant traits.；buri: Card 1003010003 is the face, age, hair, beard, and body-proportion reference.\n\nIdentity anchors: 无额外条目\n\nMust keep: 无额外条目\n\nMust avoid: 无额外条目\n\nComposition: camera clear subject-first camera; shot single readable composition; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nSeries-wide visual grammar: keep matte painterly surfaces；broad readable forms；limited focal sharpness；quiet atmospheric negative space；restrained blue-white frost and ember light；subject detail clearly stronger than background detail; avoid glossy game-CG rendering；hyper-detailed-everything；generic Viking cosplay；floating realm platforms；science-fiction orbit graphics；random glowing runes；multiple competing focal centers.\n\nColor and material guidance: palette 无额外条目; materials 无额外条目; mood 无额外条目.\n\nRelated card IDs for narrative continuity only: 1003010001. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: typography；logo；card frame；watermark；formed world landscape；galaxy wallpaper；debris overload；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete landscape 16:9 canvas with no margins. Target final canvas at least 2880x1620 pixels.",
+    "negative": [
+      "typography",
+      "logo",
+      "card frame",
+      "watermark",
+      "formed world landscape",
+      "galaxy wallpaper",
+      "debris overload",
+      "glossy game-CG"
+    ],
+    "notes": "Continuity-aware replay prompt composed from the per-card brief plus M01_VISUAL_CONTINUITY.json. The accepted candidate used the same listed canonical image references."
+  },
+  "references": {
+    "cardIds": [
+      1003010001
+    ],
+    "notes": "Ymir必须维持创世前、冰火混沌、世界级巨物体量。"
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 2,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010049.png",
+    "notes": "Continuity regeneration completed. Canonical reference card IDs: 1003010001, 1003010002, 1003010003. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010049.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010049.webp",
+    "sha256": "61dda96e1baf7f87fdeaaae2fc97168191eaa57890f083d6f968ec6f79d633e9",
+    "width": 2880,
+    "height": 1620,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "Landscape ensemble now preserves Ymir, Auðumbla and young-adult Búri with a clear scale hierarchy and one creation flow.",
+      "Pure artwork only: no typography, logo, card frame, number, watermark, or UI.",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  }
+}

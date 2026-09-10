@@ -69,7 +69,11 @@ const firstSeries = series[0];
               {item.cards.filter((card) => card.hasArtwork).slice(0, 3).map((card, index) => (
                 card.imageUrl && <img class:list={{ 'series-art-main': index === 0, 'series-art-side': index !== 0 }} src={card.imageUrl} alt="" width={card.output.width} height={card.output.height} loading="lazy" decoding="async" />
               ))}
-              <span class="series-status">{item.status === 'in-progress' ? (isEnglish ? 'In progress' : '制作中') : (isEnglish ? 'Planned' : '规划中')}</span>
+              <span class="series-status">{item.status === 'published'
+                ? (isEnglish ? 'Complete' : '已完成')
+                : item.status === 'in-progress'
+                  ? (isEnglish ? 'In progress' : '制作中')
+                  : (isEnglish ? 'Planned' : '规划中')}</span>
             </div>
             <div class="series-tile-copy">
               <div>
@@ -190,19 +194,6 @@ const firstSeries = series[0];
   .series-tile-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: var(--space-4); border-top: 1px solid var(--border); color: var(--text-muted); font-size: .72rem; }
   .series-tile-footer svg { color: var(--accent-strong); transition: transform var(--transition-fast); }
   .series-tile:hover .series-tile-footer svg { transform: translateX(3px); }
-
-  @media (max-width: 900px) {
-    .cards-hero-inner { grid-template-columns: 1fr; min-height: auto; gap: var(--space-8); }
-    .deck-preview { width: min(470px, 100%); min-height: 390px; margin-inline: auto; }
-    .series-grid { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 560px) {
-    .cards-hero-copy h1 { font-size: clamp(2.75rem, 15vw, 4.5rem); }
-    .deck-preview { min-height: 330px; }
-    .series-tile { grid-template-columns: 1fr; }
-    .series-tile-art { min-height: 240px; }
-  }
 
   @media (prefers-reduced-motion: reduce) {
     .deck-preview-card, .series-tile, .series-tile-footer svg { transition: none; }

@@ -1,1 +1,94 @@
-{"schemaVersion":"4.0","cardId":1003010029,"categoryCode":10,"mythologyCode":3,"seriesCode":1,"seriesLabel":"M01","styleCode":0,"styleName":"Primordial Saga","cardNumber":29,"type":"story","slug":"embers-cross-boundary","titleZh":"火星越过边界","titleEn":"Embers Cross the Boundary","description":"穆斯贝尔的热力与火星进入寒冷原初空间。","fullDescription":"与北方寒流相对，南方穆斯贝尔的热力与火星逼近鸿沟。寒冷与火焰在原初间隙相遇，使霜开始融化；世界的第一步因此是一场物质状态的变化。","roleInSeries":"连续Story第2段。","storyIds":["story-ymir-creation"],"sourceRefs":[{"sourceId":"norse-src-prose-edda-gylfaginning","locator":"chs. 4–5"}],"seriesNarrative":{"seriesTitle":"北欧创世：世界树与命运","seriesSummary":"从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。","chapter":1,"chapterTitle":"鸿沟与寒流","sequence":2,"keyMoment":"火星越过边界","narrative":"与北方寒流相对，南方穆斯贝尔的热力与火星逼近鸿沟。寒冷与火焰在原初间隙相遇，使霜开始融化；世界的第一步因此是一场物质状态的变化。","previousCardId":1003010028,"nextCardId":1003010030},"visualThesis":"热与冷的接触点明确，避免火山大片。","composition":{"orientation":"portrait","subjectAnchor":{"x":0.5,"y":0.38},"cropSafe":{"sacrificialBottomStart":0.7,"sideCropTolerance":0.14,"mustRemainVisible":["heat-cold contact point","primordial void"]}},"prompt":{"draft":"embers and warm air crossing into primordial cold mist, one simple meeting boundary, no volcanic spectacle or particle storm.","final":null,"negative":["typography","logo","card frame","watermark","volcano landscape","particle storm","formed world","glossy game-CG"],"notes":"确认出图后写入完整可重放 prompt.final。"},"generation":{"status":"planned","attempt":0,"approvedAt":null,"referenceImageFile":null,"notes":""},"output":{"fileName":"1003010029.png","width":1620,"height":2880,"format":"png"},"qa":{"status":"planned","reviewNotes":[]}}
+{
+  "schemaVersion": "4.0",
+  "cardId": 1003010029,
+  "categoryCode": 10,
+  "mythologyCode": 3,
+  "seriesCode": 1,
+  "seriesLabel": "M01",
+  "styleCode": 0,
+  "styleName": "Primordial Saga",
+  "cardNumber": 29,
+  "type": "story",
+  "slug": "embers-cross-boundary",
+  "titleZh": "火星越过边界",
+  "titleEn": "Embers Cross the Boundary",
+  "description": "穆斯贝尔的热力与火星进入寒冷原初空间。",
+  "fullDescription": "与北方寒流相对，南方穆斯贝尔的热力与火星逼近鸿沟。寒冷与火焰在原初间隙相遇，使霜开始融化；世界的第一步因此是一场物质状态的变化。",
+  "roleInSeries": "连续Story第2段。",
+  "storyIds": [
+    "story-ymir-creation"
+  ],
+  "sourceRefs": [
+    {
+      "sourceId": "norse-src-prose-edda-gylfaginning",
+      "locator": "chs. 4–5"
+    }
+  ],
+  "seriesNarrative": {
+    "seriesTitle": "北欧创世：世界树与命运",
+    "seriesSummary": "从金伦加鸿沟的冰火相遇开始，经原初生命、尤弥尔之躯化世界、人类诞生、世界树与命运，最终以日月运行和毁灭伏线收束。",
+    "chapter": 1,
+    "chapterTitle": "鸿沟与寒流",
+    "sequence": 2,
+    "keyMoment": "火星越过边界",
+    "narrative": "与北方寒流相对，南方穆斯贝尔的热力与火星逼近鸿沟。寒冷与火焰在原初间隙相遇，使霜开始融化；世界的第一步因此是一场物质状态的变化。",
+    "previousCardId": 1003010028,
+    "nextCardId": 1003010030
+  },
+  "visualThesis": "热与冷的接触点明确，避免火山大片。",
+  "composition": {
+    "orientation": "portrait",
+    "subjectAnchor": {
+      "x": 0.5,
+      "y": 0.38
+    },
+    "cropSafe": {
+      "sacrificialBottomStart": 0.7,
+      "sideCropTolerance": 0.14,
+      "mustRemainVisible": [
+        "heat-cold contact point",
+        "primordial void"
+      ]
+    }
+  },
+  "prompt": {
+    "draft": "embers and warm air crossing into primordial cold mist, one simple meeting boundary, no volcanic spectacle or particle storm.",
+    "final": "Use case: stylized-concept.\n\nAsset type: MythCanvas Norse M01 collectible-card source artwork.\n\nCreate ONE standalone portrait 9:16 pure artwork for card 1003010029, Embers Cross the Boundary / 火星越过边界, type story.\n\nThis is an original mythological interpretation, not a copy of a modern franchise design.\n\nThe image must contain no typography, title, logo, card frame, number, watermark, pseudo-runes, UI, collage, split layout, contact sheet, or panels.\n\nContent brief: embers and warm air crossing into primordial cold mist, one simple meeting boundary, no volcanic spectacle or particle storm.\n\nVisual thesis: 热与冷的接触点明确，避免火山大片。\n\nStory chapter: 鸿沟与寒流. Key moment: 火星越过边界. Narrative context: 与北方寒流相对，南方穆斯贝尔的热力与火星逼近鸿沟。寒冷与火焰在原初间隙相遇，使霜开始融化；世界的第一步因此是一场物质状态的变化。\n\nIdentity anchors: 无额外条目\n\nMust keep: 无额外条目\n\nMust avoid: 无额外条目\n\nComposition: camera clear subject-first camera; shot single readable composition; keep the primary subject/action inside the crop-safe upper-middle area.\n\nMatch the established M01 artwork family: painterly mythic realism with matte surfaces, broad readable shapes, controlled cinematic blue-white frost and restrained ember light, atmospheric depth, limited focal sharpness, and restrained brush detail. Subject or key moment must be sharper and more contrasted than the background. Use mythology-first visual storytelling rather than generic AI fantasy. Keep at most one primary environmental motif and one secondary motif; preserve quiet areas and clear visual hierarchy. Compose for future card crop safety: the face, hands, identity symbol, key object, or story action must work in the upper-middle area; the bottom 30 percent may be sacrificed.\n\nColor and material guidance: palette 无额外条目; materials 无额外条目; mood 无额外条目.\n\nRelated card IDs for narrative continuity only: 无额外条目. Preserve their mythic relationship without cloning faces, silhouettes, or poses.\n\nAvoid these failure modes: typography；logo；card frame；watermark；volcano landscape；particle storm；formed world；glossy game-CG; excessive particles, floating debris overload, glossy game-CG, hyper-detailed-everything, random glowing runes, generic Viking cosplay, modern copyrighted adaptation, malformed anatomy, extra limbs, unreadable hands or props.\n\nFill one complete portrait 9:16 canvas with no margins. Target final canvas at least 1620x2880 pixels.",
+    "negative": [
+      "typography",
+      "logo",
+      "card frame",
+      "watermark",
+      "volcano landscape",
+      "particle storm",
+      "formed world",
+      "glossy game-CG"
+    ],
+    "notes": "确认出图后写入完整可重放 prompt.final。"
+  },
+  "generation": {
+    "status": "approved",
+    "attempt": 1,
+    "approvedAt": "2026-09-11",
+    "referenceImageFile": "1003010029.png",
+    "notes": "Built-in image generation output reviewed for the story key moment, character/anatomy safety and no-text card-art constraints; resized to the normative 1620x2880 canvas. User confirmed the complete M01 artwork set on 2026-09-11; approved for publication."
+  },
+  "output": {
+    "fileName": "1003010029.webp",
+    "assetKey": "content/cards/norse/m01-norse-genesis/v1/1003010029.webp",
+    "sha256": "c36bb68f7c5cf57c6e97e71bf6295cb7148258d5212157e8ed4e36bfe91cd06e",
+    "width": 1620,
+    "height": 2880,
+    "format": "webp"
+  },
+  "qa": {
+    "status": "approved",
+    "reviewNotes": [
+      "The hot and cold regions meet in one readable primordial boundary, with no later-world architecture or characters.",
+      "No text, card frame, logo, rune or watermark was requested or observed.",
+      "Story moment, crop safety and M01 visual continuity reviewed; explicit approval remains pending.",
+      "User confirmed the complete M01 artwork set on 2026-09-11; approved for publication.",
+      "Web delivery derivative encoded as WebP at quality 82; the original PNG remains the production master."
+    ]
+  }
+}

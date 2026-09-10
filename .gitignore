@@ -154,6 +154,13 @@ dist
 # Cloudflare R2. Keep local conversion inputs outside the public build.
 content-assets/norse/*
 
+# M01 card artwork bytes are local production/upload inputs. Published card
+# metadata stays in Git; approved WebP derivatives are delivered from R2.
+/docs/cards/norse/M01-norse-genesis/card-back.png
+/docs/cards/norse/M01-norse-genesis/card-back.webp
+/docs/cards/norse/M01-norse-genesis/cards/*.png
+/docs/cards/norse/M01-norse-genesis/cards/*.webp
+
 # vuepress build output
 .vuepress/dist
 

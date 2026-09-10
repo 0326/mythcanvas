@@ -11,6 +11,8 @@ export type CardDescription = {
 
 export type CardOutput = {
   fileName: string;
+  assetKey: string;
+  sha256: string;
   width: number;
   height: number;
   format: 'png' | 'jpg' | 'jpeg' | 'webp';
@@ -77,6 +79,7 @@ export type MythicCard = RawCardRecord & {
   display: CardDisplay;
   imageUrl?: string;
   hasArtwork: boolean;
+  orientation: 'portrait' | 'landscape';
   frameProfileId: 'norse-relic';
 };
 

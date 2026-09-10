@@ -1,0 +1,307 @@
+---
+import { norseM01CardBack } from '../../lib/cards/assets';
+import type { MythicCard as MythicCardData } from '../../lib/cards/types';
+import MythicCard from './MythicCard.astro';
+
+interface Props {
+  card: MythicCardData;
+  locale?: 'zh-Hans' | 'en';
+}
+
+const { card, locale = 'zh-Hans' } = Astro.props;
+const isEnglish = locale === 'en';
+const title = isEnglish ? card.titleEn : card.titleZh;
+const isLandscape = card.orientation === 'landscape';
+const openLabel = isEnglish
+  ? `Flip and center ${title}`
+  : `翻转并居中查看 ${title}`;
+const returnLabel = isEnglish
+  ? `Return ${title} to its original position`
+  : `将 ${title} 翻转回原位`;
+---
+
+<div class:list={['card-showcase', { 'is-landscape': isLandscape }]} data-card-showcase>
+  <div
+    class="card-showcase-slot"
+    data-card-showcase-slot
+    data-open-label={openLabel}
+    data-return-label={returnLabel}
+    role="button"
+    tabindex="0"
+    aria-label={openLabel}
+    aria-expanded="false"
+  >
+    <div class="card-showcase-mover" data-card-showcase-mover>
+      <div class="card-showcase-rotator" data-card-showcase-rotator>
+        <div class="card-showcase-front">
+          <MythicCard card={card} locale={locale} interactive={false} />
+        </div>
+        <div class="card-showcase-back" aria-hidden="true">
+          <img src={norseM01CardBack.src} alt="" width={norseM01CardBack.width} height={norseM01CardBack.height} decoding="async" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const reduceShowcaseMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-card-showcase]').forEach((showcase) => {
+    const slot = showcase.querySelector<HTMLElement>('[data-card-showcase-slot]');
+    const mover = showcase.querySelector<HTMLElement>('[data-card-showcase-mover]');
+    const rotator = showcase.querySelector<HTMLElement>('[data-card-showcase-rotator]');
+    const card = showcase.querySelector<HTMLElement>('.mythic-card');
+
+    if (!slot || !mover || !rotator || !card) return;
+
+    let isExpanded = false;
+    let isAnimating = false;
+    let moveAnimation: Animation | null = null;
+    let rotateAnimation: Animation | null = null;
+
+    const centerTransform = () => {
+      const rect = slot.getBoundingClientRect();
+      const scaleX = (window.innerWidth * .9) / rect.width;
+      const scaleY = (window.innerHeight * .9) / rect.height;
+      const scale = Math.min(scaleX, scaleY, 1.75);
+      const translateX = window.innerWidth / 2 - (rect.left + rect.width / 2);
+      const translateY = window.innerHeight / 2 - (rect.top + rect.height / 2);
+
+      return `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+    };
+
+    const resetCardTilt = () => {
+      card.style.setProperty('--card-rotate-x', '0deg');
+      card.style.setProperty('--card-rotate-y', '0deg');
+      card.style.setProperty('--card-pointer-x', '50%');
+      card.style.setProperty('--card-pointer-y', '50%');
+      card.classList.remove('is-hovered', 'is-focused');
+    };
+
+    const finishAnimations = () => {
+      moveAnimation?.cancel();
+      rotateAnimation?.cancel();
+      moveAnimation = null;
+      rotateAnimation = null;
+    };
+
+    const animateCard = async (
+      moveFrames: Keyframe[],
+      rotateFrames: Keyframe[],
+      duration: number,
+    ) => {
+      if (reduceShowcaseMotion.matches) return;
+
+      finishAnimations();
+      const timing: KeyframeAnimationOptions = {
+        duration,
+        easing: 'cubic-bezier(.2,.72,.18,1)',
+        fill: 'both',
+      };
+      moveAnimation = mover.animate(moveFrames, timing);
+      rotateAnimation = rotator.animate(rotateFrames, timing);
+
+      try {
+        await Promise.all([moveAnimation.finished, rotateAnimation.finished]);
+      } catch {
+        // A replaced animation safely yields to the next state.
+      }
+    };
+
+    const setExpandedState = (expanded: boolean) => {
+      isExpanded = expanded;
+      showcase.classList.toggle('is-active', expanded);
+      slot.setAttribute('aria-expanded', String(expanded));
+      slot.setAttribute('aria-label', expanded
+        ? slot.dataset.returnLabel ?? ''
+        : slot.dataset.openLabel ?? '');
+    };
+
+    const expand = async () => {
+      if (isExpanded || isAnimating) return;
+      isAnimating = true;
+      resetCardTilt();
+      setExpandedState(true);
+
+      const destination = centerTransform();
+      if (reduceShowcaseMotion.matches) {
+        mover.style.transform = destination;
+        rotator.style.transform = 'rotateY(0deg)';
+      } else {
+        await animateCard(
+          [
+            { transform: 'translate3d(0, 0, 0) scale(1)' },
+            { transform: destination },
+          ],
+          [
+            { transform: 'rotateY(0deg)' },
+            { transform: 'rotateY(360deg)' },
+          ],
+          820,
+        );
+        mover.style.transform = destination;
+        rotator.style.transform = 'rotateY(360deg)';
+        finishAnimations();
+      }
+
+      isAnimating = false;
+      slot.focus({ preventScroll: true });
+    };
+
+    const restore = async () => {
+      if (!isExpanded || isAnimating) return;
+      isAnimating = true;
+      resetCardTilt();
+
+      if (!reduceShowcaseMotion.matches) {
+        await animateCard(
+          [
+            { transform: mover.style.transform || centerTransform() },
+            { transform: 'translate3d(0, 0, 0) scale(1)' },
+          ],
+          [
+            { transform: rotator.style.transform || 'rotateY(360deg)' },
+            { transform: 'rotateY(720deg)' },
+          ],
+          680,
+        );
+      }
+
+      mover.style.removeProperty('transform');
+      rotator.style.removeProperty('transform');
+      finishAnimations();
+      setExpandedState(false);
+      isAnimating = false;
+      slot.focus({ preventScroll: true });
+    };
+
+    const toggle = () => {
+      if (isExpanded) void restore();
+      else void expand();
+    };
+
+    slot.addEventListener('click', toggle);
+    slot.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      toggle();
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isExpanded) void restore();
+    });
+
+    const recenter = () => {
+      if (!isExpanded || isAnimating) return;
+      mover.style.transform = centerTransform();
+    };
+
+    window.addEventListener('resize', recenter);
+    window.addEventListener('scroll', recenter, { passive: true });
+  });
+</script>
+
+<style>
+  .card-showcase,
+  .card-showcase-slot,
+  .card-showcase-mover,
+  .card-showcase-rotator {
+    width: 100%;
+  }
+
+  .card-showcase {
+    position: relative;
+  }
+
+  .card-showcase.is-active {
+    z-index: calc(var(--z-overlay) + 1);
+  }
+
+  .card-showcase-slot {
+    position: relative;
+    aspect-ratio: 5 / 7;
+    border-radius: 4.67% / 3.34%;
+    cursor: zoom-in;
+    perspective: 1600px;
+  }
+
+  .card-showcase.is-landscape .card-showcase-slot,
+  .card-showcase.is-landscape .card-showcase-mover {
+    aspect-ratio: 16 / 9;
+    border-radius: 2.67% / 4.75%;
+  }
+
+  .card-showcase.is-active .card-showcase-slot {
+    cursor: zoom-out;
+    pointer-events: none;
+  }
+
+  .card-showcase-slot:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 6px;
+  }
+
+  .card-showcase-mover {
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 5 / 7;
+    border-radius: inherit;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .card-showcase.is-active .card-showcase-mover {
+    z-index: calc(var(--z-overlay) + 2);
+    pointer-events: auto;
+  }
+
+  .card-showcase-rotator {
+    position: relative;
+    height: 100%;
+    border-radius: inherit;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .card-showcase-front,
+  .card-showcase-back {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+  }
+
+  .card-showcase-front {
+    transform: translateZ(1px);
+  }
+
+  .card-showcase-front :global(.mythic-card) {
+    width: 100%;
+  }
+
+  .card-showcase-back {
+    background: #061b2a;
+    transform: rotateY(180deg) translateZ(1px);
+  }
+
+  .card-showcase-back img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-showcase-mover,
+    .card-showcase-rotator {
+      will-change: auto;
+    }
+  }
+</style>

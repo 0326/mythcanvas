@@ -24,7 +24,9 @@ export function validateCardSeries(series: CardSeries): CardCatalogIssue[] {
       + card.cardNumber;
 
     if (card.cardId !== expectedId) issues.push({ cardId: card.cardId, field: 'cardId', message: `Card ID does not match its encoded fields; expected ${expectedId}.` });
-    if (card.output.fileName !== `${card.cardId}.png`) issues.push({ cardId: card.cardId, field: 'output.fileName', message: 'Output filename must use the Card ID.' });
+    if (card.output.fileName !== `${card.cardId}.${card.output.format}`) issues.push({ cardId: card.cardId, field: 'output.fileName', message: 'Output filename must use the Card ID and declared format.' });
+    if (!card.output.assetKey.endsWith(`/${card.output.fileName}`) || card.output.assetKey.startsWith('/') || card.output.assetKey.includes('..')) issues.push({ cardId: card.cardId, field: 'output.assetKey', message: 'R2 asset key must be relative, traversal-safe, and end with the delivery filename.' });
+    if (!/^[a-f0-9]{64}$/.test(card.output.sha256)) issues.push({ cardId: card.cardId, field: 'output.sha256', message: 'Delivery assets must include a lowercase SHA-256 digest.' });
     if (!card.display.short || !card.display.full || !card.display.identity) issues.push({ cardId: card.cardId, field: 'display', message: 'Card display copy is incomplete.' });
     if (card.type === 'story' && !card.seriesNarrative) issues.push({ cardId: card.cardId, field: 'seriesNarrative', message: 'Story cards need a readable narrative record.' });
     if (card.type !== 'story' && card.seriesNarrative !== null && card.seriesNarrative !== undefined) issues.push({ cardId: card.cardId, field: 'seriesNarrative', message: 'Only Story cards may have seriesNarrative.' });

@@ -1,0 +1,227 @@
+{
+  "schemaVersion": "1.0",
+  "seriesCode": "M01",
+  "title": "Norse Genesis Visual Continuity Bible",
+  "principles": [
+    "Source-bound facts and MythCanvas design locks are recorded separately.",
+    "A recurring character or landmark must reuse the same face, age, silhouette, palette, materials, and signature geometry unless the story explicitly changes it.",
+    "Narrative cards may change camera, action, weather, and lighting, but may not redesign a recurring entity.",
+    "Every generation prompt must name the relevant canonical card image as an identity or landmark reference; related-card IDs alone are not sufficient.",
+    "M01 uses matte painterly mythic realism, broad readable shapes, restrained detail, and one dominant visual thesis rather than glossy game-CG spectacle."
+  ],
+  "sources": [
+    {
+      "id": "gylfaginning-6",
+      "url": "https://northerntales.se/en/eddas/prose-edda/gylfaginning/6/",
+      "supports": [
+        "Auðumbla licks salty rime and reveals Búri over three days.",
+        "Búri is fair in appearance, great, and mighty."
+      ]
+    },
+    {
+      "id": "voluspa-19-20",
+      "url": "https://wevikings.com/library/poetry/voluspa/eidur-eythorsson/",
+      "supports": [
+        "Yggdrasil is a tall ash that stands evergreen over Urðr's well.",
+        "The three Norns come from the water beneath the tree and shape fate."
+      ]
+    },
+    {
+      "id": "grimnismal-31",
+      "url": "https://www.germanicmythology.com/PoeticEdda/GRM31.html",
+      "supports": [
+        "Three roots extend in three directions beneath Yggdrasil.",
+        "Root-destination wording varies across witnesses and translations."
+      ]
+    }
+  ],
+  "seriesStyle": {
+    "keep": [
+      "matte painterly surfaces",
+      "broad readable forms",
+      "limited focal sharpness",
+      "quiet atmospheric negative space",
+      "restrained blue-white frost and ember light",
+      "subject detail clearly stronger than background detail"
+    ],
+    "avoid": [
+      "glossy game-CG rendering",
+      "hyper-detailed-everything",
+      "generic Viking cosplay",
+      "floating realm platforms",
+      "science-fiction orbit graphics",
+      "random glowing runes",
+      "multiple competing focal centers"
+    ]
+  },
+  "entities": {
+    "yggdrasil": {
+      "kind": "landmark",
+      "canonicalCardId": 1003010020,
+      "appearsOnCardIds": [1003010020, 1003010021, 1003010022, 1003010023, 1003010024, 1003010042, 1003010043, 1003010044, 1003010046, 1003010050],
+      "sourceBoundFacts": [
+        "A vast ash tree.",
+        "It is evergreen.",
+        "It has three great roots extending in three directions.",
+        "Urðr's well and the Norns are associated with the tree."
+      ],
+      "designLocks": [
+        "One colossal twisted central trunk remains unified through the lower two thirds and divides only in the upper third into three principal crown leaders.",
+        "A broad asymmetrical umbrella crown uses small deep desaturated evergreen ash leaflets; foliage never becomes white leaves or blossoms.",
+        "Pale dew, frost, or snow may edge the foliage but may not recolor the crown.",
+        "Three massive buttress roots diverge visibly from the same trunk system.",
+        "Bark is charcoal brown with long vertical silver fissures and restrained moss only on water-facing surfaces.",
+        "No luminous blue veins, floating cities, realm bubbles, or labeled nine-world diagram."
+      ]
+    },
+    "ymir": {
+      "kind": "character",
+      "canonicalCardId": 1003010001,
+      "appearsOnCardIds": [1003010001, 1003010030, 1003010032, 1003010034, 1003010035, 1003010036, 1003010037, 1003010038, 1003010039, 1003010049],
+      "designLocks": [
+        "Colossal pre-world humanoid with dark frost-stone skin, massive brow and nose, deep-set pale eyes, and long frost-white hair and beard.",
+        "Ancient and elemental rather than a normal Viking warrior; no armor, helmet, weapons, or tailored costume.",
+        "Maintain the same facial bone structure, hairline, beard shape, and relative scale in every appearance."
+      ]
+    },
+    "audumbla": {
+      "kind": "character",
+      "canonicalCardId": 1003010002,
+      "appearsOnCardIds": [1003010002, 1003010031, 1003010032, 1003010033, 1003010049],
+      "sourceBoundFacts": [
+        "Primeval cow whose milk feeds Ymir.",
+        "She reveals Búri by licking salty rime."
+      ],
+      "designLocks": [
+        "Colossal shaggy pale primeval cow, visibly larger and more ancient than ordinary cattle.",
+        "Use the same wide sweeping horn silhouette, heavy forehead, dark nose, long winter coat, and monumental shoulder mass.",
+        "Never substitute a smooth modern dairy cow or reduce her to ordinary livestock scale.",
+        "Four milk streams must read as four clean mythic rivulets without anatomical grotesqueness."
+      ]
+    },
+    "buri": {
+      "kind": "character",
+      "canonicalCardId": 1003010003,
+      "appearsOnCardIds": [1003010003, 1003010033, 1003010049],
+      "sourceBoundFacts": [
+        "Revealed from salty rime over three days by Auðumbla's licking.",
+        "Described as fair in appearance, great, and mighty."
+      ],
+      "designLocks": [
+        "Handsome, powerful early-god adult in his apparent thirties, not an elderly patriarch.",
+        "Pale wheat-blond shoulder-length hair, short neat beard, strong straight nose, clear gray-blue eyes, broad shoulders, and natural warm human skin.",
+        "Simple frost-wet pale drapery only; no crown, armor, runes, weapon, or giant traits.",
+        "Card 1003010003 is the face, age, hair, beard, and body-proportion reference."
+      ]
+    },
+    "odin-creator": {
+      "kind": "character",
+      "canonicalCardId": 1003010004,
+      "appearsOnCardIds": [1003010004, 1003010034, 1003010035, 1003010039, 1003010040, 1003010041],
+      "designLocks": [
+        "Mature dual-eyed creator with dark brown braided hair and beard, charcoal fur cloak, and calm commanding posture.",
+        "No missing eye, ravens, Gungnir-like spear, throne, Valhalla imagery, or rune-mastery attributes in this early timeline."
+      ]
+    },
+    "vili": {
+      "kind": "character",
+      "canonicalCardId": 1003010005,
+      "appearsOnCardIds": [1003010005, 1003010034, 1003010035, 1003010039, 1003010040, 1003010041],
+      "designLocks": [
+        "Youthful athletic adult with wheat-blond shoulder-length hair, clean face or minimal stubble, light slate wrap, and active forward motion."
+      ]
+    },
+    "ve": {
+      "kind": "character",
+      "canonicalCardId": 1003010006,
+      "appearsOnCardIds": [1003010006, 1003010034, 1003010035, 1003010039, 1003010040, 1003010041],
+      "designLocks": [
+        "Compact steady adult with dark hair tied back in a short topknot, restrained beard or clean jaw, dark gray cloak, and grounded ritual posture."
+      ]
+    },
+    "ask": {
+      "kind": "character",
+      "canonicalCardId": 1003010007,
+      "appearsOnCardIds": [1003010007, 1003010040, 1003010041],
+      "designLocks": [
+        "Youthful dark wavy-haired man with a clean jaw or very light stubble and simple undyed natural wrap.",
+        "Always human after awakening; never a bark-skinned tree person."
+      ]
+    },
+    "embla": {
+      "kind": "character",
+      "canonicalCardId": 1003010008,
+      "appearsOnCardIds": [1003010008, 1003010040, 1003010041],
+      "designLocks": [
+        "Youthful brunette woman with the same oval face, dark brows, loose textured hair, and simple undyed natural wrap as card 1003010008.",
+        "Always human after awakening; never red-haired or a bark-skinned tree person."
+      ]
+    },
+    "urd": {
+      "kind": "character",
+      "canonicalCardId": 1003010009,
+      "appearsOnCardIds": [1003010009, 1003010044, 1003010050],
+      "designLocks": [
+        "Young adult with pale-blond braided hair, dark green and weathered ivory garments, calm retrospective bearing; not an elderly crone."
+      ]
+    },
+    "verdandi": {
+      "kind": "character",
+      "canonicalCardId": 1003010010,
+      "appearsOnCardIds": [1003010010, 1003010044, 1003010050],
+      "designLocks": [
+        "Young adult with warm light-brown wavy hair, pale gray-green garments, fluid present-tense gesture, and open attentive expression."
+      ]
+    },
+    "skuld": {
+      "kind": "character",
+      "canonicalCardId": 1003010011,
+      "appearsOnCardIds": [1003010011, 1003010044, 1003010050],
+      "designLocks": [
+        "Young adult with dark hair, charcoal garments, alert forward-looking expression, and the sharpest silhouette of the three Norns."
+      ]
+    },
+    "sol": {
+      "kind": "character",
+      "canonicalCardId": 1003010012,
+      "appearsOnCardIds": [1003010012, 1003010026, 1003010045, 1003010046, 1003010047, 1003010050],
+      "designLocks": [
+        "Golden-blond active charioteer with the same youthful face, ivory-gold garments, and restrained sun-disc browpiece as card 1003010012.",
+        "Never red-haired and never redesigned as a heavily armored fantasy queen."
+      ]
+    },
+    "mani": {
+      "kind": "character",
+      "canonicalCardId": 1003010013,
+      "appearsOnCardIds": [1003010013, 1003010026, 1003010045, 1003010046, 1003010050],
+      "designLocks": [
+        "Silver-haired youthful male with cool gray skin light, charcoal-blue garments, narrow moon ornament, and quiet inward posture."
+      ]
+    },
+    "skoll": {
+      "kind": "character",
+      "canonicalCardId": 1003010014,
+      "appearsOnCardIds": [1003010014, 1003010046, 1003010050],
+      "designLocks": [
+        "Lean ash-gray wolf with long running silhouette and pale amber eyes, always assigned to the sun pursuit."
+      ]
+    },
+    "hati": {
+      "kind": "character",
+      "canonicalCardId": 1003010015,
+      "appearsOnCardIds": [1003010015, 1003010046, 1003010050],
+      "designLocks": [
+        "Heavier charcoal wolf with broad shoulders and cold blue-gray eyes, always assigned to the moon pursuit."
+      ]
+    },
+    "nidhoggr": {
+      "kind": "character",
+      "canonicalCardId": 1003010016,
+      "appearsOnCardIds": [1003010016, 1003010024, 1003010046, 1003010050],
+      "designLocks": [
+        "Long root-clinging dark serpent-dragon with reduced limbs or no visible wings, rough bark-like scales, and a gnawing jaw built for roots.",
+        "Never a winged fire-breathing game dragon."
+      ]
+    }
+  }
+}
