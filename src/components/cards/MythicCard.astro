@@ -291,12 +291,21 @@ const foil = foilByType[card.type];
     filter: saturate(.88) contrast(1.06);
   }
 
-  /* Cover cards keep the same vertical physical card template. Their
-   * landscape source artwork stays horizontal and fully visible inside it. */
+  /* Cover cards keep the same vertical physical card template. Rotate their
+   * landscape source artwork inside the face, then scale it to cover the
+   * complete card so the artwork does not collapse into a top strip. */
   .mythic-card.is-landscape .card-art img:not(.card-back-image) {
-    object-fit: contain;
-    object-position: top center;
-    background: #0b151e;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 177.78%;
+    height: auto;
+    max-width: none;
+    object-fit: initial;
+    object-position: center;
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center;
+    background: transparent;
   }
 
   .card-art img.card-back-image {
